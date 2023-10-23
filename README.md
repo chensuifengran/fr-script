@@ -1,16 +1,12 @@
-# Tauri + Vue 3 + TypeScript
+# 风染脚本-Tauri重构版
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+本项目基于另一个仓库[csfr_script-client](https://gitee.com/chensuifengran/csfr_script-client)进行重构。
 
-## Recommended IDE Setup
+## 介绍
+本项目用于制作和运行PC端以及安卓模拟器的自动化脚本，以减轻用户在高重复性操作场景的负担，例如：数据自动录入脚本、游戏日常任务的自动化脚本等。
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+除此之外，内置的api还提供了独立调用测试的窗口，该窗口能够查询API文档以及调用测试，测试调用中填写的参数在调用完成后会自动生成调用示例，可以直接复制到脚本中使用，脚本使用TypeScript编写，并提供了内置API的类型声明。
 
-## Type Support For `.vue` Imports in TS
+图像模板匹配使用c++平台的opencv库，OCR识别使用的是基于百度飞桨开源的PaddlePaddleOCR c++部署。以上基于c++平台的均生成动态链接库由Rust调用并提供给前端使用。
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
-
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
-
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+模拟器的模拟操作基于ADB，PC端的模拟操作基于Rust以及C++的Windows API。
