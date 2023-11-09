@@ -17,6 +17,7 @@ onMounted(() => {
 });
 const greetMsg = ref("");
 const mouseTarget = reactive({ x: 0, y: 0 });
+const wh = reactive({ w: 0, h: 0 });
 
 const moveTo = async () => {
   greetMsg.value = await invoke("mouse_move_to", {
@@ -83,23 +84,70 @@ const keyDown = async () => {
     greetMsg.value = JSON.stringify(msg);
   }
 };
+
+const getScreenSize = async () => {
+  console.time("get_screen_size");
+  greetMsg.value = await invoke("get_screen_size");
+  console.timeEnd("get_screen_size");
+};
+
+const getScreenZoom = async () => {
+  console.time("get_screen_zoom");
+  greetMsg.value = await invoke("get_screen_zoom");
+  console.timeEnd("get_screen_zoom");
+};
+
+const screenshot = async () => {
+  console.time("screenshot");
+  console.log({
+    path: anyValue.value,
+    x: +mouseTarget.x,
+    y: +mouseTarget.y,
+    w: +wh.w,
+    h: +wh.h,
+  });
+
+  greetMsg.value = await invoke("screenshot", {
+    path: anyValue.value,
+    x: +mouseTarget.x,
+    y: +mouseTarget.y,
+    w: +wh.w,
+    h: +wh.h,
+  });
+  console.timeEnd("screenshot");
+};
+
+const getScreenRectInfo = async () => {
+  console.time("get_screen_rect_info");
+  greetMsg.value = await invoke("get_screen_rect_info");
+  console.timeEnd("get_screen_rect_info");
+};
 </script>
 
 <template>
   <div class="test">
     <div>position: {{ pos.x }} ,{{ pos.y }}</div>
+    <p>{{ greetMsg }}</p>
     <el-input v-model="anyValue" placeholder="anyValue" />
     <el-input v-model="mouseTarget.x" placeholder="x" />
     <el-input v-model="mouseTarget.y" placeholder="y" />
-
-    <el-button @click="moveTo">moveTo</el-button
-    ><el-button @click="moveClick">moveClick</el-button>
-    <el-button @click="testInputText">testInputText</el-button>
-    <el-button @click="testInputKey">testInputKey</el-button>
-    <el-button @click="keyUp">keyUp</el-button>
-    <el-button @click="keyDown">keyDown</el-button>
-    <p>{{ greetMsg }}</p>
-    <el-button @click="toggleDark()">toggleDark:{{ isDark }}</el-button>
+    <el-input v-model="wh.w" placeholder="w" />
+    <el-input v-model="wh.h" placeholder="h" />
+    <el-button-group>
+      <el-button @click="moveTo">moveTo</el-button
+      ><el-button @click="moveClick">moveClick</el-button>
+      <el-button @click="testInputText">testInputText</el-button>
+      <el-button @click="testInputKey">testInputKey</el-button>
+      <el-button @click="keyUp">keyUp</el-button>
+      <el-button @click="keyDown">keyDown</el-button>
+    </el-button-group>
+    <el-button-group>
+      <el-button @click="getScreenSize">getScreenSize</el-button>
+      <el-button @click="screenshot">screenshot</el-button>
+      <el-button @click="getScreenZoom">getScreenZoom</el-button>
+      <el-button @click="getScreenRectInfo">getScreenRectInfo</el-button>
+      <el-button @click="toggleDark()">toggleDark:{{ isDark }}</el-button>
+    </el-button-group>
   </div>
 </template>
 
