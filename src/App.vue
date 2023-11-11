@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="app">
@@ -15,5 +14,6 @@
   width: 100%;
   height: 100%;
   flex-direction: column;
+  overflow: scroll;
 }
 </style>
