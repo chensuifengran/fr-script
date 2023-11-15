@@ -8,6 +8,9 @@ const pos = reactive({
 });
 
 onMounted(() => {
+  (invoke("init") as Promise<boolean>).then((res: boolean) => {
+    console.log("初始化", res);
+  });
   setInterval(async () => {
     const position = (await invoke("mouse_get_pos")) as any;
     const { x, y } = JSON.parse(position).message;
@@ -82,6 +85,14 @@ const matchTemplate = async () => {
 };
 const getImgRectInfo = async () => {
   console.time("get_img_rect_info");
+  if (anyValue.value.trim() === "") {
+    const msg = {
+      code: 500,
+      message: "error:imgPath不能为空",
+    };
+    greetMsg.value = JSON.stringify(msg);
+    return;
+  }
   greetMsg.value = await invoke("get_img_rect_info", {
     imgPath: anyValue.value,
   });
@@ -215,6 +226,14 @@ const screenDiffTemplates = async () => {
 
   console.timeEnd("screen_diff_templates");
 };
+
+const ocr = async () => {
+  console.time("ocr");
+  greetMsg.value = await invoke("ocr", {
+    imgPath: "E:\\t3.png",
+  });
+  console.timeEnd("ocr");
+};
 </script>
 
 <template>
@@ -249,6 +268,7 @@ const screenDiffTemplates = async () => {
       <el-button @click="getImgRectInfo">getImgRectInfo</el-button>
       <el-button @click="mouseWheel">mouseWheel</el-button>
       <el-button @click="moveRelative">moveRelative</el-button>
+      <el-button @click="ocr">ocr</el-button>
     </el-button-group>
     <el-input v-model="anyValue" placeholder="anyValue" />
     <el-input v-model="mouseTarget.x" placeholder="x" />

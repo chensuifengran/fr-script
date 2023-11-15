@@ -1,6 +1,6 @@
-use crate::{c_api::util::Util, types::generate_result};
+use crate::{c_api::{util::Util, ppocr::PPOCR}, types::generate_result};
 
-use super::constant::{ERROR_COORDINATE, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
+use super::constant::{ERROR_COORDINATE, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT, ERROR_OCR_RESULT};
 
 /// 裁剪图片
 ///
@@ -144,5 +144,31 @@ pub async fn get_img_size(path: &str) -> Result<String, ()> {
     let res: String = util
         .get_image_size(path)
         .unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
+    Ok(res)
+}
+
+/// ocr整图识别
+/// 
+/// 参数:
+/// 
+/// * `img_path`: `img_path` 参数表示图片路径。
+/// 
+/// 返回:
+/// 
+/// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
+/// 
+/// 返回值解释：
+/// 返回一个JSON对象字符串，包含code和result两个字段，
+///
+///     code为识别状态1为成功，其它为失败，
+///     result为识别结果，
+/// 	    成功时为对象数组，对象中包含识别到的文字及其位置信息，
+/// 	    失败时为字符串，包含错误信息
+#[tauri::command]
+pub async fn ocr(img_path: &str) -> Result<String, ()> {
+    let ppocr: PPOCR = PPOCR::new();
+    let res: String = ppocr
+        .ocr(img_path)
+        .unwrap_or(format!("{}", ERROR_OCR_RESULT));
     Ok(res)
 }

@@ -1,8 +1,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{input, mouse, screen, tools, image};
-
+use fr_script::export_api::{image, input, mouse, screen, tools, init};
+use tauri::Manager;
 fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             mouse::mouse_move_to,
             mouse::mouse_move_relative,
@@ -26,9 +34,11 @@ fn main() {
             image::get_similarity_value,
             image::match_template,
             image::get_img_rect_info,
+            image::ocr,
             tools::move_window,
             tools::resize_window,
             tools::move_resize_window,
+            init::init
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -10,3 +10,5 @@ pub mod tools;
 pub mod constant;
 //图片相关API
 pub mod image;
+//初始化相关API
+pub mod init;
