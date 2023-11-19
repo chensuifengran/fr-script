@@ -1,5 +1,5 @@
 use crate::{c_api::util::Util, types::generate_result};
-
+use std::fs;
 /// 移动窗口位置
 ///
 /// 参数:
@@ -92,4 +92,48 @@ pub async fn move_resize_window(
         _ => "成功将窗口大小调整为指定大小并移动到了目标位置".to_string(),
     };
     Ok(generate_result(format!("{}", msg), code))
+}
+
+/// 测试盘符是否可用
+/// 
+/// 参数:
+/// 
+/// * `drive`: 盘符，例如：D
+/// 
+/// 返回:
+/// 
+/// {bool} 是否可用
+pub fn test_drive(drive: &char) -> bool {
+    match fs::File::create(format!("{}:\\__test_out__.png",drive)) {
+        Ok(_) => {
+            match fs::remove_file(format!("{}:\\__test_out__.png",drive)) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        },
+        Err(_) => false,
+    }
+}
+
+/// 从D到J枚举一个可用的盘符，类型为char
+/// 
+/// 返回：
+/// 
+/// Result<char,()>
+pub fn auto_select_drive() -> Result<char,()>{
+    let drive_enum = ['D', 'E', 'F', 'G', 'H', 'I', 'J'];
+    let mut res = ' ';
+    for i in 0..=6 {
+        let c = drive_enum[i];
+        if test_drive(&c) {
+            res = c;
+            break;
+        }
+    }
+    if res != ' ' {
+        Ok(res)
+    } else {
+        println!("从D-J无可用盘符");
+        Err(())
+    }
 }

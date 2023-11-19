@@ -2,7 +2,7 @@ use libloading::Library;
 // use std::env;
 use std::ffi::{c_char, CStr, CString};
 
-use crate::global::GPU_MEM;
+use crate::global::{GPU_MEM, TEMP_DRIVE};
 pub struct PPOCR {
     lib: Library,
 }
@@ -148,7 +148,6 @@ impl PPOCR {
     /// * `y` - 截取起点y坐标
     /// * `width` - 截取宽度
     /// * `height` - 截取高度
-    /// * `drive` - 临时截图保存盘符 例如：D
     ///
     /// 返回：
     ///
@@ -164,18 +163,17 @@ impl PPOCR {
         y: i32,
         width: i32,
         height: i32,
-        drive: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, i32) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
             > = self
                 .lib
                 .get(b"screenOcr")
                 .expect("dll中未发现screenOcr方法");
-            let drive_c = CString::new(drive).expect("CString类型转换失败");
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result_c: *const c_char =
-                (*screen_ocr)(x, y, width, height, drive_c.as_ptr(), GPU_MEM);
+                (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
             Ok(str_slice.to_owned())
@@ -199,7 +197,6 @@ impl PPOCR {
     /// * `y` - 截取起点y坐标
     /// * `width` - 截取宽度
     /// * `height` - 截取高度
-    /// * `drive` - 临时截图保存盘符 例如：D
     ///
     /// 返回：
     ///
@@ -215,35 +212,23 @@ impl PPOCR {
         y: i32,
         width: i32,
         height: i32,
-        drive: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr_only_texts: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, i32) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
             > = self
                 .lib
                 .get(b"screenOcrOnlyTexts")
                 .expect("dll中未发现screenOcrOnlyTexts方法");
-            let drive_c = CString::new(drive).expect("CString类型转换失败");
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result_c: *const c_char =
-                (*screen_ocr_only_texts)(x, y, width, height, drive_c.as_ptr(), GPU_MEM);
+                (*screen_ocr_only_texts)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
             Ok(str_slice.to_owned())
         }
     }
 
-    /*识别屏幕指定位置是否存在指定文字
-            __declspec(dllexport) int screenOcrFindTexts(int x, int y, int width, int height, const char* includesTexts, const char* drive, int gpu_mem);
-    @param {int} x 截取起点x坐标
-    @param {int} y 截取起点y坐标
-    @param {int} width 截取宽度
-    @param {int} height 截取高度
-    @param {const char*} includesTexts 需要识别的文字，多个文字用英文竖线(|)隔开
-    @param {const char*} drive 临时截图保存盘符 例如：D
-    @param {int} gou_mem GPU内存占用大小，单位MB 0为使用CPU推理
-    @return {int} 0：不包含指定文字，1：包含指定文字，-1：识别出错, -2: 图片读取失败
-    */
     /// 识别屏幕指定位置是否存在指定文字
     ///
     /// 示例：
@@ -262,7 +247,6 @@ impl PPOCR {
     /// * `width` - 截取宽度
     /// * `height` - 截取高度
     /// * `includes_texts` - 需要识别的文字，多个文字用英文竖线(|)隔开
-    /// * `drive` - 临时截图保存盘符 例如：D
     ///
     /// 返回：
     ///
@@ -274,24 +258,23 @@ impl PPOCR {
         width: i32,
         height: i32,
         includes_texts: &str,
-        drive: &str,
     ) -> Result<i32, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr_find_texts: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, *const c_char, i32) -> i32,
+                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, c_char, i32) -> i32,
             > = self
                 .lib
                 .get(b"screenOcrFindTexts")
                 .expect("dll中未发现screenOcrFindTexts方法");
             let includes_texts_c = CString::new(includes_texts).expect("CString类型转换失败");
-            let drive_c = CString::new(drive).expect("CString类型转换失败");
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result: i32 = (*screen_ocr_find_texts)(
                 x,
                 y,
                 width,
                 height,
                 includes_texts_c.as_ptr(),
-                drive_c.as_ptr(),
+                c_temp_drive,
                 GPU_MEM,
             );
             Ok(result)

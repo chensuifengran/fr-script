@@ -35,6 +35,8 @@ fn main() {
             image::match_template,
             image::get_img_rect_info,
             image::ocr,
+            image::screen_ocr,
+            image::screen_ocr_contains,
             tools::move_window,
             tools::resize_window,
             tools::move_resize_window,

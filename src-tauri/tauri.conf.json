@@ -12,11 +12,7 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
+      "all": true
     },
     "bundle": {
       "active": true,
@@ -37,7 +33,9 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "fr-scrip",
+        "decorations": false,
+        "title": "风染脚本",
+        "transparent": true,
         "width": 800,
         "height": 600
       }

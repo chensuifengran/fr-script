@@ -1,6 +1,9 @@
-use crate::{c_api::{util::Util, ppocr::PPOCR}, types::generate_result};
+use crate::{
+    c_api::{ppocr::PPOCR, util::Util},
+    types::generate_result,
+};
 
-use super::constant::{ERROR_COORDINATE, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT, ERROR_OCR_RESULT};
+use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 
 /// 裁剪图片
 ///
@@ -128,15 +131,15 @@ pub async fn get_similarity_value(
 }
 
 /// 获取图片宽高
-/// 
+///
 /// 参数:
-/// 
+///
 /// * `path`: `path` 参数表示图片路径。
-/// 
+///
 /// 返回:
-/// 
+///
 /// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
-/// 
+///
 /// 返回示例："{\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_img_size(path: &str) -> Result<String, ()> {
@@ -147,16 +150,20 @@ pub async fn get_img_size(path: &str) -> Result<String, ()> {
     Ok(res)
 }
 
-/// ocr整图识别
-/// 
+/// ocr识别
+///
 /// 参数:
-/// 
-/// * `img_path`: `img_path` 参数表示图片路径。
-/// 
+///
+/// * `img_path`: 图片路径。
+/// * `x`: 未传或者-1表示整图识别
+/// * `y`: 未传或者-1表示整图识别
+/// * `width`: 未传或者-1表示整图识别
+/// * `height`: 未传或者-1表示整图识别
+///
 /// 返回:
-/// 
+///
 /// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
-/// 
+///
 /// 返回值解释：
 /// 返回一个JSON对象字符串，包含code和result两个字段，
 ///
@@ -165,10 +172,148 @@ pub async fn get_img_size(path: &str) -> Result<String, ()> {
 /// 	    成功时为对象数组，对象中包含识别到的文字及其位置信息，
 /// 	    失败时为字符串，包含错误信息
 #[tauri::command]
-pub async fn ocr(img_path: &str) -> Result<String, ()> {
+pub async fn ocr(
+    img_path: &str,
+    x: Option<i32>,
+    y: Option<i32>,
+    width: Option<i32>,
+    height: Option<i32>,
+) -> Result<String, ()> {
     let ppocr: PPOCR = PPOCR::new();
-    let res: String = ppocr
-        .ocr(img_path)
-        .unwrap_or(format!("{}", ERROR_OCR_RESULT));
-    Ok(res)
+    let x: i32 = match x {
+        Some(x) => x,
+        None => -1,
+    };
+    let y: i32 = match y {
+        Some(y) => y,
+        None => -1,
+    };
+    let width: i32 = match width {
+        Some(width) => width,
+        None => -1,
+    };
+    let height: i32 = match height {
+        Some(height) => height,
+        None => -1,
+    };
+    if x == -1 || y == -1 || width == -1 || height == -1 {
+        let res: String = ppocr
+            .ocr(img_path)
+            .unwrap_or(format!("{}", ERROR_OCR_RESULT));
+        Ok(res)
+    } else {
+        let res: String = ppocr
+            .ocr_rect(img_path, x, y, width, height)
+            .unwrap_or(format!("{}", ERROR_OCR_RESULT));
+        Ok(res)
+    }
+}
+
+/// 识别屏幕指定范围的文字信息
+///
+/// 参数
+///
+/// * `x` - 截取起点x坐标,不传或者为-1表示全屏识别
+/// * `y` - 截取起点y坐标,不传或者为-1表示全屏识别
+/// * `width` - 截取宽度,不传或者为-1表示全屏识别
+/// * `height` - 截取高度,不传或者为-1表示全屏识别
+/// * `only_text` - 是否只返回文字信息,不传为false
+///
+/// 返回：
+///
+/// 返回一个JSON对象字符串，包含code和result两个字段，
+/// code为识别状态1为成功，其它为失败，
+///
+/// result为识别结果，
+///   `only_text=false`成功时为对象数组，对象中包含识别到的文字及其位置信息，
+///   `only_text=true` 成功时为字符串数组，包含识别到的文字，
+///   失败时为字符串，包含错误信息
+#[tauri::command]
+pub async fn screen_ocr(
+    x: Option<i32>,
+    y: Option<i32>,
+    width: Option<i32>,
+    height: Option<i32>,
+    only_text: Option<bool>,
+) -> Result<String, ()> {
+    let ppocr: PPOCR = PPOCR::new();
+    let x: i32 = match x {
+        Some(x) => x,
+        None => -1,
+    };
+    let y: i32 = match y {
+        Some(y) => y,
+        None => -1,
+    };
+    let width: i32 = match width {
+        Some(width) => width,
+        None => -1,
+    };
+    let height: i32 = match height {
+        Some(height) => height,
+        None => -1,
+    };
+    let only_text = match only_text {
+        Some(e) => e,
+        None => false,
+    };
+    if only_text {
+        Ok(ppocr
+            .screen_ocr_only_texts(x, y, width, height)
+            .unwrap_or(format!("{}", ERROR_OCR_RESULT)))
+    } else {
+        Ok(ppocr
+            .screen_ocr(x, y, width, height)
+            .unwrap_or(format!("{}", ERROR_OCR_RESULT)))
+    }
+}
+
+/// 识别屏幕指定范围的文字信息是否包含所提供的文字
+///
+/// 参数
+///
+/// * `x` - 截取起点x坐标,不传或者为-1表示全屏识别
+/// * `y` - 截取起点y坐标,不传或者为-1表示全屏识别
+/// * `width` - 截取宽度,不传或者为-1表示全屏识别
+/// * `height` - 截取高度,不传或者为-1表示全屏识别
+/// * `texts` - 需要识别的文字
+///
+/// 返回：
+///
+/// {bool} 是否包含
+#[tauri::command]
+pub async fn screen_ocr_contains(
+    x: Option<i32>,
+    y: Option<i32>,
+    width: Option<i32>,
+    height: Option<i32>,
+    texts: &str,
+) -> Result<bool, ()> {
+    let ppocr: PPOCR = PPOCR::new();
+    let x: i32 = match x {
+        Some(x) => x,
+        None => -1,
+    };
+    let y: i32 = match y {
+        Some(y) => y,
+        None => -1,
+    };
+    let width: i32 = match width {
+        Some(width) => width,
+        None => -1,
+    };
+    let height: i32 = match height {
+        Some(height) => height,
+        None => -1,
+    };
+    match ppocr.screen_ocr_find_texts(x, y, width, height, texts) {
+        Ok(res) => {
+            if res == 1 {
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        }
+        Err(_) => Err(()),
+    }
 }
