@@ -1,4 +1,6 @@
 import { defineConfig } from "vite";
+import { resolve } from "path";
+// import legacy from '@vitejs/plugin-legacy'
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
@@ -8,6 +10,9 @@ import IconsResolver from "unplugin-icons/resolver";
 export default defineConfig({
   plugins: [
     vue(),
+    // legacy({
+    //   targets: ['defaults', 'not IE 11'],
+    // }),
     AutoImport({
       resolvers: [
         ElementPlusResolver(),
@@ -19,7 +24,7 @@ export default defineConfig({
       imports: [
         "vue",
         "vue-router",
-        "@vueuse/core"
+        "@vueuse/core",
         // 添加其他需要自动导入的模块
       ],
       dts: "./src/auto-imports.d.ts",
@@ -39,6 +44,13 @@ export default defineConfig({
     }),
   ],
   css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+        @use "./src/assets/scss/theme.scss" as *;
+        `,
+      },
+    },
     postcss: {
       plugins: [
         {

@@ -1,16 +1,42 @@
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api/tauri";
-const isDark = useDark({});
+const loading = ref(false);
+const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const toggleDark = useToggle(isDark);
 const pos = reactive({
   x: 0,
   y: 0,
 });
-
+const ocrDisable = ref(true);
 onMounted(() => {
-  (invoke("init") as Promise<boolean>).then((res: boolean) => {
-    console.log("初始化", res);
-  });
+  // loading.value = true;
+  // (invoke("init") as Promise<boolean>)
+  //   .then((res: boolean) => {
+  //     if (res) {
+  //       ElMessage({
+  //         message: "初始化成功.",
+  //         type: "success",
+  //       });
+  //       ocrDisable.value = false;
+  //     } else {
+  //       ElMessage({
+  //         message: "初始化失败.",
+  //         type: "error",
+  //       });
+  //       ocrDisable.value = true;
+  //     }
+  //   })
+  //   .catch((e) => {
+  //     console.log(e);
+  //     ElMessage({
+  //       message: "初始化失败.",
+  //       type: "error",
+  //     });
+  //     ocrDisable.value = true;
+  //   })
+  //   .finally(() => {
+  //     loading.value = false;
+  //   });
   setInterval(async () => {
     const position = (await invoke("mouse_get_pos")) as any;
     const { x, y } = JSON.parse(position).message;
@@ -234,10 +260,50 @@ const ocr = async () => {
   });
   console.timeEnd("ocr");
 };
+
+const screen_ocr = async () => {
+  console.time("screen_ocr");
+  greetMsg.value = await invoke("screen_ocr", {
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 200,
+    onlyText: true,
+  });
+  console.timeEnd("screen_ocr");
+  console.log(
+    await invoke("screen_ocr", {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+    })
+  );
+};
+
+const screen_ocr_contains = async () => {
+  const texts = "asndiwhaidnwia";
+  console.time("screen_ocr_contains");
+  greetMsg.value =
+    "" +
+    (await invoke("screen_ocr_contains", {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+      texts,
+    }));
+  console.timeEnd("screen_ocr_contains");
+};
 </script>
 
 <template>
-  <div class="test">
+  <div
+    class="test"
+    v-loading="loading"
+    element-loading-background="rgba(0, 0, 0, 0.7)"
+    element-loading-text="OCR服务初始化中..."
+  >
     <el-input v-model="greetMsg" autosize type="textarea" placeholder="输出" />
     <div>position: {{ pos.x }} ,{{ pos.y }}</div>
 
@@ -248,27 +314,31 @@ const ocr = async () => {
       <el-button @click="testInputKey">testInputKey</el-button>
       <el-button @click="keyUp">keyUp</el-button>
       <el-button @click="keyDown">keyDown</el-button>
+      <el-button @click="toggleDark()">toggleDark:{{ isDark }}</el-button>
     </el-button-group>
     <el-button-group>
       <el-button @click="getScreenSize">getScreenSize</el-button>
       <el-button @click="screenshot">screenshot</el-button>
       <el-button @click="getScreenZoom">getScreenZoom</el-button>
       <el-button @click="getScreenRectInfo">getScreenRectInfo</el-button>
-      <el-button @click="toggleDark()">toggleDark:{{ isDark }}</el-button>
+      <el-button @click="screenMatchTemplate">screenMatchTemplate</el-button>
     </el-button-group>
     <el-button-group>
-      <el-button @click="screenMatchTemplate">screenMatchTemplate</el-button>
       <el-button @click="screenDiffTemplates">screenDiffTemplates</el-button>
       <el-button @click="cropPicture">cropPicture</el-button>
       <el-button @click="getImgSize">getImgSize</el-button>
-    </el-button-group>
-    <el-button-group>
       <el-button @click="getSimilarityValue">getSimilarityValue</el-button>
       <el-button @click="matchTemplate">matchTemplate</el-button>
+    </el-button-group>
+    <el-button-group>
       <el-button @click="getImgRectInfo">getImgRectInfo</el-button>
       <el-button @click="mouseWheel">mouseWheel</el-button>
       <el-button @click="moveRelative">moveRelative</el-button>
-      <el-button @click="ocr">ocr</el-button>
+      <el-button @click="ocr" :disabled="ocrDisable">ocr</el-button>
+      <el-button @click="screen_ocr" :disabled="ocrDisable">screen_ocr</el-button>
+      <el-button @click="screen_ocr_contains" :disabled="ocrDisable"
+        >screen_ocr_contains</el-button
+      >
     </el-button-group>
     <el-input v-model="anyValue" placeholder="anyValue" />
     <el-input v-model="mouseTarget.x" placeholder="x" />

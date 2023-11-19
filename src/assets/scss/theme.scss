@@ -1,0 +1,23 @@
+
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      'base': rgb(0, 129, 0),
+    ),
+  ),
+  $menu:(
+    'bg-color':"transparent"
+  )
+);
+@use "./diy-dark-theme.scss" as *;
+@use "./diy-theme.scss" as *;
+// @forward 'element-plus/theme-chalk/src/dark/var.scss' with (
+//   $colors: (
+//     'primary': (
+//       'base': rgb(14, 168, 14),
+//     ),
+//   ),
+//   $fill-color: (
+//     'blank': rgba(14, 168, 14, 0.39),
+//   )
+// );
