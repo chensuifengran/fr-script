@@ -1,5 +1,6 @@
 <template>
   <div class="console-main">
+    <el-empty description="开发中..." />
     <!-- <KeepAlive :include="['ScriptList', 'AsyncScriptRunConsole', 'AsyncCodeEditor']">
       <div class="script-console-div" v-if="curShow === 'index'">
         <ScriptList />

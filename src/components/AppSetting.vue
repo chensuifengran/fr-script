@@ -46,7 +46,7 @@ const chooseScreenshotSavePath = async () => {
     <div class="setting-item">
       <span>依赖序列号</span>
       <span
-        ><el-tag type="info" size="small">PG1.S1</el-tag
+        ><el-tag type="info" size="small">{{ app.dependentSerial.join("-") }}</el-tag
         ><el-button link type="primary">安装依赖库</el-button></span
       >
     </div>

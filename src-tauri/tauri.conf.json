@@ -12,7 +12,11 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "fs":{
+        "all": true,
+        "scope": ["**"]
+      }
     },
     "bundle": {
       "active": true,
@@ -36,7 +40,7 @@
         "decorations": false,
         "title": "风染脚本",
         "transparent": true,
-        "width": 800,
+        "width": 980,
         "height": 600
       }
     ]

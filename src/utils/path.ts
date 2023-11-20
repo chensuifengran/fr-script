@@ -1,8 +1,9 @@
 import { DialogFilter, open,save } from '@tauri-apps/api/dialog';
-import { appDataDir } from '@tauri-apps/api/path';
-const appGSStore = useAppGlobalSettings();
+import { appDataDir,basename,join as pJoin,resolve as pResolve} from '@tauri-apps/api/path';
+
 
 const selectFile = async (filters?:DialogFilter[]) => {
+    const appGSStore = useAppGlobalSettings();
     const result = await open({
         multiple: false,
         filters,
@@ -12,6 +13,7 @@ const selectFile = async (filters?:DialogFilter[]) => {
     return result;
 }
 const selectDir = async () => {
+    const appGSStore = useAppGlobalSettings();
     const result = await open({
         multiple: false,
         directory: true,
@@ -25,8 +27,35 @@ const saveFile = async (targetPath:string) => {
     }) as string;
     return result;
 }
+const join = async (path:string, addPath:string)=>{
+    const mod = addPath.includes('\\');
+    let paths = [];
+    if(mod){
+        paths = addPath.split('\\');
+    }else if(addPath.includes('/')){
+        paths = addPath.split('/');
+    }else{
+        paths = [addPath];
+    }
+    return await pJoin(path, ...paths);
+}
+const resolve = async (path:string, addPath:string)=>{
+    const mod = addPath.includes('\\');
+    let paths = [];
+    if(mod){
+        paths = addPath.split('\\');
+    }else if(addPath.includes('/')){
+        paths = addPath.split('/');
+    }else{
+        paths = [addPath];
+    }
+    return await pResolve(path, ...paths);
+}
 export const pathUtils = {
     selectFile,
     selectDir,
-    saveFile
+    saveFile,
+    basename,
+    join,
+    resolve
 }

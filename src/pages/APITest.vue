@@ -1,5 +1,6 @@
 <template>
-  <!-- <div class="remd">
+  <!-- <el-empty description="开发中..." /> -->
+  <div class="remd">
     <ATHeader
       class="alone-page-header"
       v-if="isAlone"
@@ -70,190 +71,141 @@
       :autosize="textareaOptions"
       spellcheck="false"
     />
-  </el-drawer> -->
+  </el-drawer>
 </template>
 <script lang="ts" setup>
-// import { useRoute } from "vue-router";
+import { useRoute } from "vue-router";
+import Loading from "../components/Loading.vue";
+const AsyncApiDocumentItem = defineAsyncComponent({
+  loader: async () => import("../components/apiTest/ApiDocumentItem.vue"),
+  loadingComponent: Loading,
+});
+const pageContentRef = ref<HTMLElement>();
+const { getInvokeApiTestModules, setTestModuleCtx } = useInvokeApiMethodsRegister();
 
-// import Loading from "@renderer/components/Loading.vue";
+const drawerSize = ref("30%");
+const mainLoading = ref(true);
+const isEnd = ref(false);
+const isAlone = ref(false);
+const pagePadding = ref("20px");
+const searchValue = ref("");
+const antiShakeValue = ref("");
+let needChange = true;
+const isResize = ref(false);
+window.onresize = () => {
+  isResize.value = true;
+};
+const textareaOptions = computed(() => {
+  if (isResize.value) {
+    isResize.value = false;
+  }
+  if (!needChange) {
+    const p = pageContentRef.value!.offsetHeight / 591;
+    needChange = true;
+    return {
+      minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+      maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+    };
+  }
+  const p = pageContentRef.value!.offsetHeight / 591;
+  const defualt = {
+    minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+    maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+  };
+  output.value += " ";
+  nextTick(() => {
+    needChange = false;
+    output.value = output.value.slice(0, -1);
+  });
+  return defualt;
+});
+let timer: any = null;
+watchEffect(() => {
+  const value = searchValue.value;
+  timer && clearTimeout(timer);
+  timer = setTimeout(() => {
+    if (antiShakeValue.value === value) {
+      return;
+    }
+    antiShakeValue.value = value;
+  }, 500);
+});
 
-// import { useDllMethodsRegister } from "@renderer/hook/useDllMethodsRegister";
-// import { useADBMethodsRegister } from "@renderer/hook/useADBMethodsRegister";
-// import { useUtilMethodsRegister } from "@renderer/hook/useUtilMethodsRegister";
-// import { TestModuleType } from "@renderer/types/methodRegister/TestModuleType";
+const loadCount = ref(0);
+let tatalCount = 0;
+onMounted(() => {
+  const pageContent = pageContentRef.value!;
+  loadCount.value = Math.ceil(pageContent.offsetHeight / 43) + 1;
+  const t = setTimeout(() => {
+    mainLoading.value = false;
+    clearTimeout(t);
+  }, 500);
+});
+const load = async () => {
+  if (loadCount.value < tatalCount) {
+    loadCount.value = Math.min(loadCount.value + 5, tatalCount);
+  } else if (loadCount.value === tatalCount) {
+    isEnd.value = true;
+  }
+};
+const allDocumentItems = computed<TestModuleType[]>(() => {
+  const allList = [
+    ...getInvokeApiTestModules()
+      .filter((d) => {
+        if (antiShakeValue.value) {
+          return (
+            d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
+            d!.dialog.title?.includes(antiShakeValue.value) ||
+            d!.dialog.content?.includes(antiShakeValue.value) ||
+            d!.document!.howToUse?.includes(antiShakeValue.value) ||
+            d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
+          );
+        }
+        return true;
+      })
+      .map((d) => {
+        return { ...d, itemType: "invokeApi" } as TestModuleType;
+      }),
+  ].sort((a, b) => {
+    return b!.weight! - a!.weight!;
+  });
+  tatalCount = allList.length;
 
-// const AsyncApiDocumentItem = defineAsyncComponent({
-//   loader: async () => import("@renderer/components/apiTest/ApiDocumentItem.vue"),
-//   loadingComponent: Loading,
-// });
-// const pageContentRef = ref<HTMLElement>();
-// const { getTestModule, setTestModuleCtx } = useDllMethodsRegister();
-// const { getUtilTestModules } = useUtilMethodsRegister();
-// const {
-//   getAdbTestModules,
-//   setTestModuleCtx: setAdbTestModuleCtx,
-// } = useADBMethodsRegister();
-// const drawerSize = ref("30%");
-// const mainLoading = ref(true);
-// const isEnd = ref(false);
-// const isAlone = ref(false);
-// const pagePadding = ref("20px");
-// const searchValue = ref("");
-// const antiShakeValue = ref("");
-// let needChange = true;
-// const isResize = ref(false);
-// const needCheckUpdate = inject<Ref<boolean>>("needCheckUpdate");
-// window.onresize = () => {
-//   isResize.value = true;
-// };
-// const textareaOptions = computed(() => {
-//   if (isResize.value) {
-//     isResize.value = false;
-//   }
-//   if (!needChange) {
-//     const p = pageContentRef.value!.offsetHeight / 591;
-//     needChange = true;
-//     return {
-//       minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-//       maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-//     };
-//   }
-//   const p = pageContentRef.value!.offsetHeight / 591;
-//   const defualt = {
-//     minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-//     maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-//   };
-//   output.value += " ";
-//   nextTick(() => {
-//     needChange = false;
-//     output.value = output.value.slice(0, -1);
-//   });
-//   return defualt;
-// });
-// let timer: NodeJS.Timeout | null = null;
-// watchEffect(() => {
-//   const value = searchValue.value;
-//   timer && clearTimeout(timer);
-//   timer = setTimeout(() => {
-//     if (antiShakeValue.value === value) {
-//       return;
-//     }
-//     antiShakeValue.value = value;
-//   }, 500);
-// });
+  return allList.slice(0, loadCount.value);
+});
 
-// const loadCount = ref(0);
-// let tatalCount = 0;
-// onMounted(() => {
-//   const pageContent = pageContentRef.value!;
-//   loadCount.value = Math.ceil(pageContent.offsetHeight / 43) + 1;
-//   const t = setTimeout(() => {
-//     mainLoading.value = false;
-//     clearTimeout(t);
-//   }, 500);
-// });
-// const load = async () => {
-//   if (loadCount.value < tatalCount) {
-//     loadCount.value = Math.min(loadCount.value + 5, tatalCount);
-//   } else if (loadCount.value === tatalCount) {
-//     isEnd.value = true;
-//   }
-// };
-// const allDocumentItems = computed<TestModuleType[]>(() => {
-//   const allList = [
-//     ...(getTestModule()
-//       .filter((d) => {
-//         if (antiShakeValue.value) {
-//           return (
-//             d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
-//             d!.dialog.title?.includes(antiShakeValue.value) ||
-//             d!.dialog.content?.includes(antiShakeValue.value) ||
-//             d!.document!.howToUse?.includes(antiShakeValue.value) ||
-//             d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
-//           );
-//         }
-//         return true;
-//       })
-//       .map((d) => {
-//         return { ...d, itemType: "dll" };
-//       }) as TestModuleType[]),
-//     ...(getAdbTestModules()
-//       .filter((d) => {
-//         if (antiShakeValue.value) {
-//           return (
-//             d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
-//             d!.dialog.title?.includes(antiShakeValue.value) ||
-//             d!.dialog.content?.includes(antiShakeValue.value) ||
-//             d!.document!.howToUse?.includes(antiShakeValue.value) ||
-//             d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
-//           );
-//         }
-//         return true;
-//       })
-//       .map((d) => {
-//         return { ...d, itemType: "adb" };
-//       }) as TestModuleType[]),
-//     ...(getUtilTestModules()!
-//       .filter((d) => {
-//         if (antiShakeValue.value) {
-//           return (
-//             d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
-//             d!.dialog.title?.includes(antiShakeValue.value) ||
-//             d!.dialog.content?.includes(antiShakeValue.value) ||
-//             d!.document!.howToUse?.includes(antiShakeValue.value) ||
-//             d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
-//           );
-//         }
-//         return true;
-//       })
-//       .map((d) => {
-//         return { ...d, itemType: "util" };
-//       }) as TestModuleType[]),
-//   ].sort((a, b) => {
-//     return b!.weight! - a!.weight!;
-//   });
-//   tatalCount = allList.length;
+const openOutput = ref(false);
+const autoOpenOutput = ref(true);
+const route = useRoute();
+onBeforeMount(() => {
+  isAlone.value = route.query.showSlide === "false";
+  if (route.query?.showSlide === "false") {
+    pagePadding.value = "0";
+  }
+});
 
-//   return allList.slice(0, loadCount.value);
-// });
+const output = ref("");
 
-// const openOutput = ref(false);
-// const autoOpenOutput = ref(true);
-// const checkDU = inject("checkDU") as (isAuto?: boolean) => Promise<void>;
-// const route = useRoute();
-// const aside_width = inject<Ref<string>>("aside_width");
-// onBeforeMount(async () => {
-//   isAlone.value = route.query.showSlide === "false";
-//   if (route.query?.showSlide === "false") {
-//     aside_width!.value = "0";
-//     pagePadding.value = "0";
-//     needCheckUpdate!.value = false;
-//   }
-//   await checkDU();
-// });
+const showDetails = (text: string | undefined, preStr = "") => {
+  if (autoOpenOutput.value) {
+    openOutput.value = true;
+  }
 
-// const output = ref("");
+  //获取时分秒,不足两位补0
+  const date = new Date();
+  const h = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+  const m = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+  const s = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+  const time = `[${h}:${m}:${s}] `;
+  output.value = time + preStr + "：\t" + text + "\n" + output.value;
+};
 
-// const showDetails = (text: string | undefined, preStr = "") => {
-//   if (autoOpenOutput.value) {
-//     openOutput.value = true;
-//   }
-
-//   //获取时分秒,不足两位补0
-//   const date = new Date();
-//   const h = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-//   const m = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-//   const s = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-//   const time = `[${h}:${m}:${s}] `;
-//   output.value = time + preStr + "：\t" + text + "\n" + output.value;
-// };
-
-// setTestModuleCtx({ showDetails });
-// setAdbTestModuleCtx({ showDetails });
+setTestModuleCtx({ showDetails });
 
 // const contentColor = computed(() => {
 //   return isAlone.value ? "#00000010" : "#ffffff";
 // });
+const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 
 <style lang="scss" scoped>
@@ -268,10 +220,11 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  // padding: v-bind(pagePadding);
+  padding: v-bind(pagePadding);
   box-sizing: border-box;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 10px 10px 10px 0;
+  background: v-bind(appBackground);
   position: relative;
   .alone-page-header {
     height: 45px;
@@ -299,7 +252,6 @@
     overflow-x: hidden;
     padding: 5px;
     position: relative;
-    // background-color: v-bind(contentColor);
     .loading-box {
       position: absolute;
       left: 0;

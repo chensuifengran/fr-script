@@ -3,6 +3,7 @@ import { Expand, Fold } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
+const { registerAllInvokeApi } = invokeApiRegisterManager();
 const appGSStore = useAppGlobalSettings();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
@@ -30,6 +31,7 @@ onMounted(async () => {
   //自动保存当前全局配置以及导入之前的全局配置
   await appGSStore.init();
   handleSelect(app.value.state.aside.currentItem);
+  registerAllInvokeApi(appGSStore);
 });
 const isDark = useDark({});
 provide("isDark", isDark);
@@ -106,6 +108,7 @@ provide("appBackground", appBackground);
         </el-main>
       </el-container>
     </div>
+    <FillApiParamDialog />
   </div>
 </template>
 

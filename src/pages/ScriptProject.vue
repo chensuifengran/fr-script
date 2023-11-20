@@ -1,5 +1,6 @@
 <template>
   <div class="script-project">
+    <el-empty description="开发中..." />
     <!-- <ScriptProjectList v-show="targetProjectIndex === -1" />
     <AsyncProjectEditor v-show="targetProjectIndex !== -1" /> -->
   </div>
