@@ -37,10 +37,11 @@ const changeShowDetails = () => {
     return;
   }
   if (value) {
-    const t = setTimeout(() => {
+    const t = setTimeout(async () => {
       clearTimeout(t);
       overflow.value = "auto";
-    }, 500);
+      await autoDetailHeight();
+    });
   } else {
     overflow.value = "hidden";
   }
@@ -74,11 +75,7 @@ const resetExampleCode = () => {
     }
   }
 };
-const detailsMaxHeight = ref("420px");
-watchEffect(async () => {
-  //监测示例代码的值变化
-  props.model?.document?.example?.code.join("");
-
+const autoDetailHeight = async () => {
   const bodyHight = document.body.clientHeight;
   if (showDetails.value) {
     //保证示例代码变化后能够获得最新的高度
@@ -93,6 +90,12 @@ watchEffect(async () => {
   } else {
     itemHeight.value = "40px";
   }
+};
+const detailsMaxHeight = ref("420px");
+watchEffect(async () => {
+  //监测示例代码的值变化
+  props.model?.document?.example?.code.join("");
+  await autoDetailHeight();
 });
 
 const exampleRef = ref<HTMLDivElement>();
@@ -113,10 +116,7 @@ const copyExampleCode = () => {
     }
   }
 };
-
-const iconColor = computed(() => {
-  return props.model?.document ? "#079032" : "#ccc";
-});
+const appAsideBgColor = inject<globalThis.ComputedRef<string>>("appAsideBgColor");
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 
@@ -126,7 +126,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       <div class="info">
         <el-icon class="icon" v-if="!showDetails"><IEpArrowRight /></el-icon>
         <el-icon class="icon" v-else><IEpArrowDown /></el-icon>
-        <span>{{ name }}</span>
+        <span>[{{ aliasName || model?.dialog.targetMethodName }}]{{ name }}</span>
       </div>
       <el-button
         v-if="type === 'invokeApi'"
@@ -141,8 +141,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       >
       <el-button v-else size="small" :disabled="!model!.canBeCalled">测试调用</el-button>
     </div>
-
-    <div class="api-details">
+    <div class="api-details" v-if="showDetails">
       <div class="content" v-if="model?.document" ref="detailsContentRef">
         <div class="api-details-item">
           <span>方法名：</span>
@@ -232,10 +231,10 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   transition: all 0.5s;
   margin-top: 3px;
   border-radius: 5px;
-  box-shadow: #ededed 0 0 10px;
+  box-shadow: v-bind(appAsideBgColor) 0 0 3px;
   cursor: pointer;
   &:hover {
-    box-shadow: #a0e0bd 0 0 10px;
+    box-shadow: #a0e0bd 0 0 3px;
   }
   .api-header {
     width: 100%;
@@ -246,7 +245,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     justify-content: space-between;
     padding: 10px;
     box-sizing: border-box;
-    background: v-bind(appBackground);
+    background: v-bind(appAsideBgColor);
     .info {
       display: flex;
       flex-direction: row;
@@ -259,10 +258,6 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
         &:hover {
           color: #05d74e;
         }
-      }
-      .item-icon {
-        margin-right: 2px;
-        color: v-bind(iconColor);
       }
     }
   }
@@ -294,13 +289,13 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     width: 100%;
     padding: 10px 15px;
     border-radius: 4px;
-    background-color: #3a3a3a;
+    background: v-bind(appAsideBgColor);
     box-sizing: border-box;
     //文字可选的鼠标样式
     cursor: text;
     user-select: text;
     position: relative;
-    color: #ccc;
+    // color: #ccc;
 
     &:hover {
       .copy-code {

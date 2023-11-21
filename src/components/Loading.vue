@@ -17,7 +17,7 @@
   position: absolute;
   width: 40px;
   height: 40px;
-  background-color: #dddddd;
+  background-color: rgb(45, 180, 101);
   left: 50%;
   top: 50%;
   animation: rotate 1s ease-in infinite;
@@ -25,7 +25,7 @@
 .loader::after {
   width: 20px;
   height: 20px;
-  background-color: #ff3d00;
+  background-color: rgba(0, 140, 255, 0.582);
   animation: rotate 1s ease-in infinite, moveY 1s ease-in infinite;
 }
 

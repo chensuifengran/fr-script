@@ -17,6 +17,10 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
             currentItem: "script",
           },
         },
+        modulesSetting: {
+          autoOpenOutput:true,
+          drawerSize:'30%'
+        },
       },
       envSetting: {
         workDir: "",

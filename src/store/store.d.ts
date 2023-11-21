@@ -11,6 +11,10 @@ type GlobalSettings = {
         currentItem: string;
       };
     };
+    modulesSetting: {
+      autoOpenOutput: boolean;
+      drawerSize: string;
+    };
   };
   envSetting: {
     workDir: string;

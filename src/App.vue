@@ -9,12 +9,22 @@ const { app } = storeToRefs(appGSStore);
 const router = useRouter();
 const menuKey = ref(1);
 provide("menuKey", menuKey);
-
+const { info } = useAutoTitleBar();
 const handleSelect = (index: string) => {
   app.value.state.aside.currentItem = index;
   router.push({
     name: index,
   });
+  info.showContentType = index;
+  setTimeout(() => {
+    if (app.value.state.aside.collapsed) {
+      //获取当前路由的meta
+      const meta = router.currentRoute.value.meta;
+      info.title = meta.title as string;
+    } else {
+      info.title = "风染脚本";
+    }
+  }, 200);
 };
 const hasFloatWindow = ref(false);
 const aside_width = ref("");
@@ -30,8 +40,8 @@ onMounted(async () => {
   asideDisplay.value = "block";
   //自动保存当前全局配置以及导入之前的全局配置
   await appGSStore.init();
-  handleSelect(app.value.state.aside.currentItem);
   registerAllInvokeApi(appGSStore);
+  handleSelect(app.value.state.aside.currentItem);
 });
 const isDark = useDark({});
 provide("isDark", isDark);
@@ -43,11 +53,15 @@ const appBackground = computed(() => {
   return isDark.value ? "#000" : "#fff";
 });
 provide("appBackground", appBackground);
+const collapsedAside = () => {
+  app.value.state.aside.collapsed = !app.value.state.aside.collapsed;
+  handleSelect(app.value.state.aside.currentItem);
+};
 </script>
 
 <template>
   <div class="app" id="app">
-    <TitleBar />
+    <AutoTitleBar />
     <div class="common-layout" v-show="!hasFloatWindow">
       <el-container>
         <el-aside class="aside">
@@ -60,7 +74,7 @@ provide("appBackground", appBackground);
               class="aside-btn"
               :icon="app.state.aside.collapsed ? Expand : Fold"
               text
-              @click="app.state.aside.collapsed = !app.state.aside.collapsed"
+              @click="collapsedAside"
             />
           </el-tooltip>
           <el-menu
@@ -118,8 +132,8 @@ provide("appBackground", appBackground);
 }
 .common-layout {
   width: 100%;
-  top: 30px;
-  height: calc(100% - 30px);
+  top: 40px;
+  height: calc(100% - 40px);
   position: relative;
 
   .aside {
@@ -163,6 +177,10 @@ provide("appBackground", appBackground);
 }
 </style>
 <style lang="scss">
+::-webkit-scrollbar-thumb {
+  background-color: var(--el-color-primary);
+  border-radius: 6px;
+}
 .app {
   .common-layout {
     .el-container {

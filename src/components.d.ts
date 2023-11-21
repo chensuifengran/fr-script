@@ -10,6 +10,7 @@ declare module 'vue' {
     ApiDocumentItem: typeof import('./components/apiTest/ApiDocumentItem.vue')['default']
     AppSetting: typeof import('./components/AppSetting.vue')['default']
     ATHeader: typeof import('./components/apiTest/ATHeader.vue')['default']
+    AutoTitleBar: typeof import('./components/AutoTitleBar.vue')['default']
     DirInput: typeof import('./components/moreInput/DirInput.vue')['default']
     DynamicsInput: typeof import('./components/moreInput/DynamicsInput.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
@@ -60,7 +61,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Test: typeof import('./components/Test.vue')['default']
-    TitleBar: typeof import('./components/TitleBar.vue')['default']
   }
   export interface ComponentCustomProperties {
     vInfiniteScroll: typeof import('element-plus/es')['ElInfiniteScroll']

@@ -1,7 +1,23 @@
 <template>
   <div data-tauri-drag-region class="titlebar">
-    <div class="title">
-      <span class="text">风染脚本</span>
+    <div class="title" data-tauri-drag-region>
+      <span class="text">{{ info.title }}</span>
+      <div
+        class="api-test-bar"
+        data-tauri-drag-region
+        v-if="info.showContentType === 'apiTest'"
+      >
+        <el-input
+          class="search-ipt"
+          v-model="info.apiTest.searchValue"
+          clearable
+          placeholder="可输入API的关键字对API进行筛选"
+        >
+        </el-input>
+        <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+          ><el-icon><IEpNotification /></el-icon
+        ></el-button>
+      </div>
     </div>
     <div class="btn">
       <div class="titlebar-button" ref="minimize">
@@ -19,6 +35,8 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { appWindow } from "@tauri-apps/api/window";
+const { info } = useAutoTitleBar();
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
@@ -27,7 +45,7 @@ const titleBarColor = computed(() => {
 const minimize = ref<HTMLElement>();
 const maximize = ref<HTMLElement>();
 const close = ref<HTMLElement>();
-import { appWindow } from "@tauri-apps/api/window";
+
 onMounted(() => {
   window.onresize = async () => {
     if (await appWindow.isMaximized()) {
@@ -53,9 +71,9 @@ onMounted(() => {
   });
 });
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .titlebar {
-  height: 30px;
+  height: 40px;
   background: v-bind(titleBarColor);
   user-select: none;
   display: flex;
@@ -74,21 +92,33 @@ onMounted(() => {
     display: flex;
     flex-direction: row;
     align-items: center;
-    .el-icon {
-      font-size: 20px;
-    }
+    flex: 1;
   }
   .text {
     color: var(--el-text-color-primary);
     margin-left: 10px;
+  }
+  .api-test-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    .search-ipt {
+      width: 500px;
+    }
+    .output-btn {
+      margin-left: 5px;
+    }
   }
   .btn {
     .titlebar-button {
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
     }
     .titlebar-button:hover {
       background: var(--el-color-primary-light-7);
@@ -96,4 +126,3 @@ onMounted(() => {
   }
 }
 </style>
-<style lang="scss" scoped></style>

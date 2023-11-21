@@ -1,23 +1,25 @@
 <template>
-  <div>
-    <el-tooltip class="box-item" effect="dark" content="最小值" placement="right">
+  <div class="range-input">
+    <el-tooltip class="box-item" effect="dark" content="最小值" placement="bottom">
       <el-input-number
+        class="el-ipt"
         v-model="model![0]"
         :min="limit ? limit[0] : undefined"
         :max="lowMax"
         size="small"
-        controls-position="right"
+        :controls="false"
         @change="handleChange()"
       />
     </el-tooltip>
     ~
-    <el-tooltip class="box-item" effect="dark" content="最大值" placement="right">
+    <el-tooltip class="box-item" effect="dark" content="最大值" placement="bottom">
       <el-input-number
+        class="el-ipt"
         v-model="model![1]"
         :min="min"
         :max="limit ? limit[1] : undefined"
         size="small"
-        controls-position="right"
+        :controls="false"
         @change="handleChange()"
       />
     </el-tooltip>
@@ -27,10 +29,10 @@
 <script setup lang="ts">
 const min = ref<number | undefined>();
 const lowMax = ref<number | undefined>();
-const model = defineModel<[number, number]>({
+const model = defineModel<[number, number] | Object>({
   required: true,
   default: [0, 0],
-});
+}) as globalThis.Ref<[number, number]>;
 const props = defineProps({
   limit: {
     type: Object as PropType<[number, number]>,
@@ -56,4 +58,10 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.range-input {
+  .el-ipt {
+    width: 65px;
+  }
+}
+</style>

@@ -4,20 +4,9 @@
     <ATHeader
       class="alone-page-header"
       v-if="isAlone"
-      :openOutput="() => (openOutput = true)"
-      :changeSearchValue="(value) => (searchValue = value)"
+      :openOutput="() => (info.apiTest.openOutput = true)"
+      :changeSearchValue="(value) => (info.apiTest.searchValue = value)"
     />
-    <div class="search-header" v-else>
-      <el-input
-        v-model="searchValue"
-        clearable
-        placeholder="可输入API的关键字对API进行筛选"
-      >
-      </el-input>
-      <el-button class="btn" @click="openOutput = true"
-        ><el-icon><IEpNotification /></el-icon
-      ></el-button>
-    </div>
     <div
       class="page-content"
       ref="pageContentRef"
@@ -36,11 +25,16 @@
     </div>
   </div>
 
-  <el-drawer v-model="openOutput" title="" direction="btt" :size="drawerSize">
+  <el-drawer
+    v-model="info.apiTest.openOutput"
+    title=""
+    direction="btt"
+    :size="app.modulesSetting.drawerSize"
+  >
     <template #header="{ titleId, titleClass }">
       <h4 :id="titleId" :class="titleClass">API测试-输出结果</h4>
       <el-select
-        v-model="drawerSize"
+        v-model="app.modulesSetting.drawerSize"
         placeholder="大小"
         size="small"
         class="options select"
@@ -54,7 +48,7 @@
       </el-select>
       <el-switch
         class="options"
-        v-model="autoOpenOutput"
+        v-model="app.modulesSetting.autoOpenOutput"
         inline-prompt
         style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc"
         active-text="自动显示"
@@ -76,19 +70,20 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
 import Loading from "../components/Loading.vue";
+import { storeToRefs } from "pinia";
 const AsyncApiDocumentItem = defineAsyncComponent({
   loader: async () => import("../components/apiTest/ApiDocumentItem.vue"),
   loadingComponent: Loading,
 });
 const pageContentRef = ref<HTMLElement>();
 const { getInvokeApiTestModules, setTestModuleCtx } = useInvokeApiMethodsRegister();
-
-const drawerSize = ref("30%");
+const { info } = useAutoTitleBar();
+const appGSStore = useAppGlobalSettings();
+const { app } = storeToRefs(appGSStore);
 const mainLoading = ref(true);
 const isEnd = ref(false);
 const isAlone = ref(false);
-const pagePadding = ref("20px");
-const searchValue = ref("");
+const pagePadding = ref("10px");
 const antiShakeValue = ref("");
 let needChange = true;
 const isResize = ref(false);
@@ -103,14 +98,22 @@ const textareaOptions = computed(() => {
     const p = pageContentRef.value!.offsetHeight / 591;
     needChange = true;
     return {
-      minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-      maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+      minRows: Math.ceil(
+        (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
+      ),
+      maxRows: Math.ceil(
+        (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
+      ),
     };
   }
   const p = pageContentRef.value!.offsetHeight / 591;
   const defualt = {
-    minRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
-    maxRows: Math.ceil((5 + (+drawerSize.value.replace("%", "") / 10 - 3) * 3) * p),
+    minRows: Math.ceil(
+      (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
+    ),
+    maxRows: Math.ceil(
+      (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
+    ),
   };
   output.value += " ";
   nextTick(() => {
@@ -121,7 +124,7 @@ const textareaOptions = computed(() => {
 });
 let timer: any = null;
 watchEffect(() => {
-  const value = searchValue.value;
+  const value = info.apiTest.searchValue;
   timer && clearTimeout(timer);
   timer = setTimeout(() => {
     if (antiShakeValue.value === value) {
@@ -174,8 +177,6 @@ const allDocumentItems = computed<TestModuleType[]>(() => {
   return allList.slice(0, loadCount.value);
 });
 
-const openOutput = ref(false);
-const autoOpenOutput = ref(true);
 const route = useRoute();
 onBeforeMount(() => {
   isAlone.value = route.query.showSlide === "false";
@@ -187,8 +188,8 @@ onBeforeMount(() => {
 const output = ref("");
 
 const showDetails = (text: string | undefined, preStr = "") => {
-  if (autoOpenOutput.value) {
-    openOutput.value = true;
+  if (app.value.modulesSetting.autoOpenOutput) {
+    info.apiTest.openOutput = true;
   }
 
   //获取时分秒,不足两位补0
@@ -232,18 +233,9 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background-color: #ffffff;
+    background-color: v-bind(appBackground);
     color: var(--el-color-primary);
     padding-left: 5px;
-  }
-  .search-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    .btn {
-      margin-left: 5px;
-    }
   }
 
   .page-content {
@@ -258,7 +250,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       top: 0;
       width: 100%;
       height: 100%;
-      background: #fff;
+      background: v-bind(appBackground);
       display: flex;
       flex-direction: column;
       align-items: center;
