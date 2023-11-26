@@ -35,6 +35,7 @@ fn main() {
             image::get_similarity_value,
             image::match_template,
             image::get_img_rect_info,
+            image::get_color,
             image::ocr,
             image::screen_ocr,
             image::screen_ocr_contains,

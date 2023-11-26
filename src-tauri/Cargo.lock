@@ -1090,6 +1090,7 @@ name = "fr-script"
 version = "0.0.2"
 dependencies = [
  "enigo",
+ "image",
  "lazy_static",
  "libloading",
  "rusty-tesseract",

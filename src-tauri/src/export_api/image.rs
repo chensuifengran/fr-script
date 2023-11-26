@@ -5,7 +5,7 @@ use crate::{
     types::generate_result, PPOCR_INSTANCE,
 };
 use crate::UTIL_INSTANCE;
-
+use image::{GenericImageView, Pixel};
 use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 
 /// 裁剪图片
@@ -268,6 +268,31 @@ pub async fn screen_ocr(
         Ok(ppocr
             .screen_ocr(x, y, width, height)
             .unwrap_or(format!("{}", ERROR_OCR_RESULT)))
+    }
+}
+
+#[tauri::command]
+pub async fn get_color(image_url: &str, x: u32, y: u32) 
+-> Result<Option<[u8; 3]> , ()> {
+    match image::open(image_url) {
+        // 如果成功，获取图片的宽度和高度
+        Ok(image) => {
+            let (width, height) = image.dimensions();
+            // 检查坐标点是否在图片范围内
+            if x < width && y < height {
+                // 获取坐标点的像素
+                let pixel = image.get_pixel(x, y);
+                // 获取像素的RGB值
+                let rgb = pixel.to_rgb().0;
+                // 返回RGB值
+                Some(rgb)
+            } else {
+                // 坐标点超出图片范围，返回None
+                None
+            }
+        }
+        // 如果失败，返回None
+        Err(_) => None,
     }
 }
 
