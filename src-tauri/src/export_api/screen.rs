@@ -1,4 +1,6 @@
-use crate::{c_api::util::Util, types::generate_result};
+use std::sync::Arc;
+
+use crate::{c_api::util::Util, types::generate_result, UTIL_INSTANCE};
 
 use super::constant::{ERROR_COORDINATE, ERROR_WIDTH_HEIGHT, ERROR_RECT_INFO, ERROR_MSG_DATA};
 
@@ -17,7 +19,7 @@ pub fn detect_image_path_extensions(path: &str) -> bool {
 /// 返回示例："{\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_screen_size() -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .get_screen_size()
         .unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
@@ -33,7 +35,7 @@ pub async fn get_screen_size() -> Result<String, ()> {
 /// 返回示例：1
 #[tauri::command]
 pub async fn get_screen_zoom() -> Result<f64, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: f64 = util.get_screen_zoom().unwrap_or(-1.0);
     Ok(res)
 }
@@ -56,7 +58,7 @@ pub async fn get_screen_zoom() -> Result<f64, ()> {
 /// 返回示例："{\"code\":200,\"message\":\"截图成功\"}"
 #[tauri::command]
 pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: i32;
     if path == "" {
         res = -2;
@@ -92,7 +94,7 @@ pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<St
 /// 返回示例："{\"startX\":0,\"startY\":0,\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_screen_rect_info() -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .get_screen_rect_info()
         .unwrap_or(format!("{}", ERROR_RECT_INFO));
@@ -128,7 +130,7 @@ pub async fn screen_match_template(
     scale: f64,
     drive: &str,
 ) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .screen_match_template(
             x,
@@ -185,7 +187,7 @@ pub async fn screen_diff_templates(
     target_index: i32,
     drive: &str,
 ) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .screen_diff_templates(
             x,

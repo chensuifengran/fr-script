@@ -1,15 +1,40 @@
 use std::ffi::{c_char, CStr, CString};
-
+use std::sync::Arc;
 use libloading::Library;
 
 pub struct Util {
-    lib: Library,
+    lib: Arc<Library>,
 }
 
 impl Util {
     pub fn new() -> Util {
         Util {
-            lib: unsafe { Library::new("screenOperation.dll").unwrap() },
+            lib: Arc::new(unsafe { Library::new("screenOperation.dll").expect("找不到screenOperation.dll") }),
+        }
+    }
+
+    /// 获取依赖版本
+    ///
+    /// 示例：
+    ///
+    /// ```
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
+    /// let res: String = util.get_version().unwrap_or(format!("{}",ERROR_VERSION));
+    /// ```
+    ///
+    /// 返回：
+    ///
+    /// {const char*} 版本号
+    pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
+        unsafe {
+            let version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> = self
+                .lib
+                .get(b"getVersion")
+                .expect("dll中未发现getVersion方法");
+            let result_c: *const c_char = (*version)();
+            let c_str: &CStr = CStr::from_ptr(result_c);
+            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            Ok(str_slice.to_owned())
         }
     }
 
@@ -17,7 +42,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: i32 =
     ///     util.screenshot("E:\\test.png", 0, 0, 100, 100).unwrap_or(-1);
     /// ```
@@ -60,7 +85,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.get_screen_size().unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
     /// ```
@@ -85,7 +110,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.get_screen_zoom().unwrap_or(-1.0);
     /// ```
@@ -107,7 +132,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.crop_picture("E:\\t1.png", 0, 0, 100, 100, "E:\\t1_crop.png").unwrap_or(-1);
     /// ```
@@ -149,7 +174,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.get_screen_rect_info()
     ///         .unwrap_or(format!("{}", ERROR_RECT_INFO));
@@ -175,7 +200,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.get_img_rect_info("E:\\test.png")
     ///         .unwrap_or(format!("{}", ERROR_RECT_INFO));
@@ -206,7 +231,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///     util.match_template("E:\\test.png", "E:\\temp.png", 0.0, 1.0)
     ///         .unwrap_or(format!("{}", ERROR_COORDINATE));
@@ -253,7 +278,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res:f64 =
     ///     util.get_similarity_value("E:\\a.png",-1,-1,-1,-1,"E:\\b.png")
     ///         .unwrap_or(0.0);
@@ -305,7 +330,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: i32 =
     ///     util.move_window("窗口标题", 100, 200).unwrap_or(-1);
     /// ```
@@ -339,7 +364,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: i32 =
     ///     util.resize_window("窗口标题", 100, 200).unwrap_or(-1);
     /// ```
@@ -373,7 +398,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: i32 =
     ///    util.resize_and_move_window("窗口标题", 100, 200, 300, 400).unwrap_or(-1);
     /// ```
@@ -418,7 +443,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///    util.get_image_size("E:\\test.png").unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
     /// ```
@@ -448,7 +473,7 @@ impl Util {
     ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///   util.screen_match_template(0, 0, 100, 100, "E:\\temp.png", 0.0, 1.0, "D")
     ///     .unwrap_or(format!("{}", ERROR_COORDINATE));
@@ -514,14 +539,14 @@ impl Util {
     }
 
     /// 捕获屏幕截图并与多模板图像匹配，进行差异比较
-    /// 
+    ///
     /// 示例：
     /// ```
-    /// let util: Util = Util::new();
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
     ///  util.screen_diff_templates(
-    ///     0, 0, 100, 100, 
-    ///     "E:\\a.png | E:\\b.png", 
+    ///     0, 0, 100, 100,
+    ///     "E:\\a.png | E:\\b.png",
     ///     0, "D"
     ///  ).unwrap_or(format!("{}", ERROR_MSG_DATA));
     /// ```

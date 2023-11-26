@@ -1,6 +1,8 @@
+use std::sync::Arc;
+
 use crate::{
     c_api::ppocr::PPOCR,
-    global::{GPU_MEM, TEMP_DRIVE},
+    global::{GPU_MEM, TEMP_DRIVE}, PPOCR_INSTANCE,
 };
 
 use super::tools::{auto_select_drive, test_drive};
@@ -17,7 +19,7 @@ use super::tools::{auto_select_drive, test_drive};
 /// {bool} 初始化是否成功
 #[tauri::command]
 pub async fn init(gpu_mem: Option<i32>, temp_drive: Option<&str>) -> Result<bool, ()> {
-    let ppocr: PPOCR = PPOCR::new();
+    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     let gpu_mem: i32 = match gpu_mem {
         Some(gpu_mem) => gpu_mem,
         None => 1000,

@@ -1,5 +1,10 @@
-use crate::{c_api::util::Util, types::generate_result};
-use std::fs;
+use crate::{
+    c_api::{ppocr::PPOCR, util::Util},
+    types::generate_result, UTIL_INSTANCE, PPOCR_INSTANCE,
+};
+use std::{fs, sync::Arc};
+
+use super::constant::ERROR_VERSION;
 /// 移动窗口位置
 ///
 /// 参数:
@@ -15,7 +20,7 @@ use std::fs;
 /// 返回示例："{\"code\":200,\"message\":\"成功将窗口移动至指定坐标\"}"
 #[tauri::command]
 pub async fn move_window(w_title: &str, target_x: i32, target_y: i32) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: i32 = util.move_window(w_title, target_x, target_y).unwrap_or(-1);
     let code = match res {
         -1 => 500,
@@ -43,7 +48,7 @@ pub async fn move_window(w_title: &str, target_x: i32, target_y: i32) -> Result<
 /// 返回示例："{\"code\":200,\"message\":\"成功将窗口大小调整为指定大小\"}"
 #[tauri::command]
 pub async fn resize_window(w_title: &str, width: i32, height: i32) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: i32 = util.resize_window(w_title, width, height).unwrap_or(-1);
     let code = match res {
         -1 => 500,
@@ -79,7 +84,7 @@ pub async fn move_resize_window(
     width: i32,
     height: i32,
 ) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: i32 = util
         .resize_and_move_window(w_title, target_x, target_y, width, height)
         .unwrap_or(-1);
@@ -95,32 +100,30 @@ pub async fn move_resize_window(
 }
 
 /// 测试盘符是否可用
-/// 
+///
 /// 参数:
-/// 
+///
 /// * `drive`: 盘符，例如：D
-/// 
+///
 /// 返回:
-/// 
+///
 /// {bool} 是否可用
 pub fn test_drive(drive: &char) -> bool {
-    match fs::File::create(format!("{}:\\__test_out__.png",drive)) {
-        Ok(_) => {
-            match fs::remove_file(format!("{}:\\__test_out__.png",drive)) {
-                Ok(_) => true,
-                Err(_) => false,
-            }
+    match fs::File::create(format!("{}:\\__test_out__.png", drive)) {
+        Ok(_) => match fs::remove_file(format!("{}:\\__test_out__.png", drive)) {
+            Ok(_) => true,
+            Err(_) => false,
         },
         Err(_) => false,
     }
 }
 
 /// 从D到J枚举一个可用的盘符，类型为char
-/// 
+///
 /// 返回：
-/// 
+///
 /// Result<char,()>
-pub fn auto_select_drive() -> Result<char,()>{
+pub fn auto_select_drive() -> Result<char, ()> {
     let drive_enum = ['D', 'E', 'F', 'G', 'H', 'I', 'J'];
     let mut res = ' ';
     for i in 0..=6 {
@@ -136,4 +139,18 @@ pub fn auto_select_drive() -> Result<char,()>{
         println!("从D-J无可用盘符");
         Err(())
     }
+}
+
+/// 获取依赖版本
+///
+/// 返回：
+///
+/// 一个“Result”类型，其中“String”作为成功值，“()”作为错误值。
+#[tauri::command]
+pub async fn get_dependence_version() -> Result<String,()> {
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
+    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    let p_version: String = ppocr.get_version().unwrap_or(format!("{}", ERROR_VERSION));
+    let u_version: String = util.get_version().unwrap_or(format!("{}", ERROR_VERSION));
+    Ok(format!("{}-{}",p_version, u_version))
 }

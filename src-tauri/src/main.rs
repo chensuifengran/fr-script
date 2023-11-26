@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use fr_script::export_api::{image, input, mouse, screen, tools, init};
 use tauri::Manager;
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -40,6 +41,7 @@ fn main() {
             tools::move_window,
             tools::resize_window,
             tools::move_resize_window,
+            tools::get_dependence_version,
             init::init
         ])
         .run(tauri::generate_context!())

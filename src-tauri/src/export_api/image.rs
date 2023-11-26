@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use crate::{
     c_api::{ppocr::PPOCR, util::Util},
-    types::generate_result,
+    types::generate_result, PPOCR_INSTANCE,
 };
+use crate::UTIL_INSTANCE;
 
 use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 
@@ -30,7 +33,7 @@ pub async fn crop_picture(
     height: i32,
     out_path: &str,
 ) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: i32 = util
         .crop_picture(path, x, y, width, height, out_path)
         .unwrap_or(-1);
@@ -60,7 +63,7 @@ pub async fn crop_picture(
 /// 返回示例："{\"startX\":0,\"startY\":0,\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_img_rect_info(img_path: &str) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .get_img_rect_info(img_path)
         .unwrap_or(format!("{}", ERROR_RECT_INFO));
@@ -88,7 +91,7 @@ pub async fn match_template(
     exact_value: f64,
     scale: f64,
 ) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .match_template(img_path, temp_path, exact_value, scale)
         .unwrap_or(format!("{}", ERROR_COORDINATE));
@@ -123,7 +126,7 @@ pub async fn get_similarity_value(
     height: i32,
     path_b: &str,
 ) -> Result<f64, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: f64 = util
         .get_similarity_value(path_a, x, y, width, height, path_b)
         .unwrap_or(-1.0);
@@ -143,7 +146,7 @@ pub async fn get_similarity_value(
 /// 返回示例："{\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_img_size(path: &str) -> Result<String, ()> {
-    let util: Util = Util::new();
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
         .get_image_size(path)
         .unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
@@ -179,7 +182,7 @@ pub async fn ocr(
     width: Option<i32>,
     height: Option<i32>,
 ) -> Result<String, ()> {
-    let ppocr: PPOCR = PPOCR::new();
+    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,
@@ -236,7 +239,7 @@ pub async fn screen_ocr(
     height: Option<i32>,
     only_text: Option<bool>,
 ) -> Result<String, ()> {
-    let ppocr: PPOCR = PPOCR::new();
+    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,
@@ -289,7 +292,7 @@ pub async fn screen_ocr_contains(
     height: Option<i32>,
     texts: &str,
 ) -> Result<bool, ()> {
-    let ppocr: PPOCR = PPOCR::new();
+    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,

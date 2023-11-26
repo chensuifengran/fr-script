@@ -1,24 +1,98 @@
 use libloading::Library;
-// use std::env;
-use std::ffi::{c_char, CStr, CString};
+use std::{ffi::{c_char, CStr, CString}, sync::Arc};
 
 use crate::global::{GPU_MEM, TEMP_DRIVE};
 pub struct PPOCR {
-    lib: Library,
+    lib: Arc<Library>,
+}
+/*
+pub struct PPOCR {
+    lib: Option<Library>,
+}
+impl Drop for PPOCR {
+    fn drop(&mut self) {
+        match &self.lib {
+            Some(lib) => unsafe {
+                lib.close();
+            },
+            None => {}
+        }
+    }
 }
 
 impl PPOCR {
     pub fn new() -> PPOCR {
         PPOCR {
-            lib: unsafe { Library::new("ppocr.dll").unwrap() },
+            lib: unsafe { Some(Library::new("ppocr.dll").unwrap()) },
         }
     }
+
+    /// 获取依赖版本
+    ///
+    /// 示例：
+    ///
+    /// ```
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    /// let res: String = ppocr.get_version().unwrap_or(format!("{}",ERROR_VERSION));
+    /// ```
+    ///
+    /// 返回：
+    ///
+    /// {const char*} 版本号
+    pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
+        match &self.lib {
+            Some(lib) => unsafe {
+                let get_version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> =
+                    lib.get(b"getVersion").expect("dll中未发现getVersion方法");
+                let result_c: *const c_char = (*get_version)();
+                let c_str: &CStr = CStr::from_ptr(result_c);
+                let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+                Ok(str_slice.to_owned())
+            },
+            None => Ok(format!("{}", ERROR_VERSION)),
+        }
+    }
+}
+*/
+impl PPOCR {
+    pub fn new() -> PPOCR {
+        PPOCR {
+            lib: unsafe { Arc::new(Library::new("ppocr.dll").expect("ppocr.dll加载失败！")) },
+        }
+    }
+
+    /// 获取依赖版本
+    ///
+    /// 示例：
+    ///
+    /// ```
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    /// let res: String = ppocr.get_version().unwrap_or(format!("{}",ERROR_VERSION));
+    /// ```
+    ///
+    /// 返回：
+    ///
+    /// {const char*} 版本号
+    pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
+        unsafe {
+            let version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> = self
+                .lib
+                .get(b"getVersion")
+                .expect("dll中未发现getVersion方法");
+            let result_c: *const c_char = (*version)();
+            let c_str: &CStr = CStr::from_ptr(result_c);
+            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            Ok(str_slice.to_owned())
+        }
+    }
+
+
     ///初始化dll设置
     ///
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: bool = ppocr.init();
     /// ```
     ///
@@ -47,7 +121,7 @@ impl PPOCR {
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
     ///     ppocr.ocr_rect("E:\\test.png", 0, 0, 100, 100)
     ///         .unwrap_or(format!("{}",ERROR_OCR_RESULT));
@@ -94,7 +168,7 @@ impl PPOCR {
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
     ///     ppocr.ocr("E:\\test.png").unwrap_or(format!("{}",ERROR_OCR_RESULT));
     /// ```
@@ -136,7 +210,7 @@ impl PPOCR {
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
     ///    ppocr.screen_ocr(0, 0, 100, 100, "D")
     ///       .unwrap_or(format!("{}",ERROR_OCR_RESULT));
@@ -172,8 +246,7 @@ impl PPOCR {
                 .get(b"screenOcr")
                 .expect("dll中未发现screenOcr方法");
             let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
-            let result_c: *const c_char =
-                (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
+            let result_c: *const c_char = (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
             Ok(str_slice.to_owned())
@@ -185,7 +258,7 @@ impl PPOCR {
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
     ///   ppocr.screen_ocr_only_texts(0, 0, 100, 100, "D")
     ///    .unwrap_or(format!("{}",ERROR_OCR_RESULT));
@@ -234,7 +307,7 @@ impl PPOCR {
     /// 示例：
     ///
     /// ```
-    /// let ppocr: PPOCR = PPOCR::new();
+    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: i32 =
     ///  ppocr.screen_ocr_find_texts(0, 0, 100, 100, "文字1|文字2", "D")
     ///  .unwrap_or(-1);
