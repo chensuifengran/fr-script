@@ -9,34 +9,35 @@ const pos = reactive({
 });
 const ocrDisable = ref(true);
 onMounted(() => {
-  // loading.value = true;
-  // (invoke("init") as Promise<boolean>)
-  //   .then((res: boolean) => {
-  //     if (res) {
-  //       ElMessage({
-  //         message: "初始化成功.",
-  //         type: "success",
-  //       });
-  //       ocrDisable.value = false;
-  //     } else {
-  //       ElMessage({
-  //         message: "初始化失败.",
-  //         type: "error",
-  //       });
-  //       ocrDisable.value = true;
-  //     }
-  //   })
-  //   .catch((e) => {
-  //     console.log(e);
-  //     ElMessage({
-  //       message: "初始化失败.",
-  //       type: "error",
-  //     });
-  //     ocrDisable.value = true;
-  //   })
-  //   .finally(() => {
-  //     loading.value = false;
-  //   });
+  ocrDisable.value = false;
+  loading.value = true;
+  (invoke("init", { gpuMem: 0 }) as Promise<boolean>)
+    .then((res: boolean) => {
+      if (res) {
+        ElMessage({
+          message: "初始化成功.",
+          type: "success",
+        });
+        ocrDisable.value = false;
+      } else {
+        ElMessage({
+          message: "初始化失败.",
+          type: "error",
+        });
+        ocrDisable.value = true;
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+      ElMessage({
+        message: "初始化失败.",
+        type: "error",
+      });
+      ocrDisable.value = true;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
   setInterval(async () => {
     const position = (await invoke("mouse_get_pos")) as any;
     const { x, y } = JSON.parse(position).message;
@@ -184,10 +185,12 @@ const keyDown = async () => {
   }
 };
 
-const getScreenSize = async () => {
-  console.time("get_screen_size");
-  greetMsg.value = await invoke("get_screen_size");
-  console.timeEnd("get_screen_size");
+const getScreenSize = () => {
+  setInterval(async () => {
+    console.time("get_screen_size");
+    greetMsg.value = await invoke("get_screen_size");
+    console.timeEnd("get_screen_size");
+  }, 200);
 };
 
 const getScreenZoom = async () => {
@@ -198,13 +201,13 @@ const getScreenZoom = async () => {
 
 const screenshot = async () => {
   console.time("screenshot");
-  console.log({
-    path: anyValue.value,
-    x: +mouseTarget.x,
-    y: +mouseTarget.y,
-    w: +wh.w,
-    h: +wh.h,
-  });
+  // console.log({
+  //   path: anyValue.value,
+  //   x: +mouseTarget.x,
+  //   y: +mouseTarget.y,
+  //   w: +wh.w,
+  //   h: +wh.h,
+  // });
 
   greetMsg.value = await invoke("screenshot", {
     path: anyValue.value,
@@ -255,30 +258,38 @@ const screenDiffTemplates = async () => {
 
 const ocr = async () => {
   console.time("ocr");
-  greetMsg.value = await invoke("ocr", {
-    imgPath: "E:\\t3.png",
-  });
+  console.log(
+    await invoke("ocr", {
+      imgPath: "E:\\t3.png",
+    })
+  );
   console.timeEnd("ocr");
 };
+//   let num = 0;
+//   while (num++ < 100) {
+//     // console.log(await invoke("get_dependence_version"));
+
+//   }
+// };
 
 const screen_ocr = async () => {
   console.time("screen_ocr");
   greetMsg.value = await invoke("screen_ocr", {
     x: 0,
     y: 0,
-    width: 200,
-    height: 200,
-    onlyText: true,
+    width: 300,
+    height: 300,
+    // onlyText: true,
   });
   console.timeEnd("screen_ocr");
-  console.log(
-    await invoke("screen_ocr", {
-      x: 0,
-      y: 0,
-      width: 200,
-      height: 200,
-    })
-  );
+  // console.log(
+  //   await invoke("screen_ocr", {
+  //     x: 0,
+  //     y: 0,
+  //     width: 200,
+  //     height: 200,
+  //   })
+  // );
 };
 
 const screen_ocr_contains = async () => {
@@ -287,10 +298,10 @@ const screen_ocr_contains = async () => {
   greetMsg.value =
     "" +
     (await invoke("screen_ocr_contains", {
-      x: 0,
+      x: -1,
       y: 0,
-      width: 200,
-      height: 200,
+      width: 90,
+      height: 30,
       texts,
     }));
   console.timeEnd("screen_ocr_contains");

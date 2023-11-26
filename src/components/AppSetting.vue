@@ -2,6 +2,7 @@
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
+import { invoke } from "@tauri-apps/api/tauri";
 const { selectFile, selectDir } = pathUtils;
 const version = ref("获取版本失败");
 getVersion().then((res) => {
@@ -32,6 +33,12 @@ const chooseScreenshotSavePath = async () => {
     envSetting.value.screenshotSavePath = res;
   }
 };
+onMounted(async () => {
+  const d_version: string = await invoke("get_dependence_version");
+  console.log(d_version);
+
+  app.value.dependentSerial = d_version;
+});
 </script>
 <template>
   <div class="setting-div">
@@ -46,7 +53,7 @@ const chooseScreenshotSavePath = async () => {
     <div class="setting-item">
       <span>依赖序列号</span>
       <span
-        ><el-tag type="info" size="small">{{ app.dependentSerial.join("-") }}</el-tag
+        ><el-tag type="info" size="small">{{ app.dependentSerial }}</el-tag
         ><el-button link type="primary">安装依赖库</el-button></span
       >
     </div>
@@ -75,16 +82,6 @@ const chooseScreenshotSavePath = async () => {
     <div class="setting-item" v-show="ocr.value === 'GPU'">
       <span>GPU内存占用(MB)</span>
       <el-input-number v-model="ocr.gpuMemory" :min="1" size="small" />
-    </div>
-    <div class="setting-item" v-show="ocr.value === 'GPU'">
-      <span>以GPU方式运行需要初始化</span>
-      <span
-        ><el-tag :type="ocr.inited ? 'success' : 'info'" size="small"
-          >{{ ocr.inited ? "已" : "未" }}初始化</el-tag
-        ><el-button link type="primary"
-          >{{ ocr.inited ? "重新" : "" }}初始化</el-button
-        ></span
-      >
     </div>
     <h3>环境设置</h3>
     <div class="setting-item">

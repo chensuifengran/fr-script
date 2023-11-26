@@ -6,7 +6,7 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
   state: () => {
     return <GlobalSettings>{
       app: {
-        dependentSerial: ["PG1", "S1"],
+        dependentSerial: "未知",
         editorTheme: {
           value: "跟随全局主题",
           options: ["跟随全局主题", "明亮", "暗黑"],
@@ -34,7 +34,6 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
         value: "GPU",
         options: ["GPU", "CPU"],
         gpuMemory: 1000,
-        inited: false,
       },
     };
   },
@@ -49,7 +48,6 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
     async importData(data: string) {
       const obj = JSON.parse(data);
       delete obj.version;
-      delete obj.ocr.inited;
       Object.assign(this.$state, obj);
       this.$patch(obj);
     },

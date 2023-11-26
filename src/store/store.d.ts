@@ -1,6 +1,6 @@
 type GlobalSettings = {
   app: {
-    dependentSerial: string[];
+    dependentSerial: string;
     editorTheme: {
       value: "跟随全局主题" | "明亮" | "暗黑";
       options: ["跟随全局主题", "明亮", "暗黑"];
@@ -28,7 +28,6 @@ type GlobalSettings = {
     value: "GPU" | "CPU";
     options: ["GPU", "CPU"];
     gpuMemory: number;
-    inited: boolean;
   };
 };
 type Runtime = {
