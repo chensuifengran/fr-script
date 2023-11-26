@@ -7,7 +7,7 @@ use crate::{
     types::generate_result,
     PPOCR_INSTANCE,
 };
-use image::{GenericImageView, Pixel};
+use image::GenericImageView;
 
 /// 裁剪图片
 ///
