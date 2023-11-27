@@ -1,6 +1,7 @@
 use crate::{
-    c_api::{ppocr::PPOCR, util::Util},
-    types::generate_result, UTIL_INSTANCE, PPOCR_INSTANCE,
+    c_api::util::Util,
+    types::generate_result,
+    PPOCR_INSTANCE, UTIL_INSTANCE,
 };
 use std::{fs, sync::Arc};
 
@@ -147,10 +148,56 @@ pub fn auto_select_drive() -> Result<char, ()> {
 ///
 /// 一个“Result”类型，其中“String”作为成功值，“()”作为错误值。
 #[tauri::command]
-pub async fn get_dependence_version() -> Result<String,()> {
+pub async fn get_dependence_version() -> Result<String, ()> {
     let util: Arc<Util> = UTIL_INSTANCE.clone();
-    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    let ppocr = PPOCR_INSTANCE.clone();
+    
     let p_version: String = ppocr.get_version().unwrap_or(format!("{}", ERROR_VERSION));
     let u_version: String = util.get_version().unwrap_or(format!("{}", ERROR_VERSION));
-    Ok(format!("{}-{}",p_version, u_version))
+    Ok(format!("{}-{}", p_version, u_version))
+}
+
+/// 获取当前可执行文件的安装目录。
+///
+/// Returns:
+///
+/// 当前可执行文件的安装目录。
+#[tauri::command]
+pub fn get_install_dir() -> String {
+    let exe_path = std::env::current_exe().unwrap();
+    let install_dir = exe_path.parent().unwrap();
+    install_dir.to_str().unwrap().to_string()
+}
+
+/// 获取文件的基本信息
+///
+/// 参数:
+///
+/// * `file_path`: 文件路径。
+///
+/// Returns:
+///
+/// 一个“Result”类型，其中“String”作为成功值，“()”作为错误值。
+#[tauri::command]
+pub async fn get_file_info(file_path: &str) -> Result<String, ()> {
+    let metadata = std::fs::metadata(file_path);
+    match metadata {
+        Ok(meta) => {
+            let file_type = meta.file_type();
+            let file_size = meta.len();
+            let file_name = std::path::Path::new(file_path)
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap();
+            let file_info = format!(
+                "{{\"fileName\":\"{}\",\"fileSize\":{},\"fileType\":\"{}\"}}",
+                file_name,
+                file_size,
+                if file_type.is_dir() { "dir" } else { "file" }
+            );
+            Ok(generate_result(file_info, 200))
+        }
+        Err(err) => Ok(generate_result(err.to_string(), 500)),
+    }
 }

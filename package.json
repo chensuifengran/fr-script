@@ -1,7 +1,7 @@
 {
   "name": "fr-script",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,12 +11,12 @@
     "tauri:build": "tauri build"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.1.0",
+    "@element-plus/icons-vue": "^2.3.1",
     "@tauri-apps/api": "^1.5.1",
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.10.0",
     "@vueuse/components": "^10.6.1",
     "@vueuse/core": "^10.6.1",
-    "element-plus": "^2.4.2",
+    "element-plus": "^2.4.3",
     "highlight.js": "^11.9.0",
     "monaco-editor": "^0.44.0",
     "nanoid": "^5.0.3",
@@ -27,13 +27,13 @@
   "devDependencies": {
     "@iconify-json/ep": "^1.1.12",
     "@tauri-apps/cli": "^1.5.6",
-    "@vitejs/plugin-vue": "^4.4.1",
+    "@vitejs/plugin-vue": "^4.5.0",
     "sass": "^1.69.5",
     "unplugin-auto-import": "^0.16.7",
     "unplugin-vue-components": "^0.25.2",
     "unplugin-icons": "^0.17.4",
-    "vite": "^4.4.9",
-    "vue": "^3.3.8",
+    "vite": "^5.0.2",
+    "vue": "^3.3.9",
     "vue-tsc": "^1.8.22"
   }
 }

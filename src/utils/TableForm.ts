@@ -1,5 +1,3 @@
-import { TableFormHeader } from "@renderer/types/TableFormHeader";
-
 export class TableForm {
   private tableHeader: TableFormHeader[];
   private inputProp: {

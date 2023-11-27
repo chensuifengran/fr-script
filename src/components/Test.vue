@@ -8,10 +8,12 @@ const pos = reactive({
   y: 0,
 });
 const ocrDisable = ref(true);
+const appGSStore = useAppGlobalSettings();
+const { value, gpuMemory } = appGSStore.ocr;
 onMounted(() => {
   ocrDisable.value = false;
   loading.value = true;
-  (invoke("init", { gpuMem: 0 }) as Promise<boolean>)
+  (invoke("init", { gpuMem: value === "GPU" ? gpuMemory : 0 }) as Promise<boolean>)
     .then((res: boolean) => {
       if (res) {
         ElMessage({
@@ -257,13 +259,27 @@ const screenDiffTemplates = async () => {
 };
 
 const ocr = async () => {
-  console.time("ocr");
-  console.log(
-    await invoke("ocr", {
-      imgPath: "E:\\t3.png",
-    })
-  );
-  console.timeEnd("ocr");
+  const startTime = Date.now();
+  const res = (await invoke("ocr", {
+    imgPath: "E:\\t3.png",
+  })) as string;
+  const endTime = Date.now();
+  const resObj = JSON.parse(res);
+  resObj.useTime = (endTime - startTime) / 1000;
+  greetMsg.value = JSON.stringify(resObj);
+};
+
+const get_img_color = async () => {
+  ElMessage.info("暂未开放");
+  return;
+  console.time("get_img_color");
+  greetMsg.value = await invoke("get_img_color", {
+    imagePath: "E:\\t3.png",
+    x: 0,
+    y: 0,
+    valueFormat: "",
+  });
+  console.timeEnd("get_img_color");
 };
 //   let num = 0;
 //   while (num++ < 100) {
@@ -340,6 +356,7 @@ const screen_ocr_contains = async () => {
       <el-button @click="getImgSize">getImgSize</el-button>
       <el-button @click="getSimilarityValue">getSimilarityValue</el-button>
       <el-button @click="matchTemplate">matchTemplate</el-button>
+      <el-button @click="get_img_color">get_img_color</el-button>
     </el-button-group>
     <el-button-group>
       <el-button @click="getImgRectInfo">getImgRectInfo</el-button>

@@ -2,13 +2,17 @@
 import { Sunny, Moon } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
-import { invoke } from "@tauri-apps/api/tauri";
+import { relaunch } from "@tauri-apps/api/process";
+import { ElButton } from "element-plus";
+
 const { selectFile, selectDir } = pathUtils;
 const version = ref("获取版本失败");
 getVersion().then((res) => {
   version.value = res;
 });
-
+const loading = ref(false);
+const loadingText = ref("");
+const libDownloadDialog = ref(false);
 const appGSStore = useAppGlobalSettings();
 const { app, envSetting, ocr } = storeToRefs(appGSStore);
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
@@ -33,15 +37,146 @@ const chooseScreenshotSavePath = async () => {
     envSetting.value.screenshotSavePath = res;
   }
 };
-onMounted(async () => {
-  const d_version: string = await invoke("get_dependence_version");
-  console.log(d_version);
+const libCGSwitch = async (target: string, name: string) => {
+  try {
+    const p_inference = await libUtil.libExists("paddle_inference.dll");
+    const libInfo = await libUtil.libExists(name);
+    if (libInfo && p_inference) {
+      if (p_inference.fileSize > 0 && p_inference.fileSize / 1024000 < 100) {
+        //cpu
+        if (target === "GPU") {
+          const libExists = await libUtil.libExists("g_" + name);
+          if (libExists) {
+            loading.value = true;
+            loadingText.value = "正在切换到" + target + "库，请稍后...";
+            //存在则把该文件重命名为name
+            await libUtil.renameLib(name, "c_" + name);
+            await libUtil.renameLib("g_" + name, name);
+            loading.value = false;
+            return true;
+          } else {
+            //提示下载导入对应版本的依赖库
+            libDownloadDialog.value = true;
+          }
+        } else {
+          return true;
+        }
+      } else if (p_inference.fileSize > 0 && p_inference.fileSize / 1024000 > 100) {
+        //gpu
+        if (target === "CPU") {
+          const libExists = await libUtil.libExists("c_" + name);
+          if (libExists) {
+            loading.value = true;
+            loadingText.value = "正在切换到" + target + "库，请稍后...";
+            //存在则把该文件重命名为name
+            await libUtil.renameLib(name, "g_" + name);
+            await libUtil.renameLib("c_" + name, name);
+            loading.value = false;
+            return true;
+          } else {
+            //提示下载导入对应版本的依赖库
+            libDownloadDialog.value = true;
+          }
+        } else {
+          return true;
+        }
+      }
+    } else {
+      //不存在则判断对应前缀的文件是否存在
+      let prefix = "";
+      if (target === "CPU") {
+        prefix = "c_";
+      } else {
+        prefix = "g_";
+      }
 
-  app.value.dependentSerial = d_version;
+      const libExists = await libUtil.libExists(prefix + name);
+      if (libExists) {
+        //存在则把该文件重命名为name
+        loading.value = true;
+        loadingText.value = "正在切换到" + target + "库，请稍后...";
+        await libUtil.renameLib(prefix + name, name);
+        loading.value = false;
+        return true;
+      } else {
+        //提示下载导入对应版本的依赖库
+        libDownloadDialog.value = true;
+      }
+    }
+    return false;
+  } catch (error) {
+    return false;
+  }
+};
+let showMessage = true;
+const switchOcrLib = async (target: "CPU" | "GPU") => {
+  try {
+    const switchPpocrLib = await libCGSwitch(target, "ppocr.dll");
+    const switchPaddleInferenceLib = await libCGSwitch(target, "paddle_inference.dll");
+    if (switchPpocrLib && switchPaddleInferenceLib) {
+      if (showMessage) {
+        ElNotification({
+          title: "切换OCR运行方式",
+          dangerouslyUseHTMLString: true,
+          position: "bottom-right",
+          message: h(
+            "div",
+            {
+              class: "notification-message-div",
+            },
+            [
+              "重启软件后生效",
+              h(
+                ElButton,
+                {
+                  size: "small",
+                  class: "notification-message-button",
+                  type: "primary",
+                  onClick: () => {
+                    relaunch();
+                  },
+                },
+                "立即重启"
+              ),
+            ]
+          ),
+          type: "success",
+          duration: 3000,
+        });
+      } else {
+        showMessage = true;
+      }
+    } else {
+      if (showMessage) {
+        ElMessage.error("切换失败");
+        ocr.value.value = ocr.value.value === "CPU" ? "GPU" : "CPU";
+      } else {
+        showMessage = true;
+      }
+    }
+  } catch (error) {
+    showMessage && ElMessage.error("切换失败");
+    ocr.value.value = ocr.value.value === "CPU" ? "GPU" : "CPU";
+  }
+};
+
+const switchOcrRunType = async () => {
+  await switchOcrLib(ocr.value.value);
+  await libUtil.syncDependentVersion();
+};
+onMounted(async () => {
+  await libUtil.syncDependentVersion();
 });
 </script>
 <template>
-  <div class="setting-div">
+  <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
+    <el-dialog v-model="libDownloadDialog" title="未发现依赖库">
+      <div class="dialog-content">
+        <p>未发现依赖库，请先下载对应的依赖库，再使用导入功能导入该依赖库</p>
+        <el-button type="primary">下载</el-button>
+        <el-button type="primary">导入</el-button>
+      </div>
+    </el-dialog>
     <h3>App</h3>
     <div class="setting-item">
       <span>版本</span>
@@ -75,7 +210,12 @@ onMounted(async () => {
     <h3>OCR服务</h3>
     <div class="setting-item">
       <span>运行方式</span>
-      <el-select v-model="ocr.value" placeholder="OCR运行方式" size="small">
+      <el-select
+        v-model="ocr.value"
+        placeholder="OCR运行方式"
+        size="small"
+        @change="switchOcrRunType"
+      >
         <el-option v-for="item in ocr.options" :key="item" :label="item" :value="item" />
       </el-select>
     </div>
@@ -147,5 +287,19 @@ onMounted(async () => {
 <style lang="scss">
 .setting-item .el-switch__label * {
   font-size: large;
+}
+.el-notification__group {
+  flex: 1;
+  .notification-message-div {
+    width: 100%;
+    line-height: 20px;
+    height: 40px;
+    position: relative;
+    .notification-message-button {
+      position: absolute;
+      right: -20px;
+      bottom: -5px;
+    }
+  }
 }
 </style>

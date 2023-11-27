@@ -1,7 +1,11 @@
 <template>
   <div data-tauri-drag-region class="titlebar">
     <div class="title" data-tauri-drag-region>
-      <span class="text">{{ info.title }}</span>
+      <div class="text">
+        <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
+          info.title
+        }}</span>
+      </div>
       <div
         class="api-test-bar"
         data-tauri-drag-region
@@ -36,6 +40,7 @@
 </template>
 <script lang="ts" setup>
 import { appWindow } from "@tauri-apps/api/window";
+import icon from "../assets/icon64x64.png";
 const { info } = useAutoTitleBar();
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
@@ -96,7 +101,10 @@ onMounted(() => {
   }
   .text {
     color: var(--el-text-color-primary);
-    margin-left: 10px;
+    // margin-left: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
   .api-test-bar {
     flex: 1;

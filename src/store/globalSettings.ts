@@ -49,6 +49,10 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
       const obj = JSON.parse(data);
       delete obj.version;
       Object.assign(this.$state, obj);
+      const ocrValue = await libUtil.syncOcrValue();
+      if(ocrValue){
+        obj.ocr.value = ocrValue;
+      }
       this.$patch(obj);
     },
     async init() {

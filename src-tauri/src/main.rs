@@ -43,6 +43,8 @@ fn main() {
             tools::resize_window,
             tools::move_resize_window,
             tools::get_dependence_version,
+            tools::get_install_dir,
+            tools::get_file_info,
             init::init
         ])
         .run(tauri::generate_context!())

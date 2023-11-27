@@ -1,9 +1,9 @@
 use libloading::Library;
-use std::{ffi::{c_char, CStr, CString}, sync::Arc};
+use std::ffi::{c_char, CStr, CString};
 
 use crate::global::{GPU_MEM, TEMP_DRIVE};
 pub struct PPOCR {
-    lib: Arc<Library>,
+    lib: Library,
 }
 /*
 pub struct PPOCR {
@@ -57,7 +57,7 @@ impl PPOCR {
 impl PPOCR {
     pub fn new() -> PPOCR {
         PPOCR {
-            lib: unsafe { Arc::new(Library::new("ppocr.dll").expect("ppocr.dll加载失败！")) },
+            lib: unsafe { Library::new("ppocr.dll").expect("ppocr.dll加载失败！") },
         }
     }
 
@@ -75,17 +75,16 @@ impl PPOCR {
     /// {const char*} 版本号
     pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
-            let version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> = self
+            let get_version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> = self
                 .lib
                 .get(b"getVersion")
                 .expect("dll中未发现getVersion方法");
-            let result_c: *const c_char = (*version)();
+            let result_c: *const c_char = (*get_version)();
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
             Ok(str_slice.to_owned())
         }
     }
-
 
     ///初始化dll设置
     ///
@@ -105,7 +104,7 @@ impl PPOCR {
     ///  {int} 0：初始化成功，-1：初始化失败
     pub fn init(&self, gpu_mem: i32) -> bool {
         unsafe {
-            let init: libloading::Symbol<unsafe extern "C" fn(gpu_mem: i32) -> i32> =
+            let init: libloading::Symbol<unsafe extern "C" fn(i32) -> i32> =
                 self.lib.get(b"tryInit").expect("dll中未发现tryInit方法");
             let result: i32 = (*init)(gpu_mem);
             if result == 0 {
@@ -191,14 +190,11 @@ impl PPOCR {
     /// 	    失败时为字符串，包含错误信息
     pub fn ocr(&self, img_path: &str) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
-            let image_process: libloading::Symbol<
+            let ppocr: libloading::Symbol<
                 unsafe extern "C" fn(*const c_char, i32) -> *const c_char,
-            > = self
-                .lib
-                .get(b"imageProcess")
-                .expect("dll中未发现imageProcess方法");
+            > = self.lib.get(b"imageProcess").expect("dll中未发现imageProcess方法");
             let img_path_c = CString::new(img_path).expect("CString类型转换失败");
-            let result_c: *const c_char = (*image_process)(img_path_c.as_ptr(), GPU_MEM);
+            let result_c: *const c_char = (*ppocr)(img_path_c.as_ptr(), GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
             Ok(str_slice.to_owned())

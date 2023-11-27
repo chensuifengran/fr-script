@@ -2,11 +2,7 @@ use std::sync::Arc;
 
 use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 use crate::UTIL_INSTANCE;
-use crate::{
-    c_api::{ppocr::PPOCR, util::Util},
-    types::generate_result,
-    PPOCR_INSTANCE,
-};
+use crate::{c_api::util::Util, types::generate_result, PPOCR_INSTANCE};
 use image::GenericImageView;
 
 /// 裁剪图片
@@ -183,7 +179,7 @@ pub async fn ocr(
     width: Option<i32>,
     height: Option<i32>,
 ) -> Result<String, ()> {
-    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    let ppocr = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,
@@ -240,7 +236,7 @@ pub async fn screen_ocr(
     height: Option<i32>,
     only_text: Option<bool>,
 ) -> Result<String, ()> {
-    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    let ppocr = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,
@@ -301,6 +297,7 @@ pub async fn get_img_color(
                 match value_format {
                     Some("hex") => {
                         let pixel = image.get_pixel(x, y);
+                        println!("pixel:{:?}", pixel);
                         // 获取像素的RGBA值
                         let rgba: [u8; 4] = pixel.0;
                         let hex = format!(
@@ -312,6 +309,7 @@ pub async fn get_img_color(
                     }
                     _ => {
                         let pixel = image.get_pixel(x, y);
+                        println!("none_pixel:{:?}", pixel);
                         // 获取像素的RGBA值
                         let rgba: [u8; 4] = pixel.0;
                         // 返回RGB值
@@ -320,11 +318,15 @@ pub async fn get_img_color(
                 }
             } else {
                 // 坐标点超出图片范围，返回空字符串
+                println!("坐标点超出图片范围");
                 Ok(format!(""))
             }
         }
         // 如果失败，返回空字符串
-        Err(_) => Ok(format!("")),
+        Err(err) => {
+            println!("图片读取失败:{:?}", err);
+            Ok(format!(""))
+        }
     }
 }
 
@@ -349,7 +351,7 @@ pub async fn screen_ocr_contains(
     height: Option<i32>,
     texts: &str,
 ) -> Result<bool, ()> {
-    let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
+    let ppocr = PPOCR_INSTANCE.clone();
     let x: i32 = match x {
         Some(x) => x,
         None => -1,
