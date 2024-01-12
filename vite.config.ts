@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import { resolve } from "path";
 // import legacy from '@vitejs/plugin-legacy'
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
