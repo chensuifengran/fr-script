@@ -49,6 +49,7 @@ declare module 'vue' {
     IEpClose: typeof import('~icons/ep/close')['default']
     IEpCopyDocument: typeof import('~icons/ep/copy-document')['default']
     IEpDeleteFilled: typeof import('~icons/ep/delete-filled')['default']
+    IEpDownload: typeof import('~icons/ep/download')['default']
     IEpFullScreen: typeof import('~icons/ep/full-screen')['default']
     IEpInfoFilled: typeof import('~icons/ep/info-filled')['default']
     IEpMinus: typeof import('~icons/ep/minus')['default']

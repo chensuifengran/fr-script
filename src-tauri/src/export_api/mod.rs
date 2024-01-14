@@ -12,3 +12,5 @@ pub mod constant;
 pub mod image;
 //初始化相关API
 pub mod init;
+//网络请求相关API
+pub mod request;

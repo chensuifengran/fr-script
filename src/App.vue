@@ -42,6 +42,7 @@ onMounted(async () => {
   await appGSStore.init();
   registerAllInvokeApi(appGSStore);
   handleSelect(app.value.state.aside.currentItem);
+  libUtil.checkDepUpdate();
 });
 const isDark = useDark({});
 provide("isDark", isDark);

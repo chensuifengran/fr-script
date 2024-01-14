@@ -162,11 +162,28 @@ const switchOcrLib = async (target: "CPU" | "GPU") => {
 
 const switchOcrRunType = async () => {
   await switchOcrLib(ocr.value.value);
-  await libUtil.syncDependentVersion();
 };
-onMounted(async () => {
-  await libUtil.syncDependentVersion();
+const haveUpdate = computed(() => {
+  return (
+    version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
+  );
 });
+const getDepStateType = (state: string) => {
+  switch (state) {
+    case "完整版":
+      return "success";
+    case "不可用":
+      return "danger";
+    case "精简版":
+      return "warning";
+    default:
+      return "info";
+  }
+};
+const installDeps = async () => {
+  const lackDeps = await libUtil.checkDepLack();
+  console.log("lackDeps", lackDeps);
+};
 </script>
 <template>
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
@@ -181,15 +198,31 @@ onMounted(async () => {
     <div class="setting-item">
       <span>版本</span>
       <span
-        ><el-tag type="info" size="small">{{ version }}</el-tag
-        ><el-button link type="primary">检查更新</el-button></span
+        ><el-tag type="info" class="mr-5" size="small">{{ version }}</el-tag
+        ><el-tag type="success" class="mr-5" size="small" v-if="haveUpdate"
+          >最新版本：{{ appGSStore.app.latestVersion }}</el-tag
+        ><el-button link type="primary"
+          >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
+        ></span
       >
     </div>
     <div class="setting-item">
-      <span>依赖序列号</span>
+      <span>依赖状态</span>
       <span
-        ><el-tag type="info" size="small">{{ app.dependentSerial }}</el-tag
-        ><el-button link type="primary">安装依赖库</el-button></span
+        ><el-tag :type="getDepStateType(app.dependenceState)" class="mr-5" size="small">{{
+          app.dependenceState
+        }}</el-tag
+        ><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small"
+          >可更新</el-tag
+        ><el-button
+          link
+          type="primary"
+          v-if="app.dependenceState !== '完整版'"
+          @click="installDeps"
+          >安装依赖</el-button
+        ><el-button link type="primary">{{
+          app.depHaveUpdate ? "更新" : "检查更新"
+        }}</el-button></span
       >
     </div>
     <div class="setting-item">
@@ -198,7 +231,12 @@ onMounted(async () => {
     </div>
     <div class="setting-item">
       <span>编辑器主题</span>
-      <el-select v-model="app.editorTheme.value" placeholder="编辑器主题" size="small">
+      <el-select
+        v-model="app.editorTheme.value"
+        placeholder="编辑器主题"
+        size="small"
+        class="w120"
+      >
         <el-option
           v-for="item in app.editorTheme.options"
           :key="item"
@@ -207,13 +245,14 @@ onMounted(async () => {
         />
       </el-select>
     </div>
-    <h3>OCR服务</h3>
-    <div class="setting-item">
+    <h3 v-if="app.dependenceState !== '不可用'">OCR服务</h3>
+    <div v-if="app.dependenceState !== '不可用'" class="setting-item">
       <span>运行方式</span>
       <el-select
         v-model="ocr.value"
         placeholder="OCR运行方式"
         size="small"
+        class="w120"
         @change="switchOcrRunType"
       >
         <el-option v-for="item in ocr.options" :key="item" :label="item" :value="item" />
@@ -227,14 +266,16 @@ onMounted(async () => {
     <div class="setting-item">
       <span>工作目录</span>
       <span
-        ><el-tag type="info" size="small">{{ envSetting.workDir }}</el-tag
+        ><el-tag type="info" class="mr-5" size="small">{{ envSetting.workDir }}</el-tag
         ><el-button link type="primary" @click="chooseWorkDir">选择</el-button></span
       >
     </div>
     <div class="setting-item">
       <span>截图保存路径</span>
       <span
-        ><el-tag type="info" size="small">{{ envSetting.screenshotSavePath }}</el-tag
+        ><el-tag type="info" class="mr-5" size="small">{{
+          envSetting.screenshotSavePath
+        }}</el-tag
         ><el-button link type="primary" @click="chooseScreenshotSavePath"
           >选择</el-button
         ></span
@@ -246,6 +287,7 @@ onMounted(async () => {
         v-model="envSetting.tempDrivePath.value"
         placeholder="临时文件保存盘符"
         size="small"
+        class="w120"
       >
         <el-option
           v-for="item in envSetting.tempDrivePath.options"
@@ -259,6 +301,12 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
+.mr-5 {
+  margin-right: 5px;
+}
+.w120 {
+  width: 120px;
+}
 .setting-div {
   width: 100%;
   height: 100%;

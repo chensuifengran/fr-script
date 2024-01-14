@@ -6,7 +6,9 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
   state: () => {
     return <GlobalSettings>{
       app: {
-        dependentSerial: "未知",
+        latestVersion: "0.0.3",
+        depHaveUpdate: false,
+        dependenceState: "不可用",
         editorTheme: {
           value: "跟随全局主题",
           options: ["跟随全局主题", "明亮", "暗黑"],

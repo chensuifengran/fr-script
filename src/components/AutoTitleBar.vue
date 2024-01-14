@@ -24,6 +24,9 @@
       </div>
     </div>
     <div class="btn">
+      <div class="titlebar-button setup-btn" v-if="showSetupBtn">
+        <el-icon><IEpDownload /></el-icon>
+      </div>
       <div class="titlebar-button" ref="minimize">
         <el-icon><IEpMinus /></el-icon>
       </div>
@@ -41,7 +44,9 @@
 <script lang="ts" setup>
 import { appWindow } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
+import { getVersion } from "@tauri-apps/api/app";
 const { info } = useAutoTitleBar();
+
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
@@ -50,7 +55,16 @@ const titleBarColor = computed(() => {
 const minimize = ref<HTMLElement>();
 const maximize = ref<HTMLElement>();
 const close = ref<HTMLElement>();
-
+const version = ref("获取版本失败");
+getVersion().then((res) => {
+  version.value = res;
+});
+const appGSStore = useAppGlobalSettings();
+const showSetupBtn = computed(() => {
+  return (
+    version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
+  );
+});
 onMounted(() => {
   window.onresize = async () => {
     if (await appWindow.isMaximized()) {
@@ -127,6 +141,16 @@ onMounted(() => {
       width: 40px;
       height: 40px;
       cursor: pointer;
+      &.setup-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: rgb(24, 190, 93);
+        color: #fff;
+        &:hover {
+          background-color: rgb(3, 211, 89);
+        }
+      }
     }
     .titlebar-button:hover {
       background: var(--el-color-primary-light-7);

@@ -13,6 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
+reqwest = "0.11.23"
 lazy_static = "1.4.0"
 tauri = { version = "1.5.2", features = [ "api-all"] }
 serde = { version = "1.0.190", features = ["derive"] }
