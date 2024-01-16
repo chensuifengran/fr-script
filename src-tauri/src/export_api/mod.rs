@@ -14,3 +14,7 @@ pub mod image;
 pub mod init;
 //网络请求相关API
 pub mod request;
+//操作系统相关API
+pub mod sys;
+//文件相关API
+pub mod file;

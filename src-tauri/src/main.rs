@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{image, input, mouse, screen, tools, init, request};
+use fr_script::export_api::{image, input, mouse, screen, tools, init, request, sys, file};
 use tauri::Manager;
 
 fn main() {
@@ -43,10 +43,13 @@ fn main() {
             tools::resize_window,
             tools::move_resize_window,
             tools::get_dependence_version,
-            tools::get_install_dir,
-            tools::get_file_info,
+            file::get_install_dir,
+            file::get_file_info,
+            file::copy_dep_file,
+            file::decompress_dep_file,
             init::init,
-            request::request_get
+            request::request_get,
+            sys::open_in_default_browser
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
