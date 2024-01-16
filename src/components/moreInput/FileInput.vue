@@ -67,7 +67,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 const selectFilePath = async () => {
-  const filePath = await pathUtils.selectFile();
+  const filePath = (await pathUtils.selectFile()) as string | undefined;
   emit("update:modelValue", filePath || localValue.value || "");
   localValue.value = filePath || "";
 };

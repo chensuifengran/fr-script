@@ -78,7 +78,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 const selectFilePath = async () => {
-  let filePath = await pathUtils.selectFile();
+  let filePath = (await pathUtils.selectFile()) as string | undefined;
   if (props.suffix && props.suffix.length > 0) {
     filePath += props.suffix;
   }
