@@ -32,7 +32,7 @@ const chooseWorkDir = async () => {
   }
 };
 const chooseScreenshotSavePath = async () => {
-  const res = await selectFile();
+  const res = (await selectFile()) as string | undefined;
   if (res) {
     envSetting.value.screenshotSavePath = res;
   }
@@ -180,10 +180,7 @@ const getDepStateType = (state: string) => {
       return "info";
   }
 };
-const installDeps = async () => {
-  const lackDeps = await libUtil.checkDepLack();
-  console.log("lackDeps", lackDeps);
-};
+const { goInstallDeps } = useDepInfo();
 </script>
 <template>
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
@@ -218,7 +215,7 @@ const installDeps = async () => {
           link
           type="primary"
           v-if="app.dependenceState !== '完整版'"
-          @click="installDeps"
+          @click="goInstallDeps"
           >安装依赖</el-button
         ><el-button link type="primary">{{
           app.depHaveUpdate ? "更新" : "检查更新"
@@ -254,6 +251,7 @@ const installDeps = async () => {
         size="small"
         class="w120"
         @change="switchOcrRunType"
+        :disabled="app.dependenceState !== '完整版'"
       >
         <el-option v-for="item in ocr.options" :key="item" :label="item" :value="item" />
       </el-select>

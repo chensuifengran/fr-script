@@ -32,7 +32,7 @@ const changeShowDetails = () => {
     ElNotification({
       title: "该API暂无使用文档",
       type: "warning",
-      position: "bottom-left",
+      position: "bottom-right",
     });
     return;
   }
@@ -107,11 +107,13 @@ const copyExampleCode = () => {
       ElNotification({
         title: "复制成功",
         type: "success",
+        position: "bottom-right",
       });
     } else {
       ElNotification({
         title: "复制失败",
         type: "error",
+        position: "bottom-right",
       });
     }
   }

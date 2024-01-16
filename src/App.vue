@@ -58,12 +58,22 @@ const collapsedAside = () => {
   app.value.state.aside.collapsed = !app.value.state.aside.collapsed;
   handleSelect(app.value.state.aside.currentItem);
 };
+const { showDepDrewer } = useDepInfo();
 </script>
 
 <template>
   <div class="app" id="app">
     <AutoTitleBar />
     <div class="common-layout" v-show="!hasFloatWindow">
+      <el-drawer
+        v-model="showDepDrewer"
+        direction="btt"
+        size="80%"
+        :show-close="true"
+        title="安装依赖"
+      >
+        <DepDrewer />
+      </el-drawer>
       <el-container>
         <el-aside class="aside">
           <el-tooltip
@@ -126,6 +136,14 @@ const collapsedAside = () => {
     <FillApiParamDialog />
   </div>
 </template>
+<style lang="scss">
+.common-layout {
+  .el-overlay {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+}
+</style>
 
 <style scoped lang="scss">
 #app {
@@ -136,6 +154,7 @@ const collapsedAside = () => {
   top: 40px;
   height: calc(100% - 40px);
   position: relative;
+  overflow: hidden;
 
   .aside {
     transition: v-bind(transition);

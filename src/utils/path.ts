@@ -7,14 +7,14 @@ import {
   resolve as pResolve,
 } from "@tauri-apps/api/path";
 
-const selectFile = async (filters?: DialogFilter[]) => {
+const selectFile = async (multiple = true, filters?: DialogFilter[]) => {
   const appGSStore = useAppGlobalSettings();
-  const result = (await open({
-    multiple: false,
+  const result = await open({
+    multiple,
     filters,
     directory: false,
     defaultPath: appGSStore.envSetting.workDir || (await appDataDir()),
-  })) as string;
+  });
   return result;
 };
 const selectDir = async () => {
@@ -32,7 +32,8 @@ const saveFile = async (targetPath: string) => {
   })) as string;
   return result;
 };
-const join = async (path: string, addPath: string) => {
+const join = async (path: string, addPath?: string) => {
+  if(!addPath) return await pJoin(path);
   const mod = addPath.includes("\\");
   let paths = [];
   if (mod) {

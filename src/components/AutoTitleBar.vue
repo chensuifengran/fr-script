@@ -24,9 +24,28 @@
       </div>
     </div>
     <div class="btn">
-      <div class="titlebar-button setup-btn" v-if="showSetupBtn">
-        <el-icon><IEpDownload /></el-icon>
-      </div>
+      <el-tooltip
+        effect="light"
+        content="基础功能不可用，点我安装依赖"
+        placement="bottom"
+        v-if="appGSStore.app.dependenceState === '不可用'"
+      >
+        <div class="titlebar-button warning-btn" @click="goInstallDeps">
+          <el-icon><IEpWarning /></el-icon>
+        </div>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="light"
+        content="有新版本，点我更新"
+        placement="bottom"
+        v-if="showSetupBtn"
+      >
+        <div class="titlebar-button setup-btn">
+          <el-icon><IEpDownload /></el-icon>
+        </div>
+      </el-tooltip>
+
       <div class="titlebar-button" ref="minimize">
         <el-icon><IEpMinus /></el-icon>
       </div>
@@ -46,7 +65,7 @@ import { appWindow } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 const { info } = useAutoTitleBar();
-
+const { goInstallDeps } = useDepInfo();
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
@@ -102,7 +121,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 999;
+  z-index: 999999;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
   padding-left: 10px;
@@ -147,8 +166,20 @@ onMounted(() => {
         border-radius: 50%;
         background-color: rgb(24, 190, 93);
         color: #fff;
+        margin-right: 5px;
         &:hover {
           background-color: rgb(3, 211, 89);
+        }
+      }
+      &.warning-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: rgb(255, 45, 34);
+        color: #fff;
+        margin-right: 5px;
+        &:hover {
+          background-color: rgb(255, 87, 34);
         }
       }
     }

@@ -21,8 +21,13 @@ export type CheckDepItemType = {
     fileType: "file" | "dir";
   } | boolean;
   downloadUrl: any;
-  children: CheckDepItemType[];
+  children: LibNameItemType[];
   version: string;
+}
+
+export type LibNameItemType = CheckDepItemType & {
+  child_files?: string[];
+  root_path?: string;
 }
 
 export type VersionItemType = {
