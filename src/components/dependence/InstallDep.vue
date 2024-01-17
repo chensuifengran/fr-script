@@ -1,16 +1,17 @@
 <template>
   <div class="install-dep" ref="contentRef">
     <div class="content">
-      <div class="info" v-show="!selectedDeps.length">
+      <div class="info" v-if="!selectedDeps.length && installInfo.installed">
         <div>
           安装成功：<el-tag type="success" size="small">{{ installInfo.success }}</el-tag>
         </div>
         <div>
           安装失败：<el-tag type="danger" size="small">{{ installInfo.fail }}</el-tag>
         </div>
-        <div>安装失败的依赖名：</div>
+        <div v-if="installInfo.failLabel.length">安装失败的依赖名：</div>
         <el-tag v-for="f in installInfo.failLabel" :key="f" type="info">{{ f }}</el-tag>
       </div>
+      <div v-if="selectedDeps.length">安装任务队列：</div>
       <el-tag
         v-for="tag in selectedDeps"
         :key="tag.path"
@@ -22,7 +23,7 @@
         {{ tag.label }}
       </el-tag>
     </div>
-    <div class="btns">
+    <div class="btns" v-loading="installInfo.loading" element-loading-text="安装中">
       <el-button class="clear-btn" @click="clear" v-if="selectedDeps.length"
         >清空列表</el-button
       >
@@ -51,6 +52,8 @@ const installInfo = reactive({
   success: 0,
   fail: 0,
   failLabel: <string[]>[],
+  installed: false,
+  loading: false,
 });
 //当组件出现在页面上时，计算content的最大高度
 onMounted(async () => {
@@ -97,6 +100,7 @@ const removeDep = (tag: string) => {
   selectedDeps.value = selectedDeps.value.filter((item) => item.path !== tag);
 };
 const install = async () => {
+  installInfo.loading = true;
   const failResult: string[] = [];
   installInfo.success = 0;
   installInfo.fail = 0;
@@ -117,6 +121,7 @@ const install = async () => {
     }
   }
   installInfo.failLabel = failResult;
+  installInfo.installed = true;
   ElNotification({
     title: "提示",
     message: "安装完成",
@@ -125,6 +130,7 @@ const install = async () => {
   });
   //更新依赖信息
   await libUtil.checkDepUpdate();
+  installInfo.loading = false;
 };
 </script>
 
@@ -179,6 +185,7 @@ const install = async () => {
       flex-direction: column;
       align-items: start;
       font-size: 20px;
+      justify-content: end;
     }
     .dep-tag {
       flex-shrink: 1;
