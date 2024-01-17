@@ -2,6 +2,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { exists, renameFile } from "@tauri-apps/api/fs";
 import {
   CheckDepItemType,
+  DepPkgItemType,
   DependenceItemType,
   LibNameItemType,
   NeedUpdateDepType,
@@ -9,6 +10,7 @@ import {
 } from "../types/lib";
 import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
+let lastDepPkg: DepPkgItemType[] = [];
 
 const renameLib = async (name: string, targetName: string) => {
   try {
@@ -22,7 +24,10 @@ const renameLib = async (name: string, targetName: string) => {
   }
 };
 
-const diffLocalVersionConfig = async (checkList: CheckDepItemType[]) => {
+const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
+  if (!checkList) {
+    checkList = await checkLibs();
+  }
   const localValue = localStorage.getItem("localDependentVersion");
   if (localValue) {
     const localInfos: VersionItemType[] = JSON.parse(localValue);
@@ -35,6 +40,7 @@ const diffLocalVersionConfig = async (checkList: CheckDepItemType[]) => {
             name: checkItem.name,
             version: checkItem.version,
             download_url: checkItem.downloadUrl,
+            currentVersion: localInfo.version,
           });
         }
         if (localInfo.children) {
@@ -48,6 +54,7 @@ const diffLocalVersionConfig = async (checkList: CheckDepItemType[]) => {
                   name: checkChild.name,
                   version: checkChild.version,
                   download_url: checkChild.downloadUrl,
+                  currentVersion: localChild.version,
                 });
               }
             }
@@ -57,34 +64,37 @@ const diffLocalVersionConfig = async (checkList: CheckDepItemType[]) => {
     }
     return resultList;
   } else {
-    const currentVersionInfo = checkList
-      .map((i) => {
-        if (!i.exists) {
-          return null;
-        }
-        return {
-          name: i.name,
-          version: i.version,
-          children: i.children
-            .map((j) => {
-              if (!j.exists) {
-                return null;
-              }
-              return {
-                name: j.name,
-                version: j.version,
-              };
-            })
-            .filter((i) => i),
-        };
-      })
-      .filter((i) => i);
-    localStorage.setItem(
-      "localDependentVersion",
-      JSON.stringify(currentVersionInfo)
-    );
+    await syncLocalDepVersion(checkList);
     return [];
   }
+};
+const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
+  const currentVersionInfo = checkList
+    .map((i) => {
+      if (!i.exists) {
+        return null;
+      }
+      return {
+        name: i.name,
+        version: i.version,
+        children: i.children
+          .map((j) => {
+            if (!j.exists) {
+              return null;
+            }
+            return {
+              name: j.name,
+              version: j.version,
+            };
+          })
+          .filter((i) => i),
+      };
+    })
+    .filter((i) => i);
+  localStorage.setItem(
+    "localDependentVersion",
+    JSON.stringify(currentVersionInfo)
+  );
 };
 
 const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
@@ -92,10 +102,12 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
     checkList = await checkLibs();
   }
   const needUpdateInfo = await diffLocalVersionConfig(checkList);
+  const appGSStore = useAppGlobalSettings();
+  const { app } = storeToRefs(appGSStore);
   if (needUpdateInfo.length > 0) {
-    const appGSStore = useAppGlobalSettings();
-    const { app } = storeToRefs(appGSStore);
     app.value.depHaveUpdate = true;
+  } else {
+    app.value.depHaveUpdate = false;
   }
   return needUpdateInfo;
 };
@@ -167,6 +179,9 @@ const checkLibs = async () => {
     return i.suitable_app_version.includes(currentVersion);
   });
   if (suitableDep) {
+    lastDepPkg = suitableDep.dep_pkg;
+    console.log("lastDepPkg", lastDepPkg);
+    
     const checkList: LibNameItemType[] = [];
     for (const dep of suitableDep.dependence) {
       checkList.push({
@@ -267,10 +282,12 @@ const checkDepUpdate = async () => {
   await syncDepState(checkList);
   //同步依赖最新版本
   const needUpdateInfo = await syncDependentVersion(checkList);
-  console.log("needUpdateInfo", needUpdateInfo);
+
   const allNames = await getAllLibsName(checkList);
-  const { allLibsName } = useDepInfo();
+  const { allLibsName, needUpdateDepList } = useDepInfo();
   allLibsName.value = allNames;
+  needUpdateDepList.value = needUpdateInfo;
+  await syncDepPkgList();
 };
 
 /**
@@ -450,9 +467,9 @@ const installDep = async (
       });
     }
     let targetPath;
-    if(root_path){
+    if (root_path) {
       targetPath = await pathUtils.join(installPath, root_path);
-    }else{
+    } else {
       targetPath = installPath;
     }
     result = await fsUtils.decompress(dep.path, targetPath, delOriginFile);
@@ -461,6 +478,16 @@ const installDep = async (
   }
   return result;
 };
+const syncDepPkgList = async ()=>{
+  if(!lastDepPkg){
+    await checkLibs();
+  }
+  const {depPkgList} = useDepInfo();
+  if(lastDepPkg){
+    depPkgList.value = lastDepPkg;
+  }
+
+}
 
 export const libUtil = {
   libExists,
@@ -471,4 +498,5 @@ export const libUtil = {
   checkDepLack,
   getAllLibsName,
   installDep,
+  diffLocalVersionConfig
 };

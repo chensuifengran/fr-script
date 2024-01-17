@@ -214,12 +214,9 @@ const { goInstallDeps } = useDepInfo();
         ><el-button
           link
           type="primary"
-          v-if="app.dependenceState !== '完整版'"
-          @click="goInstallDeps"
-          >安装依赖</el-button
-        ><el-button link type="primary">{{
-          app.depHaveUpdate ? "更新" : "检查更新"
-        }}</el-button></span
+          @click="goInstallDeps(app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload')"
+          >依赖管理</el-button
+        ></span
       >
     </div>
     <div class="setting-item">

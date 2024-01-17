@@ -1,29 +1,29 @@
 <template>
-  <div class="lack-dep-item">
-    <div v-if="item.currentVersion">
-      {{ item.name }}
-      <el-tag type="info" size="small"
-        >{{ item.currentVersion }}->{{ item.version }}</el-tag
-      >
-    </div>
-    <div v-else>
-      {{ item.name }} <el-tag type="info" size="small">{{ item.version }}</el-tag>
+  <div class="dep-pkg-item">
+    <div class="header">
+      <div>
+        {{ item.name }} <el-tag size="small">{{ item.version }}</el-tag
+        ><span class="desc">{{ item.desc }}</span>
+      </div>
+      <div>
+        <el-button size="small" @click="goDownload(2)" v-if="showAliBtn"
+          >阿里云盘下载</el-button
+        >
+        <el-button size="small" @click="goDownload(1)">移动云盘下载</el-button>
+      </div>
     </div>
     <div>
-      <el-button size="small" @click="goDownload(2)" v-if="showAliBtn"
-        >阿里云盘下载</el-button
-      >
-      <el-button size="small" @click="goDownload(1)">移动云盘下载</el-button>
+      <el-tag type="info" v-for="file in item.child_files" :key="file">{{ file }}</el-tag>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api/tauri";
-import { NeedUpdateDepType } from "../../types/lib";
+import { DepPkgItemType } from "../../types/lib";
 
 const props = defineProps({
   item: {
-    type: Object as PropType<NeedUpdateDepType>,
+    type: Object as PropType<DepPkgItemType>,
     required: true,
   },
   currentVersion: {
@@ -94,19 +94,29 @@ const itemBackground = inject("appAsideBgColor");
 </script>
 
 <style lang="scss" scoped>
-.lack-dep-item {
-  width: 100%;
-  height: 40px;
+.dep-pkg-item {
+  width: calc(100% - 20px);
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   background-color: v-bind(itemBackground);
-  padding-left: 10px;
-  padding-right: 10px;
-  box-sizing: border-box;
+  padding: 5px 10px;
   border-radius: 5px;
   margin-bottom: 5px;
+  .header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .desc {
+      margin-left: 10px;
+      //斜体
+      font-style: italic;
+      font-size: 12px;
+      color: #626262;
+    }
+  }
   &:hover {
     background-color: #a0e0bd;
   }

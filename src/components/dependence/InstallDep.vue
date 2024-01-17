@@ -11,6 +11,9 @@
         <div v-if="installInfo.failLabel.length">安装失败的依赖名：</div>
         <el-tag v-for="f in installInfo.failLabel" :key="f" type="info">{{ f }}</el-tag>
       </div>
+      <div v-else-if="!selectedDeps.length && !installInfo.installed">
+        <el-empty description="暂无安装任务"></el-empty>
+      </div>
       <div v-if="selectedDeps.length">安装任务队列：</div>
       <el-tag
         v-for="tag in selectedDeps"
@@ -108,8 +111,6 @@ const install = async () => {
   const copyArr = selectedDeps.value.slice(0);
   for (let i = 0; i < copyArr.length; i++) {
     const dep = selectedDeps.value.pop();
-    console.log(i, dep);
-
     if (dep) {
       const res = await libUtil.installDep(dep);
       if (!res) {
@@ -131,6 +132,10 @@ const install = async () => {
   //更新依赖信息
   await libUtil.checkDepUpdate();
   installInfo.loading = false;
+  const t = setTimeout(() => {
+    installInfo.installed = false;
+    clearTimeout(t);
+  }, 10000);
 };
 </script>
 
