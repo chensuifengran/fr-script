@@ -7,8 +7,10 @@ const contentLoading = ref(false);
 const goInstallDeps = async (target?: string) => {
   contentLoading.value = true;
   showDepDrewer.value = true;
-  if (target) {
+  if (target && (typeof target === "string" || typeof target === "number")) {
     activeDrewerName.value = target;
+  } else {
+    activeDrewerName.value = "lackDepDownload";
   }
   await libUtil.syncDependentVersion();
   const lackDeps = await libUtil.checkDepLack();
@@ -28,6 +30,6 @@ export const useDepInfo = () => {
     allLibsName,
     needUpdateDepList,
     contentLoading,
-    depPkgList
+    depPkgList,
   };
 };

@@ -181,7 +181,7 @@ const checkLibs = async () => {
   if (suitableDep) {
     lastDepPkg = suitableDep.dep_pkg;
     console.log("lastDepPkg", lastDepPkg);
-    
+
     const checkList: LibNameItemType[] = [];
     for (const dep of suitableDep.dependence) {
       checkList.push({
@@ -201,7 +201,6 @@ const checkLibs = async () => {
 //在checkLibs返回的结果中，提取出所有依赖库的名称
 const getAllLibsName = async (checkList: LibNameItemType[]) => {
   const libNames: string[] = [];
-  console.log("c", checkList);
 
   for (const item of checkList) {
     libNames.push(item.name);
@@ -217,8 +216,9 @@ const getAllLibsName = async (checkList: LibNameItemType[]) => {
       }
     }
   }
-  console.log("libNames", libNames);
-
+  for (const item of lastDepPkg) {
+    libNames.push(item.name);
+  }
   return libNames;
 };
 
@@ -478,16 +478,15 @@ const installDep = async (
   }
   return result;
 };
-const syncDepPkgList = async ()=>{
-  if(!lastDepPkg){
+const syncDepPkgList = async () => {
+  if (!lastDepPkg) {
     await checkLibs();
   }
-  const {depPkgList} = useDepInfo();
-  if(lastDepPkg){
+  const { depPkgList } = useDepInfo();
+  if (lastDepPkg) {
     depPkgList.value = lastDepPkg;
   }
-
-}
+};
 
 export const libUtil = {
   libExists,
@@ -498,5 +497,5 @@ export const libUtil = {
   checkDepLack,
   getAllLibsName,
   installDep,
-  diffLocalVersionConfig
+  diffLocalVersionConfig,
 };

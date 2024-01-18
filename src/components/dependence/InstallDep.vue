@@ -96,6 +96,20 @@ const selectDeps = async () => {
         position: "bottom-right",
       });
     }
+    //如果新加入的依赖存在base_dep_pkg.7z则判断是否存在simple_dep_pkg.7z，若存在则删除simple_dep_pkg.7z
+    const baseDep = res.find((item) => item.label.includes("base_dep_pkg.7z"));
+    if (baseDep) {
+      const simpleDep = res.find((item) => item.label.includes("simple_dep_pkg.7z"));
+      if (simpleDep) {
+        res.splice(res.indexOf(simpleDep), 1);
+        ElNotification({
+          title: "提示",
+          message: "已选择普通版依赖包，已将精简版依赖包移除。",
+          type: "info",
+          position: "bottom-right",
+        });
+      }
+    }
     selectedDeps.value = res;
   }
 };
