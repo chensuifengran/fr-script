@@ -11,6 +11,10 @@ const menuKey = ref(1);
 provide("menuKey", menuKey);
 const { info } = useAutoTitleBar();
 const handleSelect = (index: string) => {
+  if (index === "setting") {
+    libUtil.checkDepUpdate();
+  }
+
   app.value.state.aside.currentItem = index;
   router.push({
     name: index,
@@ -59,19 +63,35 @@ const collapsedAside = () => {
   handleSelect(app.value.state.aside.currentItem);
 };
 const { showDepDrewer } = useDepInfo();
+const getDepStateType = (state: string) => {
+  switch (state) {
+    case "完整版":
+      return "success";
+    case "不可用":
+      return "danger";
+    case "精简版":
+      return "warning";
+    default:
+      return "info";
+  }
+};
 </script>
 
 <template>
   <div class="app" id="app">
     <AutoTitleBar />
     <div class="common-layout" v-show="!hasFloatWindow">
-      <el-drawer
-        v-model="showDepDrewer"
-        direction="btt"
-        size="80%"
-        :show-close="true"
-        title="安装依赖"
-      >
+      <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
+        <template #header="{ titleId, titleClass }">
+          <h4 :id="titleId" :class="titleClass">
+            依赖管理<el-tag
+              :type="getDepStateType(app.dependenceState)"
+              size="small"
+              class="title-tag"
+              >{{ app.dependenceState }}</el-tag
+            >
+          </h4>
+        </template>
         <DepDrewer />
       </el-drawer>
       <el-container>
@@ -155,6 +175,9 @@ const { showDepDrewer } = useDepInfo();
   height: calc(100% - 40px);
   position: relative;
   overflow: hidden;
+  .title-tag {
+    margin-left: 10px;
+  }
 
   .aside {
     transition: v-bind(transition);

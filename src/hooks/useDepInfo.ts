@@ -13,10 +13,7 @@ const goInstallDeps = async (target?: string) => {
     activeDrewerName.value = "lackDepDownload";
   }
   await libUtil.syncDependentVersion();
-  const lackDeps = await libUtil.checkDepLack();
-  if (lackDeps.length > 0) {
-    lackDependence.splice(0, lackDependence.length, ...lackDeps);
-  }
+  
   contentLoading.value = false;
 };
 const needUpdateDepList = ref<NeedUpdateDepType[]>([]);

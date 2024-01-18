@@ -104,10 +104,15 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   const needUpdateInfo = await diffLocalVersionConfig(checkList);
   const appGSStore = useAppGlobalSettings();
   const { app } = storeToRefs(appGSStore);
+  const { lackDependence } = useDepInfo();
   if (needUpdateInfo.length > 0) {
     app.value.depHaveUpdate = true;
   } else {
     app.value.depHaveUpdate = false;
+  }
+  const lackDeps = await checkDepLack();
+  if (lackDeps.length > 0) {
+    lackDependence.splice(0, lackDependence.length, ...lackDeps);
   }
   return needUpdateInfo;
 };
