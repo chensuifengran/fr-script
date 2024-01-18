@@ -4,12 +4,10 @@ import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
-
+const { getDepStateType } = libUtil;
+const { goInstallDeps } = useDepInfo();
 const { selectFile, selectDir } = pathUtils;
 const version = ref("获取版本失败");
-getVersion().then((res) => {
-  version.value = res;
-});
 const loading = ref(false);
 const loadingText = ref("");
 const libDownloadDialog = ref(false);
@@ -17,6 +15,9 @@ const appGSStore = useAppGlobalSettings();
 const { app, envSetting, ocr } = storeToRefs(appGSStore);
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const darkState = ref(false);
+getVersion().then((res) => {
+  version.value = res;
+});
 darkState.value = isDark.value;
 let timer: any;
 watch(darkState, () => {
@@ -168,19 +169,6 @@ const haveUpdate = computed(() => {
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
   );
 });
-const getDepStateType = (state: string) => {
-  switch (state) {
-    case "完整版":
-      return "success";
-    case "不可用":
-      return "danger";
-    case "精简版":
-      return "warning";
-    default:
-      return "info";
-  }
-};
-const { goInstallDeps } = useDepInfo();
 </script>
 <template>
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">

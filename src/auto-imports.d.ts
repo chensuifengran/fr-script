@@ -55,6 +55,7 @@ declare global {
   const fsUtils: typeof import('./utils/fs')['fsUtils']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getDepStateType: typeof import('./utils/libUtil')['getDepStateType']
   const h: typeof import('vue')['h']
   const hideRoutes: typeof import('./router/routers')['hideRoutes']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']

@@ -63,18 +63,7 @@ const collapsedAside = () => {
   handleSelect(app.value.state.aside.currentItem);
 };
 const { showDepDrewer } = useDepInfo();
-const getDepStateType = (state: string) => {
-  switch (state) {
-    case "完整版":
-      return "success";
-    case "不可用":
-      return "danger";
-    case "精简版":
-      return "warning";
-    default:
-      return "info";
-  }
-};
+const { getDepStateType } = libUtil;
 </script>
 
 <template>
