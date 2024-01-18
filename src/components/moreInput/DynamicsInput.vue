@@ -142,14 +142,14 @@ const props = defineProps({
     default: "invokeApi",
   },
 });
-onMounted(() => {
-  console.log(
-    "DynamicsInput",
-    argItem.value,
-    argItem.value?.componentType === "numberInput",
-    typeof model.value
-  );
-});
+// onMounted(() => {
+//   console.log(
+//     "DynamicsInput",
+//     argItem.value,
+//     argItem.value?.componentType === "numberInput",
+//     typeof model.value
+//   );
+// });
 const name = computed(() => {
   if (props.type === "invokeApi") {
     return (

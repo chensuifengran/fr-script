@@ -30,7 +30,7 @@
         placement="bottom"
         v-if="appGSStore.app.dependenceState === '不可用'"
       >
-        <div class="titlebar-button warning-btn" @click="goInstallDeps">
+        <div class="titlebar-button warning-btn" @click="goInstallDeps()">
           <el-icon><IEpWarning /></el-icon>
         </div>
       </el-tooltip>
@@ -121,7 +121,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 999999;
+  z-index: 100;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
   padding-left: 10px;

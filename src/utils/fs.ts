@@ -32,12 +32,9 @@ export const decompress = async (
   delOriginFile: boolean
 ): Promise<boolean> => {
   try {
-    console.log('decompress_dep_file',path, targetPath, delOriginFile);
-    
     const info = JSON.parse(
       await invoke("decompress_dep_file", { path, targetPath, delOriginFile })
     );
-    console.log('decompress_dep_file',info);
     
     if (info.code === 200) {
       return true;

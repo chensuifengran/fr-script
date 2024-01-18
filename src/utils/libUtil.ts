@@ -180,8 +180,6 @@ const checkLibs = async () => {
   });
   if (suitableDep) {
     lastDepPkg = suitableDep.dep_pkg;
-    console.log("lastDepPkg", lastDepPkg);
-
     const checkList: LibNameItemType[] = [];
     for (const dep of suitableDep.dependence) {
       checkList.push({

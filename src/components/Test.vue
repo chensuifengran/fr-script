@@ -30,7 +30,7 @@ onMounted(() => {
       }
     })
     .catch((e) => {
-      console.log(e);
+      console.error(e);
       ElMessage({
         message: "初始化失败.",
         type: "error",
