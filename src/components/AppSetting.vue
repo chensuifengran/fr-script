@@ -109,9 +109,26 @@ const libCGSwitch = async (target: string, name: string) => {
     return false;
   }
 };
+const checkTargetLib = async (target: "CPU" | "GPU") => {
+  if (target === "CPU") {
+    const libInferExists = await libUtil.libExists("c_paddle_inference.dll");
+    const libExists = await libUtil.libExists("c_ppocr.dll");
+    return !!libInferExists && !!libExists;
+  } else {
+    const libInferExists = await libUtil.libExists("g_paddle_inference.dll");
+    const libExists = await libUtil.libExists("g_ppocr.dll");
+    return !!libInferExists && !!libExists;
+  }
+};
 let showMessage = true;
 const switchOcrLib = async (target: "CPU" | "GPU") => {
   try {
+    const allowSwitch = await checkTargetLib(target);
+    if (!allowSwitch) {
+      showMessage && ElMessage.error("切换失败,依赖目标缺失！");
+      ocr.value.value = ocr.value.value === "CPU" ? "GPU" : "CPU";
+      return;
+    }
     const switchPpocrLib = await libCGSwitch(target, "ppocr.dll");
     const switchPaddleInferenceLib = await libCGSwitch(target, "paddle_inference.dll");
     if (switchPpocrLib && switchPaddleInferenceLib) {
@@ -174,9 +191,11 @@ const haveUpdate = computed(() => {
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
     <el-dialog v-model="libDownloadDialog" title="未发现依赖库">
       <div class="dialog-content">
-        <p>未发现依赖库，请先下载对应的依赖库，再使用导入功能导入该依赖库</p>
-        <el-button type="primary">下载</el-button>
-        <el-button type="primary">导入</el-button>
+        <span>错误，依赖文件缺失!</span>
+        <div class="btn-content">
+          <el-button type="info" @click="libDownloadDialog = false">取消</el-button>
+          <el-button type="primary" @click="goInstallDeps()">依赖管理</el-button>
+        </div>
       </div>
     </el-dialog>
     <h3>App</h3>
@@ -297,6 +316,15 @@ const haveUpdate = computed(() => {
   padding: 5px 10px;
   box-sizing: border-box;
   overflow-y: scroll;
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    .btn-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+  }
   .setting-item {
     display: flex;
     width: 100%;
