@@ -451,7 +451,9 @@ const checkDepLack = async () => {
 
 const installDep = async (
   dep: { label: string; path: string },
-  delOriginFile = false
+  delOriginFile = false,
+  isFullVersionInstallBaseVersion = false,
+  ocrValue:'CPU'|'GPU' = 'CPU'
 ) => {
   const installPath = await pathUtils.getInstallDir();
   let result = false;
@@ -474,6 +476,16 @@ const installDep = async (
       targetPath = await pathUtils.join(installPath, root_path);
     } else {
       targetPath = installPath;
+    }
+    if (isFullVersionInstallBaseVersion && dep.label === "base_dep_pkg.7z" && ocrValue === 'GPU') {
+      await libUtil.renameLib("ppocr.dll", "g_ppocr.dll");
+      await libUtil.renameLib("paddle_inference.dll", "g_paddle_inference.dll");
+    } else {
+      console.warn(
+        "isFullVersionInstallBaseVersion",
+        isFullVersionInstallBaseVersion,
+        dep.label
+      );
     }
     result = await fsUtils.decompress(dep.path, targetPath, delOriginFile);
   } else {
@@ -514,5 +526,5 @@ export const libUtil = {
   getAllLibsName,
   installDep,
   diffLocalVersionConfig,
-  getDepStateType
+  getDepStateType,
 };

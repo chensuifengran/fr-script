@@ -121,11 +121,11 @@ const checkTargetLib = async (target: "CPU" | "GPU") => {
   }
 };
 let showMessage = true;
-const switchOcrLib = async (target: "CPU" | "GPU") => {
+const switchOcrLib = async (target: "CPU" | "GPU", checkExists = true) => {
   try {
     const allowSwitch = await checkTargetLib(target);
-    if (!allowSwitch) {
-      showMessage && ElMessage.error("切换失败,依赖目标缺失！");
+    if (checkExists && !allowSwitch) {
+      showMessage && ElMessage.error("切换失败,目标依赖缺失！");
       ocr.value.value = ocr.value.value === "CPU" ? "GPU" : "CPU";
       return;
     }

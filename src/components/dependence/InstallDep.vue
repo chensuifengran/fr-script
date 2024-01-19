@@ -42,12 +42,16 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { storeToRefs } from "pinia";
+
 const selectedDeps = ref<
   {
     label: string;
     path: string;
   }[]
 >([]);
+const appGSStore = useAppGlobalSettings();
+const { app, ocr } = storeToRefs(appGSStore);
 const contentRef = ref<HTMLElement>();
 const { allLibsName } = useDepInfo();
 const contentMaxHeight = ref("auto");
@@ -111,10 +115,32 @@ const selectDeps = async () => {
       }
     }
     selectedDeps.value = res;
+    if (await checkFullVersionInstallBaseVersion(res)) {
+      ElNotification({
+        title: "提示",
+        message:
+          "当前为完整版，如果继续安装基础版依赖包，将会把OCR运行方式设置为基础版(CPU)。",
+        type: "warning",
+        position: "bottom-right",
+      });
+    }
   }
 };
 const removeDep = (tag: string) => {
   selectedDeps.value = selectedDeps.value.filter((item) => item.path !== tag);
+};
+
+//安装依赖时检测是否是完整版的状态下安装基础版的依赖包
+const checkFullVersionInstallBaseVersion = async (
+  willInstallDeps: { label: string; path: string }[]
+) => {
+  if (app.value.dependenceState === "完整版") {
+    const baseDepPkg = willInstallDeps.find((item) =>
+      item.label.includes("base_dep_pkg.7z")
+    );
+    return !!baseDepPkg;
+  }
+  return false;
 };
 const install = async () => {
   installInfo.loading = true;
@@ -123,10 +149,13 @@ const install = async () => {
   installInfo.fail = 0;
   installInfo.failLabel = [];
   const copyArr = selectedDeps.value.slice(0);
+  const isFullVersionInstallBaseVersion = await checkFullVersionInstallBaseVersion(
+    copyArr
+  );
   for (let i = 0; i < copyArr.length; i++) {
     const dep = selectedDeps.value.pop();
     if (dep) {
-      const res = await libUtil.installDep(dep);
+      const res = await libUtil.installDep(dep, false, isFullVersionInstallBaseVersion,ocr.value.value);
       if (!res) {
         failResult.push(dep.label);
         installInfo.fail++;
@@ -137,6 +166,21 @@ const install = async () => {
   }
   installInfo.failLabel = failResult;
   installInfo.installed = true;
+  if (
+    isFullVersionInstallBaseVersion &&
+    !failResult.includes("base_dep_pkg.7z") &&
+    ocr.value.value === "GPU"
+  ) {
+    //将OCR运行方式设置为基础版(CPU)
+    ocr.value.value = "CPU";
+    ElNotification({
+      title: "提示",
+      message:
+        "由于在完整版上安装了基础版依赖包，为了避免出错，已将OCR运行方式设置为基础版(CPU)。",
+      type: "info",
+      position: "bottom-right",
+    });
+  }
   ElNotification({
     title: "提示",
     message: "安装完成",
