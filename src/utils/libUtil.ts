@@ -281,6 +281,16 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
 
 const checkDepUpdate = async () => {
   const checkList = await checkLibs();
+  if (checkList.length === 0) {
+    ElNotification({
+      title: "获取依赖信息失败",
+      message: "没有适合当前版本的依赖库信息",
+      type: "error",
+      position: "bottom-right",
+      showClose: true,
+    })
+    return;
+  }
   //同步依赖状态
   await syncDepState(checkList);
   //同步依赖最新版本
