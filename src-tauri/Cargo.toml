@@ -1,6 +1,6 @@
 [package]
 name = "fr-script"
-version = "0.0.4"
+version = "0.0.5"
 description = "风染脚本Tauri重构版"
 authors = ["csfr"]
 license = ""

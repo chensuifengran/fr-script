@@ -1128,7 +1128,7 @@ dependencies = [
 
 [[package]]
 name = "fr-script"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "enigo",
  "image",
