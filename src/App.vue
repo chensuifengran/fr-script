@@ -64,6 +64,7 @@ const collapsedAside = () => {
 };
 const { showDepDrewer } = useDepInfo();
 const { getDepStateType } = libUtil;
+const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 </script>
 
 <template>
@@ -143,6 +144,28 @@ const { getDepStateType } = libUtil;
       </el-container>
     </div>
     <FillApiParamDialog />
+    <el-dialog
+      v-model="appVersionInfo.openDialog"
+      :title="'版本更新v' + appVersionInfo.version"
+      class="version-update-dialog"
+    >
+      <div class="dialog-content">
+        <div>{{ appVersionInfo.desc }}</div>
+        <div class="btn-content">
+          <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
+            >取消</el-button
+          >
+          <el-button
+            size="small"
+            v-for="item in appVersionInfo.downloadUrl"
+            :key="item.origin"
+            type="primary"
+            @click="goDownloadNewApp(item)"
+            >{{ item.origin }}下载</el-button
+          >
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss">
@@ -152,11 +175,27 @@ const { getDepStateType } = libUtil;
     overflow: hidden;
   }
 }
+.version-update-dialog {
+  .el-dialog__body {
+    padding: 10px;
+  }
+}
 </style>
 
 <style scoped lang="scss">
 #app {
   background: v-bind(appBackground);
+}
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  .btn-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
 }
 .common-layout {
   width: 100%;

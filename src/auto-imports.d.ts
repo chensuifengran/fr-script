@@ -143,6 +143,7 @@ declare global {
   const useActiveElement: typeof import('@vueuse/core')['useActiveElement']
   const useAnimate: typeof import('@vueuse/core')['useAnimate']
   const useAppGlobalSettings: typeof import('./store/globalSettings')['useAppGlobalSettings']
+  const useAppVersionInfo: typeof import('./hooks/useAppVersionInfo')['useAppVersionInfo']
   const useArrayDifference: typeof import('@vueuse/core')['useArrayDifference']
   const useArrayEvery: typeof import('@vueuse/core')['useArrayEvery']
   const useArrayFilter: typeof import('@vueuse/core')['useArrayFilter']

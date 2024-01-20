@@ -1,0 +1,32 @@
+.circle-loader {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 2px solid #b1e2c0;
+  border-right: 2px solid transparent;
+  box-sizing: border-box;
+  animation: circle-rotation 1s linear infinite;
+  &::after {
+    content: '';  
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border-left: 2px solid #6cc9f0;
+    border-bottom: 2px solid transparent;
+    animation: circle-rotation 0.5s linear infinite reverse;
+  }
+}
+
+@keyframes circle-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 

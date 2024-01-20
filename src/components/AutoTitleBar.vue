@@ -41,7 +41,7 @@
         placement="bottom"
         v-if="showSetupBtn"
       >
-        <div class="titlebar-button setup-btn">
+        <div class="titlebar-button setup-btn" @click="openDownloadDialog">
           <el-icon><IEpDownload /></el-icon>
         </div>
       </el-tooltip>
@@ -79,6 +79,11 @@ getVersion().then((res) => {
   version.value = res;
 });
 const appGSStore = useAppGlobalSettings();
+const { appVersionInfo, goAppUpdate } = useAppVersionInfo();
+const openDownloadDialog = async () => {
+  await goAppUpdate(true);
+  appVersionInfo.value.openDialog = true;
+};
 const showSetupBtn = computed(() => {
   return (
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
