@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
+import { invoke } from "@tauri-apps/api";
 const { getDepStateType } = libUtil;
 const { goInstallDeps } = useDepInfo();
 const { selectFile, selectDir } = pathUtils;
@@ -186,6 +187,61 @@ const haveUpdate = computed(() => {
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
   );
 });
+
+const appVersionInfo = ref<{
+  version: string;
+  desc: string;
+  downloadUrl: DownloadUrl[];
+  history: HistoryVersion[];
+  forceUpdate: boolean;
+  updateTime: string;
+  openDialog: boolean;
+}>({
+  version: "",
+  desc: "",
+  downloadUrl: [],
+  history: [],
+  forceUpdate: false,
+  updateTime: "",
+  openDialog: false,
+});
+
+const goAppUpdate = async () => {
+  const info = await appConfigApi.syncLocalVersion();
+  if (info) {
+    if (haveUpdate.value) {
+      appVersionInfo.value.version = info.app_version;
+      appVersionInfo.value.desc = info.desc;
+      appVersionInfo.value.downloadUrl = info.download_url;
+      appVersionInfo.value.history = info.history;
+      appVersionInfo.value.forceUpdate = info.force_update;
+      appVersionInfo.value.updateTime = info.update_time;
+      appVersionInfo.value.openDialog = true;
+      console.log(appVersionInfo.value);
+    } else {
+      ElNotification({
+        title: "提示",
+        message: "当前已是最新版本",
+        type: "success",
+        position: "bottom-right",
+      });
+    }
+  }
+};
+const goDownloadNewApp = async (item: DownloadUrl) => {
+  if (item.pwd.length > 0) {
+    execCopy(item.pwd);
+    ElNotification({
+      title: "提示",
+      message: "提取码已复制到剪切板",
+      type: "success",
+      position: "bottom-right",
+    });
+  }
+  await invoke("open_in_default_browser", {
+    url: item.url,
+  });
+};
 </script>
 <template>
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
@@ -198,14 +254,37 @@ const haveUpdate = computed(() => {
         </div>
       </div>
     </el-dialog>
+    <el-dialog
+      v-model="appVersionInfo.openDialog"
+      :title="'版本更新v' + appVersionInfo.version"
+    >
+      <div class="dialog-content">
+        <div>{{ appVersionInfo.desc }}</div>
+        <div class="btn-content">
+          <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
+            >取消</el-button
+          >
+          <el-button
+            size="small"
+            v-for="item in appVersionInfo.downloadUrl"
+            :key="item.origin"
+            type="primary"
+            @click="goDownloadNewApp(item)"
+            >{{ item.origin }}下载</el-button
+          >
+        </div>
+      </div>
+    </el-dialog>
     <h3>App</h3>
     <div class="setting-item">
       <span>版本</span>
       <span
-        ><el-tag type="info" class="mr-5" size="small">{{ version }}</el-tag
+        ><el-tag :type="haveUpdate ? 'info' : 'success'" class="mr-5" size="small">{{
+          version
+        }}</el-tag
         ><el-tag type="success" class="mr-5" size="small" v-if="haveUpdate"
           >最新版本：{{ appGSStore.app.latestVersion }}</el-tag
-        ><el-button link type="primary"
+        ><el-button link type="primary" @click="goAppUpdate"
           >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
         ></span
       >

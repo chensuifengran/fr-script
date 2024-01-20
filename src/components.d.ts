@@ -11,7 +11,6 @@ declare module 'vue' {
     AppSetting: typeof import('./components/AppSetting.vue')['default']
     ATHeader: typeof import('./components/apiTest/ATHeader.vue')['default']
     AutoTitleBar: typeof import('./components/AutoTitleBar.vue')['default']
-    copy: typeof import('./components/dependence/LackItem copy.vue')['default']
     DepDrewer: typeof import('./components/dependence/DepDrewer.vue')['default']
     DepPkgDownload: typeof import('./components/dependence/DepPkgDownload.vue')['default']
     DepPkgItem: typeof import('./components/dependence/DepPkgItem.vue')['default']
