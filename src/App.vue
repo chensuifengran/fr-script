@@ -41,8 +41,13 @@ const transition = computed(() => {
 });
 const asideDisplay = ref("none");
 onMounted(async () => {
-  window.addEventListener("resize", async () => {
+  window.addEventListener("resize", () => {
     syncWindowInnerWidth(window.innerWidth);
+    if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
+      collapsedAside();
+    } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
+      collapsedAside();
+    }
   });
   asideDisplay.value = "block";
   //自动保存当前全局配置以及导入之前的全局配置
