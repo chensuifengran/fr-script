@@ -6,22 +6,23 @@
           info.title
         }}</span>
       </div>
-      <div
-        class="api-test-bar"
-        data-tauri-drag-region
-        v-if="info.showContentType === 'apiTest'"
+      <transition
+        enter-active-class="animate__animated animate__fadeInUp"
+        leave-active-class="animate__animated animate__fadeOutDown"
       >
-        <el-input
-          class="search-ipt"
-          v-model="info.apiTest.searchValue"
-          clearable
-          placeholder="可输入API的关键字对API进行筛选"
-        >
-        </el-input>
-        <el-button class="output-btn" @click="info.apiTest.openOutput = true"
-          ><el-icon><IEpNotification /></el-icon
-        ></el-button>
-      </div>
+        <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
+          <el-input
+            class="search-ipt"
+            v-model="info.apiTest.searchValue"
+            clearable
+            placeholder="可输入API的关键字对API进行筛选"
+          >
+          </el-input>
+          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+            ><el-icon><IEpNotification /></el-icon
+          ></el-button>
+        </div>
+      </transition>
     </div>
     <div class="btn">
       <el-tooltip
@@ -64,7 +65,7 @@
 import { appWindow } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
-const { info } = useAutoTitleBar();
+const { info, windowInnerWidth } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
@@ -89,14 +90,27 @@ const showSetupBtn = computed(() => {
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
   );
 });
+
+const showApiTestSearch = computed(() => {
+  return info.showContentType === "apiTest" && windowInnerWidth.value >= 820;
+});
+const searchPosition = computed(() => {
+  if (showApiTestSearch.value || info.showContentType !== "apiTest") {
+    return "relative";
+  } else {
+    return "absolute";
+  }
+});
+
 onMounted(() => {
-  window.onresize = async () => {
+  window.addEventListener("resize", async () => {
     if (await appWindow.isMaximized()) {
       isFullScreen.value = true;
     } else {
       isFullScreen.value = false;
     }
-  };
+  });
+
   minimize.value?.addEventListener("click", () => {
     appWindow.minimize();
   });
@@ -152,9 +166,11 @@ onMounted(() => {
     justify-content: center;
     .search-ipt {
       width: 500px;
+      position: v-bind(searchPosition);
     }
     .output-btn {
       margin-left: 5px;
+      position: v-bind(searchPosition);
     }
   }
   .btn {

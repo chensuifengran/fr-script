@@ -6,10 +6,19 @@ const info = reactive({
         openOutput:false,
     }
 });
-
-
+const windowInnerWidth = ref(window.innerWidth || 0);
+let syncTimer:any = null;
+const syncWindowInnerWidth = (width:number)=>{
+    syncTimer && clearTimeout(syncTimer);
+    syncTimer = setTimeout(()=>{
+        windowInnerWidth.value = width;
+        clearTimeout(syncTimer);
+    },100)
+}
 export const useAutoTitleBar = ()=>{
     return {
-        info
+        info,
+        windowInnerWidth,
+        syncWindowInnerWidth
     }
 }

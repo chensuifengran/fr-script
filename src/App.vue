@@ -9,7 +9,7 @@ const { app } = storeToRefs(appGSStore);
 const router = useRouter();
 const menuKey = ref(1);
 provide("menuKey", menuKey);
-const { info } = useAutoTitleBar();
+const { info, syncWindowInnerWidth } = useAutoTitleBar();
 const handleSelect = (index: string) => {
   if (index === "setting") {
     libUtil.checkDepUpdate();
@@ -41,6 +41,9 @@ const transition = computed(() => {
 });
 const asideDisplay = ref("none");
 onMounted(async () => {
+  window.addEventListener("resize", async () => {
+    syncWindowInnerWidth(window.innerWidth);
+  });
   asideDisplay.value = "block";
   //自动保存当前全局配置以及导入之前的全局配置
   await appGSStore.init();

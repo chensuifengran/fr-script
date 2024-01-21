@@ -14,12 +14,33 @@
       :infinite-scroll-distance="40"
       :infinite-scroll-immediate="false"
     >
+      <transition
+        enter-active-class="animate__animated animate__fadeInDown"
+        leave-active-class="animate__animated animate__fadeOutUp"
+      >
+        <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
+          <el-input
+            class="search-ipt"
+            v-model="info.apiTest.searchValue"
+            clearable
+            placeholder="可输入API的关键字对API进行筛选"
+          >
+          </el-input>
+          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+            ><el-icon><IEpNotification /></el-icon
+          ></el-button>
+        </div>
+      </transition>
       <AsyncApiDocumentItem
         v-for="m in allDocumentItems"
         :key="m?.dialog?.targetMethodName || m?.dialog?.title"
         :model="m!"
         :type="m?.itemType"
       />
+      <el-empty
+        v-if="!allDocumentItems.length"
+        description="没有找到相应的API"
+      ></el-empty>
       <div class="end" v-if="isEnd">------到底了，没有更多数据了------</div>
       <div class="loading-box" v-show="mainLoading"><Loading />加载中...</div>
     </div>
@@ -77,7 +98,7 @@ const AsyncApiDocumentItem = defineAsyncComponent({
 });
 const pageContentRef = ref<HTMLElement>();
 const { getInvokeApiTestModules, setTestModuleCtx } = useInvokeApiMethodsRegister();
-const { info } = useAutoTitleBar();
+const { info, windowInnerWidth } = useAutoTitleBar();
 const appGSStore = useAppGlobalSettings();
 const { app } = storeToRefs(appGSStore);
 const mainLoading = ref(true);
@@ -87,9 +108,10 @@ const pagePadding = ref("10px");
 const antiShakeValue = ref("");
 let needChange = true;
 const isResize = ref(false);
-window.onresize = () => {
-  isResize.value = true;
-};
+const showApiTestSearch = computed(() => {
+  return info.showContentType === "apiTest" && windowInnerWidth.value < 820;
+});
+
 const textareaOptions = computed(() => {
   if (isResize.value) {
     isResize.value = false;
@@ -244,6 +266,10 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     overflow-x: hidden;
     padding: 5px;
     position: relative;
+    .api-test-bar {
+      display: flex;
+      flex-direction: row;
+    }
     .loading-box {
       position: absolute;
       left: 0;
