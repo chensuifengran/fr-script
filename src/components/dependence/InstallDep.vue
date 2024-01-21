@@ -3,7 +3,7 @@
     <div class="content">
       <div class="info" v-if="!selectedDeps.length && installInfo.installed">
         <div>
-          安装成功：<el-tag type="success" size="small">{{ installInfo.success }}</el-tag>
+          安装成功：<el-tag size="small">{{ installInfo.success }}</el-tag>
         </div>
         <div>
           安装失败：<el-tag type="danger" size="small">{{ installInfo.fail }}</el-tag>
@@ -155,7 +155,12 @@ const install = async () => {
   for (let i = 0; i < copyArr.length; i++) {
     const dep = selectedDeps.value.pop();
     if (dep) {
-      const res = await libUtil.installDep(dep, false, isFullVersionInstallBaseVersion,ocr.value.value);
+      const res = await libUtil.installDep(
+        dep,
+        false,
+        isFullVersionInstallBaseVersion,
+        ocr.value.value
+      );
       if (!res) {
         failResult.push(dep.label);
         installInfo.fail++;

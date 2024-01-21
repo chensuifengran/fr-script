@@ -201,14 +201,14 @@ const { goAppUpdate } = useAppVersionInfo();
       </div>
     </el-dialog>
 
-    <h3>App</h3>
+    <h3 class="setting-title">App</h3>
     <div class="setting-item">
       <span>版本</span>
       <span
-        ><el-tag :type="haveUpdate ? 'info' : 'success'" class="mr-5" size="small">{{
+        ><el-tag :type="haveUpdate ? 'info' : ''" class="mr-5" size="small">{{
           version
         }}</el-tag
-        ><el-tag type="success" class="mr-5" size="small" v-if="haveUpdate"
+        ><el-tag class="mr-5" size="small" v-if="haveUpdate"
           >最新版本：{{ appGSStore.app.latestVersion }}</el-tag
         ><el-button link type="primary" @click="goAppUpdate(haveUpdate)"
           >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
@@ -251,7 +251,7 @@ const { goAppUpdate } = useAppVersionInfo();
         />
       </el-select>
     </div>
-    <h3 v-if="app.dependenceState !== '不可用'">OCR服务</h3>
+    <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">
       <span>运行方式</span>
       <el-select
@@ -269,7 +269,7 @@ const { goAppUpdate } = useAppVersionInfo();
       <span>GPU内存占用(MB)</span>
       <el-input-number v-model="ocr.gpuMemory" :min="1" size="small" />
     </div>
-    <h3>环境设置</h3>
+    <h3 class="setting-title">环境设置</h3>
     <div class="setting-item">
       <span>工作目录</span>
       <span
@@ -332,6 +332,9 @@ const { goAppUpdate } = useAppVersionInfo();
       justify-content: flex-end;
       margin-top: 20px;
     }
+  }
+  .setting-title {
+    margin: 5px 0;
   }
   .setting-item {
     display: flex;

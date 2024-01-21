@@ -516,7 +516,7 @@ const syncDepPkgList = async () => {
 export const getDepStateType = (state: string) => {
   switch (state) {
     case "完整版":
-      return "success";
+      return "";
     case "不可用":
       return "danger";
     case "精简版":
