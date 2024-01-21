@@ -42,7 +42,8 @@
         "title": "风染脚本",
         "transparent": true,
         "width": 980,
-        "height": 600
+        "height": 600,
+        "minWidth": 700
       }
     ]
   }

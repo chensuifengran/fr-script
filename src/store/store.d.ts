@@ -32,6 +32,9 @@ type GlobalSettings = {
     options: ["GPU", "CPU"];
     gpuMemory: number;
   };
+  view:{
+    showUpdateInTitleBar:boolean;
+  }
 };
 type Runtime = {
   notAllowedFnId: string[];

@@ -12,7 +12,7 @@ const loading = ref(false);
 const loadingText = ref("");
 const libDownloadDialog = ref(false);
 const appGSStore = useAppGlobalSettings();
-const { app, envSetting, ocr } = storeToRefs(appGSStore);
+const { app, envSetting, ocr, view } = storeToRefs(appGSStore);
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const darkState = ref(false);
 getVersion().then((res) => {
@@ -302,6 +302,20 @@ const { goAppUpdate } = useAppVersionInfo();
           :label="item"
           :value="item"
         />
+      </el-select>
+    </div>
+
+    <h3 class="setting-title">显示</h3>
+    <div class="setting-item">
+      <span>在标题栏显示APP更新按钮</span>
+      <el-select
+        v-model="view.showUpdateInTitleBar"
+        placeholder="在标题栏显示APP更新按钮"
+        size="small"
+        class="w120"
+      >
+        <el-option label="显示" :value="true" />
+        <el-option label="不显示" :value="false" />
       </el-select>
     </div>
   </div>

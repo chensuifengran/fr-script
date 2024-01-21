@@ -36,11 +36,10 @@
         </div>
       </el-tooltip>
       <el-tooltip
-        class="box-item"
         effect="light"
         content="有新版本，点我更新"
         placement="bottom"
-        v-if="showSetupBtn"
+        v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar"
       >
         <div class="titlebar-button setup-btn" @click="openDownloadDialog">
           <el-icon><IEpDownload /></el-icon>
@@ -182,10 +181,10 @@ onMounted(() => {
       height: 40px;
       cursor: pointer;
       &.setup-btn {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
-        background-color: rgb(24, 190, 93);
+        background-color: var(--el-color-primary);
         color: #fff;
         margin-right: 5px;
         &:hover {
@@ -193,8 +192,8 @@ onMounted(() => {
         }
       }
       &.warning-btn {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
         background-color: rgb(255, 45, 34);
         color: #fff;

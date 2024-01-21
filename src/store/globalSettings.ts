@@ -37,6 +37,9 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
         options: ["GPU", "CPU"],
         gpuMemory: 1000,
       },
+      view:{
+        showUpdateInTitleBar:true
+      }
     };
   },
   getters: {},
