@@ -47,6 +47,9 @@ fn main() {
             file::get_file_info,
             file::copy_dep_file,
             file::decompress_dep_file,
+            file::open_file_explorer,
+            file::read_file,
+            file::write_file,
             init::init,
             request::request_get,
             sys::open_in_default_browser

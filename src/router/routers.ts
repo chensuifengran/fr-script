@@ -2,7 +2,7 @@ import { Cpu,ChromeFilled,Printer,Setting,InfoFilled } from '@element-plus/icons
 const routes = [
   {
     path: "/",
-    redirect: "/script",
+    redirect: "/script/list",
   },
 
 
@@ -14,6 +14,28 @@ const routes = [
       title: "脚本",
       icon:Cpu
     },
+    children:[
+      {
+        path: "list",
+        name: "scriptList",
+        component: () => import(`../components/script/ScriptList.vue`),
+      },
+      {
+        path: "editor",
+        name: "scriptEditor",
+        component: () => import(`../components/script/CodeEditor.vue`),
+      },
+      {
+        path:"setting",
+        name:"scriptSetting",
+        component:()=>import(`../components/script/ScriptSetting.vue`)
+      },
+      {
+        path:"run",
+        name:"scriptRunConsole",
+        component:()=>import(`../components/script/ScriptRunConsole.vue`)
+      }
+    ]
   },
   {
     path: "/apiTest",

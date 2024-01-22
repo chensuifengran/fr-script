@@ -6,7 +6,7 @@ import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
 const { getDepStateType } = libUtil;
 const { goInstallDeps } = useDepInfo();
-const { selectFile, selectDir } = pathUtils;
+const { selectFile, selectDir } = fsUtils;
 const version = ref("获取版本失败");
 const loading = ref(false);
 const loadingText = ref("");

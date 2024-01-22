@@ -44,49 +44,48 @@
       <div class="end" v-if="isEnd">------到底了，没有更多数据了------</div>
       <div class="loading-box" v-show="mainLoading"><Loading />加载中...</div>
     </div>
-  </div>
-
-  <el-drawer
-    v-model="info.apiTest.openOutput"
-    title=""
-    direction="btt"
-    :size="app.modulesSetting.drawerSize"
-  >
-    <template #header="{ titleId, titleClass }">
-      <h4 :id="titleId" :class="titleClass">API测试-输出结果</h4>
-      <el-select
-        v-model="app.modulesSetting.drawerSize"
-        placeholder="大小"
-        size="small"
-        class="options select"
-      >
-        <el-option
-          v-for="n in 8"
-          :key="n"
-          :label="20 + n * 10 + '%'"
-          :value="20 + n * 10 + '%'"
+    <el-drawer
+      v-model="info.apiTest.openOutput"
+      title=""
+      direction="btt"
+      :size="app.modulesSetting.drawerSize"
+    >
+      <template #header="{ titleId, titleClass }">
+        <h4 :id="titleId" :class="titleClass">API测试-输出结果</h4>
+        <el-select
+          v-model="app.modulesSetting.drawerSize"
+          placeholder="大小"
+          size="small"
+          class="options select"
+        >
+          <el-option
+            v-for="n in 8"
+            :key="n"
+            :label="20 + n * 10 + '%'"
+            :value="20 + n * 10 + '%'"
+          />
+        </el-select>
+        <el-switch
+          class="options"
+          v-model="app.modulesSetting.autoOpenOutput"
+          inline-prompt
+          style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc"
+          active-text="自动显示"
+          inactive-text="手动显示"
         />
-      </el-select>
-      <el-switch
-        class="options"
-        v-model="app.modulesSetting.autoOpenOutput"
-        inline-prompt
-        style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc"
-        active-text="自动显示"
-        inactive-text="手动显示"
+        <el-button class="options" size="small" @click="output = ''">
+          <el-icon><IEpDeleteFilled /></el-icon>清空输出
+        </el-button>
+      </template>
+      <el-input
+        v-model="output"
+        type="textarea"
+        placeholder="API测试的输出结果"
+        :autosize="textareaOptions"
+        spellcheck="false"
       />
-      <el-button class="options" size="small" @click="output = ''">
-        <el-icon><IEpDeleteFilled /></el-icon>清空输出
-      </el-button>
-    </template>
-    <el-input
-      v-model="output"
-      type="textarea"
-      placeholder="API测试的输出结果"
-      :autosize="textareaOptions"
-      spellcheck="false"
-    />
-  </el-drawer>
+    </el-drawer>
+  </div>
 </template>
 <script lang="ts" setup>
 import { useRoute } from "vue-router";

@@ -5,6 +5,7 @@ import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
 const { registerAllInvokeApi } = invokeApiRegisterManager();
 const appGSStore = useAppGlobalSettings();
+const listStore = useListStore();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
 const menuKey = ref(1);
@@ -16,6 +17,9 @@ const handleSelect = (index: string) => {
   }
 
   app.value.state.aside.currentItem = index;
+  if (index === "script") {
+    index = "scriptList";
+  }
   router.push({
     name: index,
   });
@@ -52,6 +56,7 @@ onMounted(async () => {
   asideDisplay.value = "block";
   //自动保存当前全局配置以及导入之前的全局配置
   await appGSStore.init();
+  await listStore.init();
   registerAllInvokeApi(appGSStore);
   handleSelect(app.value.state.aside.currentItem);
   libUtil.checkDepUpdate();
@@ -144,9 +149,9 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
         </el-aside>
         <el-main class="app-main">
           <router-view v-slot="{ Component }">
-            <keep-alive>
+            <transition enter-active-class="animate__animated animate__fadeInRight ">
               <component :is="Component" />
-            </keep-alive>
+            </transition>
           </router-view>
         </el-main>
       </el-container>

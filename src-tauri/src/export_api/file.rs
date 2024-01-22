@@ -98,7 +98,35 @@ pub async fn decompress_dep_file(
         }
         Err(err) => {
             println!("文件解压失败：{}", err);
-          Ok(generate_result(err.to_string(), 501))
-        },
+            Ok(generate_result(err.to_string(), 501))
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn open_file_explorer(path: String) -> Result<(), String> {
+    let path = path.replace("/", "\\");
+    if let Err(e) = std::process::Command::new("explorer.exe").arg(path).spawn() {
+        return Err(format!("Failed to open file explorer: {}", e));
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn read_file(path: String) -> Result<String, String> {
+    let path = path.replace("/", "\\");
+    let content = match fs::read_to_string(path) {
+        Ok(content) => content,
+        Err(err) => return Err(err.to_string()),
+    };
+    Ok(content)
+}
+
+#[tauri::command]
+pub async fn write_file(path: String, content: String) -> Result<String, String> {
+    let path = path.replace("/", "\\");
+    match fs::write(path, content) {
+        Ok(_) => Ok("文件写入成功".to_string()),
+        Err(err) => Err(err.to_string()),
     }
 }
