@@ -1,79 +1,119 @@
 <template>
-  <div data-tauri-drag-region class="titlebar">
-    <div class="title" data-tauri-drag-region>
-      <div class="text">
-        <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
-          info.title
-        }}</span>
+  <transition
+    enter-active-class="animate__animated animate__fadeInUp"
+    leave-active-class="animate__animated animate__fadeOutDown"
+  >
+    <div data-tauri-drag-region class="titlebar" v-if="!isEditing">
+      <div class="title" data-tauri-drag-region>
+        <div class="text">
+          <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
+            info.title
+          }}</span>
+        </div>
+        <transition
+          enter-active-class="animate__animated animate__fadeInUp"
+          leave-active-class="animate__animated animate__fadeOutDown"
+        >
+          <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
+            <el-input
+              class="search-ipt"
+              v-model="info.apiTest.searchValue"
+              clearable
+              placeholder="可输入API的关键字对API进行筛选"
+            >
+            </el-input>
+            <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+              ><el-icon><IEpNotification /></el-icon
+            ></el-button>
+          </div>
+        </transition>
       </div>
-      <transition
-        enter-active-class="animate__animated animate__fadeInUp"
-        leave-active-class="animate__animated animate__fadeOutDown"
-      >
-        <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
-          <el-input
-            class="search-ipt"
-            v-model="info.apiTest.searchValue"
-            clearable
-            placeholder="可输入API的关键字对API进行筛选"
-          >
-          </el-input>
-          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
-            ><el-icon><IEpNotification /></el-icon
-          ></el-button>
-        </div>
-      </transition>
-    </div>
-    <div class="btn">
-      <el-tooltip
-        effect="light"
-        content="基础功能不可用，点我安装依赖"
-        placement="bottom"
-        v-if="appGSStore.app.dependenceState === '不可用'"
-      >
-        <div class="titlebar-button warning-btn" @click="goInstallDeps()">
-          <el-icon><IEpWarning /></el-icon>
-        </div>
-      </el-tooltip>
-      <el-tooltip
-        effect="light"
-        content="有新版本，点我更新"
-        placement="bottom"
-        v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar"
-      >
-        <div class="titlebar-button setup-btn" @click="openDownloadDialog">
-          <el-icon><IEpDownload /></el-icon>
-        </div>
-      </el-tooltip>
+      <div class="btn">
+        <el-tooltip
+          effect="light"
+          content="基础功能不可用，点我安装依赖"
+          placement="bottom"
+          v-if="appGSStore.app.dependenceState === '不可用'"
+        >
+          <div class="titlebar-button warning-btn" @click="goInstallDeps()">
+            <el-icon><IEpWarning /></el-icon>
+          </div>
+        </el-tooltip>
+        <el-tooltip
+          effect="light"
+          content="有新版本，点我更新"
+          placement="bottom"
+          v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar"
+        >
+          <div class="titlebar-button setup-btn" @click="openDownloadDialog">
+            <el-icon><IEpDownload /></el-icon>
+          </div>
+        </el-tooltip>
 
-      <div class="titlebar-button" ref="minimize">
-        <el-icon><IEpMinus /></el-icon>
-      </div>
-      <div class="titlebar-button" ref="maximize">
-        <el-icon
-          ><IEpFullScreen v-show="!isFullScreen" /><IEpCopyDocument v-show="isFullScreen"
-        /></el-icon>
-      </div>
-      <div class="titlebar-button" ref="close">
-        <el-icon><IEpClose /></el-icon>
+        <div class="titlebar-button" @click="minHandle(false)">
+          <el-icon><IEpMinus /></el-icon>
+        </div>
+        <div class="titlebar-button" @click="maxHandle">
+          <el-icon
+            ><IEpFullScreen v-show="!isFullScreen" /><IEpCopyDocument
+              v-show="isFullScreen"
+          /></el-icon>
+        </div>
+        <div class="titlebar-button" @click="closeHandle">
+          <el-icon><IEpClose /></el-icon>
+        </div>
       </div>
     </div>
-  </div>
+    <div class="titlebar" data-tauri-drag-region v-else-if="isEditing">
+      <EditorHeader>
+        <div class="btn-content">
+          <div class="titlebar-button" @click="minHandle(true)">
+            <el-icon><IEpMinus /></el-icon>
+          </div>
+          <div class="titlebar-button" @click="maxHandle">
+            <el-icon
+              ><IEpFullScreen v-show="!isFullScreen" /><IEpCopyDocument
+                v-show="isFullScreen"
+            /></el-icon>
+          </div>
+          <div class="titlebar-button" @click="closeHandle">
+            <el-icon><IEpClose /></el-icon>
+          </div>
+        </div>
+      </EditorHeader>
+    </div>
+  </transition>
 </template>
 <script lang="ts" setup>
 import { appWindow } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
-const { info, windowInnerWidth } = useAutoTitleBar();
+import { listen } from "@tauri-apps/api/event";
+const { info, windowInnerWidth, clickMinimize, needSyncLastData } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
+const { isEditing } = useScriptInfo();
+const minHandle = (clickMinimizeFlag = true) => {
+  clickMinimizeFlag && (clickMinimize.value = true);
+  appWindow.minimize();
+};
+const maxHandle = async () => {
+  if (await appWindow.isMaximized()) {
+    appWindow.unmaximize();
+    isFullScreen.value = false;
+  } else {
+    isFullScreen.value = true;
+    appWindow.maximize();
+  }
+};
+const closeHandle = () => {
+  appWindow.close();
+};
+
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
   return isDark.value ? "#272727" : "#f6f6f6";
 });
-const minimize = ref<HTMLElement>();
-const maximize = ref<HTMLElement>();
-const close = ref<HTMLElement>();
 const version = ref("获取版本失败");
 getVersion().then((res) => {
   version.value = res;
@@ -100,31 +140,29 @@ const searchPosition = computed(() => {
     return "absolute";
   }
 });
-
-onMounted(() => {
-  window.addEventListener("resize", async () => {
-    if (await appWindow.isMaximized()) {
-      isFullScreen.value = true;
-    } else {
-      isFullScreen.value = false;
+const resizeHandle = async () => {
+  if (await appWindow.isMaximized()) {
+    isFullScreen.value = true;
+  } else {
+    isFullScreen.value = false;
+  }
+};
+let unListen: any;
+onMounted(async () => {
+  window.addEventListener("resize", resizeHandle);
+  unListen = await listen("tauri://focus", () => {
+    if (clickMinimize.value) {
+      clickMinimize.value = false;
+      needSyncLastData.value = true;
+      goLastPath();
     }
   });
-
-  minimize.value?.addEventListener("click", () => {
-    appWindow.minimize();
-  });
-  maximize.value?.addEventListener("click", async () => {
-    if (await appWindow.isMaximized()) {
-      appWindow.unmaximize();
-      isFullScreen.value = false;
-    } else {
-      isFullScreen.value = true;
-      appWindow.maximize();
-    }
-  });
-  close.value?.addEventListener("click", () => {
-    appWindow.close();
-  });
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeHandle);
+  if (unListen) {
+    unListen();
+  }
 });
 </script>
 <style lang="scss" scoped>
@@ -144,6 +182,11 @@ onMounted(() => {
   border-radius: 10px 10px 0 0;
   padding-left: 10px;
   padding-right: 5px;
+  .btn-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
   .title {
     display: flex;
     flex-direction: row;

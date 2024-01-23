@@ -1,5 +1,30 @@
 <template>
   <div class="script-list-div">
+    <!-- 导入同名的脚本弹窗 -->
+    <el-dialog v-model="sameScriptMod.visible" title="脚本导入">
+      <div>{{ sameScriptMod.content }}</div>
+      <div>作为新脚本导入：</div>
+      <div>此选项会在脚本列表新增一项脚本，该脚本无法继承同名脚本配置(id不一致)</div>
+      <div>更新同名脚本：</div>
+      <div>此选项会将新脚本内容覆盖掉同名脚本，该脚本可以继承同名脚本配置(id一致)</div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="sameScriptMod.newImport">作为新脚本导入</el-button>
+          <el-button @click="sameScriptMod.updateImport">更新同名脚本</el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 删除脚本弹窗 -->
+    <el-dialog v-model="deleteScriptDialog" title="删除脚本">
+      <div>确定要删除该脚本吗?</div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deleteScriptDialog = false">取消</el-button>
+          <el-button type="danger" @click="deleteConfirm">删除</el-button>
+        </span>
+      </template>
+    </el-dialog>
     <el-affix target=".script-list-div">
       <div class="header">
         <span style="font-size: 18px">脚本列表</span>
@@ -24,37 +49,30 @@
         :key="item.id"
         :id="item.id"
         @editorScriptFile="editorScriptFile"
-        @openFIleDialog="openFIleDialog"
+        @openFile="openFile"
         @setScript="setScript"
         @runScript="runScript"
+        @deleteScript="deleteScript"
       />
     </div>
   </div>
-
-  <!-- 导入同名的脚本弹窗 -->
-  <el-dialog v-model="sameScriptMod.visible" title="脚本导入">
-    <div>{{ sameScriptMod.content }}</div>
-    <div>作为新脚本导入：</div>
-    <div>此选项会在脚本列表新增一项脚本，该脚本无法继承同名脚本配置(id不一致)</div>
-    <div>更新同名脚本：</div>
-    <div>此选项会将新脚本内容覆盖掉同名脚本，该脚本可以继承同名脚本配置(id一致)</div>
-
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="sameScriptMod.newImport">作为新脚本导入</el-button>
-        <el-button @click="sameScriptMod.updateImport">更新同名脚本</el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
+let deleteConfirm: () => void = () => {};
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
-const { openId, curScriptDir, preloadPath, preloadText } = useScriptInfo();
+const {
+  openId,
+  curScriptDir,
+  preloadPath,
+  preloadText,
+  contentTransform,
+  asideBarPos,
+} = useScriptInfo();
 const loadCount = ref(0);
 
 const load = () => {
@@ -73,9 +91,24 @@ const sameScriptMod = reactive({
   newImport: () => {},
   updateImport: () => {},
 });
-const editorScriptFile = async (index: number) => {
+const deleteScriptDialog = ref(false);
+const deleteScript = (index: number) => {
+  deleteConfirm = () => {
+    scriptList.value.splice(index, 1);
+    ElNotification({
+      title: "提示",
+      message: "删除成功",
+      type: "success",
+      position: "bottom-right",
+    });
+    deleteScriptDialog.value = false;
+  };
+  deleteScriptDialog.value = true;
+};
+const editorScriptFile = (index: number) => {
+  contentTransform.value = "translateX(-100%)";
   //路由跳转到编辑器
-  await router.push("/script/editor");
+  router.replace("/script/editor");
 
   if (scriptList.value[index].id === openId!.value) {
     //解决编辑器特殊场景下编辑脚本不会加载脚本
@@ -86,8 +119,12 @@ const editorScriptFile = async (index: number) => {
     curScriptDir.value = await pathUtils.resolve(scriptList.value[index].savePath, "../");
     clearTimeout(t);
   }, 100);
+  const timer = setTimeout(() => {
+    asideBarPos.value = "absolute";
+    clearTimeout(timer);
+  }, 1000);
 };
-const openFIleDialog = async (index: number) => {
+const openFile = async (index: number) => {
   const path = scriptList.value[index].savePath;
   invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
 };
@@ -95,9 +132,16 @@ const openFIleDialog = async (index: number) => {
 const onAddItem = () => {
   openId!.value = "-1";
   //路由跳转到编辑器
-  router.push("/script/editor");
+  router.replace({
+    path: "/script/editor",
+  });
+  contentTransform.value = "translateX(-100%)";
+  const timer = setTimeout(() => {
+    asideBarPos.value = "absolute";
+    clearTimeout(timer);
+  }, 1000);
 };
-const cheekDeclare = (editorValue: string) => {
+const checkDeclare = (editorValue: string) => {
   const v = editorValue;
   if (v.indexOf(" */") === -1) {
     return false;
@@ -156,7 +200,7 @@ const imoprtScript = async () => {
         });
         return;
       }
-      const cd = cheekDeclare(originData);
+      const cd = checkDeclare(originData);
       if (cd !== false) {
         //该文件有声明,检查是否有同名脚本
         const sameScript = scriptList.value.find((i) => i.name === cd.name);
@@ -264,13 +308,13 @@ const imoprtScript = async () => {
 const runScript = (index: number) => {
   openId!.value = scriptList.value[index].id;
   //路由跳转到运行器
-  router.push("/script/run");
+  router.replace("/script/run");
 };
 
 const setScript = (index: number) => {
   openId!.value = scriptList.value[index].id;
   //路由跳转到设置
-  router.push("/script/setting");
+  router.replace("/script/setting");
 };
 
 const search = ref("");

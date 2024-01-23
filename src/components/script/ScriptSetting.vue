@@ -1,6 +1,6 @@
 <template>
   <div class="script-setting-div">
-    <el-page-header @back="goBack" class="header">
+    <el-page-header @back="goBack" class="header" title="脚本列表">
       <template #content>
         <div class="v-center">
           <span>设置</span
@@ -150,7 +150,7 @@ const preStep = () => {
 };
 
 const goBack = () => {
-  router.push({
+  router.replace({
     path: "/script/list",
   });
 };

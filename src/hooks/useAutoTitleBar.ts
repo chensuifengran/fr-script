@@ -15,10 +15,14 @@ const syncWindowInnerWidth = (width:number)=>{
         clearTimeout(syncTimer);
     },100)
 }
+const clickMinimize = ref(false);
+const needSyncLastData = ref(false);
 export const useAutoTitleBar = ()=>{
     return {
         info,
         windowInnerWidth,
-        syncWindowInnerWidth
+        syncWindowInnerWidth,
+        clickMinimize,
+        needSyncLastData
     }
 }

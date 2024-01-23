@@ -5,21 +5,21 @@ import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import * as monaco from "monaco-editor";
 import { writeTextFile } from "@tauri-apps/api/fs";
-const { exportAllFn, getInvokeApiFnProxyStrings } = useInvokeApiMethodsRegister();
-
+const { exportAllFn, getInvokeApiFnProxyStrings } =
+  useInvokeApiMethodsRegister();
 
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 const buildTableForm = () => {
   return new TableForm();
 };
 const addRendererListToWindow = () => {
-  const {rendererList} = useListStore();
+  const { rendererList } = useListStore();
   //window对象没有rendererList属性时，添加rendererList属性
   //@ts-ignore
   !window["rendererList"] && (window["rendererList"] = rendererList);
 };
 const replaceRendererList = (newRendererList: RendererList[]) => {
-  const {rendererList} = useListStore();
+  const { rendererList } = useListStore();
   rendererList.splice(0, rendererList.length, ...newRendererList);
   addRendererListToWindow();
 };
@@ -518,6 +518,13 @@ const getAllTask = () => allTask.value;
 const getCurTask = () => curTask.value;
 const getCurTaskName = () => curTaskName.value;
 const getTaskStatus = () => taskStatus.value;
+let onEditorMounted: ((editor: monaco.editor.IStandaloneCodeEditor) => void)[] =
+  [];
+const registerEditorEvent = (name: string, cb: (event: any) => void) => {
+  if (name === "mounted") {
+    onEditorMounted.push(cb);
+  }
+};
 
 const setAllTask = (num: number) => {
   allTask.value = num;
@@ -548,7 +555,6 @@ const setTaskEndStatus = (
 };
 const editorValue = ref("");
 export const useScriptApi = () => {
-
   /**
    * 用于给脚本编辑器保存内容
    */
@@ -603,22 +609,22 @@ export const useScriptApi = () => {
       lineNumber: startLineNumber,
     });
   };
-
+  let setTextTimer: any = null;
   const setText = (text: string) => {
-    if (editor) {
-      editor.setValue("");
-      editor.setValue(text);
-    }
+    setTextTimer && clearTimeout(setTextTimer);
+    setTextTimer = setTimeout(() => {
+      if (editor) {
+        editor.setValue("");
+        editor.setValue(text);
+      }
+      clearTimeout(setTextTimer);
+    }, 200);
   };
 
   const editorInit = () => {
     nextTick(async () => {
       const languages = monaco.languages.getLanguages();
-      const supportLanguageIds = [
-        "javascript",
-        "typescript",
-        "json",
-      ];
+      const supportLanguageIds = ["javascript", "typescript", "json"];
       //禁用语言
       languages.forEach((language) => {
         if (supportLanguageIds.indexOf(language.id) === -1) {
@@ -665,12 +671,15 @@ export const useScriptApi = () => {
         },
       });
       const appGSStore = useAppGlobalSettings();
-      const targetPath = await pathUtils.join(appGSStore.envSetting.workDir, "./lib/csfr.d.ts");
+      const targetPath = await pathUtils.join(
+        appGSStore.envSetting.workDir,
+        "./lib/csfr.d.ts"
+      );
       //将editorTsDeclaration写入到csfr.d.ts文件中
       try {
-        await writeTextFile(targetPath,editorTsDeclaration);
+        await writeTextFile(targetPath, editorTsDeclaration);
       } catch (error) {
-        console.error('辅助声明文件写入失败：',error);
+        console.error("辅助声明文件写入失败：", error);
       }
 
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -698,6 +707,10 @@ export const useScriptApi = () => {
             }
           ))
         : editor!.setValue("");
+      onEditorMounted.forEach((cb) => {
+        cb(editor!);
+      });
+
       // console.log(editor)
       // 监听值的变化
       editor.onDidChangeModelContent((_val: any) => {
@@ -711,7 +724,12 @@ export const useScriptApi = () => {
   const disposeEditor = () => {
     editor?.dispose();
     editor = null;
-  }
+  };
+  const unRegisterEditorEvent = (name: string) => {
+    if (name === "mounted") {
+      onEditorMounted = [];
+    }
+  };
 
   // @ts-ignore
   self.MonacoEnvironment = {
@@ -734,7 +752,7 @@ export const useScriptApi = () => {
 
   const getEditor = () => editor;
   const getFnProxyStrings = (runId: string) => {
-    return getInvokeApiFnProxyStrings(runId) + "\n" ;
+    return getInvokeApiFnProxyStrings(runId) + "\n";
   };
   return {
     getFnProxyStrings,
@@ -762,6 +780,8 @@ export const useScriptApi = () => {
     formatCode,
     getEditor,
     disposeEditor,
+    registerEditorEvent,
+    unRegisterEditorEvent,
     allRunTimeApi: {
       ...exportAllFn(),
     },

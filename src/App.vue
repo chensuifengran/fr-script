@@ -11,6 +11,7 @@ const router = useRouter();
 const menuKey = ref(1);
 provide("menuKey", menuKey);
 const { info, syncWindowInnerWidth } = useAutoTitleBar();
+const { contentTransform, asideBarPos } = useScriptInfo();
 const handleSelect = (index: string) => {
   if (index === "setting") {
     libUtil.checkDepUpdate();
@@ -20,7 +21,7 @@ const handleSelect = (index: string) => {
   if (index === "script") {
     index = "scriptList";
   }
-  router.push({
+  router.replace({
     name: index,
   });
   info.showContentType = index;
@@ -36,13 +37,7 @@ const handleSelect = (index: string) => {
 };
 const hasFloatWindow = ref(false);
 const aside_width = ref("");
-const transition = computed(() => {
-  if (aside_width.value === "0") {
-    return "";
-  } else {
-    return "all 1s";
-  }
-});
+
 const asideDisplay = ref("none");
 onMounted(async () => {
   window.addEventListener("resize", () => {
@@ -78,6 +73,27 @@ const collapsedAside = () => {
 const { showDepDrewer } = useDepInfo();
 const { getDepStateType } = libUtil;
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
+
+const mainTransition = computed(() => {
+  if (
+    asideBarPos.value === "relative" &&
+    contentTransform.value === "translateX(-100%)"
+  ) {
+    return "all 1s";
+  } else {
+    return "none";
+  }
+});
+const mainTransform = computed(() => {
+  if (
+    asideBarPos.value === "relative" &&
+    contentTransform.value === "translateX(-100%)"
+  ) {
+    return "translateX(-100px)";
+  } else {
+    return "translateX(0)";
+  }
+});
 </script>
 
 <template>
@@ -149,7 +165,7 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
         </el-aside>
         <el-main class="app-main">
           <router-view v-slot="{ Component }">
-            <transition enter-active-class="animate__animated animate__fadeInRight ">
+            <transition enter-active-class="animate__animated animate__fadeIn ">
               <component :is="Component" />
             </transition>
           </router-view>
@@ -221,11 +237,12 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
   }
 
   .aside {
-    transition: v-bind(transition);
+    transition: all 1s;
     overflow-x: hidden;
     width: v-bind(aside_width);
     display: v-bind(asideDisplay);
-    position: relative;
+    position: v-bind(asideBarPos);
+    transform: v-bind(contentTransform);
     &:hover {
       .aside-btn {
         display: block;
@@ -251,12 +268,14 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
   }
 
   .app-main {
+    transition: v-bind(mainTransition);
     width: 100%;
     height: 100%;
     position: relative;
     padding: 0;
     overflow: hidden;
     background: v-bind(appAsideBgColor);
+    transform: v-bind(mainTransform);
   }
 }
 </style>

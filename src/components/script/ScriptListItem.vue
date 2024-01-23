@@ -8,11 +8,26 @@
         ><el-tag size="small" type="info">{{ script.version }}</el-tag>
       </div>
       <div class="menu">
-        <el-icon class="icon" @click.stop="deleteScript"><IEpDeleteFilled /></el-icon>
-        <el-icon class="icon" @click.stop="editorScriptFile"><IEpEdit /></el-icon>
-        <el-icon class="icon" @click.stop="openFIleDialog"><IEpFolder /></el-icon>
-        <el-icon class="icon" @click.stop="goSetScript"><IEpOperation /></el-icon>
-        <el-icon class="icon" @click.stop="runScript"><IEpVideoPlay /></el-icon>
+        <el-tooltip class="box-item" effect="dark" content="删除脚本" placement="bottom">
+          <el-icon class="icon" @click.stop="deleteScript"><IEpDeleteFilled /></el-icon>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="编辑脚本" placement="bottom">
+          <el-icon class="icon" @click.stop="editorScriptFile"><IEpEdit /></el-icon>
+        </el-tooltip>
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="打开脚本所在目录"
+          placement="bottom"
+        >
+          <el-icon class="icon" @click.stop="openFIleDialog"><IEpFolder /></el-icon>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="脚本设置" placement="bottom">
+          <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="运行脚本" placement="bottom">
+          <el-icon class="icon" @click.stop="runScript"><IEpSwitchButton /></el-icon>
+        </el-tooltip>
       </div>
     </div>
     <div class="details" ref="detailsRef">
@@ -37,9 +52,10 @@ const props = defineProps({
 });
 const emit = defineEmits<{
   (event: "editorScriptFile", index: number): void;
-  (event: "openFIleDialog", index: number): void;
+  (event: "openFile", index: number): void;
   (event: "setScript", index: number): void;
   (event: "runScript", index: number): void;
+  (event: "deleteScript", index: number): void;
 }>();
 
 const script = computed(() => {
@@ -53,7 +69,7 @@ const showDetails = ref(false);
 
 const deleteScript = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
-    scriptList.value.splice(scriptIndex.value, 1);
+    emit("deleteScript", scriptIndex.value);
 };
 
 const editorScriptFile = () => {
@@ -63,7 +79,7 @@ const editorScriptFile = () => {
 
 const openFIleDialog = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
-    emit("openFIleDialog", scriptIndex.value);
+    emit("openFile", scriptIndex.value);
 };
 
 const goSetScript = () => {

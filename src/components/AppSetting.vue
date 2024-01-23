@@ -12,7 +12,7 @@ const loading = ref(false);
 const loadingText = ref("");
 const libDownloadDialog = ref(false);
 const appGSStore = useAppGlobalSettings();
-const { app, envSetting, ocr, view } = storeToRefs(appGSStore);
+const { app, envSetting, ocr, view, editor } = storeToRefs(appGSStore);
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
 const darkState = ref(false);
 getVersion().then((res) => {
@@ -235,22 +235,6 @@ const { goAppUpdate } = useAppVersionInfo();
       <span>全局主题</span>
       <el-switch v-model="darkState" :active-icon="Moon" :inactive-icon="Sunny" />
     </div>
-    <div class="setting-item">
-      <span>编辑器主题</span>
-      <el-select
-        v-model="app.editorTheme.value"
-        placeholder="编辑器主题"
-        size="small"
-        class="w120"
-      >
-        <el-option
-          v-for="item in app.editorTheme.options"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
-    </div>
     <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">
       <span>运行方式</span>
@@ -317,6 +301,28 @@ const { goAppUpdate } = useAppVersionInfo();
         <el-option label="显示" :value="true" />
         <el-option label="不显示" :value="false" />
       </el-select>
+    </div>
+
+    <h3 class="setting-title">编辑器</h3>
+    <div class="setting-item">
+      <span>主题</span>
+      <el-select
+        v-model="editor.theme"
+        placeholder="编辑器主题"
+        size="small"
+        class="w120"
+      >
+        <el-option
+          v-for="item in editor.theme.options"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
+      </el-select>
+    </div>
+    <div class="setting-item">
+      <span>点击运行时自动保存</span>
+      <el-switch v-model="editor.runAutoSave" />
     </div>
   </div>
 </template>

@@ -1,31 +1,51 @@
 <template>
   <div class="script-editor-dev">
-    <el-page-header @back="goBack" class="header">
-      <template #content>
-        <span class="text-small font-200 flex items-center">
-          {{ fileInfo.name }}<span v-show="editorValue !== fileInfo.originData">*</span
-          ><el-tag size="small" type="success" v-show="fileInfo.declare">已声明</el-tag
-          ><el-tag size="small" type="warning" v-show="!fileInfo.declare">未声明</el-tag>
-          <el-button
-            class="tool-bar-item"
-            v-if="!fileInfo.declare"
-            link
-            size="small"
-            type="primary"
-            @click="declareMod.visible = true"
-            >插入声明</el-button
-          >
+    <!-- 添加文件声明的弹窗 -->
+    <el-dialog v-model="declareMod.visible" title="插入脚本声明">
+      <div>脚本名称</div>
+      <el-input v-model="declareMod.name" />
+      <div>脚本版本</div>
+      <el-input v-model="declareMod.version" />
+      <div>脚本描述</div>
+      <el-input v-model="declareMod.description" />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="declareMod.visible = false">取消</el-button>
+          <el-button type="primary" @click="insertDeclare"> 确定 </el-button>
         </span>
       </template>
-      <template #extra>
-        <div class="flex items-center">
-          <el-button @click="openApiTest">打开调试窗口</el-button>
-          <el-button @click="openFileDialogVisible = true">打开文件</el-button>
-          <el-button @click="runScript">运行</el-button>
-          <el-button type="primary" @click="saveScriptFile">保存</el-button>
-        </div>
+    </el-dialog>
+    <!-- 新建脚本保存弹窗 -->
+    <el-dialog v-model="saveMod.visible" title="保存脚本">
+      <div>请选择脚本的保存路径</div>
+      <el-input v-model="saveMod.savePath">
+        <template #append>
+          <el-button type="primary" @click="chooseSavePath">选择</el-button>
+        </template>
+      </el-input>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="saveMod.visible = false">取消</el-button>
+          <el-button type="primary" @click="saveNewScript"> 确定 </el-button>
+        </span>
       </template>
-    </el-page-header>
+    </el-dialog>
+
+    <!-- 运行未保存脚本弹窗 -->
+    <el-dialog v-model="autoSaveDialog.visible" title="运行脚本">
+      <div>检测到当前脚本已做更改，若不保存则运行最后一次保存的内容</div>
+      <el-checkbox
+        v-model="appGSStore.editor.runAutoSave"
+        label="不再提醒,下次运行自动保存,可在设置页关闭自动保存"
+        size="large"
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="autoSaveDialog.close_cb">直接运行</el-button>
+          <el-button type="primary" @click="autoSaveDialog.cb"> 保存后运行 </el-button>
+        </span>
+      </template>
+    </el-dialog>
     <div id="codeEditBox" v-show="showEditor"></div>
     <div class="loading" v-show="!showEditor">
       <Loading />
@@ -44,80 +64,14 @@
       </el-tag>
     </div>
   </div>
-  <!-- 打开方式选择弹窗 -->
-  <el-dialog v-model="openFileDialogVisible" title="选择打开方式">
-    <div>文件夹：打开文件所在文件夹</div>
-    <div>默认方式：以系统默认方式打开文件</div>
-
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="openFile(1)">文件夹</el-button>
-        <el-button @click="openFile(2)">默认方式</el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <!-- 添加文件声明的弹窗 -->
-  <el-dialog v-model="declareMod.visible" title="插入脚本声明">
-    <div>脚本名称</div>
-    <el-input v-model="declareMod.name" />
-    <div>脚本版本</div>
-    <el-input v-model="declareMod.version" />
-    <div>脚本描述</div>
-    <el-input v-model="declareMod.description" />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="declareMod.visible = false">取消</el-button>
-        <el-button type="primary" @click="insertDeclare"> 确定 </el-button>
-      </span>
-    </template>
-  </el-dialog>
-  <!-- 新建脚本保存弹窗 -->
-  <el-dialog v-model="saveMod.visible" title="保存脚本">
-    <div>请选择脚本的保存路径</div>
-    <el-input v-model="saveMod.savePath">
-      <template #append>
-        <el-button type="primary" @click="chooseSavePath">选择</el-button>
-      </template>
-    </el-input>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="saveMod.visible = false">取消</el-button>
-        <el-button type="primary" @click="saveNewScript"> 确定 </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <!-- 运行未保存脚本弹窗 -->
-  <el-dialog v-model="autoSaveDialog.visible" title="运行脚本">
-    <div>检测到当前脚本已做更改，若不保存则运行最后一次保存的内容</div>
-    <el-checkbox
-      v-model="scriptStore.runAutoSave"
-      label="不再提醒,下次运行自动保存,可在设置页关闭自动保存"
-      size="large"
-    />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="autoSaveDialog.close_cb">直接运行</el-button>
-        <el-button type="primary" @click="autoSaveDialog.cb"> 保存后运行 </el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { useScriptApi } from "@renderer/hook/useScriptApi";
-import { useScriptStore } from "@renderer/store/scriptStore";
-import { SCRIPT_TEMPLATE } from "@renderer/utils/constantUtils";
-import { Ref } from "vue";
 import { nanoid } from "nanoid";
-import { useADBMethodsRegister } from "@renderer/hook/useADBMethodsRegister";
-import { useDllMethodsRegister } from "@renderer/hook/useDllMethodsRegister";
-import { AutoTipUtils } from "@renderer/runTimeApis/autoTipApis";
-import { useUtilMethodsRegister } from "@renderer/hook/useUtilMethodsRegister";
-
-const fs = require("fs");
-const scriptStore = useScriptStore();
+import { storeToRefs } from "pinia";
+const appGSStore = useAppGlobalSettings();
+const listStore = useListStore();
+const { scriptList } = storeToRefs(listStore);
 const {
   getEditor,
   editorInit,
@@ -126,17 +80,26 @@ const {
   setText,
   formatCode,
   disposeEditor,
+  registerEditorEvent,
+  unRegisterEditorEvent,
 } = useScriptApi()!;
-const { invokeDialog } = useADBMethodsRegister();
-const { openDialog } = useDllMethodsRegister();
-const { openUtilDialog } = useUtilMethodsRegister();
+const {
+  openId,
+  preloadText,
+  preloadPath,
+  isEditing,
+  fileInfo,
+  declareMod,
+  saveMod,
+} = useScriptInfo();
+const { invokeDialog } = useInvokeApiMethodsRegister();
 
 const fnInfo = AutoTipUtils.getFnInfo();
 const { apiAutoTip } = AutoTipUtils;
 const showEditor = ref(true);
 
 const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description") => {
-  const target = scriptStore.scriptList.find((s) => s.id === openId!.value);
+  const target = scriptList.value.find((s) => s.id === openId!.value);
   if (target === undefined) {
     console.error("未找到对应脚本");
     return "";
@@ -158,41 +121,14 @@ const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description
   }
 };
 const scrollbarRef = ref<HTMLElement>();
-const openFileDialogVisible = ref(false);
-const openFile = (type: 1 | 2) => {
-  openFileDialogVisible.value = false;
-  const path = getFileInfo("savePath");
-  let t: "showItemInFolder" | "openPath" = "showItemInFolder";
-  if (type === 2) {
-    t = "openPath";
-  }
-  window.api.openFile({
-    path,
-    type: t,
-  });
-};
-const wheelHandle = (event) => {
+
+const wheelHandle = (event: any) => {
   event.preventDefault();
   //拿到y轴滚动的距离，让menuBoxRef的横向滚动跟着滚动
   const { deltaY } = event;
   scrollbarRef.value!.scrollLeft += deltaY;
 };
-const curShow = inject<Ref<"index" | "editor" | "console">>("curShow");
-const preloadPath = inject<Ref<string>>("preloadPath")!;
-const fileInfo = reactive({
-  originData: "",
-  version: "",
-  description: "",
-  name: "未命名脚本",
-  savePath: "",
-  declare: false,
-});
-const testApiWinId = inject<Ref<number>>("testApiWinId");
-const saveMod = reactive({
-  savePath: "",
-  visible: false,
-  cb: <(res: boolean) => void>(() => {}),
-});
+
 const autoSaveDialog = reactive({
   visible: false,
   cb: <() => void>(() => {}),
@@ -212,7 +148,7 @@ const saveScriptFile = async () => {
       //编辑的脚本，直接写入内容
       try {
         if (editorValue.value !== fileInfo.originData) {
-          fs.writeFileSync(fileInfo.savePath, editorValue.value);
+          await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
           fileInfo.originData = editorValue.value;
           ElNotification({
             title: "提示",
@@ -252,17 +188,19 @@ const saveScriptFile = async () => {
   }
 };
 const chooseSavePath = async () => {
-  const path = await window.api.saveFile();
-  saveMod.savePath = path;
-  fileInfo.savePath = path;
+  const path = (await fsUtils.selectFile()) as string | undefined;
+  if (path) {
+    saveMod.savePath = path;
+    fileInfo.savePath = path;
+  }
 };
-const saveNewScript = () => {
+const saveNewScript = async () => {
   saveMod.visible = false;
   try {
-    fs.writeFileSync(fileInfo.savePath, editorValue.value);
+    await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
     fileInfo.originData = editorValue.value;
     const id = nanoid();
-    scriptStore.scriptList.push({
+    scriptList.value.push({
       id,
       savePath: fileInfo.savePath,
       name: fileInfo.name,
@@ -310,25 +248,12 @@ const insertDeclare = () => {
   declareMod.version = "v1.0";
   declareMod.visible = false;
 };
-const declareMod = reactive({
-  visible: false,
-  name: "未命名",
-  version: "v1.0",
-  description: "无",
-  title: "插入脚本声明",
-  targetFn: insertDeclare,
-});
-const aside_width = inject<Ref<string>>("aside_width");
-const goBack = () => {
-  curShow!.value = "index";
-  preloadText.value = "";
-  aside_width!.value = "110px";
-  if (testApiWinId?.value !== -1) window.api.invokeMainHandle("hideApiTestWin");
-};
+
 onBeforeUnmount(() => {
   document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
   // getEditor() && (getEditor() as any).dispose();
   disposeEditor();
+  isEditing.value = false;
 });
 const keydownHandle = (e: KeyboardEvent) => {
   const key = e.key;
@@ -353,7 +278,7 @@ const keydownHandle = (e: KeyboardEvent) => {
       const replaceParams = (targetArgs: string) => {
         insertText(targetArgs, false, fnInfo.value!.paramsRange);
       };
-      if (fnInfo.value.fnType === "adb") {
+      if (fnInfo.value.fnType === "invokeApi") {
         invokeDialog(
           fnInfo.value.name,
           fnInfo.value.name,
@@ -362,164 +287,130 @@ const keydownHandle = (e: KeyboardEvent) => {
           replaceParams,
           fnInfo.value.params
         );
-      } else if (fnInfo.value.fnType === "dll") {
-        openDialog(
-          fnInfo.value.name,
-          fnInfo.value.content || "",
-          fnInfo.value.name,
-          "changeArgs",
-          replaceParams,
-          fnInfo.value.params
-        );
-      } else {
-        openUtilDialog(
-          fnInfo.value.name,
-          fnInfo.value.name,
-          fnInfo.value.content || "",
-          fnInfo.value.params,
-          replaceParams
-        );
+      } else if (fnInfo.value.fnType === "util") {
+        //TODO util方法的快捷参数填写弹窗
+        // openDialog(
+        //   fnInfo.value.name,
+        //   fnInfo.value.content || "",
+        //   fnInfo.value.name,
+        //   "changeArgs",
+        //   replaceParams,
+        //   fnInfo.value.params
+        // );
       }
     }
   }
 };
-
-const cheekDeclare = () => {
-  //修复因编辑器初始化进行类型检查，导致直接运行脚本时在scriptStore里面对应脚本的正确信息覆盖
-  if (curShow!.value !== "editor") return;
-  const v = editorValue.value;
-  if (v.indexOf(" */") === -1) {
-    fileInfo.declare = false;
-  } else {
-    const targetStrPosition = v.indexOf(" */") + 3;
-    const targetStr = editorValue.value.substring(0, targetStrPosition);
-    const dm = {
-      name: "",
-      version: "",
-      description: "",
-    };
-    targetStr
-      .replaceAll("/**", "")
-      .replace(/ \* -{19}提示-{19}[\s\S]* \* -{42}/, "")
-      .replaceAll("\n * ", "")
-      .replaceAll("\n */", "")
-      .trim()
-      .split("@")
-      .forEach((i: string) => {
-        if (i !== "") {
-          const attributeArr = i.split(":");
-          if (attributeArr[0] === "version") {
-            dm.version = attributeArr[1];
-          } else if (attributeArr[0] === "name") {
-            dm.name = attributeArr[1];
-          } else if (attributeArr[0] === "description") {
-            dm.description = attributeArr[1];
-          }
-        }
-      });
-
-    if (dm.description === "" || dm.name === "" || dm.version === "") {
-      //声明不完整
+let checkDeclareTimer: any = null;
+const checkDeclare = () => {
+  if (router.currentRoute.value.name !== "scriptEditor") return;
+  checkDeclareTimer && clearTimeout(checkDeclareTimer);
+  checkDeclareTimer = setTimeout(() => {
+    clearTimeout(checkDeclareTimer);
+    const v = editorValue.value;
+    if (v.indexOf(" */") === -1) {
       fileInfo.declare = false;
     } else {
-      const targetIndex = scriptStore.scriptList.findIndex((s) => {
-        return s.id === openId?.value;
-      });
-      if (openId?.value !== "-1") {
-        scriptStore.scriptList[targetIndex].version = dm.version;
-        scriptStore.scriptList[targetIndex].name = dm.name;
-        scriptStore.scriptList[targetIndex].description = dm.description;
+      const targetStrPosition = v.indexOf(" */") + 3;
+      const targetStr = editorValue.value.substring(0, targetStrPosition);
+      const dm = {
+        name: "",
+        version: "",
+        description: "",
+      };
+      targetStr
+        .replaceAll("/**", "")
+        .replace(/ \* -{19}提示-{19}[\s\S]* \* -{42}/, "")
+        .replaceAll("\n * ", "")
+        .replaceAll("\n */", "")
+        .trim()
+        .split("@")
+        .forEach((i: string) => {
+          if (i !== "") {
+            const attributeArr = i.split(":");
+            if (attributeArr[0] === "version") {
+              dm.version = attributeArr[1];
+            } else if (attributeArr[0] === "name") {
+              dm.name = attributeArr[1];
+            } else if (attributeArr[0] === "description") {
+              dm.description = attributeArr[1];
+            }
+          }
+        });
+
+      if (dm.description === "" || dm.name === "" || dm.version === "") {
+        //声明不完整
+        fileInfo.declare = false;
+      } else {
+        const targetIndex = scriptList.value.findIndex((s) => {
+          return s.id === openId?.value;
+        });
+        if (openId?.value !== "-1") {
+          scriptList.value[targetIndex].version = dm.version;
+          scriptList.value[targetIndex].name = dm.name;
+          scriptList.value[targetIndex].description = dm.description;
+        }
+        fileInfo.declare = true;
+        fileInfo.version = dm.version;
+        fileInfo.name = dm.name;
+        fileInfo.description = dm.description;
       }
-      fileInfo.declare = true;
-      fileInfo.version = dm.version;
-      fileInfo.name = dm.name;
-      fileInfo.description = dm.description;
     }
-  }
+  }, 500);
 };
 
-let cheekDeclareTimer: NodeJS.Timeout;
 watch(editorValue, () => {
-  cheekDeclareTimer && clearTimeout(cheekDeclareTimer);
-  cheekDeclareTimer = setTimeout(() => {
-    clearTimeout(cheekDeclareTimer);
-    cheekDeclare();
-  }, 500);
+  checkDeclare();
 });
-const cursorHandle = (_e) => {
+const cursorHandle = (_e: any) => {
   apiAutoTip();
+  fileInfo.lastData = editorValue.value;
 };
 const resizeHandle = () => {
   getEditor()?.layout();
 };
+const { needSyncLastData } = useAutoTitleBar();
 onMounted(() => {
+  isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
   editorInit();
+
   getFile();
   document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
-  nextTick(() => {
-    getEditor()?.onDidChangeCursorPosition(cursorHandle);
-    setText(fileInfo.originData || SCRIPT_TEMPLATE);
-    cheekDeclare();
+  registerEditorEvent("mounted", (editor: any) => {
+    editor.onDidChangeCursorPosition(cursorHandle);
+    if (needSyncLastData.value) {
+      const { fileInfo } = useScriptInfo();
+      if (fileInfo.lastData !== fileInfo.originData) {
+        setText(fileInfo.lastData);
+        ElMessage("已恢复上次编辑内容。");
+        needSyncLastData.value = false;
+      }
+    } else {
+      setText(fileInfo.originData || SCRIPT_TEMPLATE);
+    }
+
     const t = setTimeout(() => {
       showEditor.value = true;
+      checkDeclare();
       clearTimeout(t);
-    }, 400);
+    }, 200);
   });
 });
 onUnmounted(() => {
+  unRegisterEditorEvent("mounted");
   window.removeEventListener("resize", resizeHandle);
   document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
 });
-const openApiTest = async () => {
-  if (testApiWinId?.value === -1) {
-    testApiWinId.value = await window.api.createWindow("/apiTest?showSlide=false");
-  }
-  if (!(await window.api.windowIsExist(testApiWinId!.value))) {
-    testApiWinId!.value = await window.api.createWindow("/apiTest?showSlide=false");
-  }
 
-  window.api.openApiTestWindow(testApiWinId!.value);
-};
-const tempEditorValue = inject("tempEditorValue") as Ref<string>;
-const runScript = () => {
-  const unsaveRun = () => {
-    tempEditorValue.value = editorValue.value;
-    autoSaveDialog.visible = false;
-    curShow!.value = "console";
-    if (testApiWinId?.value !== -1) window.api.invokeMainHandle("hideApiTestWin");
-  };
-  const saveRun = async () => {
-    const res = await saveScriptFile();
-    unsaveRun();
-    if (!res) {
-      ElNotification({
-        title: "保存失败",
-        message: "直接运行最后一次保存的版本",
-        type: "error",
-      });
-    }
-  };
-  if (editorValue.value !== fileInfo.originData) {
-    if (scriptStore.runAutoSave) {
-      saveRun();
-    } else {
-      autoSaveDialog.cb = saveRun;
-      autoSaveDialog.close_cb = unsaveRun;
-      autoSaveDialog.visible = true;
-    }
-  } else {
-    unsaveRun();
-  }
-};
-const openId = inject<Ref<string>>("openId");
-const getFile = () => {
-  if (openId!.value !== "-1" && curShow!.value === "editor") {
+const getFile = async () => {
+  const currentName = router.currentRoute.value.name;
+  if (openId!.value !== "-1" && currentName === "scriptEditor") {
     const path = getFileInfo("savePath");
     if (path) {
       try {
-        fileInfo.originData = fs.readFileSync(path, "utf-8");
+        fileInfo.originData = await fsUtils.readFile(path);
         fileInfo.name = getFileInfo("name")!;
         fileInfo.description = getFileInfo("description")!;
         fileInfo.savePath = path;
@@ -549,7 +440,7 @@ const getFile = () => {
         position: "bottom-right",
       });
     }
-  } else if (openId!.value === "-1" && curShow?.value === "editor") {
+  } else if (openId!.value === "-1" && currentName === "scriptEditor") {
     //-1表示新建脚本
     fileInfo.originData = SCRIPT_TEMPLATE;
     fileInfo.savePath = "";
@@ -557,7 +448,6 @@ const getFile = () => {
   }
 };
 watch(openId!, getFile);
-const preloadText = inject<Ref<string>>("preloadText")!;
 
 watchEffect(() => {
   const text = preloadText.value;
@@ -573,9 +463,6 @@ watchEffect(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  .header {
-    height: 35px;
-  }
   .loading {
     flex: 1;
     display: flex;
@@ -625,7 +512,7 @@ watchEffect(() => {
     }
   }
   #codeEditBox {
-    height: calc(100% - 65px);
+    height: calc(100% - 30px);
     margin-top: 5px;
   }
 }
