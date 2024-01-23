@@ -319,7 +319,7 @@ const apiAutoTip = () => {
       return {
         ...i.testModule,
         alias: i.exportFn?.alias,
-        itemType: "adb",
+        itemType: "invokeApi",
         haveAuxiliary: i.auxiliary !== undefined,
       };
     }),
@@ -328,6 +328,9 @@ const apiAutoTip = () => {
       i?.alias === fnInfo.value!.name ||
       i?.dialog!.targetMethodName === fnInfo.value!.name
   );
+  
+  
+  
   if (target === undefined) {
     fnInfo.value = null;
     return;
