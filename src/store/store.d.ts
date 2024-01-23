@@ -4,10 +4,6 @@ type GlobalSettings = {
     latestVersion: string;
     depHaveUpdate: boolean;
     dependenceState: '不可用' | '精简版' | '基础版' | '完整版';
-    editorTheme: {
-      value: "跟随全局主题" | "明亮" | "暗黑";
-      options: ["跟随全局主题", "明亮", "暗黑"];
-    };
     state: {
       aside: {
         collapsed: boolean;
@@ -34,6 +30,13 @@ type GlobalSettings = {
   };
   view:{
     showUpdateInTitleBar:boolean;
+  };
+  editor:{
+    theme: {
+      value: "跟随全局主题" | "明亮" | "暗黑";
+      options: ["跟随全局主题", "明亮", "暗黑"];
+    };
+    runAutoSave: boolean;
   }
 };
 type Runtime = {

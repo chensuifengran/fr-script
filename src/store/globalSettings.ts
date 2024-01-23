@@ -9,10 +9,6 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
         latestVersion: "0.0.3",
         depHaveUpdate: false,
         dependenceState: "不可用",
-        editorTheme: {
-          value: "跟随全局主题",
-          options: ["跟随全局主题", "明亮", "暗黑"],
-        },
         state: {
           aside: {
             collapsed: false,
@@ -39,6 +35,13 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
       },
       view:{
         showUpdateInTitleBar:true
+      },
+      editor:{
+        theme: {
+          value: "跟随全局主题",
+          options: ["跟随全局主题", "明亮", "暗黑"],
+        },
+        runAutoSave: true,
       }
     };
   },
