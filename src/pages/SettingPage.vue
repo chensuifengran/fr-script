@@ -1,16 +1,15 @@
 <template>
   <div class="app-setting-main">
-    <AppSetting />
-    <!-- <Test /> -->
+    <AsyncAppSetting />
   </div>
 </template>
 
 <script setup lang="ts">
-// import Loading from "../components/Loading.vue";
-// const AppSetting = defineAsyncComponent({
-//   loader: async () => import("../components/AppSetting.vue"), // 正常返回
-//   loadingComponent: Loading, // SomeComponent未加载完成时 显示loading组件
-// });
+import Loading from "../components/Loading.vue";
+const AsyncAppSetting = defineAsyncComponent({
+  loader: async () => import("../components/AppSetting.vue"), // 正常返回
+  loadingComponent: Loading, // SomeComponent未加载完成时 显示loading组件
+});
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 
