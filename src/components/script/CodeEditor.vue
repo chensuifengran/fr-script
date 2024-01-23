@@ -249,12 +249,6 @@ const insertDeclare = () => {
   declareMod.visible = false;
 };
 
-onBeforeUnmount(() => {
-  document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
-  // getEditor() && (getEditor() as any).dispose();
-  disposeEditor();
-  isEditing.value = false;
-});
 const keydownHandle = (e: KeyboardEvent) => {
   const key = e.key;
   if (key === "s" && e.ctrlKey) {
@@ -390,20 +384,20 @@ onMounted(() => {
     } else {
       setText(fileInfo.originData || SCRIPT_TEMPLATE);
     }
-
     const t = setTimeout(() => {
-      showEditor.value = true;
       checkDeclare();
+      showEditor.value = true;
       clearTimeout(t);
     }, 200);
   });
 });
-onUnmounted(() => {
+onBeforeUnmount(() => {
   unRegisterEditorEvent("mounted");
   window.removeEventListener("resize", resizeHandle);
   document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
+  disposeEditor();
+  isEditing.value = false;
 });
-
 const getFile = async () => {
   const currentName = router.currentRoute.value.name;
   if (openId!.value !== "-1" && currentName === "scriptEditor") {

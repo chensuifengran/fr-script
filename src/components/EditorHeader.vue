@@ -50,7 +50,12 @@
               ><el-icon><IEpSwitchButton /></el-icon
             ></el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="保存" placement="bottom">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="[Ctrl+S]保存"
+            placement="bottom"
+          >
             <el-button size="small" type="primary" @click="saveScriptFile"
               ><el-icon><IEpDocumentChecked /></el-icon
             ></el-button>

@@ -33,7 +33,7 @@ const chooseWorkDir = async () => {
   }
 };
 const chooseScreenshotSavePath = async () => {
-  const res = (await selectFile()) as string | undefined;
+  const res = (await selectFile(false)) as string | undefined;
   if (res) {
     envSetting.value.screenshotSavePath = res;
   }
@@ -307,7 +307,7 @@ const { goAppUpdate } = useAppVersionInfo();
     <div class="setting-item">
       <span>主题</span>
       <el-select
-        v-model="editor.theme"
+        v-model="editor.theme.value"
         placeholder="编辑器主题"
         size="small"
         class="w120"

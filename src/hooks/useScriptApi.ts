@@ -671,13 +671,27 @@ export const useScriptApi = () => {
         },
       });
       const appGSStore = useAppGlobalSettings();
-      const targetPath = await pathUtils.join(
-        appGSStore.envSetting.workDir,
-        "./lib/csfr.d.ts"
-      );
+
+      let editorTheme = "vs";
+      const settingEditorTheme = appGSStore.editor.theme.value;
+      if (settingEditorTheme === "跟随全局主题") {
+        const isDark = useDark({});
+        editorTheme = isDark.value ? "vs-dark" : "vs";
+      } else {
+        editorTheme = settingEditorTheme === "明亮" ? "vs" : "vs-dark";
+      }
       //将editorTsDeclaration写入到csfr.d.ts文件中
       try {
-        await writeTextFile(targetPath, editorTsDeclaration);
+        if (
+          appGSStore.envSetting.workDir &&
+          appGSStore.envSetting.workDir.length
+        ) {
+          const targetPath = await pathUtils.join(
+            appGSStore.envSetting.workDir,
+            "./lib/csfr.d.ts"
+          );
+          await writeTextFile(targetPath, editorTsDeclaration);
+        }
       } catch (error) {
         console.error("辅助声明文件写入失败：", error);
       }
@@ -692,7 +706,7 @@ export const useScriptApi = () => {
               value: editorValue.value, // 编辑器初始显示文字
               language: "typescript", // 语言支持自行查阅demo
               automaticLayout: true, // 自适应布局
-              theme: "vs", // 官方自带三种主题vs, hc-black, or vs-dark
+              theme: editorTheme, // 官方自带三种主题vs, hc-black, or vs-dark
               foldingStrategy: "indentation",
               renderLineHighlight: "all", // 行亮
               selectOnLineNumbers: true, // 显示行号

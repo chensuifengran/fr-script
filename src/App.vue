@@ -9,6 +9,21 @@ const listStore = useListStore();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
 const menuKey = ref(1);
+const { isEditing } = useScriptInfo();
+const contentHeight = computed(() => {
+  if (isEditing.value) {
+    return "calc(100% - 35px)";
+  } else {
+    return "calc(100% - 40px)";
+  }
+});
+const contentTop = computed(() => {
+  if (isEditing.value) {
+    return "35px";
+  } else {
+    return "40px";
+  }
+});
 provide("menuKey", menuKey);
 const { info, syncWindowInnerWidth } = useAutoTitleBar();
 const { contentTransform, asideBarPos } = useScriptInfo();
@@ -36,7 +51,13 @@ const handleSelect = (index: string) => {
   }, 200);
 };
 const hasFloatWindow = ref(false);
-const aside_width = ref("");
+const aside_width = computed(() => {
+  if (app.value.state.aside.collapsed) {
+    return "40px";
+  } else {
+    return "97px";
+  }
+});
 
 const asideDisplay = ref("none");
 onMounted(async () => {
@@ -73,27 +94,6 @@ const collapsedAside = () => {
 const { showDepDrewer } = useDepInfo();
 const { getDepStateType } = libUtil;
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
-
-const mainTransition = computed(() => {
-  if (
-    asideBarPos.value === "relative" &&
-    contentTransform.value === "translateX(-100%)"
-  ) {
-    return "all 1s";
-  } else {
-    return "none";
-  }
-});
-const mainTransform = computed(() => {
-  if (
-    asideBarPos.value === "relative" &&
-    contentTransform.value === "translateX(-100%)"
-  ) {
-    return "translateX(-100px)";
-  } else {
-    return "translateX(0)";
-  }
-});
 </script>
 
 <template>
@@ -228,8 +228,8 @@ const mainTransform = computed(() => {
 }
 .common-layout {
   width: 100%;
-  top: 40px;
-  height: calc(100% - 40px);
+  top: v-bind(contentTop);
+  height: v-bind(contentHeight);
   position: relative;
   overflow: hidden;
   .title-tag {
@@ -268,14 +268,12 @@ const mainTransform = computed(() => {
   }
 
   .app-main {
-    transition: v-bind(mainTransition);
     width: 100%;
     height: 100%;
     position: relative;
     padding: 0;
     overflow: hidden;
     background: v-bind(appAsideBgColor);
-    transform: v-bind(mainTransform);
   }
 }
 </style>

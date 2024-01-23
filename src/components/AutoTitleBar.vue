@@ -1,4 +1,16 @@
 <template>
+  <!-- 退出提醒弹窗 -->
+  <el-dialog v-model="showQuitDialog" title="退出程序">
+    <div>确定要退出程序吗?</div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="showQuitDialog = false">取消</el-button>
+        <el-button type="danger" @click="closeHandle"
+          >{{ isEditing ? "保存并" : "" }}退出</el-button
+        >
+      </span>
+    </template>
+  </el-dialog>
   <transition
     enter-active-class="animate__animated animate__fadeInUp"
     leave-active-class="animate__animated animate__fadeOutDown"
@@ -59,7 +71,7 @@
               v-show="isFullScreen"
           /></el-icon>
         </div>
-        <div class="titlebar-button" @click="closeHandle">
+        <div class="titlebar-button danger" @click="showQuitDialog = true">
           <el-icon><IEpClose /></el-icon>
         </div>
       </div>
@@ -76,7 +88,7 @@
                 v-show="isFullScreen"
             /></el-icon>
           </div>
-          <div class="titlebar-button" @click="closeHandle">
+          <div class="titlebar-button danger" @click="showQuitDialog = true">
             <el-icon><IEpClose /></el-icon>
           </div>
         </div>
@@ -91,7 +103,12 @@ import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 const { info, windowInnerWidth, clickMinimize, needSyncLastData } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
-const { isEditing } = useScriptInfo();
+const { isEditing, fileInfo } = useScriptInfo();
+const { editorValue } = useScriptApi();
+const titleBarHeight = computed(() => {
+  return isEditing.value ? "35px" : "40px";
+});
+const showQuitDialog = ref(false);
 const minHandle = (clickMinimizeFlag = true) => {
   clickMinimizeFlag && (clickMinimize.value = true);
   appWindow.minimize();
@@ -105,7 +122,13 @@ const maxHandle = async () => {
     appWindow.maximize();
   }
 };
-const closeHandle = () => {
+const closeHandle = async () => {
+  if (isEditing.value) {
+    if (fileInfo.originData !== editorValue.value) {
+      await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
+      fileInfo.originData = editorValue.value;
+    }
+  }
   appWindow.close();
 };
 
@@ -167,7 +190,7 @@ onUnmounted(() => {
 </script>
 <style lang="scss" scoped>
 .titlebar {
-  height: 40px;
+  height: v-bind(titleBarHeight);
   background: v-bind(titleBarColor);
   user-select: none;
   display: flex;
@@ -215,7 +238,8 @@ onUnmounted(() => {
       position: v-bind(searchPosition);
     }
   }
-  .btn {
+  .btn,
+  .btn-content {
     .titlebar-button {
       display: inline-flex;
       justify-content: center;
@@ -245,9 +269,14 @@ onUnmounted(() => {
           background-color: rgb(255, 87, 34);
         }
       }
-    }
-    .titlebar-button:hover {
-      background: var(--el-color-primary-light-7);
+      &:hover {
+        background: var(--el-color-primary-light-7);
+      }
+      &.danger {
+        &:hover {
+          background: rgb(255, 45, 34);
+        }
+      }
     }
   }
 }

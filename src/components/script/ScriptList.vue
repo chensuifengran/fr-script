@@ -119,10 +119,7 @@ const editorScriptFile = (index: number) => {
     curScriptDir.value = await pathUtils.resolve(scriptList.value[index].savePath, "../");
     clearTimeout(t);
   }, 100);
-  const timer = setTimeout(() => {
-    asideBarPos.value = "absolute";
-    clearTimeout(timer);
-  }, 1000);
+  asideBarPos.value = "absolute";
 };
 const openFile = async (index: number) => {
   const path = scriptList.value[index].savePath;
@@ -136,10 +133,7 @@ const onAddItem = () => {
     path: "/script/editor",
   });
   contentTransform.value = "translateX(-100%)";
-  const timer = setTimeout(() => {
-    asideBarPos.value = "absolute";
-    clearTimeout(timer);
-  }, 1000);
+  asideBarPos.value = "absolute";
 };
 const checkDeclare = (editorValue: string) => {
   const v = editorValue;
@@ -330,6 +324,7 @@ const searchList = computed(() => {
     );
   }
 });
+const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 
 <style lang="scss" scoped>
@@ -348,9 +343,10 @@ const searchList = computed(() => {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    background: #fff;
     padding: 5px;
     box-sizing: border-box;
+    border-radius: 10px;
+    background-color: v-bind(appBackground);
     .header-right {
       display: flex;
       flex-direction: row;

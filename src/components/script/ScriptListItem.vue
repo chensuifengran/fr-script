@@ -99,13 +99,18 @@ const itemHeight = computed(() => {
   }
   return "40px";
 });
+const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const shadow = computed(() => {
+  return appBackground?.value === "#000" ? "0 0 8px #f6f6f6" : "0 0 8px #272727";
+});
+const appAsideBgColor = inject<"#272727" | "#f6f6f6">("appAsideBgColor");
 </script>
 
 <style lang="scss" scoped>
 .script-item {
   width: 100%;
   height: v-bind(itemHeight);
-  background-color: #ffffff;
+  background-color: v-bind(appAsideBgColor);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -113,7 +118,9 @@ const itemHeight = computed(() => {
   transition: all 0.5s;
   margin-top: 3px;
   border-radius: 5px;
-  box-shadow: #ededed 0 0 10px;
+  &:hover {
+    box-shadow: v-bind(shadow);
+  }
   cursor: pointer;
   .details {
     width: 100%;
@@ -125,7 +132,7 @@ const itemHeight = computed(() => {
       padding: 5px 10px;
       box-sizing: border-box;
       border-radius: 10px;
-      background-color: #f5f5f5;
+      background-color: v-bind(appBackground);
       max-height: 220px;
       overflow-y: scroll;
       user-select: text;
@@ -135,7 +142,7 @@ const itemHeight = computed(() => {
       padding: 5px 10px;
       box-sizing: border-box;
       border-radius: 10px;
-      background-color: #f5f5f5;
+      background-color: v-bind(appBackground);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -152,7 +159,7 @@ const itemHeight = computed(() => {
     justify-content: space-between;
     padding: 10px;
     box-sizing: border-box;
-    background-color: #ffffff;
+    background-color: v-bind(appAsideBgColor);
     .info {
       display: flex;
       flex-direction: row;
