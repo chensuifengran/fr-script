@@ -12,7 +12,9 @@
         <el-tag v-for="f in installInfo.failLabel" :key="f" type="info">{{ f }}</el-tag>
       </div>
       <div v-else-if="!selectedDeps.length && !installInfo.installed">
-        <el-empty description="暂无安装任务"></el-empty>
+        <el-empty
+          description="暂无安装任务,可点击右边按钮或者将文件拖入此处进行安装"
+        ></el-empty>
       </div>
       <div v-if="selectedDeps.length">安装任务队列：</div>
       <el-tag
@@ -30,7 +32,7 @@
       <el-button class="clear-btn" @click="clear" v-if="selectedDeps.length"
         >清空列表</el-button
       >
-      <el-button class="select-btn" @click="selectDeps">选择本地依赖文件</el-button>
+      <el-button class="select-btn" @click="selectDeps()">选择本地依赖文件</el-button>
       <el-button
         class="install-btn"
         @click="install"
@@ -43,6 +45,8 @@
 </template>
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
+import { FileDropEvent, appWindow } from "@tauri-apps/api/window";
+import { UnlistenFn } from "@tauri-apps/api/event";
 
 const selectedDeps = ref<
   {
@@ -62,18 +66,34 @@ const installInfo = reactive({
   installed: false,
   loading: false,
 });
+
+let unListenFileDrop: UnlistenFn;
+const fileDropHandle = (event: any) => {
+  const paths = event.payload;
+  if (Array.isArray(paths)) {
+    selectDeps(paths);
+  }
+};
 //当组件出现在页面上时，计算content的最大高度
 onMounted(async () => {
+  unListenFileDrop = await appWindow.listen<FileDropEvent>(
+    "tauri://file-drop",
+    fileDropHandle
+  );
   await nextTick();
   const { height } = contentRef.value!.getBoundingClientRect();
   contentMaxHeight.value = `${height}px`;
 });
+onUnmounted(() => {
+  unListenFileDrop();
+});
 const clear = () => {
   selectedDeps.value = [];
 };
-const selectDeps = async () => {
-  const paths = (await pathUtils.selectFile(true)) as string[] | undefined;
-
+const selectDeps = async (paths?: string[]) => {
+  if (!paths) {
+    paths = (await fsUtils.selectFile(true)) as string[] | undefined;
+  }
   if (paths) {
     const currentVal = selectedDeps.value.map((item) => item.path);
     const res = [...new Set([...currentVal, ...paths])]
