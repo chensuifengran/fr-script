@@ -86,6 +86,14 @@ const routes = [
       icon:Cpu
     },
   },
+  {
+    path:"/floatWindow",
+    name:"floatWindow",
+    component:()=>import(`../pages/FloatWindow.vue`),
+    meta:{
+      title:"悬浮窗口"
+    }
+  }
 ];
 export const topRoutes = [routes[1],routes[2],routes[3]];
 export const bottomRoutes = [routes[4],routes[5]];

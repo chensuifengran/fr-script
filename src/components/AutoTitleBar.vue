@@ -15,8 +15,8 @@
     enter-active-class="animate__animated animate__fadeInUp"
     leave-active-class="animate__animated animate__fadeOutDown"
   >
-    <div data-tauri-drag-region class="titlebar" v-if="!isEditing">
-      <div class="title" data-tauri-drag-region>
+    <div data-tauri-drag-region class="titlebar" v-if="!isEditing" style="cursor: move">
+      <div class="title" data-tauri-drag-region style="cursor: move">
         <div class="text">
           <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
             info.title
@@ -26,7 +26,12 @@
           enter-active-class="animate__animated animate__fadeInUp"
           leave-active-class="animate__animated animate__fadeOutDown"
         >
-          <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
+          <div
+            class="api-test-bar"
+            data-tauri-drag-region
+            v-if="showApiTestSearch"
+            style="cursor: move"
+          >
             <el-input
               class="search-ipt"
               v-model="info.apiTest.searchValue"
@@ -62,7 +67,7 @@
           </div>
         </el-tooltip>
 
-        <div class="titlebar-button" @click="minHandle(false)">
+        <div class="titlebar-button" @click="minHandle">
           <el-icon><IEpMinus /></el-icon>
         </div>
         <div class="titlebar-button" @click="maxHandle">
@@ -76,10 +81,15 @@
         </div>
       </div>
     </div>
-    <div class="titlebar" data-tauri-drag-region v-else-if="isEditing">
+    <div
+      class="titlebar"
+      data-tauri-drag-region
+      v-else-if="isEditing"
+      style="cursor: move"
+    >
       <EditorHeader>
         <div class="btn-content">
-          <div class="titlebar-button" @click="minHandle(true)">
+          <div class="titlebar-button" @click="minHandle">
             <el-icon><IEpMinus /></el-icon>
           </div>
           <div class="titlebar-button" @click="maxHandle">
@@ -97,7 +107,7 @@
   </transition>
 </template>
 <script lang="ts" setup>
-import { appWindow } from "@tauri-apps/api/window";
+import { appWindow, getAll, getCurrent } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
@@ -109,8 +119,8 @@ const titleBarHeight = computed(() => {
   return isEditing.value ? "35px" : "40px";
 });
 const showQuitDialog = ref(false);
-const minHandle = (clickMinimizeFlag = true) => {
-  clickMinimizeFlag && (clickMinimize.value = true);
+const minHandle = () => {
+  clickMinimize.value = true;
   appWindow.minimize();
 };
 const maxHandle = async () => {
@@ -129,6 +139,12 @@ const closeHandle = async () => {
       fileInfo.originData = editorValue.value;
     }
   }
+  const allWindow = getAll();
+  allWindow.forEach((w) => {
+    if (w.label !== "main") {
+      w.close();
+    }
+  });
   appWindow.close();
 };
 
@@ -173,8 +189,8 @@ const resizeHandle = async () => {
 let unListen: any;
 onMounted(async () => {
   window.addEventListener("resize", resizeHandle);
-  unListen = await listen("tauri://focus", () => {
-    if (clickMinimize.value) {
+  unListen = await listen("tauri://focus", (e: any) => {
+    if (clickMinimize.value && e.windowLabel === getCurrent().label) {
       clickMinimize.value = false;
       needSyncLastData.value = true;
       goLastPath();

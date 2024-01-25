@@ -19,7 +19,7 @@
     <template #extra>
       <div class="head-content">
         <div class="btns">
-          <div class="dragable" data-tauri-drag-region></div>
+          <div class="dragable" data-tauri-drag-region style="cursor: move"></div>
           <el-tooltip
             class="box-item"
             effect="dark"
@@ -84,15 +84,14 @@ const {
   autoSaveDialog,
 } = useScriptInfo();
 const { editorValue } = useScriptApi()!;
+const { createWindow, globalWindowInfo } = useWebviewWindow();
 const openApiTest = async () => {
-  //TODO 打开调试窗口
-  // if (testApiWinId?.value === -1) {
-  //   testApiWinId.value = await window.api.createWindow("/apiTest?showSlide=false");
-  // }
-  // if (!(await window.api.windowIsExist(testApiWinId!.value))) {
-  //   testApiWinId!.value = await window.api.createWindow("/apiTest?showSlide=false");
-  // }
-  // window.api.openApiTestWindow(testApiWinId!.value);
+  const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
+  if (targetWindow) {
+    targetWindow.window.show();
+  } else {
+    createWindow("apiTest", "/apiTest");
+  }
 };
 const openFile = async () => {
   const path = fileInfo.savePath;
@@ -229,9 +228,10 @@ const goBack = () => {
   preloadText.value = "";
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
-
-  //TODO 隐藏调试窗口
-  // if (testApiWinId?.value !== -1) window.api.invokeMainHandle("hideApiTestWin");
+  const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
+  if (targetWindow) {
+    targetWindow.window.hide();
+  }
 };
 </script>
 

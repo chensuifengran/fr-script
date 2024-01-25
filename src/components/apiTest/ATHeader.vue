@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div style="-webkit-app-region: drag; width: 25%; cursor: move">
+    <div data-tauri-drag-region style="width: 25%; cursor: move">
       <span>调试</span>
     </div>
     <div class="header-r">
-      <div style="-webkit-app-region: drag; cursor: move" class="move"></div>
+      <div data-tauri-drag-region style="cursor: move" class="move"></div>
       <el-input
         @input="changeSearchValue(searchValue)"
         class="input"
@@ -24,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+import { getAll, getCurrent } from "@tauri-apps/api/window";
+
 const searchValue = ref("");
 defineProps({
   openOutput: {
@@ -36,8 +38,14 @@ defineProps({
   },
 });
 const showApiTestButton = () => {
-  // window.api.invokeMainHandle("hideApiTestWin");
+  getCurrent().hide();
+  const mainWindow = getAll().find((w) => w.label === "main");
+  if (mainWindow) {
+    mainWindow.setFocus();
+  }
 };
+const appBackground = inject("appBackground");
+const appAsideBgColor = inject("appAsideBgColor");
 </script>
 
 <style scoped lang="scss">
@@ -61,14 +69,15 @@ const showApiTestButton = () => {
     margin: 0;
     margin-right: 5px;
     // border: 0;
-    background-color: #ffffff;
-    border: 1px solid #efefef;
+    background-color: v-bind(appBackground);
+    border: 1px solid v-bind(appAsideBgColor);
     color: var(--el-color-primary);
     &:first-of-type {
       margin-left: 5px;
     }
     &:hover {
-      background-color: #f5f5f5;
+      background-color: v-bind(appAsideBgColor);
+      border: 1px solid v-bind(appBackground);
     }
   }
 }

@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{image, input, mouse, screen, tools, init, request, sys, file};
+use fr_script::export_api::{file, image, init, input, mouse, request, screen, sys, tools};
 use tauri::Manager;
 
 fn main() {

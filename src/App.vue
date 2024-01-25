@@ -58,24 +58,43 @@ const aside_width = computed(() => {
     return "97px";
   }
 });
-
-const asideDisplay = ref("none");
+const isMainWindow = ref(true);
+provide("isMainWindow", isMainWindow);
 onMounted(async () => {
-  window.addEventListener("resize", () => {
-    syncWindowInnerWidth(window.innerWidth);
-    if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
-      collapsedAside();
-    } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
-      collapsedAside();
+  const init = async () => {
+    window.addEventListener("resize", () => {
+      syncWindowInnerWidth(window.innerWidth);
+      if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
+        collapsedAside();
+      } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
+        collapsedAside();
+      }
+    });
+    //自动保存当前全局配置以及导入之前的全局配置
+    await appGSStore.init();
+    await listStore.init();
+
+    handleSelect(app.value.state.aside.currentItem);
+    libUtil.checkDepUpdate();
+  };
+  const sIndex = window.location.href.indexOf("#");
+  if (sIndex !== -1) {
+    const path = window.location.href.substring(sIndex + 1);
+    const otherWindows = ["/floatWindow", "/apiTest"];
+    if (otherWindows.includes(path)) {
+      isMainWindow.value = false;
+      setTimeout(() => {
+        router.replace({
+          path,
+        });
+      }, 1000);
+    } else {
+      init();
     }
-  });
-  asideDisplay.value = "block";
-  //自动保存当前全局配置以及导入之前的全局配置
-  await appGSStore.init();
-  await listStore.init();
+  } else {
+    init();
+  }
   registerAllInvokeApi(appGSStore);
-  handleSelect(app.value.state.aside.currentItem);
-  libUtil.checkDepUpdate();
 });
 const isDark = useDark({});
 provide("isDark", isDark);
@@ -98,103 +117,112 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 
 <template>
   <div class="app" id="app">
-    <AutoTitleBar />
-    <div class="common-layout" v-show="!hasFloatWindow">
-      <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
-        <template #header="{ titleId, titleClass }">
-          <h4 :id="titleId" :class="titleClass">
-            依赖管理<el-tag
-              :type="getDepStateType(app.dependenceState)"
-              size="small"
-              class="title-tag"
-              >{{ app.dependenceState }}</el-tag
-            >
-          </h4>
-        </template>
-        <DepDrewer />
-      </el-drawer>
-      <el-container>
-        <el-aside class="aside">
-          <el-tooltip
-            effect="dark"
-            :content="app.state.aside.collapsed ? '展开' : '折叠'"
-            placement="right"
-          >
-            <el-button
-              class="aside-btn"
-              :icon="app.state.aside.collapsed ? Expand : Fold"
-              text
-              @click="collapsedAside"
-            />
-          </el-tooltip>
-          <el-menu
-            :collapse="app.state.aside.collapsed"
-            :collapse-transition="false"
-            popper-effect="dark"
-            class="el-menu-vertical"
-            :default-active="app.state.aside.currentItem"
-            :key="menuKey"
-            @select="handleSelect"
-          >
-            <div>
-              <el-menu-item
-                v-for="topRoute in topRoutes"
-                :index="topRoute.name"
-                :key="topRoute.path + '|' + topRoute.meta!.title"
-              >
-                <el-icon>
-                  <component :is="topRoute.meta!.icon" />
-                </el-icon>
-                <template #title>{{ topRoute.meta!.title }}</template>
-              </el-menu-item>
-            </div>
-            <div data-tauri-drag-region style="flex: 1"></div>
-            <div>
-              <el-menu-item
-                v-for="bottomRoute in bottomRoutes"
-                :index="bottomRoute.name"
-                :key="bottomRoute.path+ '|' + bottomRoute.meta!.title"
-              >
-                <el-icon>
-                  <component :is="bottomRoute.meta!.icon" />
-                </el-icon>
-                <template #title>{{ bottomRoute.meta!.title }}</template>
-              </el-menu-item>
-            </div>
-          </el-menu>
-        </el-aside>
-        <el-main class="app-main">
-          <router-view v-slot="{ Component }">
-            <transition enter-active-class="animate__animated animate__fadeIn ">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </el-main>
-      </el-container>
-    </div>
     <FillApiParamDialog />
-    <el-dialog
-      v-model="appVersionInfo.openDialog"
-      :title="'版本更新v' + appVersionInfo.version"
-      class="version-update-dialog"
-    >
-      <div class="dialog-content">
-        <div>{{ appVersionInfo.desc }}</div>
-        <div class="btn-content">
-          <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
-            >取消</el-button
-          >
-          <el-button
-            size="small"
-            v-for="item in appVersionInfo.downloadUrl"
-            :key="item.origin"
-            type="primary"
-            @click="goDownloadNewApp(item)"
-            >{{ item.origin }}下载</el-button
-          >
-        </div>
+    <template v-if="isMainWindow">
+      <AutoTitleBar />
+      <div class="common-layout" v-show="!hasFloatWindow">
+        <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
+          <template #header="{ titleId, titleClass }">
+            <h4 :id="titleId" :class="titleClass">
+              依赖管理<el-tag
+                :type="getDepStateType(app.dependenceState)"
+                size="small"
+                class="title-tag"
+                >{{ app.dependenceState }}</el-tag
+              >
+            </h4>
+          </template>
+          <DepDrewer />
+        </el-drawer>
+        <el-container>
+          <el-aside class="aside">
+            <el-tooltip
+              effect="dark"
+              :content="app.state.aside.collapsed ? '展开' : '折叠'"
+              placement="right"
+            >
+              <el-button
+                class="aside-btn"
+                :icon="app.state.aside.collapsed ? Expand : Fold"
+                text
+                @click="collapsedAside"
+              />
+            </el-tooltip>
+            <el-menu
+              :collapse="app.state.aside.collapsed"
+              :collapse-transition="false"
+              popper-effect="dark"
+              class="el-menu-vertical"
+              :default-active="app.state.aside.currentItem"
+              :key="menuKey"
+              @select="handleSelect"
+            >
+              <div>
+                <el-menu-item
+                  v-for="topRoute in topRoutes"
+                  :index="topRoute.name"
+                  :key="topRoute.path + '|' + topRoute.meta!.title"
+                >
+                  <el-icon>
+                    <component :is="topRoute.meta!.icon" />
+                  </el-icon>
+                  <template #title>{{ topRoute.meta!.title }}</template>
+                </el-menu-item>
+              </div>
+              <div data-tauri-drag-region style="flex: 1; cursor: move"></div>
+              <div>
+                <el-menu-item
+                  v-for="bottomRoute in bottomRoutes"
+                  :index="bottomRoute.name"
+                  :key="bottomRoute.path+ '|' + bottomRoute.meta!.title"
+                >
+                  <el-icon>
+                    <component :is="bottomRoute.meta!.icon" />
+                  </el-icon>
+                  <template #title>{{ bottomRoute.meta!.title }}</template>
+                </el-menu-item>
+              </div>
+            </el-menu>
+          </el-aside>
+          <el-main class="app-main">
+            <router-view v-slot="{ Component }">
+              <transition enter-active-class="animate__animated animate__fadeIn ">
+                <component :is="Component" />
+              </transition>
+            </router-view>
+          </el-main>
+        </el-container>
       </div>
-    </el-dialog>
+      <el-dialog
+        v-model="appVersionInfo.openDialog"
+        :title="'版本更新v' + appVersionInfo.version"
+        class="version-update-dialog"
+      >
+        <div class="dialog-content">
+          <div>{{ appVersionInfo.desc }}</div>
+          <div class="btn-content">
+            <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
+              >取消</el-button
+            >
+            <el-button
+              size="small"
+              v-for="item in appVersionInfo.downloadUrl"
+              :key="item.origin"
+              type="primary"
+              @click="goDownloadNewApp(item)"
+              >{{ item.origin }}下载</el-button
+            >
+          </div>
+        </div>
+      </el-dialog>
+    </template>
+    <template v-else>
+      <router-view v-slot="{ Component }">
+        <transition enter-active-class="animate__animated animate__fadeIn ">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </template>
   </div>
 </template>
 <style lang="scss">
@@ -240,7 +268,6 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
     transition: all 1s;
     overflow-x: hidden;
     width: v-bind(aside_width);
-    display: v-bind(asideDisplay);
     position: v-bind(asideBarPos);
     transform: v-bind(contentTransform);
     &:hover {

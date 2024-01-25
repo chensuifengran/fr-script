@@ -3,7 +3,7 @@
   <div class="remd">
     <ATHeader
       class="alone-page-header"
-      v-if="isAlone"
+      v-if="!isMainWindow"
       :openOutput="() => (info.apiTest.openOutput = true)"
       :changeSearchValue="(value) => (info.apiTest.searchValue = value)"
     />
@@ -18,7 +18,12 @@
         enter-active-class="animate__animated animate__fadeInDown"
         leave-active-class="animate__animated animate__fadeOutUp"
       >
-        <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch">
+        <div
+          class="api-test-bar"
+          data-tauri-drag-region
+          style="cursor: move"
+          v-if="showApiTestSearch"
+        >
           <el-input
             class="search-ipt"
             v-model="info.apiTest.searchValue"
@@ -88,7 +93,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useRoute } from "vue-router";
 import Loading from "../components/Loading.vue";
 import { storeToRefs } from "pinia";
 const AsyncApiDocumentItem = defineAsyncComponent({
@@ -102,7 +106,7 @@ const appGSStore = useAppGlobalSettings();
 const { app } = storeToRefs(appGSStore);
 const mainLoading = ref(true);
 const isEnd = ref(false);
-const isAlone = ref(false);
+const isMainWindow = inject<Ref<boolean>>("isMainWindow")!;
 const pagePadding = ref("10px");
 const antiShakeValue = ref("");
 let needChange = true;
@@ -197,11 +201,8 @@ const allDocumentItems = computed<TestModuleType[]>(() => {
 
   return allList.slice(0, loadCount.value);
 });
-
-const route = useRoute();
 onBeforeMount(() => {
-  isAlone.value = route.query.showSlide === "false";
-  if (route.query?.showSlide === "false") {
+  if (!isMainWindow.value) {
     pagePadding.value = "0";
   }
 });
