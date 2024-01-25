@@ -26,6 +26,7 @@ const props = defineProps({
     default: "220px",
   },
 });
+const appAsideBgColor = inject("appAsideBgColor");
 </script>
 
 <style lang="scss" scoped>
@@ -37,7 +38,7 @@ const props = defineProps({
   height: 40px;
   padding: 2px 10px;
   border-radius: 5px;
-  background-color: #fff;
+  background-color: v-bind(appAsideBgColor);
   margin-top: 5px;
   .al-center {
     display: flex;
