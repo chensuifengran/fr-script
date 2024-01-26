@@ -27,14 +27,18 @@ const contentTop = computed(() => {
 provide("menuKey", menuKey);
 const { info, syncWindowInnerWidth } = useAutoTitleBar();
 const { contentTransform, asideBarPos } = useScriptInfo();
-const handleSelect = (index: string) => {
+const handleSelect = (index: string, menuClick = false) => {
   if (index === "setting") {
     libUtil.checkDepUpdate();
   }
 
   app.value.state.aside.currentItem = index;
   if (index === "script") {
-    index = "scriptList";
+    if (menuClick) {
+      index = "scriptList";
+    } else {
+      index = (router.currentRoute.value.name as string) || "scriptList";
+    }
   }
   router.replace({
     name: index,
@@ -155,7 +159,7 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
               class="el-menu-vertical"
               :default-active="app.state.aside.currentItem"
               :key="menuKey"
-              @select="handleSelect"
+              @select="(index) => handleSelect(index, true)"
             >
               <div>
                 <el-menu-item
