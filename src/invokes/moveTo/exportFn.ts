@@ -9,8 +9,8 @@ export const moveToFn = async (
   ],
   taskId?: string
 ) => {
-  const runtimeStore = useRuntime();
-  if (taskId && runtimeStore.notAllowedFnId.includes(taskId)) {
+  const { notAllowedFnId }  = useScriptRuntime();
+  if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;
   }
   x =

@@ -101,8 +101,16 @@ const runScript = () => {
   const unsaveRun = () => {
     tempEditorValue.value = editorValue.value;
     autoSaveDialog.visible = false;
-    //TODO 判断是否有调试窗口，有则隐藏
-    // if (testApiWinId?.value !== -1) window.api.invokeMainHandle("hideApiTestWin");
+    const testWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
+    if (testWindow) {
+      testWindow.window.hide();
+    }
+
+    router.replace({
+      path: "/script/run",
+    });
+    asideBarPos.value = "relative";
+    contentTransform.value = "translateX(0)";
   };
   const saveRun = async () => {
     const res = await saveScriptFile();

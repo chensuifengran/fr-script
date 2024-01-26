@@ -39,11 +39,6 @@ type GlobalSettings = {
     runAutoSave: boolean;
   }
 };
-type Runtime = {
-  notAllowedFnId: string[];
-  currentScriptDir: string;
-  runningFnId: string;
-};
 type ScriptSettingType = {
   //自动导入上次运行配置
   autoImportLastRunConfig: boolean;

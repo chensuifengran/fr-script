@@ -69,7 +69,8 @@ const resetToKeyMapEnum = (keyMapStr: string) => {
 
 const paramsProcess = async (args: string[]) => {
   const appGSStore = useAppGlobalSettings();
-  const runtime = useRuntime();
+  const { currentScriptDir } = useScriptRuntime();
+  
   const _params: string[] = [];
   for (let index = 0; index < args.length; index++) {
     let i = args[index];
@@ -93,7 +94,7 @@ const paramsProcess = async (args: string[]) => {
           await resolve(appGSStore.envSetting.screenshotSavePath, "..")
         )
       )
-      .replace("SCRIPT_ROOT_DIR+", pathStrProcess(runtime.currentScriptDir));
+      .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
     _params.push(arg);
   }
   return _params;
