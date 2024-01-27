@@ -23,24 +23,11 @@ const getApiModules = async (appStore: AppGSStore) => {
     }
     if (module) apis.push(module);
   }
-
-  // .map(async ([key, value]) => {
-  //   const apiNamePath = await pathUtils.join(key, "../");
-  //   const apiName = await pathUtils.basename(apiNamePath);
-  //   const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
-  //   if (!module) {
-  //     console.error(`找不到${apiName}Api或${apiName}模块`);
-  //   }
-  //   if (typeof module === "function") {
-  //     return module(appStore);
-  //   }
-  //   return module;
-  // })
-  // .filter((item) => item !== null);
   return apis;
 };
 const registerAllInvokeApi = async (appStore: AppGSStore) => {
-  const allModules = (await getApiModules(appStore))!;
+  const allModules = (await getApiModules(appStore));
+  if (!allModules) return;
   //注册所有api
   registerInvokeApiMethods([...allModules]);
 };
