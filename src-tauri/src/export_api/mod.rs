@@ -18,3 +18,5 @@ pub mod request;
 pub mod sys;
 //文件相关API
 pub mod file;
+//执行命令相关API
+pub mod cmd;

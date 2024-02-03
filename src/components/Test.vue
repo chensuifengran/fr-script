@@ -7,6 +7,14 @@ const pos = reactive({
   x: 0,
   y: 0,
 });
+const testCmd = async () => {
+  console.log("testCmd", anyValue.value);
+
+  const res = await invoke("run_cmd", {
+    command: anyValue.value,
+  });
+  console.log("testCmd", res);
+};
 const ocrDisable = ref(true);
 const appGSStore = useAppGlobalSettings();
 const { value, gpuMemory } = appGSStore.ocr;
@@ -367,6 +375,7 @@ const screen_ocr_contains = async () => {
       <el-button @click="screen_ocr_contains" :disabled="ocrDisable"
         >screen_ocr_contains</el-button
       >
+      <el-button @click="testCmd">execCmd</el-button>
     </el-button-group>
     <el-input v-model="anyValue" placeholder="anyValue" />
     <el-input v-model="mouseTarget.x" placeholder="x" />

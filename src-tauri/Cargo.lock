@@ -1170,6 +1170,7 @@ dependencies = [
 name = "fr-script"
 version = "0.0.6"
 dependencies = [
+ "encoding_rs",
  "enigo",
  "image",
  "lazy_static",
