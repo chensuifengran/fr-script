@@ -8,12 +8,12 @@ const pos = reactive({
   y: 0,
 });
 const testCmd = async () => {
-  console.log("testCmd", anyValue.value);
-
-  const res = await invoke("run_cmd", {
-    command: anyValue.value,
-  });
-  console.log("testCmd", res);
+  try {
+    const res = await execCommand.run(anyValue.value);
+    greetMsg.value = res;
+  } catch (e) {
+    greetMsg.value = JSON.stringify(e);
+  }
 };
 const ocrDisable = ref(true);
 const appGSStore = useAppGlobalSettings();
@@ -339,7 +339,12 @@ const screen_ocr_contains = async () => {
     element-loading-background="rgba(0, 0, 0, 0.7)"
     element-loading-text="OCR服务初始化中..."
   >
-    <el-input v-model="greetMsg" autosize type="textarea" placeholder="输出" />
+    <el-input
+      v-model="greetMsg"
+      type="textarea"
+      :autosize="{ minRows: 2, maxRows: 4 }"
+      placeholder="输出"
+    />
     <div>position: {{ pos.x }} ,{{ pos.y }}</div>
 
     <el-button-group>
@@ -394,5 +399,14 @@ const screen_ocr_contains = async () => {
   .el-button + .el-button {
     margin: 1px;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+.test {
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
 }
 </style>

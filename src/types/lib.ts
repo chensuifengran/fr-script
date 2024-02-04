@@ -39,6 +39,7 @@ export type CheckDepItemType = {
   }[];
   children: LibNameItemType[];
   version: string;
+  child_files:string[];
 }
 
 export type LibNameItemType = CheckDepItemType & {

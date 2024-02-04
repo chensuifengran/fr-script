@@ -18,7 +18,6 @@ const renameLib = async (name: string, targetName: string) => {
     const libPath = await pathUtils.join(installPath, name);
     const targetPath = await pathUtils.join(installPath, targetName);
     await renameFile(libPath, targetPath);
-    // console.log("renameFile", libPath, targetPath);
   } catch (error) {
     console.error("库文件重命名失败：", error);
   }
@@ -162,6 +161,7 @@ const checkDepList = async (depList: DependenceItemType[]) => {
         children: [],
         version: dep.version,
         root_path: dep.root_path,
+        child_files: dep.child_files,
       });
     }
   }
@@ -193,6 +193,9 @@ const checkLibs = async () => {
         name: dep.name,
         children: await checkDepList(dep.dependence),
         version: dep.version,
+        child_files: dep.child_files.map((i: string) =>
+          dep.root_path ? dep.root_path + "/" + i : i
+        ),
       });
     }
     lastLiblist = checkList;
@@ -225,7 +228,11 @@ const getAllLibsName = async (checkList: LibNameItemType[]) => {
   return libNames;
 };
 
-const getDepState = async (list: CheckDepItemType[], depName: string) => {
+const getDepState = async (
+  list: CheckDepItemType[],
+  depName: string,
+  childFiles?: string[]
+) => {
   const dep = list.find((i) => i.name === depName);
   if (dep) {
     if (!dep.exists) {
@@ -233,6 +240,17 @@ const getDepState = async (list: CheckDepItemType[], depName: string) => {
         const ppocrExists = await libExists("ppocr.dll");
         const c_ppocrExists = await libExists("c_ppocr.dll");
         return !!ppocrExists && !!c_ppocrExists;
+      }
+      if (childFiles) {
+        let exists = true;
+        for (const child of childFiles) {
+          const childInfo = await libExists(child);
+          if (!childInfo) {
+            exists = false;
+            break;
+          }
+        }
+        return exists;
       }
       return false;
     } else {
@@ -260,18 +278,31 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   //依赖名为screenOperation.dll的依赖库及子依赖库均存在时为：精简版
   //在精简版的基础上，依赖名为ppocr.dll的依赖库及子依赖库均存在时为：基础版
   //在基础班的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
-  const stateDepList = ["screenOperation.dll", "ppocr.dll", "g_ppocr.dll"];
-  const resultList: boolean[] = [];
 
-  for (const dep of stateDepList) {
-    resultList.push(await getDepState(checkList, dep));
+  const resultMap: Record<string, boolean> = {};
+  for (const dep of checkList) {
+    resultMap[dep.name] = await getDepState(
+      checkList,
+      dep.name,
+      dep.child_files
+    );
   }
+
   let version: "完整版" | "基础版" | "精简版" | "不可用" = "不可用";
-  if (resultList[0] && resultList[1] && resultList[2]) {
+  if (
+    resultMap["screenOperation.dll"] &&
+    resultMap["adb.7z"] &&
+    resultMap["ppocr.dll"] &&
+    resultMap["g_ppocr.dll"]
+  ) {
     version = "完整版";
-  } else if (resultList[0] && resultList[1]) {
+  } else if (
+    resultMap["screenOperation.dll"] &&
+    resultMap["adb.7z"] &&
+    resultMap["ppocr.dll"]
+  ) {
     version = "基础版";
-  } else if (resultList[0]) {
+  } else if (resultMap["screenOperation.dll"] && resultMap["adb.7z"]) {
     version = "精简版";
   }
   const appGSStore = useAppGlobalSettings();
@@ -288,7 +319,7 @@ const checkDepUpdate = async () => {
       type: "error",
       position: "bottom-right",
       showClose: true,
-    })
+    });
     return;
   }
   //同步依赖状态
@@ -314,15 +345,23 @@ const checkDepLack = async () => {
   const baseStateLackDeps: NeedUpdateDepType[] = [];
   const fullStateLackDeps: NeedUpdateDepType[] = [];
   const simpleDep = checkList.find((i) => i.name === "screenOperation.dll");
+  const simpleAdbDep = checkList.find((i) => i.name === "adb.7z");
   const baseDep = checkList.find((i) => i.name === "ppocr.dll");
   const fullDep = checkList.find((i) => i.name === "g_ppocr.dll");
   if (state === "不可用") {
-    if (simpleDep && baseDep && fullDep) {
+    if (simpleDep && simpleAdbDep && baseDep && fullDep) {
       if (!simpleDep.exists) {
         simpleStateLackDeps.push({
           name: simpleDep.name,
           version: simpleDep.version,
           download_url: simpleDep.downloadUrl,
+        });
+      }
+      if (!simpleAdbDep.exists) {
+        simpleStateLackDeps.push({
+          name: simpleAdbDep.name,
+          version: simpleAdbDep.version,
+          download_url: simpleAdbDep.downloadUrl,
         });
       }
       if (!baseDep.exists) {
@@ -463,7 +502,7 @@ const installDep = async (
   dep: { label: string; path: string },
   delOriginFile = false,
   isFullVersionInstallBaseVersion = false,
-  ocrValue:'CPU'|'GPU' = 'CPU'
+  ocrValue: "CPU" | "GPU" = "CPU"
 ) => {
   const installPath = await pathUtils.getInstallDir();
   let result = false;
@@ -487,7 +526,11 @@ const installDep = async (
     } else {
       targetPath = installPath;
     }
-    if (isFullVersionInstallBaseVersion && dep.label === "base_dep_pkg.7z" && ocrValue === 'GPU') {
+    if (
+      isFullVersionInstallBaseVersion &&
+      dep.label === "base_dep_pkg.7z" &&
+      ocrValue === "GPU"
+    ) {
       await libUtil.renameLib("ppocr.dll", "g_ppocr.dll");
       await libUtil.renameLib("paddle_inference.dll", "g_paddle_inference.dll");
     } else {
