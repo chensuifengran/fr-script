@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-
+const { resolve, getInstallDir } = pathUtils;
 const run = async (cmd: string) => {
   try {
     const res = await invoke<string>("run_cmd", {
@@ -20,6 +20,11 @@ const run = async (cmd: string) => {
     return Promise.reject(e);
   }
 };
+const adb = async (adb_command: string) => {
+  const adbPath = await resolve(await getInstallDir(), "adb/adb.exe");
+  return run(`${adbPath} ${adb_command}`);
+};
 export const execCommand = {
-  run
+  run,
+  adb,
 };

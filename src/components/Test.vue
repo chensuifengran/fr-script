@@ -9,7 +9,7 @@ const pos = reactive({
 });
 const testCmd = async () => {
   try {
-    const res = await execCommand.run(anyValue.value);
+    const res = await execCommand.adb(anyValue.value);
     greetMsg.value = res;
   } catch (e) {
     greetMsg.value = JSON.stringify(e);
