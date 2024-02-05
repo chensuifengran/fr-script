@@ -36,7 +36,7 @@
           ></el-button>
         </div>
       </transition>
-      <AsyncApiDocumentItem
+      <ApiDocumentItem
         v-for="m in allDocumentItems"
         :key="m?.dialog?.targetMethodName || m?.dialog?.title"
         :model="m!"
@@ -95,10 +95,6 @@
 <script lang="ts" setup>
 import Loading from "../components/Loading.vue";
 import { storeToRefs } from "pinia";
-const AsyncApiDocumentItem = defineAsyncComponent({
-  loader: async () => import("../components/apiTest/ApiDocumentItem.vue"),
-  loadingComponent: Loading,
-});
 const pageContentRef = ref<HTMLElement>();
 const { getInvokeApiTestModules, setTestModuleCtx } = useInvokeApiMethodsRegister();
 const { info, windowInnerWidth } = useAutoTitleBar();
