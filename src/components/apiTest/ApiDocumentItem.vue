@@ -231,12 +231,23 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   flex-direction: column;
   overflow: hidden;
   transition: all 0.5s;
-  margin-top: 3px;
+  margin-top: 5px;
   border-radius: 5px;
   box-shadow: v-bind(appAsideBgColor) 0 0 3px;
   cursor: pointer;
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
+    &::before {
+      content: "";
+      z-index: 100;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 0;
+      background-color: var(--el-color-primary-light-3);
+      animation: forwards 0.5s heightChange;
+    }
   }
   .api-header {
     width: 100%;
@@ -248,6 +259,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     padding: 10px;
     box-sizing: border-box;
     background: v-bind(appAsideBgColor);
+    position: relative;
     .info {
       display: flex;
       flex-direction: row;
@@ -310,6 +322,16 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       right: 0;
       top: 0;
     }
+  }
+}
+@keyframes heightChange {
+  from {
+    height: 0;
+    top: 50%;
+  }
+  to {
+    height: 100%;
+    top: 0;
   }
 }
 </style>

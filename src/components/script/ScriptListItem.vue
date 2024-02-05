@@ -100,9 +100,7 @@ const itemHeight = computed(() => {
   return "40px";
 });
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
-const shadow = computed(() => {
-  return appBackground?.value === "#000" ? "0 0 8px #f6f6f6" : "0 0 8px #272727";
-});
+
 const appAsideBgColor = inject<"#272727" | "#f6f6f6">("appAsideBgColor");
 </script>
 
@@ -119,7 +117,7 @@ const appAsideBgColor = inject<"#272727" | "#f6f6f6">("appAsideBgColor");
   margin-top: 3px;
   border-radius: 5px;
   &:hover {
-    box-shadow: v-bind(shadow);
+    box-shadow: #a0e0bd 0 0 3px;
   }
   cursor: pointer;
   .details {
