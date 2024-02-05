@@ -363,8 +363,10 @@ const cursorHandle = (_e: any) => {
 const resizeHandle = () => {
   getEditor()?.layout();
 };
-const { needSyncLastData } = useAutoTitleBar();
+// const { needSyncLastData } = useAutoTitleBar();
 onMounted(() => {
+  console.log("scriptEditor mounted");
+
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
@@ -374,16 +376,23 @@ onMounted(() => {
   document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
   registerEditorEvent("mounted", (editor: any) => {
     editor.onDidChangeCursorPosition(cursorHandle);
-    if (needSyncLastData.value) {
-      const { fileInfo } = useScriptInfo();
-      if (fileInfo.lastData !== fileInfo.originData) {
-        setText(fileInfo.lastData);
-        ElMessage("已恢复上次编辑内容。");
-        needSyncLastData.value = false;
-      }
-    } else {
-      setText(fileInfo.originData || SCRIPT_TEMPLATE);
-    }
+    //解决在编辑器最小化时编辑器被销毁导致当前编辑器内容丢失的问题
+    //此问题之前存在，但现在最小化时不会销毁编辑器，所以不需要处理
+    // if (needSyncLastData.value) {
+    //   const { fileInfo } = useScriptInfo();
+    //   if (fileInfo.lastData !== fileInfo.originData) {
+    //     setText(fileInfo.lastData);
+    //     console.log("lastData", fileInfo.lastData);
+
+    //     ElMessage("已恢复上次编辑内容。");
+    //     needSyncLastData.value = false;
+    //   } else console.log(fileInfo.lastData, fileInfo.originData);
+    // } else {
+    //   console.log("originData", fileInfo.originData);
+
+    //   setText(fileInfo.originData || SCRIPT_TEMPLATE);
+    // }
+    setText(fileInfo.originData || SCRIPT_TEMPLATE);
     const t = setTimeout(() => {
       checkDeclare();
       showEditor.value = true;

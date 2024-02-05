@@ -111,7 +111,7 @@ import { appWindow, getAll, getCurrent } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
-const { info, windowInnerWidth, clickMinimize, needSyncLastData } = useAutoTitleBar();
+const { info, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
 const { editorValue } = useScriptApi();
@@ -192,7 +192,9 @@ onMounted(async () => {
   unListen = await listen("tauri://focus", (e: any) => {
     if (clickMinimize.value && e.windowLabel === getCurrent().label) {
       clickMinimize.value = false;
-      needSyncLastData.value = true;
+      // needSyncLastData.value = true;
+      //解决在编辑器最小化时编辑器被销毁导致当前编辑器内容丢失的问题，
+      //  此问题之前存在，但现在最小化时不会销毁编辑器，所以不需要处理
       goLastPath();
     }
   });

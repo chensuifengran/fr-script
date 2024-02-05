@@ -7,9 +7,8 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((_to, from, next) => {
-  // to and from are both route objects. must call `next`.
-  lastPath = from.path;
+router.beforeEach((to, _from, next) => {
+  lastPath = to.path;
   next();
 });
 export const goLastPath = () => {
