@@ -414,6 +414,10 @@ const configChangeHandle = async (label?: string) => {
         position: "bottom-right",
       });
     } else {
+      const { openId } = useScriptInfo();
+      if (openId.value === "-1") {
+        return;
+      }
       ElNotification.closeAll();
       ElNotification({
         title: "取消配置导入",

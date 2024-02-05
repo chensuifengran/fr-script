@@ -276,7 +276,10 @@ const run = (script: string, runId: string) => {
     pushLogProxy: pushLog,
     WORK_DIR: appGSStore.envSetting.workDir,
     SCREEN_SHOT_PATH: appGSStore.envSetting.screenshotSavePath,
-    SCREEN_SHOT_DIR: pathUtils.resolve(appGSStore.envSetting.screenshotSavePath, "../"),
+    SCREEN_SHOT_DIR: pathUtils.resolve(
+      appGSStore.envSetting.screenshotSavePath || "",
+      "../"
+    ),
     pushElementToSelectList,
     pushElementToCheckList,
     pushElementToMGSList,
@@ -284,7 +287,7 @@ const run = (script: string, runId: string) => {
     pushElementToTableList,
     replaceRendererList,
     __httpValue: "http://",
-    SCRIPT_ROOT_DIR: pathUtils.resolve(getFileInfo("savePath"), "../"),
+    SCRIPT_ROOT_DIR: pathUtils.resolve(getFileInfo("savePath") || "", "../"),
     isStop: false,
     SCRIPT_ID: getScriptId(),
   };
@@ -335,7 +338,8 @@ const invokeStartHandle = async () => {
   // (window as any).api.openNotificationWindow();
   running.value = 2;
   (window as any).runTimeApi.startScriptSignal?.abort();
-  const target = scriptList.value.find((s) => s.id === openId!.value)!;
+  const target = scriptList.value.find((s) => s.id === openId!.value);
+  if (!target) return;
   const targetDevice = target.setting.targetAdbDevice.trim();
   if (targetDevice !== "") {
     //获得所有设备，取消非目标设备的连接
@@ -427,7 +431,8 @@ const initScript = async (reinit: boolean = false) => {
     isInit.value = true;
     isReInit.value = true;
 
-    const target = scriptList.value.find((s) => s.id === openId!.value)!;
+    const target = scriptList.value.find((s) => s.id === openId!.value);
+    if (!target) return;
 
     if ((target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
       const t = setTimeout(() => {
