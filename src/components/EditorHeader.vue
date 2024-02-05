@@ -33,6 +33,16 @@
           <el-tooltip
             class="box-item"
             effect="dark"
+            content="前往脚本设置"
+            placement="bottom"
+          >
+            <el-button size="small" @click="goSetScript"
+              ><el-icon><IEpSetting /></el-icon
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
             content="打开脚本所在目录"
             placement="bottom"
           >
@@ -82,6 +92,7 @@ const {
   declareMod,
   saveMod,
   autoSaveDialog,
+  isEditing,
 } = useScriptInfo();
 const { editorValue } = useScriptApi()!;
 const { createWindow, globalWindowInfo } = useWebviewWindow();
@@ -92,6 +103,12 @@ const openApiTest = async () => {
   } else {
     createWindow("apiTest", "/apiTest");
   }
+};
+const goSetScript = () => {
+  asideBarPos.value = "relative";
+  contentTransform.value = "translateX(0)";
+  isEditing.value = false;
+  router.replace("/script/setting");
 };
 const openFile = async () => {
   const path = fileInfo.savePath;

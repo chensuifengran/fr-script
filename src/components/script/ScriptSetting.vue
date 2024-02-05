@@ -2,11 +2,31 @@
   <div class="script-setting-div">
     <el-page-header @back="goBack" class="header" title="脚本列表">
       <template #content>
-        <div class="v-center">
-          <span>设置</span
-          ><el-tag type="info" class="ml-10" size="small">{{
+        <div class="title-content">
+          <span>设置</span>
+          <el-tag type="info" class="ml-10" size="small">{{
             targetIndex !== -1 ? scriptList[targetIndex].name : "出现问题，请联系开发者"
           }}</el-tag>
+        </div>
+      </template>
+      <template #extra>
+        <div class="title-end">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="编辑脚本"
+            placement="bottom"
+          >
+            <el-icon class="icon" @click.stop="editorScriptFile"><IEpEdit /></el-icon>
+          </el-tooltip>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="运行脚本"
+            placement="bottom"
+          >
+            <el-icon class="icon" @click.stop="runScript"><IEpSwitchButton /></el-icon>
+          </el-tooltip>
         </div>
       </template>
     </el-page-header>
@@ -155,7 +175,7 @@ const goBack = () => {
   });
 };
 const targetIndex = ref(-1);
-const { openId } = useScriptInfo();
+const { openId, contentTransform, asideBarPos } = useScriptInfo();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const options = reactive<
@@ -207,6 +227,14 @@ const handleInputConfirm = (focus: boolean) => {
     inputVisible.value = false;
   }
 };
+const editorScriptFile = () => {
+  contentTransform.value = "translateX(-100%)";
+  asideBarPos.value = "absolute";
+  router.replace("/script/editor");
+};
+const runScript = () => {
+  router.replace("/script/run");
+};
 </script>
 <style lang="scss">
 .script-setting-div {
@@ -244,6 +272,27 @@ const handleInputConfirm = (focus: boolean) => {
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
+  padding: 5px;
+  .title-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .title-end {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .icon {
+      cursor: pointer;
+      font-size: 20px;
+      margin-left: 10px;
+      &:hover {
+        color: #05d74e;
+      }
+    }
+  }
   .header {
     padding: 10px;
   }

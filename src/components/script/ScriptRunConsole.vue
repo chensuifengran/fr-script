@@ -2,18 +2,20 @@
   <div class="run-code-box">
     <el-page-header @back="goBack" v-show="running !== 2" title="脚本列表">
       <template #content>
-        <span class="text-small font-200 flex items-center">
-          {{ name || "未保存的临时脚本" }} : {{ version || "未知版本"
-          }}<el-tag class="mgl-5" size="small" type="info" v-show="savePath"
-            >{{ savePath }}
-            <span class="go-editor" @click="goEditor"
-              ><el-icon><IEpEdit /></el-icon
-            ></span>
-          </el-tag>
-        </span>
+        <div class="head-content">
+          <span class="s-name"
+            >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
+          >
+          <el-tooltip effect="dark" content="编辑脚本" placement="bottom">
+            <el-icon class="icon" @click.stop="goEditor"><IEpEdit /></el-icon>
+          </el-tooltip>
+          <el-tooltip effect="dark" content="脚本设置" placement="bottom">
+            <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
+          </el-tooltip>
+        </div>
       </template>
       <template #extra>
-        <div class="flex items-center">
+        <div>
           <el-button @click="invokeStartHandle" v-show="running === 0"
             >开始<el-tag class="mgl-5" type="info" size="small">Alt+R</el-tag></el-button
           >
@@ -26,13 +28,15 @@
       </template>
     </el-page-header>
     <div v-show="running === 2" class="end-box">
-      <span class="text-small font-200 flex items-center">
-        {{ name || "未保存的临时脚本" }} : {{ version || "未知版本"
-        }}<el-tag class="mgl-5" size="small" type="info" v-show="savePath">{{
+      <div>
+        <span class="s-name"
+          >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
+        >
+        <el-tag class="mgl-5" size="small" type="info" v-show="savePath">{{
           savePath
         }}</el-tag>
         <el-tag class="mgl-5" size="small" type="success">运行中</el-tag>
-      </span>
+      </div>
       <el-button @click="stop" v-show="running === 2" type="danger"
         >结束<el-tag class="mgl-5" type="info" size="small">Alt+S</el-tag></el-button
       >
@@ -81,6 +85,9 @@ const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const appGSStore = useAppGlobalSettings();
 const { openId, tempEditorValue, contentTransform, asideBarPos } = useScriptInfo();
+const goSetScript = () => {
+  router.replace("/script/setting");
+};
 const {
   replaceRendererList,
   pushElementToCheckList,
@@ -466,6 +473,21 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 10px;
+  .head-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .s-name {
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .icon {
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  }
 
   .end-box {
     display: flex;

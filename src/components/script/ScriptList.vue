@@ -337,6 +337,8 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   height: 100%;
   box-sizing: border-box;
   border-radius: 10px;
+  padding: 10px;
+  padding-top: 0;
   .header {
     display: flex;
     flex-direction: row;
