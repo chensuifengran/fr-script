@@ -54,6 +54,7 @@
       title=""
       direction="btt"
       :size="app.modulesSetting.drawerSize"
+      class="drawer-output"
     >
       <template #header="{ titleId, titleClass }">
         <h4 :id="titleId" :class="titleClass">API测试-输出结果</h4>
@@ -78,17 +79,22 @@
           active-text="自动显示"
           inactive-text="手动显示"
         />
-        <el-button class="options" size="small" @click="output = ''">
+        <el-button class="options" size="small" @click="clearOutput">
           <el-icon><IEpDeleteFilled /></el-icon>清空输出
         </el-button>
       </template>
-      <el-input
-        v-model="output"
-        type="textarea"
-        placeholder="API测试的输出结果"
-        :autosize="textareaOptions"
-        spellcheck="false"
-      />
+      <el-scrollbar v-if="output.length">
+        <div v-for="text in output" :key="text" class="output-text">
+          <el-text size="small">{{ text }}</el-text>
+        </div>
+      </el-scrollbar>
+      <div v-else class="empty-show">
+        <el-empty
+          description="暂无输出"
+          :image-size="emptyImgSize"
+          style="margin-top: -40px"
+        ></el-empty>
+      </div>
     </el-drawer>
   </div>
 </template>
@@ -105,44 +111,18 @@ const isEnd = ref(false);
 const isMainWindow = inject<Ref<boolean>>("isMainWindow")!;
 const pagePadding = ref("10px");
 const antiShakeValue = ref("");
-let needChange = true;
-const isResize = ref(false);
+const output = ref<string[]>([]);
+const clearOutput = () => {
+  output.value = [];
+};
 const showApiTestSearch = computed(() => {
   return info.showContentType === "apiTest" && windowInnerWidth.value < 820;
 });
-
-const textareaOptions = computed(() => {
-  if (isResize.value) {
-    isResize.value = false;
-  }
-  if (!needChange) {
-    const p = pageContentRef.value!.offsetHeight / 591;
-    needChange = true;
-    return {
-      minRows: Math.ceil(
-        (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
-      ),
-      maxRows: Math.ceil(
-        (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
-      ),
-    };
-  }
-  const p = pageContentRef.value!.offsetHeight / 591;
-  const defualt = {
-    minRows: Math.ceil(
-      (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
-    ),
-    maxRows: Math.ceil(
-      (5 + (+app.value.modulesSetting.drawerSize.replace("%", "") / 10 - 3) * 3) * p
-    ),
-  };
-  output.value += " ";
-  nextTick(() => {
-    needChange = false;
-    output.value = output.value.slice(0, -1);
-  });
-  return defualt;
+const emptyImgSize = computed(() => {
+  const size = app.value.modulesSetting.drawerSize.replace("%", "");
+  return +size * 3 - 40;
 });
+
 let timer: any = null;
 watchEffect(() => {
   const value = info.apiTest.searchValue;
@@ -203,8 +183,6 @@ onBeforeMount(() => {
   }
 });
 
-const output = ref("");
-
 const showDetails = (text: string | undefined, preStr = "") => {
   if (app.value.modulesSetting.autoOpenOutput) {
     info.apiTest.openOutput = true;
@@ -216,10 +194,12 @@ const showDetails = (text: string | undefined, preStr = "") => {
   const m = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
   const s = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
   const time = `[${h}:${m}:${s}] `;
-  output.value = time + preStr + "：\t" + text + "\n" + output.value;
+  output.value.unshift(time + preStr + "：\t" + text);
 };
 
-setTestModuleCtx({ showDetails });
+onMounted(() => {
+  setTestModuleCtx({ showDetails });
+});
 
 // const contentColor = computed(() => {
 //   return isAlone.value ? "#00000010" : "#ffffff";
@@ -228,6 +208,15 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
 </script>
 
 <style lang="scss" scoped>
+.empty-show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+.output-text {
+  user-select: text;
+}
 .options {
   margin-right: 5px;
 }
@@ -289,5 +278,10 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
 <style lang="scss">
 .el-button-group {
   margin: 5px;
+}
+.drawer-output {
+  .el-drawer__body {
+    display: flex;
+  }
 }
 </style>
