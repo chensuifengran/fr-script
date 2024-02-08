@@ -205,7 +205,7 @@ const { goAppUpdate } = useAppVersionInfo();
     <div class="setting-item">
       <span>版本</span>
       <span
-        ><el-tag :type="haveUpdate ? 'info' : ''" class="mr-5" size="small">{{
+        ><el-tag :type="haveUpdate ? 'info' : 'primary'" class="mr-5" size="small">{{
           version
         }}</el-tag
         ><el-tag class="mr-5" size="small" v-if="haveUpdate"

@@ -11,11 +11,13 @@ const dialogModule = reactive({
   callback: () => {},
 });
 //testModule callback上下文
-const testModuleCtx = reactive<{
-  showDetails: (text: string | undefined, preStr?: string) => void;
-}>({
+const testModuleCtx = <
+  {
+    showDetails: (text: string | undefined, preStr?: string) => void;
+  }
+>{
   showDetails: () => {},
-});
+};
 const getTestModuleCtx = () => {
   return testModuleCtx;
 };
@@ -38,10 +40,14 @@ const getInvokeApiTestModules = () => {
   return invokeApiMethods.map((i) => i.testModule);
 };
 
-const registerInvokeApiMethods = (methods: InvokeApiMethodType[] | InvokeApiMethodType) => {
+const registerInvokeApiMethods = (
+  methods: InvokeApiMethodType[] | InvokeApiMethodType
+) => {
   if (methods instanceof Array) {
     methods.forEach((invokeApiMethod) => {
-      const targetMethod = invokeApiMethods.find((i) => i.name === invokeApiMethod.name);
+      const targetMethod = invokeApiMethods.find(
+        (i) => i.name === invokeApiMethod.name
+      );
       if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(invokeApiMethod.name)) {
         throw new Error(`methods中的name不符合js变量命名规范`);
       }

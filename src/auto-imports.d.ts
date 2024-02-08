@@ -21,6 +21,8 @@ declare global {
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const auxiliary: typeof import('./invokes/moveTo/auxiliary')['auxiliary']
   const bottomRoutes: typeof import('./router/routers')['bottomRoutes']
+  const clickHomeKeyApi: typeof import('./invokes/clickHomeKey/index')['clickHomeKeyApi']
+  const clickHomeKeyFn: typeof import('./invokes/clickHomeKey/exportFn')['clickHomeKeyFn']
   const codeHighLight: typeof import('./utils/codeHighLight')['codeHighLight']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']

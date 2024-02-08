@@ -11,4 +11,4 @@ export const devicesFn = async (taskId?: string) => {
     return "";
   }
 };
-export type devicesFnType = typeof devicesFn;
+export type DevicesFnType = typeof devicesFn;
