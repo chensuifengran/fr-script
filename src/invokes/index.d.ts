@@ -82,6 +82,7 @@ type AuxiliaryType = {
   parameterReplace: (options: any) => void;
 };
 type InvokeApiMethodType = {
+  scope?: string;
   name: string;
   exportFn?: {
     alias?: string;

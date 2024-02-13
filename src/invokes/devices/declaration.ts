@@ -1,3 +1,3 @@
 export const declaration = `
-declare function devices(): Promise<string>;
+function devices(): Promise<string>;
 `

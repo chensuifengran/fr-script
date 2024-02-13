@@ -5,8 +5,8 @@ export const apiDocument = <ApiDocumentType>{
     instructions: "点击返回键结果, 一般用不上",
   },
   example: {
-    code: codeHighLight(`await clickReturnKey();`),
+    code: codeHighLight(`await ADB.clickReturnKey();`),
   },
   searchKeys: ["ADB", "adb", "点击返回键", "return", "key"],
-  codeSnippet: "await clickReturnKey();",
+  codeSnippet: "await ADB.clickReturnKey();",
 };

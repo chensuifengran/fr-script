@@ -5,6 +5,7 @@ import { declaration } from "./declaration";
 
 // 定义一个函数，返回一个符合 ADBMethodType 接口的对象
 export const clickHomeKeyApi = <InvokeApiMethodType>{
+  scope:"ADB",
   // 定义方法的名称
   name: "clickHomeKey",
   // 定义将要导出的函数

@@ -23,6 +23,8 @@ declare global {
   const bottomRoutes: typeof import('./router/routers')['bottomRoutes']
   const clickHomeKeyApi: typeof import('./invokes/clickHomeKey/index')['clickHomeKeyApi']
   const clickHomeKeyFn: typeof import('./invokes/clickHomeKey/exportFn')['clickHomeKeyFn']
+  const clickReturnKeyApi: typeof import('./invokes/clickReturnKey/index')['clickReturnKeyApi']
+  const clickReturnKeyFn: typeof import('./invokes/clickReturnKey/exportFn')['clickReturnKeyFn']
   const codeHighLight: typeof import('./utils/codeHighLight')['codeHighLight']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']

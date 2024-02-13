@@ -1,5 +1,6 @@
 //引入函数类型
 import { AppGSStore } from "../store/globalSettings";
+
 import { ClickHomeKeyFnType } from "./clickHomeKey/exportFn";
 import { DevicesFnType } from "./devices/exportFn";
 import { MoveToFnType } from "./moveTo/exportFn";
@@ -34,7 +35,7 @@ const registerAllInvokeApi = async (appStore: AppGSStore) => {
   registerInvokeApiMethods([...allModules]);
 };
 //由于exportAllFn无法动态推断类型，需要给导出的所有函数定义类型
-export interface AllInvokeApiFn {
+export type AllInvokeApiFn = {
   moveTo: MoveToFnType;
   devices: DevicesFnType;
   clickHomeKey:ClickHomeKeyFnType;

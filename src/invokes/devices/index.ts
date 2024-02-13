@@ -4,6 +4,7 @@ import { apiDocument } from "./document";
 import { declaration } from "./declaration";
 
 export const devicesApi = <InvokeApiMethodType>{
+  scope: "ADB",
   name: "devices",
   exportFn: {
     fn: devicesFn,

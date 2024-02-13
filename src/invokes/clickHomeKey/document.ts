@@ -5,8 +5,8 @@ export const apiDocument = <ApiDocumentType>{
     instructions: "点击Home键结果, 一般用不上",
   },
   example: {
-    code: codeHighLight(`await clickHomeKey();`),
+    code: codeHighLight(`await ADB.clickHomeKey();`),
   },
   searchKeys: ["ADB", "adb", "点击Home键", "home", "key"],
-  codeSnippet: "await clickHomeKey();",
+  codeSnippet: "await ADB.clickHomeKey();",
 };

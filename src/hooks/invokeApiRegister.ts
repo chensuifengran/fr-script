@@ -1,8 +1,8 @@
-import { AllInvokeApiFn } from "../invokes/invokeApiRegisterManager";
-
 // const {registerAllInvokeApi} = invokeApiRegisterManager();
 
-//弹窗模型
+import { AllInvokeApiFn } from "../invokes/invokeApiRegisterManager";
+
+//弹窗
 const dialogModule = reactive({
   show: false,
   title: "",
