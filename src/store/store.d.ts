@@ -231,4 +231,5 @@ type ListState = {
   rendererList: RendererList[];
   previewRendererList: RendererList[];
   previewBuildFormList: BuildFormList;
+  deviceList: string[];
 };

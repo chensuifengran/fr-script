@@ -10,6 +10,7 @@ export const useListStore = defineStore("listStore", {
       projectList:[],
       previewBuildFormList:[],
       previewRendererList:[],
+      deviceList:[],
     };
   },
   getters: {},
