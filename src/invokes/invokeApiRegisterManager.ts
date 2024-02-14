@@ -1,11 +1,14 @@
 //引入函数类型
-import { AppGSStore } from "../store/globalSettings";
+import { ListStore } from "../store/listStore";
+import { ClickFnType } from "./touch/exportFn";
 
 import { ClickHomeKeyFnType } from "./clickHomeKey/exportFn";
+import { ConnectToFnType } from "./connectTo/exportFn";
 import { DevicesFnType } from "./devices/exportFn";
+import { DisConnectToFnType } from "./disConnectTo/exportFn";
 import { MoveToFnType } from "./moveTo/exportFn";
 const { registerInvokeApiMethods } = useInvokeApiMethodsRegister();
-const getApiModules = async (appStore: AppGSStore) => {
+const getApiModules = async (listStore: ListStore) => {
   const apiModules = import.meta.glob("./**/index.ts", {
     eager: true,
   });
@@ -18,18 +21,20 @@ const getApiModules = async (appStore: AppGSStore) => {
     const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
     if (!module) {
       console.error(`找不到${apiName}Api或${apiName}模块`);
+      continue;
     }
     if (typeof module === "function") {
-      const m = module(appStore);
-      if(m) apis.push(m);
-      return
+      const m = module(listStore);
+      if (m) apis.push(m);
+    }else{
+      apis.push(module);
     }
-    if (module) apis.push(module);
   }
   return apis;
 };
-const registerAllInvokeApi = async (appStore: AppGSStore) => {
-  const allModules = (await getApiModules(appStore));
+const registerAllInvokeApi = async (listStore: ListStore) => {
+  const allModules = await getApiModules(listStore);
+  
   if (!allModules) return;
   //注册所有api
   registerInvokeApiMethods([...allModules]);
@@ -38,8 +43,11 @@ const registerAllInvokeApi = async (appStore: AppGSStore) => {
 export type AllInvokeApiFn = {
   moveTo: MoveToFnType;
   devices: DevicesFnType;
-  clickHomeKey:ClickHomeKeyFnType;
-}
+  clickHomeKey: ClickHomeKeyFnType;
+  click: ClickFnType;
+  connectTo: ConnectToFnType;
+  disConnectTo: DisConnectToFnType;
+};
 
 export const invokeApiRegisterManager = () => {
   return { registerAllInvokeApi };

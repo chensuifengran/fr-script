@@ -98,7 +98,7 @@ onMounted(async () => {
   } else {
     init();
   }
-  registerAllInvokeApi(appGSStore);
+  registerAllInvokeApi(listStore);
 });
 const isDark = useDark({});
 provide("isDark", isDark);

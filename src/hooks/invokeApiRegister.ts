@@ -68,6 +68,8 @@ const registerInvokeApiMethods = (
     }
     invokeApiMethods.push(methods);
   }
+  console.log("invokeApiMethods", invokeApiMethods);
+  
 };
 
 const invokeDialog = (

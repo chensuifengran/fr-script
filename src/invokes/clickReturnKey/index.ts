@@ -3,7 +3,7 @@ import { modelCallback } from "./modelCallback";
 import { apiDocument } from "./document";
 import { declaration } from "./declaration";
 export const clickReturnKeyApi = <InvokeApiMethodType>{
-  scope:"ADB",
+  
   name: "clickReturnKey",
   exportFn: {
     fn: clickReturnKeyFn,

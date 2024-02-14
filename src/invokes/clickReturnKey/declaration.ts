@@ -1,3 +1,3 @@
 export const declaration = `
-function clickReturnKey(): Promise<string>;
+declare function clickReturnKey(): Promise<string>;
 `

@@ -1,3 +1,3 @@
 export const declaration = `
-function clickHomeKey():Promise<string>;
+declare function clickHomeKey():Promise<string>;
 `
