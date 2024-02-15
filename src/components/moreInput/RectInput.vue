@@ -17,89 +17,80 @@
 </template>
 
 <script setup lang="ts">
-// const { exportAllFn } = useDllMethodsRegister();
-// const { getImgRectInfo } = exportAllFn();
+import { invoke } from "@tauri-apps/api";
+
+const info = defineModel<
+  | {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | Record<string, any>
+>({
+  required: false,
+  default: {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  },
+});
+const copyParam = () => {
+  try {
+    copyRectParam(
+      info.value as {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      }
+    );
+    ElNotification({
+      title: "复制成功",
+      message: "已复制到剪贴板",
+      type: "success",
+      position: "bottom-right",
+    });
+  } catch (e) {
+    ElNotification({
+      title: "复制失败",
+      message: JSON.stringify(e),
+      type: "error",
+      position: "bottom-right",
+    });
+  }
+};
 const props = defineProps({
-  modelValue: {
-    type: Object as PropType<
-      | {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        }
-      | Record<string, any>
-    >,
-    default: "",
-  },
-  label: {
-    type: String,
-    default: "",
-  },
   targetSrc: {
     type: String,
     default: "",
   },
 });
-const info = reactive(props.modelValue);
-const copyParam = () => {
-  copyRectParam(
-    info as {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }
-  );
-  ElNotification({
-    title: "复制成功",
-    message: "已复制到剪贴板",
-    type: "success",
-    position: "bottom-right",
-  });
-};
-// const { getRectInfo } = useGetScreenRect();
-const emit = defineEmits<{
-  (
-    e: "update:modelValue",
-    value: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }
-  ): void;
-}>();
 const selectRect = async () => {
-  // let res;
-  // if (props.targetSrc && props.targetSrc !== "") {
-  //   res = await getImgRectInfo(props.targetSrc);
-  // } else {
-  //   res = await getRectInfo();
-  // }
-  // const { startX: x, startY: y, width, height } = res;
-  // emit("update:modelValue", {
-  //   x,
-  //   y,
-  //   width,
-  //   height,
-  // });
-  // info.x = x;
-  // info.y = y;
-  // info.width = width;
-  // info.height = height;
-};
-watch(info, () => {
-  emit(
-    "update:modelValue",
-    info as {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+  try {
+    if (props.targetSrc && props.targetSrc !== "") {
+      const imgInfo = await invoke<string>("get_img_rect_info", {
+        imgPath: props.targetSrc,
+      });
+      const json = JSON.parse(imgInfo);
+      info.value.x = json.startX;
+      info.value.y = json.startY;
+      info.value.width = json.width;
+      info.value.height = json.height;
+    } else {
+      ElNotification({
+        title: "截取失败",
+        message: "未传入图片地址",
+        type: "error",
+        position: "bottom-right",
+      });
+      return;
     }
-  );
-});
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 
 <style lang="scss" scoped>
