@@ -13,8 +13,8 @@ export const modelCallback = async (
   }
   //判断options.imgPath格式是否正确
   const ext = options.imgPath.split(".").pop();
-  if (!["png", "jpg", "jpeg", "gif", "webp", "bmp"].includes(ext!)) {
-    return testModuleCtx.showDetails("图片格式不正确", "getImgRectInfo");
+  if (!["png", "jpg", "jpeg", "webp", "bmp"].includes(ext!)) {
+    return testModuleCtx.showDetails("不支持的格式。", "getImgRectInfo");
   }
   console.time("getImgRectInfo耗时");
   const rectInfo = await getImgRectInfoFn(options.imgPath);
