@@ -77,6 +77,8 @@ declare global {
   const getImageSizeFn: typeof import('./invokes/getImageSize/exportFn')['getImageSizeFn']
   const getImgRectInfoApi: typeof import('./invokes/getImgRectInfo/index')['getImgRectInfoApi']
   const getImgRectInfoFn: typeof import('./invokes/getImgRectInfo/exportFn')['getImgRectInfoFn']
+  const getScreenRectInfoApi: typeof import('./invokes/getScreenRectInfo/index')['getScreenRectInfoApi']
+  const getScreenRectInfoFn: typeof import('./invokes/getScreenRectInfo/exportFn')['getScreenRectInfoFn']
   const goLastPath: typeof import('./router/index')['goLastPath']
   const h: typeof import('vue')['h']
   const hideRoutes: typeof import('./router/routers')['hideRoutes']
