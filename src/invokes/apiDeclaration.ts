@@ -10,7 +10,12 @@ const keys = Object.keys(index);
 keys.forEach((key)=>{
   const name = key.split("/")[1];
   const indexModule = index[key.replace("declaration.ts", "index.ts")][name+"Api"];
-  const {scope,declaration:d} = indexModule;
+  if(!indexModule){
+    console.error(`找不到${name}Api`,index[key.replace("declaration.ts", "index.ts")]);
+    return;
+  }
+  const {declaration:d} = indexModule;
+  const scope = indexModule.scope;
   if(!scope){
     scopes.root.push(d);
   }else{

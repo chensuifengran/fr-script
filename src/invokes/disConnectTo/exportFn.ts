@@ -14,6 +14,8 @@ export const disConnectToFn = async (targetDevice: string, taskId?: string) => {
   if (res.includes("disconnected")) {
     const store = useListStore();
     store.deviceList = store.deviceList.filter((item) => item !== targetDevice);
+    const { currentDevice } = useScriptRuntime();
+    currentDevice.value = '';
   }
   return res;
 };

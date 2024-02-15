@@ -15,6 +15,8 @@ export const connectToFn = async (targetDevice: string, taskId?: string) => {
     if (!store.deviceList.includes(targetDevice)) {
       store.deviceList.push(targetDevice);
     }
+    const { currentDevice } = useScriptRuntime();
+    currentDevice.value = targetDevice;
   }
   return res;
 };

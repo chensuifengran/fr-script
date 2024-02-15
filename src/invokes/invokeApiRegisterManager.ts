@@ -1,12 +1,14 @@
 //引入函数类型
 import { ListStore } from "../store/listStore";
-import { ClickFnType } from "./touch/exportFn";
+import { AdbScreenshotFnType } from "./adbScreenshot/exportFn";
 
 import { ClickHomeKeyFnType } from "./clickHomeKey/exportFn";
 import { ConnectToFnType } from "./connectTo/exportFn";
 import { DevicesFnType } from "./devices/exportFn";
 import { DisConnectToFnType } from "./disConnectTo/exportFn";
 import { MoveToFnType } from "./moveTo/exportFn";
+import { SlideToFnType } from "./slideTo/exportFn";
+import { TouchFnType } from "./touch/exportFn";
 const { registerInvokeApiMethods } = useInvokeApiMethodsRegister();
 const getApiModules = async (listStore: ListStore) => {
   const apiModules = import.meta.glob("./**/index.ts", {
@@ -44,9 +46,11 @@ export type AllInvokeApiFn = {
   moveTo: MoveToFnType;
   devices: DevicesFnType;
   clickHomeKey: ClickHomeKeyFnType;
-  click: ClickFnType;
+  touch: TouchFnType;
   connectTo: ConnectToFnType;
   disConnectTo: DisConnectToFnType;
+  adbScreenshot: () => AdbScreenshotFnType;
+  slideTo: SlideToFnType;
 };
 
 export const invokeApiRegisterManager = () => {
