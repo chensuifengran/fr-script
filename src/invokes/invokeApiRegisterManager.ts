@@ -4,6 +4,7 @@ import { AdbScreenshotFnType } from "./adbScreenshot/exportFn";
 
 import { ClickHomeKeyFnType } from "./clickHomeKey/exportFn";
 import { ConnectToFnType } from "./connectTo/exportFn";
+import { cropPictureType } from "./cropPicture/exportFn";
 import { DevicesFnType } from "./devices/exportFn";
 import { DisConnectToFnType } from "./disConnectTo/exportFn";
 import { MoveToFnType } from "./moveTo/exportFn";
@@ -51,6 +52,7 @@ export type AllInvokeApiFn = {
   disConnectTo: DisConnectToFnType;
   adbScreenshot: () => AdbScreenshotFnType;
   slideTo: SlideToFnType;
+  cropPicture: () => cropPictureType;
 };
 
 export const invokeApiRegisterManager = () => {
