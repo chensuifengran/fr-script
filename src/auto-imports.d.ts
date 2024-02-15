@@ -73,6 +73,8 @@ declare global {
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const getDepStateType: typeof import('./utils/libUtil')['getDepStateType']
+  const getImageSizeApi: typeof import('./invokes/getImageSize/index')['getImageSizeApi']
+  const getImageSizeFn: typeof import('./invokes/getImageSize/exportFn')['getImageSizeFn']
   const goLastPath: typeof import('./router/index')['goLastPath']
   const h: typeof import('vue')['h']
   const hideRoutes: typeof import('./router/routers')['hideRoutes']
