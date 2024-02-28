@@ -124,8 +124,18 @@ const exportAllFn = (): AllInvokeApiFn => {
     }
     const { alias, fn } = i.exportFn;
     if (alias && !allFn[alias]) {
+      if(i.scope){
+        allFn[i.scope] = allFn[i.scope] || {};
+        allFn[i.scope][alias] = fn;
+        return;
+      }
       allFn[alias] = fn;
     } else {
+      if(i.scope){
+        allFn[i.scope] = allFn[i.scope] || {};
+        allFn[i.scope][i.name] = fn;
+        return;
+      }
       allFn[i.name] = fn;
     }
   });

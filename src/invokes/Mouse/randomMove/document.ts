@@ -16,11 +16,11 @@ export const apiDocument = <ApiDocumentType>{
       default: "",
     },
     {
-      name:'randomRange',
-      required:false,
-      instructions:'随机偏移',
-      type:'[[number,number],[number,number]]',
-      default:'[[0,0],[0,0]]'
+      name: "randomRange",
+      required: false,
+      instructions: "随机偏移",
+      type: "[[number,number],[number,number]]",
+      default: "[[0,0],[0,0]]",
     },
   ],
   returnValue: {
@@ -29,10 +29,9 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(
-      `const res = await moveTo(100,100);`
-    ),
+    code: codeHighLight(`const res = await randomMove(100,100);`),
   },
-  searchKeys: ["mouse",'moveTo', "移动"],
-  codeSnippet: "const ${1:res} = await moveTo('${2:x}', '${3:y}', `${4:[[0,0],[0,0]]}}`);",
+  searchKeys: ["mouse", "random", "move", "移动","随机"],
+  codeSnippet:
+    "const ${1:res} = await Mouse.randomMove('${2:x}', '${3:y}', `${4:[[0,0],[0,0]]}}`);",
 };

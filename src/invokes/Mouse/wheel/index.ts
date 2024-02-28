@@ -1,17 +1,18 @@
-import { moveToFn } from "./exportFn";
-import { dialogOptions } from "./dialog";
-import { modelCallback } from "./modelCallback";
+import { wheelFn } from "./exportFn";
+import { modelCallback } from "./modelCallbcak";
 import { apiDocument } from "./document";
+import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
 
-export const moveToApi = <InvokeApiMethodType>{
-  name: "moveTo",
+export const wheelApi = <InvokeApiMethodType>{
+  name: "wheel",
+  scope: "Mouse",
   exportFn: {
-    fn: moveToFn,
+    fn: wheelFn,
   },
   testModule: {
-    weight: 2,
+    weight: 4,
     dialog: dialogOptions,
     callback: modelCallback,
     document: apiDocument,

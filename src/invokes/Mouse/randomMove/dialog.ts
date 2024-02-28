@@ -1,6 +1,6 @@
 export const dialogOptions = {
-  title: "将鼠标移动到指定位置",
-  targetMethodName: "moveTo",
+  title: "将鼠标移动到指定位置并产生随机偏移",
+  targetMethodName: "randomMove",
   content: "输入指定位置的x、y坐标，xRandomRange和yRandomRange可以让该坐标随机产生一定程度偏移",
   args: [
     {

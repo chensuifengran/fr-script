@@ -20,7 +20,7 @@
       <el-select
         v-model="model"
         filterable
-        allow-create
+        :allow-create="!argItem.notAllowCreate"
         default-first-option
         :placeholder="argItem.placeholder || '请选择'"
       >

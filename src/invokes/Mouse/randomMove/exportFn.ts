@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-export const moveToFn = async (
+export const randomMoveFn = async (
   x: number,
   y: number,
   randomRange: [[number, number], [number, number]] = [
@@ -32,4 +32,4 @@ export const moveToFn = async (
   });
 };
 
-export type MoveToFnType = typeof moveToFn;
+export type RandomMoveFnType = typeof randomMoveFn;

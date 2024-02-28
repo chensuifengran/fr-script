@@ -54,6 +54,7 @@ type TestModuleType = {
         ;
       label: string;
       options?: string[] | number[];
+      notAllowCreate?: boolean;
       checked?: boolean;
       value?: any;
       //用于RectInput组件读取的图片路径字段
