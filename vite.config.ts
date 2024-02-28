@@ -31,7 +31,16 @@ export default defineConfig({
         // 添加其他需要自动导入的模块
       ],
       dts: "./src/auto-imports.d.ts",
-      dirs: ["./src/**"],
+      dirs: [
+        "./src/api/**",
+        "./src/hooks/**",
+        "./src/router/**",
+        "./src/store/**",
+        "./src/types/**",
+        "./src/utils/**",
+        "./src/*.ts",
+        "./src/invokes/*.ts",
+      ],
     }),
     Components({
       resolvers: [
