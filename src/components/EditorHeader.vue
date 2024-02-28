@@ -98,7 +98,7 @@ const { editorValue } = useScriptApi()!;
 const { createWindow, globalWindowInfo } = useWebviewWindow();
 const openApiTest = async () => {
   const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
-  if (targetWindow) {
+  if (targetWindow && (await targetWindow.window.isClosable())) {
     targetWindow.window.show();
   } else {
     createWindow("apiTest", "/apiTest");

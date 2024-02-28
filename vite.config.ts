@@ -6,6 +6,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
+import path from "path";
 export default defineConfig({
   plugins: [
     vue({
@@ -55,6 +56,11 @@ export default defineConfig({
       autoInstall: true,
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
   css: {
     preprocessorOptions: {
       scss: {

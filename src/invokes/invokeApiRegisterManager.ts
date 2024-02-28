@@ -1,6 +1,7 @@
 //引入函数类型
 import { ListStore } from "../store/listStore";
 import { AdbScreenshotFnType } from "./adbScreenshot/exportFn";
+import { AdbStateFnType } from "./adbState/exportFn";
 
 import { ClickHomeKeyFnType } from "./clickHomeKey/exportFn";
 import { ConnectToFnType } from "./connectTo/exportFn";
@@ -53,6 +54,7 @@ export type AllInvokeApiFn = {
   adbScreenshot: () => AdbScreenshotFnType;
   slideTo: SlideToFnType;
   cropPicture: () => cropPictureType;
+  adbState: () => AdbStateFnType;
 };
 
 export const invokeApiRegisterManager = () => {

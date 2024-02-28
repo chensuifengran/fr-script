@@ -1,5 +1,4 @@
 <template>
-  <!-- <el-empty description="开发中..." /> -->
   <div class="remd">
     <ATHeader
       class="alone-page-header"
@@ -201,9 +200,6 @@ onMounted(() => {
   setTestModuleCtx({ showDetails });
 });
 
-// const contentColor = computed(() => {
-//   return isAlone.value ? "#00000010" : "#ffffff";
-// });
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div data-tauri-drag-region style="width: 25%; cursor: move">
-      <span>调试</span>
+      <span @click="titleClickHandler">调试</span>
     </div>
     <div class="header-r">
       <div data-tauri-drag-region style="cursor: move" class="move"></div>
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { getAll, getCurrent } from "@tauri-apps/api/window";
+import { ElMessageBox } from "element-plus";
 
 const searchValue = ref("");
 defineProps({
@@ -44,8 +45,27 @@ const showApiTestButton = () => {
     mainWindow.setFocus();
   }
 };
+const isMainWindow = inject<Ref<boolean>>("isMainWindow");
 const appBackground = inject("appBackground");
 const appAsideBgColor = inject("appAsideBgColor");
+let clickCount = 0;
+let timer: any;
+const titleClickHandler = () => {
+  if (++clickCount > 3) {
+    ElMessageBox.confirm("是否前往首页", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(() => {
+      isMainWindow && (isMainWindow.value = true);
+      router.push("/");
+    });
+  }
+  timer && clearTimeout(timer);
+  timer = setTimeout(() => {
+    clickCount = 0;
+  }, 500);
+};
 </script>
 
 <style scoped lang="scss">
