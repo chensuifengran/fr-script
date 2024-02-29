@@ -18,6 +18,7 @@
     </span>
     <template v-if="argItem && argItem.componentType === 'select'">
       <el-select
+        class="input"
         v-model="model"
         filterable
         :allow-create="!argItem.notAllowCreate"
@@ -87,7 +88,7 @@
         argItem && argItem.componentType === 'numberInput' && typeof model === 'number'
       "
     >
-      <el-input-number v-model="model" :value-on-clear="0" />
+      <el-input-number class="input" v-model="model" :value-on-clear="0" />
     </template>
     <template
       v-else-if="
@@ -287,6 +288,9 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   align-items: center;
   .label {
     width: 200px;
+  }
+  .input {
+    max-width: 150px;
   }
   &:last-of-type {
     margin-bottom: 0;
