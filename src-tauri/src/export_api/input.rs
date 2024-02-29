@@ -10,10 +10,10 @@ pub async fn input_text(text: &str) -> Result<String, ()> {
 }
 
 #[tauri::command]
-pub async fn input_key(key: Key) -> Result<String, ()> {
+pub async fn press_key(key: Key) -> Result<String, ()> {
     let mut enigo: Enigo = Enigo::new();
     enigo.key_click(key);
-    Ok(generate_result(String::from("input_key ok"), 200))
+    Ok(generate_result(String::from("press_key ok"), 200))
 }
 
 #[tauri::command]
