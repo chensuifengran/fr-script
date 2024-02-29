@@ -18,10 +18,6 @@ type GlobalSettings = {
   envSetting: {
     workDir: string;
     screenshotSavePath: string;
-    tempDrivePath: {
-      value: string;
-      options: string[];
-    };
   };
   ocr: {
     value: "GPU" | "CPU";

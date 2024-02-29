@@ -272,22 +272,6 @@ const { goAppUpdate } = useAppVersionInfo();
         ></span
       >
     </div>
-    <div class="setting-item">
-      <span>临时文件保存盘符</span>
-      <el-select
-        v-model="envSetting.tempDrivePath.value"
-        placeholder="临时文件保存盘符"
-        size="small"
-        class="w120"
-      >
-        <el-option
-          v-for="item in envSetting.tempDrivePath.options"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
-      </el-select>
-    </div>
 
     <h3 class="setting-title">显示</h3>
     <div class="setting-item">

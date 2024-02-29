@@ -23,10 +23,6 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
       envSetting: {
         workDir: "",
         screenshotSavePath: "",
-        tempDrivePath: {
-          value: "自动选择(D-J)",
-          options: ["自动选择(D-J)", "C", "D", "E", "F", "G", "H", "I", "J"],
-        },
       },
       ocr: {
         value: "GPU",
