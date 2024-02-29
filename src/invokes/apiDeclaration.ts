@@ -1,5 +1,3 @@
-import { UTIL_DECLARE_STRING } from "./utilDeclareTypes";
-
 const index = import.meta.glob<Record<string, any>>("./**/index.ts", {
   eager: true,
 });
@@ -46,6 +44,7 @@ Object.keys(scopes).forEach((key) => {
   }
 });
 export const editorTsDeclaration = `
+${INPUT_KEY_TYPE}
 ${UTIL_DECLARE_STRING}
 ${allDeclarationString}
 `;
