@@ -1,8 +1,7 @@
 <template>
   <div class="about-main">
-    <Test />
     <!-- <loading></loading> -->
-    <!-- <el-empty description="开发中..." /> -->
+    <el-empty description="开发中..." />
     <!-- <iframe src="http://114.132.79.162/tool/#/index" /> -->
   </div>
 </template>
