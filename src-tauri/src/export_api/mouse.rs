@@ -49,17 +49,20 @@ impl Clicker {
 }
 
 #[tauri::command]
+pub fn stop_clicker() {
+    let mut clicker = CLICKER.lock().unwrap();
+    clicker.stop();
+}
+#[tauri::command]
 pub fn start_clicker(duration: u64, sleep: Option<u64>) {
+    if duration == 0 {
+        stop_clicker();
+        return;
+    }
     let sleep = sleep.unwrap_or(50);
     let mut clicker = CLICKER.lock().unwrap();
     clicker.stop();
     clicker.start(Duration::from_secs(duration), sleep);
-}
-
-#[tauri::command]
-pub fn stop_clicker() {
-    let mut clicker = CLICKER.lock().unwrap();
-    clicker.stop();
 }
 
 #[tauri::command]
