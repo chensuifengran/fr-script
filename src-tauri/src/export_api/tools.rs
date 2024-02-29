@@ -43,8 +43,8 @@ pub fn auto_select_drive() -> Result<char, ()> {
     if res != ' ' {
         Ok(res)
     } else {
-        println!("从D-J无可用盘符");
-        Err(())
+        //返回C盘
+        Ok('C')
     }
 }
 
