@@ -143,6 +143,9 @@ onMounted(() => {
     mainLoading.value = false;
     clearTimeout(t);
   }, 500);
+  if (!appGSStore.isInited) {
+    appGSStore.init();
+  }
 });
 const load = async () => {
   if (loadCount.value < tatalCount) {

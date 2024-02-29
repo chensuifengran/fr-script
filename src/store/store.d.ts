@@ -1,4 +1,5 @@
 type GlobalSettings = {
+  isInited: boolean;
   app: {
     //最新版本
     latestVersion: string;

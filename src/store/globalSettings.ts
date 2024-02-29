@@ -5,6 +5,7 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
   // 其它配置项
   state: () => {
     return <GlobalSettings>{
+      isInited: false,
       app: {
         latestVersion: "0.0.3",
         depHaveUpdate: false,
@@ -16,8 +17,8 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
           },
         },
         modulesSetting: {
-          autoOpenOutput:true,
-          drawerSize:'30%'
+          autoOpenOutput: true,
+          drawerSize: "30%",
         },
       },
       envSetting: {
@@ -29,16 +30,16 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
         options: ["GPU", "CPU"],
         gpuMemory: 1000,
       },
-      view:{
-        showUpdateInTitleBar:true
+      view: {
+        showUpdateInTitleBar: true,
       },
-      editor:{
+      editor: {
         theme: {
           value: "跟随全局主题",
           options: ["跟随全局主题", "明亮", "暗黑"],
         },
         runAutoSave: true,
-      }
+      },
     };
   },
   getters: {},
@@ -54,7 +55,7 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
       delete obj.version;
       Object.assign(this.$state, obj);
       const ocrValue = await libUtil.syncOcrValue();
-      if(ocrValue){
+      if (ocrValue) {
         obj.ocr.value = ocrValue;
       }
       this.$patch(obj);
@@ -82,6 +83,7 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
       );
       window.localStorage.getItem("globalSettings") &&
         (await this.importData(window.localStorage.getItem("globalSettings")!));
+      this.isInited = true;
     },
     // /**
     //  * 连接到设备时调用，保存设备信息和连接状态
