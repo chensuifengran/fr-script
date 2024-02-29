@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use crate::{c_api::util::Util, types::generate_result, UTIL_INSTANCE};
 
-use super::constant::{ERROR_COORDINATE, ERROR_WIDTH_HEIGHT, ERROR_RECT_INFO, ERROR_MSG_DATA};
+use super::{
+    constant::{ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT},
+    tools::auto_select_drive,
+};
 
 pub fn detect_image_path_extensions(path: &str) -> bool {
     let image_extensions = ["jpg", "jpeg", "png", "bmp", "tiff"];
@@ -15,7 +18,7 @@ pub fn detect_image_path_extensions(path: &str) -> bool {
 /// 返回:
 ///
 /// 一个 Result 类型，以 String(JSON字符串)  作为成功值，以空元组 () 作为错误值。
-/// 
+///
 /// 返回示例："{\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_screen_size() -> Result<String, ()> {
@@ -31,7 +34,7 @@ pub async fn get_screen_size() -> Result<String, ()> {
 /// 返回:
 ///
 /// 一个“Result”类型，其中 String(JSON字符串) 作为成功值，“()”作为错误值。
-/// 
+///
 /// 返回示例：1
 #[tauri::command]
 pub async fn get_screen_zoom() -> Result<f64, ()> {
@@ -50,11 +53,11 @@ pub async fn get_screen_zoom() -> Result<f64, ()> {
 /// * `w`: “w”参数表示屏幕截图区域的宽度。
 /// * `h`: “h”参数表示屏幕截图区域的高度。
 /// * “x” “y” “w” “h”中的任何一个值为-1，表示全屏截图。
-/// 
+///
 /// 返回:
 ///
 /// Result 类型，其中 String(JSON字符串) 作为成功值， () 作为错误值。
-/// 
+///
 /// 返回示例："{\"code\":200,\"message\":\"截图成功\"}"
 #[tauri::command]
 pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<String, ()> {
@@ -90,7 +93,7 @@ pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<St
 /// 返回:
 ///
 /// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
-/// 
+///
 /// 返回示例："{\"startX\":0,\"startY\":0,\"width\":1920,\"height\":1080}"
 #[tauri::command]
 pub async fn get_screen_rect_info() -> Result<String, ()> {
@@ -102,9 +105,9 @@ pub async fn get_screen_rect_info() -> Result<String, ()> {
 }
 
 /// 捕获屏幕截图并与模板图像进行匹配
-/// 
+///
 /// 参数:
-/// 
+///
 /// * `x`: 截图起点x坐标。
 /// * `y`: 截图起点y坐标。
 /// * `width`: 截图宽度。
@@ -114,9 +117,9 @@ pub async fn get_screen_rect_info() -> Result<String, ()> {
 /// * `scale`: 缩放倍数，0为默认缩放倍数。有效值：0~1的浮点数。
 /// * `drive`: 临时图像文件存储的盘符，例如(“C”、“D”)，暂存在C盘可能需要管理员权限。
 /// “x”、“y”、“width”、“height” 任意值为-1表示全屏截图进行匹配（不推荐）。
-/// 
+///
 /// 返回:
-/// 
+///
 /// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
 /// 返回示例："{\"x\":0,\"y\":0}"
 #[tauri::command]
@@ -128,20 +131,16 @@ pub async fn screen_match_template(
     temp_path: &str,
     exact_value: f64,
     scale: f64,
-    drive: &str,
+    drive: Option<String>,
 ) -> Result<String, ()> {
+    //如果没有指定盘符，自动选择一个可用的盘符
+    let drive = match drive {
+        Some(d) => d,
+        None => format!("{}", auto_select_drive().unwrap_or('C')),
+    };
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
-        .screen_match_template(
-            x,
-            y,
-            width,
-            height,
-            temp_path,
-            exact_value,
-            scale,
-            drive,
-        )
+        .screen_match_template(x, y, width, height, temp_path, exact_value, scale, &drive)
         .unwrap_or(format!("{}", ERROR_COORDINATE));
 
     Ok(res)
@@ -162,20 +161,20 @@ pub async fn screen_match_template(
 /// 返回:
 ///
 /// 一个 Result 类型，以 String(JSON字符串) 作为成功值，以空元组 () 作为错误值。
-/// 
+///
 /// 返回值类型描述：本方法返回一个对象(字符串)，每个对象包含：
 /// * `message` 字符串，是否成功匹配。
 ///
 /// * `data` 对象数组，每个对象的属性有：
-/// 
+///
 /// `x`、`y`、`width`、`height`、
-/// 
+///
 /// `centerX` 图像中心X坐标、
-/// 
+///
 /// `centerY` 图像中心Y坐标、
-/// 
+///
 /// `targetOffsetX` 中心坐标与主模板的中心坐标的X轴偏移量、
-/// 
+///
 /// `targetOffsetY` 中心坐标与主模板的中心坐标的Y轴偏移量
 #[tauri::command]
 pub async fn screen_diff_templates(
@@ -185,19 +184,16 @@ pub async fn screen_diff_templates(
     height: i32,
     temp_paths: &str,
     target_index: i32,
-    drive: &str,
+    drive: Option<String>,
 ) -> Result<String, ()> {
+    //如果没有指定盘符，自动选择一个可用的盘符
+    let drive = match drive {
+        Some(d) => d,
+        None => format!("{}", auto_select_drive().unwrap_or('C')),
+    };
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
-        .screen_diff_templates(
-            x,
-            y,
-            width,
-            height,
-            temp_paths,
-            target_index,
-            drive,
-        )
+        .screen_diff_templates(x, y, width, height, temp_paths, target_index, &drive)
         .unwrap_or(format!("{}", ERROR_MSG_DATA));
     Ok(res)
 }
