@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "图片相似度匹配",
-  targetMethodName: "getSimilarityValue",
-  content: "图片相似度匹配",
+  targetMethodName: "imgSimilarity",
+  content: "采用直方图对比对图片进行相似度匹配",
   args: [
     {
       name: "pathA",

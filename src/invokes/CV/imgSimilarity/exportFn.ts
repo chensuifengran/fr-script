@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-export const getSimilarityValueFn = async (
+export const imgSimilarityFn = async (
   pathA: string,
   pathB: string,
   x: number = -1,
@@ -27,4 +27,4 @@ export const getSimilarityValueFn = async (
     return -1;
   }
 };
-export type GetSimilarityValueFnType = typeof getSimilarityValueFn;
+export type ImgSimilarityFnType = typeof imgSimilarityFn;

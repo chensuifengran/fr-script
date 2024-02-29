@@ -1,4 +1,4 @@
-import { getSimilarityValueFn } from "./exportFn";
+import { imgSimilarityFn } from "./exportFn";
 
 import { auxiliary } from "./auxiliary";
 const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
@@ -22,8 +22,8 @@ export const modelCallback = async (
   if (options.replaceCurFnArgs) {
     return auxiliary.parameterReplace(options);
   }
-  console.time("getSimilarityValue耗时");
-  const similarityValue = await getSimilarityValueFn(
+  console.time("imgSimilarity耗时");
+  const similarityValue = await imgSimilarityFn(
     options.imgPath,
     options.tempPath,
     options.rect.x,
@@ -31,12 +31,12 @@ export const modelCallback = async (
     options.rect.width,
     options.rect.height
   );
-  console.timeEnd("getSimilarityValue耗时");
+  console.timeEnd("imgSimilarity耗时");
   const selfFnModule = getInvokeApiMethods().find(
-    (i) => i.name === "getSimilarityValue"
+    (i) => i.name === "imgSimilarity" && i.scope === "CV"
   )?.testModule;
   selfFnModule!.document!.example!.code = codeHighLight(
-    `const similarityValue = await getSimilarityValue(
+    `const similarityValue = await CV.imgSimilarity(
         \t"${options.imgPath.replace(/\\/g, "\\\\")}",
         \t"${options.tempPath.replace(/\\/g, "\\\\")}",
         \t${options.rect.x},${options.rect.y},${options.rect.width},${
@@ -47,6 +47,6 @@ export const modelCallback = async (
   );
   testModuleCtx.showDetails(
     `当前图片与模板的相似度：${similarityValue}`,
-    "getSimilarityValue"
+    "imgSimilarity"
   );
 };

@@ -1,21 +1,22 @@
-import { getSimilarityValueFn } from "./exportFn";
+import { matchTemplateFn } from "./exportFn";
 import { modelCallback } from "./modelCallbcak";
 import { apiDocument } from "./document";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
 
-export const getSimilarityValueApi = <InvokeApiMethodType>{
-  name: "getSimilarityValue",
+export const matchTemplateApi = <InvokeApiMethodType>{
+  name: "matchTemplate",
+  scope: "CV",
   exportFn: {
-    fn: getSimilarityValueFn,
+    fn: matchTemplateFn,
   },
   testModule: {
-    weight: 4,
+    weight: 5,
     dialog: dialogOptions,
     callback: modelCallback,
     document: apiDocument,
   },
   declaration,
   auxiliary
-}
+};

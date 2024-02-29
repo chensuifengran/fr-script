@@ -1,5 +1,5 @@
 export const declaration = `
-declare function getSimilarityValue(
+function imgSimilarity(
     pathA:string,
     pathB:string,
     x?: number,
