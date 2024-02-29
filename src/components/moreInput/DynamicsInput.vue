@@ -28,8 +28,8 @@
         <el-option
           v-for="item in argItem.options"
           :key="item"
-          :label="item"
-          :value="item"
+          :label="parseOption(item).label"
+          :value="parseOption(item).value"
         ></el-option>
       </el-select>
     </template>
@@ -115,6 +115,19 @@ const { getInvokeApiMethods, getInvokeApiDialogModule } = useInvokeApiMethodsReg
 
 const notShowType = ["input", "FileInput", "DirInput"];
 const notFlexType = ["input", "FileInput", "DirInput", "slider", "RectInput"];
+const parseOption = (item: string | number) => {
+  if (typeof item === "number") {
+    return {
+      label: item,
+      value: item,
+    };
+  }
+  const arr = item.split(":");
+  return {
+    label: arr[0],
+    value: arr[1] || arr[0],
+  };
+};
 
 const invokeApiDialogModule = getInvokeApiDialogModule();
 const props = defineProps({
