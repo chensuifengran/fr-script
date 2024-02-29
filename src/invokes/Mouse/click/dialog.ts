@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "鼠标点击",
   targetMethodName: "click",
-  content: "鼠标移动到指定位置进行[左键/中键/右键]点击",
+  content: "鼠标移动到指定位置进行[左键/右键/中键]点击",
   args: [
     {
       name: "x",
@@ -20,7 +20,7 @@ export const dialogOptions = {
       componentType: "select",
       value: 'left',
       notAllowCreate: true,
-      label: "左键/右键",
+      label: "鼠标按键",
       options: ["left", "right", "middle"], 
     },
     {
