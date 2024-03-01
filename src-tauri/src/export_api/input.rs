@@ -17,6 +17,23 @@ pub async fn press_key(key: Key) -> Result<String, ()> {
 }
 
 #[tauri::command]
+pub async fn press_keys(keys: Vec<Key>) -> Result<String, ()> {
+    let mut enigo: Enigo = Enigo::new();
+
+    // 按下所有的键
+    for key in &keys {
+        enigo.key_down(*key);
+    }
+
+    // 逆序抬起所有的键
+    for key in keys.into_iter().rev() {
+        enigo.key_up(key);
+    }
+
+    Ok(generate_result(String::from("press_keys ok"), 200))
+}
+
+#[tauri::command]
 pub async fn key_down(key: Key) -> Result<String, ()> {
     let mut enigo: Enigo = Enigo::new();
     enigo.key_down(key);

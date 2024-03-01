@@ -25,6 +25,7 @@ fn main() {
             mouse::mouse_drag,
             input::input_text,
             input::press_key,
+            input::press_keys,
             input::key_down,
             input::key_up,
             screen::get_screen_size,
