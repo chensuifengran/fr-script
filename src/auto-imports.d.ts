@@ -11,6 +11,7 @@ declare global {
   const ElMessage: typeof import('element-plus/es')['ElMessage']
   const ElNotification: typeof import('element-plus/es')['ElNotification']
   const INPUT_KEY_TYPE: typeof import('./invokes/utilDeclareTypes')['INPUT_KEY_TYPE']
+  const KeyOptions: typeof import('./invokes/invokeApiRegisterManager')['KeyOptions']
   const SCRIPT_TEMPLATE: typeof import('./utils/constant')['SCRIPT_TEMPLATE']
   const TableForm: typeof import('./utils/TableForm')['TableForm']
   const UTIL_DECLARE_STRING: typeof import('./invokes/utilDeclareTypes')['UTIL_DECLARE_STRING']
