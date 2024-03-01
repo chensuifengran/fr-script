@@ -4,7 +4,7 @@ export const apiDocument = <ApiDocumentType>{
     {
       name: "key",
       required: true,
-      instructions: "鼠标移动到的X坐标",
+      instructions: "按下的按键",
       type: "Key",
       default: "",
     },
@@ -21,6 +21,6 @@ export const apiDocument = <ApiDocumentType>{
       await Input.press("A");
       `),
   },
-  searchKeys: ["鼠标", "mouse", "左键", "中键", "右键", "点击", "移动"],
+  searchKeys: ["key", "按键", "按下", "松开"],
   codeSnippet: "await Input.press('${1:key}');",
 };

@@ -31,6 +31,6 @@ export const modelCallback = async (
     (i) => i.name === "press" && i.scope === "Input"
   )?.testModule!;
   selfModule.document!.example!.code = codeHighLight(
-    `await Input.press(${options.key}');`
+    `await Input.press('${options.key}');`
   );
 };
