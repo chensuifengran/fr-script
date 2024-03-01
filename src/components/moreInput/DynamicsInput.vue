@@ -21,6 +21,8 @@
         class="input"
         v-model="model"
         filterable
+        :multiple="argItem.multiple"
+        :clearable="argItem.multiple"
         :allow-create="!argItem.notAllowCreate"
         default-first-option
         :placeholder="argItem.placeholder || '请选择'"
@@ -148,7 +150,7 @@ const props = defineProps({
     default: false,
   },
   value: {
-    type: [String, Number, Boolean, Object],
+    type: [String, Number, Boolean, Object, Array<string>],
     required: true,
   },
   type: {

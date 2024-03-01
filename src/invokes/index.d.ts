@@ -56,6 +56,7 @@ type TestModuleType = {
       notAllowCreate?: boolean;
       checked?: boolean;
       value?: any;
+      multiple?: boolean;
       //用于RectInput组件读取的图片路径字段
       targetSrc?: string;
       //显示条件，可以指定当前testModule的属性值，如果该值为true，则显示
