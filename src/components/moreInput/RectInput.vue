@@ -79,12 +79,12 @@ const selectRect = async () => {
       info.value.width = json.width;
       info.value.height = json.height;
     } else {
-      ElNotification({
-        title: "截取失败",
-        message: "未传入图片地址",
-        type: "error",
-        position: "bottom-right",
-      });
+      const screenRectInfo = await invoke<string>("get_screen_rect_info");
+      const json = JSON.parse(screenRectInfo);
+      info.value.x = json.startX;
+      info.value.y = json.startY;
+      info.value.width = json.width;
+      info.value.height = json.height;
       return;
     }
   } catch (error) {
