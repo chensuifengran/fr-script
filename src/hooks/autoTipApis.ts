@@ -111,13 +111,28 @@ const strIndexOfApi = (str: string) => {
             : api.scope + "." + api.name
         );
         if (index !== -1) {
+          const length = api.exportFn.alias
+            ? api.scope.length + api.exportFn.alias.length + 1
+            : api.scope.length + api.name.length + 1;
+          if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
+            const newStr = str.slice(index + length);
+            const newStrIndex = newStr.indexOf(api.exportFn.alias || api.name);
+            return newStrIndex === -1 ? index : index + length + newStrIndex;
+          }
           return index;
         }
+      } else {
+        const index = str.indexOf(api.exportFn.alias || api.name);
+        if (index !== -1) {
+          const length = api.exportFn.alias?.length || api.name?.length;
+          if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
+            const newStr = str.slice(index + length);
+            const newStrIndex = newStr.indexOf(api.exportFn.alias || api.name);
+            return newStrIndex === -1 ? index : index + length + newStrIndex;
+          }
+          return index;
+        } else continue;
       }
-      const index = str.indexOf(api.exportFn.alias || api.name);
-      if (index !== -1) {
-        return index;
-      } else continue;
     }
   }
   return -1;
