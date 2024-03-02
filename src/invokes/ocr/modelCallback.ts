@@ -27,11 +27,11 @@ export const modelCallback = async (
     ?.testModule!;
   if (options.imgPath === "") {
     selfModule.document!.example!.code = codeHighLight(
-      `const result = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height});`
+      `const ocrUtil = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height});`
     );
   } else {
     selfModule.document!.example!.code = codeHighLight(
-      `const result = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${
+      `const ocrUtil = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${
         rect.height
       }, "${imgPath.replace(/\\/g, "\\\\")}");`
     );

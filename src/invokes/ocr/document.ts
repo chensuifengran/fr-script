@@ -1,5 +1,5 @@
 export const apiDocument = <ApiDocumentType>{
-  howToUse: "识别屏幕/图片指定位置，返回识别结果",
+  howToUse: "识别屏幕/图片指定位置",
   params: [
     {
       name: "x",
@@ -43,10 +43,10 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(
-      `const result = await ocr(0, 0, 100, 100, "E:\\\\image.png");`
+      `const ocrUtil = await ocr(0, 0, 100, 100);`
     ),
   },
   searchKeys: ["OCR", "ocr", "图片", "指定范围"],
   codeSnippet:
-    "const ${1:res} = await ocr(${2:-x}, ${3:-y}, ${4:width}, ${5:height}, '${6:imagePath}')",
+    "const ocrUtil = await ocr(${1:-x}, ${2:-y}, ${3:width}, ${4:height})",
 };
