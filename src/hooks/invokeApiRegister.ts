@@ -1,6 +1,7 @@
 // const {registerAllInvokeApi} = invokeApiRegisterManager();
 
-import { AllInvokeApiFn } from "../invokes/invokeApiRegisterManager";
+import { InvokeApiType } from "../invokes/InvokeApiType";
+
 
 //弹窗
 const dialogModule = reactive({
@@ -116,7 +117,7 @@ const invokeDialog = (
   }
 };
 
-const exportAllFn = (): AllInvokeApiFn => {
+const exportAllFn = (): InvokeApiType => {
   const allFn: ExportFns = {};
   invokeApiMethods.forEach((i) => {
     if (!i.exportFn) {
@@ -139,7 +140,7 @@ const exportAllFn = (): AllInvokeApiFn => {
       allFn[i.name] = fn;
     }
   });
-  return allFn as AllInvokeApiFn;
+  return allFn as InvokeApiType;
 };
 
 const getInvokeApiFnProxyStrings = (runId: string) => {
