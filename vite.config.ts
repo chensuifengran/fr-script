@@ -7,12 +7,14 @@ import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
+import { hotUpdatePlugin } from "./src/vitePlugins/hotUpdate";
 export default defineConfig({
   plugins: [
+    hotUpdatePlugin(),
     vue({
       script: {
-        defineModel: true
-      }
+        defineModel: true,
+      },
     }),
     // legacy({
     //   targets: ['defaults', 'not IE 11'],
