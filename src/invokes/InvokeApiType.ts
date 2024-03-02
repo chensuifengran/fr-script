@@ -30,6 +30,7 @@ export type InvokeApiType = {
     randomMove: typeof import('./Mouse/randomMove/exportFn')["randomMoveFn"],
     wheel: typeof import('./Mouse/wheel/exportFn')["wheelFn"],
   },
+  ocr: typeof import('./ocr/exportFn')["ocrFn"],
   screenshot: typeof import('./screenshot/exportFn')["screenshotFn"],
   slideTo: typeof import('./slideTo/exportFn')["slideToFn"],
   touch: typeof import('./touch/exportFn')["touchFn"],
