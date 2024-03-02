@@ -1,7 +1,7 @@
 import { disConnectToFn } from "../disConnectTo/exportFn";
 import { connectToFn } from "../connectTo/exportFn";
 
-export const adbScreenshot = async (
+export const adbScreenshotFn = async (
   reCount: number = 0,
   taskId?: string
 ): Promise<string> => {
@@ -11,12 +11,9 @@ export const adbScreenshot = async (
   }
   const AppGSStore = useAppGlobalSettings();
   try {
-    console.log('adbScreenshot',adbCommands.SCREEN_SHOT_PREVAL + AppGSStore.envSetting.screenshotSavePath);
     const res = await execCommand.adb(
       adbCommands.SCREEN_SHOT_PREVAL + AppGSStore.envSetting.screenshotSavePath || "screenshot.png"
     );
-    
-    
     const listStore = useListStore();
     //res为空字符串说明成功截图
     if (res !== "") {
@@ -56,7 +53,7 @@ export const adbScreenshot = async (
         console.error("连续截图失败，退出截图");
         return "连续截图失败，退出截图";
       }
-      return await adbScreenshot(reCount + 1, taskId);
+      return await adbScreenshotFn(reCount + 1, taskId);
     }
     if(res){
       return "截图完成"
@@ -67,5 +64,3 @@ export const adbScreenshot = async (
     return JSON.stringify(e);
   }
 };
-
-export type AdbScreenshotFnType = typeof adbScreenshot;

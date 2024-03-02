@@ -1,13 +1,13 @@
 
 import { apiDocument } from "./document";
-import { adbScreenshot } from "./exportFn";
+import { adbScreenshotFn } from "./exportFn";
 import { modelCallback } from "./modelCallback";
 import { declaration } from "./declaration";
 
 export const adbScreenshotApi = <InvokeApiMethodType>{
   name: "adbScreenshot",
   exportFn: {
-    fn: adbScreenshot,
+    fn: adbScreenshotFn,
   },
   testModule: {
     weight: 3,

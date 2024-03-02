@@ -1,4 +1,4 @@
-import { adbScreenshot } from "./exportFn";
+import { adbScreenshotFn } from "./exportFn";
 
 export const modelCallback = async (
   _options: undefined,
@@ -6,6 +6,6 @@ export const modelCallback = async (
     showDetails: (text: string | undefined, preStr?: string) => void;
   }
 ) => {
-  const res = await adbScreenshot();
+  const res = await adbScreenshotFn();
   testModuleCtx.showDetails(res);
 };
