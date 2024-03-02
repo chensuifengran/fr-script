@@ -15,7 +15,3 @@ export const getImageSizeFn = async (path: string, taskId?: string) => {
     return null;
   }
 };
-export type GetImageSizeFnType = (path: string) => Promise<{
-  width: number;
-  height: number;
-}>;

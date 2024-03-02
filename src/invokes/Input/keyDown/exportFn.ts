@@ -18,4 +18,3 @@ export const keyDownFn = async (key:Key, taskId?: string) => {
     console.error("keyDownFnError:", error);
   }
 };
-export type KeyDownFnType = typeof keyDownFn;

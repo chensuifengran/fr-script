@@ -1,3 +1,5 @@
+import { disConnectToFn } from "../disConnectTo/exportFn";
+
 export const adbStateFn = async (taskId?: string) => {
   const { notAllowedFnId,currentDevice }  = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
@@ -38,5 +40,3 @@ export const adbStateFn = async (taskId?: string) => {
   }
   return res;
 };
-
-export type AdbStateFnType = typeof adbStateFn;

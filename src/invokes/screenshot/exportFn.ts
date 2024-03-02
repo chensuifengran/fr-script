@@ -34,4 +34,3 @@ export const screenshotFn = async (
     console.error("screenshotError: ", e);
   }
 };
-export type ScreenshotFnType = typeof screenshotFn;

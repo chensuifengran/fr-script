@@ -27,4 +27,3 @@ export const imgSimilarityFn = async (
     return -1;
   }
 };
-export type ImgSimilarityFnType = typeof imgSimilarityFn;

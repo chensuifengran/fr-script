@@ -11,6 +11,4 @@ export const getScreenRectInfoFn = async (delayTime = 0, taskId?: string) => {
   } catch (e) {
     console.error(e);
   }
-
 };
-export type GetScreenRectInfoFnType = typeof getScreenRectInfoFn;

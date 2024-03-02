@@ -20,4 +20,3 @@ export const connectToFn = async (targetDevice: string, taskId?: string) => {
   }
   return res;
 };
-export type ConnectToFnType = typeof connectToFn;

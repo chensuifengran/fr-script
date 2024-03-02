@@ -18,4 +18,3 @@ export const textFn = async (text: string, taskId?: string) => {
     console.error("textFnError:", error);
   }
 };
-export type TextFnType = typeof textFn;

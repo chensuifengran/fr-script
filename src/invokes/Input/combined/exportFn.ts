@@ -18,4 +18,3 @@ export const combinedFn = async (keys: Key[], taskId?: string) => {
     console.error("combinedFnError:", error);
   }
 };
-export type CombinedFnType = typeof combinedFn;

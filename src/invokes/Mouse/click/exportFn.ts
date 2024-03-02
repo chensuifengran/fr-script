@@ -34,4 +34,3 @@ export const clickFn = async (
     console.error("clickFnError:", error);
   }
 };
-export type ClickFnType = typeof clickFn;

@@ -31,4 +31,3 @@ export const screenMatchTemplateFn = async (
     console.error("screenMatchTemplateFnError:", error);
   }
 };
-export type ScreenMatchTemplateFnType = typeof screenMatchTemplateFn;

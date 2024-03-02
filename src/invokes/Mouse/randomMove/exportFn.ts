@@ -31,5 +31,3 @@ export const randomMoveFn = async (
     y,
   });
 };
-
-export type RandomMoveFnType = typeof randomMoveFn;

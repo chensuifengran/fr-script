@@ -18,4 +18,3 @@ export const pressFn = async (key: Key, taskId?: string) => {
     console.error("pressFnError:", error);
   }
 };
-export type PressFnType = typeof pressFn;

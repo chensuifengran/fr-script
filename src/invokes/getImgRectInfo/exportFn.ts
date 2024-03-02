@@ -20,4 +20,3 @@ export const getImgRectInfoFn = async (imgPath: string, taskId?: string) => {
     return null;
   }
 };
-export type GetImgRectInfoFnType = typeof getImgRectInfoFn;

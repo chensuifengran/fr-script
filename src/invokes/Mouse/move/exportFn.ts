@@ -28,4 +28,3 @@ export const moveFn = async (
     return false;
   }
 };
-export type MoveFnType = typeof moveFn;

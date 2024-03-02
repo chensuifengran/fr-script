@@ -15,5 +15,3 @@ export const touchFn = async (
     return JSON.stringify(e);
   }
 };
-
-export type TouchFnType = typeof touchFn;

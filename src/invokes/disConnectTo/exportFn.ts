@@ -19,4 +19,3 @@ export const disConnectToFn = async (targetDevice: string, taskId?: string) => {
   }
   return res;
 };
-export type DisConnectToFnType = typeof disConnectToFn;

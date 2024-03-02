@@ -29,4 +29,3 @@ export const screenDiffTemplatesFn = async (
     console.error("screenDiffTemplatesFnError:", error);
   }
 };
-export type ScreenDiffTemplateFnType = typeof screenDiffTemplatesFn;

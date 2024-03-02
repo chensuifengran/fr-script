@@ -21,5 +21,3 @@ export const slideToFn = async (
     return JSON.stringify(e);
   }
 };
-
-export type SlideToFnType = typeof slideToFn;

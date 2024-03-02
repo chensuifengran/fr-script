@@ -33,4 +33,3 @@ export const cropPictureFn = async (
     return -1;
   }
 };
-export type CropPictureType = typeof cropPictureFn;

@@ -16,6 +16,3 @@ export const clickHomeKeyFn = async (taskId?: string) => {
     return "";
   }
 };
-
-// 定义一个类型，表示 clickHomeKeyFn 函数的返回值类型
-export type ClickHomeKeyFnType = typeof clickHomeKeyFn;

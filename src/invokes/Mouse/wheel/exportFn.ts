@@ -14,4 +14,3 @@ export const wheelFn = async (delta: number, taskId?: string) => {
     console.error("wheelFnError:", error);
   }
 };
-export type WheelFnType = typeof wheelFn;

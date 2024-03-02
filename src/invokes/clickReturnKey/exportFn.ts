@@ -15,5 +15,3 @@ export const clickReturnKeyFn = async (taskId?: string) => {
     return "";
   }
 };
-
-export type ClickReturnKeyFnType = typeof clickReturnKeyFn;

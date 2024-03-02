@@ -28,4 +28,3 @@ export const clickerFn = async (
   }
   return async ()=>{};
 };
-export type ClickerFnType = typeof clickerFn;

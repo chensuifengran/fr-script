@@ -23,4 +23,3 @@ export const matchTemplateFn = async (
     console.error("matchTemplateFnError:", error);
   }
 };
-export type MatchTemplateFnType = typeof matchTemplateFn;
