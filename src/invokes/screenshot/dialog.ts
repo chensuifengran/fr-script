@@ -21,7 +21,6 @@ export const dialogOptions = {
     {
       name: "range",
       componentType: "RectInput",
-      targetSrc: "path",
       label: "截图区域",
       value: {
         x: -1,
