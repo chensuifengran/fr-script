@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api";
+import { MatchUtil } from "../matchTemplate/MatchUtil";
 
 export const screenMatchTemplateFn = async (
   x: number,
@@ -26,7 +27,11 @@ export const screenMatchTemplateFn = async (
       scale,
       drive: drive === "auto" ? undefined : drive,
     });
-    return JSON.parse(res) as { x: number; y: number };
+    const {x:_x, y:_y} = JSON.parse(res) as {
+      x: number;
+      y: number;
+    };
+    return new MatchUtil(_x, _y);
   } catch (error) {
     console.error("screenMatchTemplateFnError:", error);
   }

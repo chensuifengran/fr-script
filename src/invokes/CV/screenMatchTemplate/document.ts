@@ -63,7 +63,7 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<{x:number,y:number}>"),
+    type: codeHighLight("Promise<MatchUtil | undefined>"),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',

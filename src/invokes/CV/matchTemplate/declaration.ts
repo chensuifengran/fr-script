@@ -4,5 +4,5 @@ function matchTemplate(
     tempPath: string,
     exactValue?: number,
     scale?:number
-):Promise<{x:number,y:number}>;
+):Promise<MatchUtil | undefined>;
 `

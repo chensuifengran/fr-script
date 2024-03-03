@@ -1,4 +1,11 @@
 export const UTIL_DECLARE_STRING = `
+  declare class MatchUtil {
+    x:number;
+    y:number;
+    constructor(x: number, y: number);
+    public click(): Promise<void>;
+    public touch(): Promise<string>;
+  }
   declare class FindResult {
     centerPos: [number, number];
     text: string;

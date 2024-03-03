@@ -1,11 +1,11 @@
 export const apiDocument = <ApiDocumentType>{
   howToUse: `
-      匹配模板图片在原图中的坐标，返回{x,y}，若匹配失败则返回{-1,-1}。
+      匹配模板图片在原图中的坐标
       匹配规则：
-      * 开始对两张图片进行校验路径是否有误、两张图片相似度是否<=0，若发生其中一种情况则返回{x:-1,y:-1}。
+      * 开始对两张图片进行校验路径是否有误、两张图片相似度是否<=0，若发生其中一种情况则x=-1,y=-1。
       * 若两张图片有相似度，则进行坐标匹配，接下来看exactValue是否=0,
       * 是则直接返回匹配区域中心坐标。
-      * 否则只返回大于等于精确值(exactValue)的匹配结果，对于小于精确值的则返回{x:-1,y:-1}。
+      * 否则只返回大于等于精确值(exactValue)的匹配结果，对于小于精确值的则返回x=-1,y=-1。
       `,
   params: [
     {
@@ -40,11 +40,11 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<{x:number,y:number}>"),
+    type: codeHighLight("Promise<MatchUtil | undefined>"),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`const { x, y } = await
+    code: codeHighLight(`const matchUtil = await
           \tCV.matchTemplate('E:\\\\image.png', 'E:\\\\template.png', 0, 1);
           `),
   },

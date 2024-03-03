@@ -2,7 +2,7 @@ export const dialogOptions = {
   title: "屏幕模板匹配",
   targetMethodName: "screenMatchTemplate",
   content: `
-      将屏幕指定范围进行截图与模板图片对比，若匹配失败则返回{x:-1,y:-1}/{x:-2,y:-2}
+      将屏幕指定范围进行截图与模板图片对比
       `,
   args: [
     {
