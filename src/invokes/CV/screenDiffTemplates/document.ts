@@ -55,18 +55,15 @@ export const apiDocument = <ApiDocumentType>{
   ],
   returnValue: {
     type: codeHighLight(`Promise<{
-      \tmessage:string;
-      \tdata:{
-        \t\tx:number;
-        \t\ty:number;
-        \t\twidth:number;
-        \t\theight:number;
-        \t\tcenterX:number;
-        \t\tcenterY:number;
-        \t\ttargetOffsetX:number;
-        \t\ttargetOffsetY:number;
-      \t}[];
-    }>`),
+      \t\tx:number;
+      \t\ty:number;
+      \t\twidth:number;
+      \t\theight:number;
+      \t\tcenterX:number;
+      \t\tcenterY:number;
+      \t\ttargetOffsetX:number;
+      \t\ttargetOffsetY:number;
+    \t}[] | undefined>`),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',

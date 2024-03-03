@@ -8,15 +8,12 @@ function screenDiffTemplates(
     targetIndex?: number,
     drive?:string
 ):Promise<{
-    message:string;
-    data:{
-        x:number;
-        y:number;
-        width:number;
-        height:number;
-        centerX:number;
-        centerY:number;
-        targetOffsetX:number;
-        targetOffsetY:number;
-    }[];
-}>;`;
+    x:number;
+    y:number;
+    width:number;
+    height:number;
+    centerX:number;
+    centerY:number;
+    targetOffsetX:number;
+    targetOffsetY:number;
+}[] | undefined>;`;

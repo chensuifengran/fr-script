@@ -24,7 +24,20 @@ export const screenDiffTemplatesFn = async (
       targetIndex,
       drive: drive==='auto' ? undefined : drive,
     });
-    return JSON.parse(res) as { x: number; y: number };
+    const result = JSON.parse(res) as {
+      message: string;
+      data:{
+        x:number;
+        y:number;
+        width:number;
+        height:number;
+        centerX:number;
+        centerY:number;
+        targetOffsetX:number;
+        targetOffsetY:number;
+      }[]
+    };
+    return result.data;
   } catch (error) {
     console.error("screenDiffTemplatesFnError:", error);
   }
