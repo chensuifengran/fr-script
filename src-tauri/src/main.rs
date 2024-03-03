@@ -1,10 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools};
+use fr_script::export_api::{ cmd, file, image, init, input, mouse, request, screen, sys, tools};
 use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
+        .setup(|app: &mut tauri::App| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 let window = app.get_window("main").unwrap();
