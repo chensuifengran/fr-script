@@ -23,6 +23,16 @@
           <el-tooltip
             class="box-item"
             effect="dark"
+            content="打开鼠标工具"
+            placement="bottom"
+          >
+            <el-button size="small" @click="openPointerUtil"
+              ><el-icon><IEpPointer /></el-icon
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
             content="打开调试窗口"
             placement="bottom"
           >
@@ -78,6 +88,7 @@
 </template>
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api";
+import { WebviewWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 const appGSStore = useAppGlobalSettings();
@@ -95,14 +106,18 @@ const {
   isEditing,
 } = useScriptInfo();
 const { editorValue } = useScriptApi()!;
-const { createWindow, globalWindowInfo } = useWebviewWindow();
+const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
-  const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
-  if (targetWindow && (await targetWindow.window.isClosable())) {
-    targetWindow.window.show();
-  } else {
-    createWindow("apiTest", "/apiTest");
-  }
+  const targetWindow = createWindow("apiTest", "/apiTest");
+  targetWindow.show();
+};
+const openPointerUtil = async () => {
+  const targetWindow = createWindow("pointerUtil", "/pointerUtil", {
+    height: 140,
+    width: 150,
+    alwaysOnTop: true,
+  });
+  targetWindow.show();
 };
 const goSetScript = () => {
   asideBarPos.value = "relative";
@@ -118,9 +133,9 @@ const runScript = () => {
   const unsaveRun = () => {
     tempEditorValue.value = editorValue.value;
     autoSaveDialog.visible = false;
-    const testWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
+    const testWindow = WebviewWindow.getByLabel("apiTest");
     if (testWindow) {
-      testWindow.window.hide();
+      testWindow.hide();
     }
 
     router.replace({
@@ -253,9 +268,9 @@ const goBack = () => {
   preloadText.value = "";
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
-  const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
-  if (targetWindow) {
-    targetWindow.window.hide();
+  const testWindow = WebviewWindow.getByLabel("apiTest");
+  if (testWindow) {
+    testWindow.hide();
   }
 };
 </script>
