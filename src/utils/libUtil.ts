@@ -1,5 +1,6 @@
 import { getVersion } from "@tauri-apps/api/app";
 import { exists, renameFile } from "@tauri-apps/api/fs";
+import { invoke } from "@tauri-apps/api";
 import {
   CheckDepItemType,
   DepPkgItemType,
@@ -35,6 +36,20 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
       const checkItem = checkList.find((i) => i.name === localInfo.name);
       if (checkItem) {
         if (localInfo.version !== checkItem.version) {
+          const dlls = ["screenOperation.dll","ppocr.dll", "g_ppocr.dll"]
+          if(dlls.includes(checkItem.name)){
+            try {
+              const dllVersion = await invoke<string>("get_dependence_version");
+              const v = dllVersion.split("-");
+              if(checkItem.name === "screenOperation.dll" && v[1] === checkItem.version){
+                continue;
+              }else if(v[0] === checkItem.version){
+                continue;
+              }
+            } catch (error) {
+              console.log('diffLocalVersionConfig error:', error);
+            }
+          }
           resultList.push({
             name: checkItem.name,
             version: checkItem.version,
