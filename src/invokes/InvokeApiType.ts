@@ -16,6 +16,11 @@ export type InvokeApiType = {
   getImageSize: typeof import('./getImageSize/exportFn')["getImageSizeFn"],
   getImgRectInfo: typeof import('./getImgRectInfo/exportFn')["getImgRectInfoFn"],
   getScreenRectInfo: typeof import('./getScreenRectInfo/exportFn')["getScreenRectInfoFn"],
+  GlobalShortcut: {
+    listen: typeof import('./GlobalShortcut/listen/exportFn')["listenFn"],
+    unlisten: typeof import('./GlobalShortcut/unlisten/exportFn')["unlistenFn"],
+    waitKeys: typeof import('./GlobalShortcut/waitKeys/exportFn')["waitKeysFn"],
+  },
   Input: {
     combined: typeof import('./Input/combined/exportFn')["combinedFn"],
     keyDown: typeof import('./Input/keyDown/exportFn')["keyDownFn"],

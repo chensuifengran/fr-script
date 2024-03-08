@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "tauri": "tauri dev",
     "tauri:build": "pnpm build && tauri build",
-    "tauri:only_build": "tauri build"
+    "tauri:only_build": "tauri build",
+    "genType":"node .\\src\\script\\genInvokeFnType.js"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
