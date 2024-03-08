@@ -1,7 +1,7 @@
 use enigo::{Enigo, MouseControllable};
+use libloading::Library;
 use std::ffi::{c_char, CStr, CString};
 use std::sync::Arc;
-use libloading::Library;
 
 pub struct Util {
     lib: Arc<Library>,
@@ -10,7 +10,9 @@ pub struct Util {
 impl Util {
     pub fn new() -> Util {
         Util {
-            lib: Arc::new(unsafe { Library::new("screenOperation.dll").expect("找不到screenOperation.dll") }),
+            lib: Arc::new(unsafe {
+                Library::new("screenOperation.dll").expect("找不到screenOperation.dll")
+            }),
         }
     }
 
@@ -506,23 +508,26 @@ impl Util {
         }
     }
 
-    /// 获取鼠标指向位置的颜色
-    /// 
+    /// 获取屏幕颜色
+    ///
     /// 示例：
-    /// 
+    ///
     /// ```
     /// let util: Arc<Util> = UTIL_INSTANCE.clone();
-    /// let res: String = util.get_mouse_color().unwrap_or(format!("{}", ERROR_COLOR));
+    /// let res: String = util.get_screen_color().unwrap_or(format!("{}", ERROR_COLOR));
     /// ```
     /// 
+    /// 参数：
+    /// 
+    /// * `x`：x坐标
+    /// * `y`：y坐标
+    ///
     /// 返回：
-    /// 
+    ///
     /// Result 类型，该类型可以是包含“String”值的“Ok”变体，也可以是包含“Box<dyn std::error::Error>”值的“Err”变体。
-    /// 
-    /// 返回值示例："{\"message\":\"success\",\"data\":[0,0,0]}"
-    pub fn get_mouse_color(&self) -> Result<String, Box<dyn std::error::Error>> {
-        let enigo: Enigo = Enigo::new();
-        let (x, y) = enigo.mouse_location();
+    ///
+    /// 返回值示例："{\"message\":\"success\",\"data\":\[0,0,0\]}"
+    pub fn get_screen_color(&self, x: i32, y: i32) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let func: libloading::Symbol<unsafe extern "C" fn(i32, i32) -> *const c_char> =
                 self.lib.get(b"getScreenColor")?;

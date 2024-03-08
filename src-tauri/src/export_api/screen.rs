@@ -1,9 +1,9 @@
 use std::sync::Arc;
-
+use enigo::*;
 use crate::{c_api::util::Util, types::generate_result, UTIL_INSTANCE};
 
 use super::{
-    constant::{ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT},
+    constant::{ERROR_COLOR, ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT},
     tools::auto_select_drive,
 };
 
@@ -196,4 +196,25 @@ pub async fn screen_diff_templates(
         .screen_diff_templates(x, y, width, height, temp_paths, target_index, &drive)
         .unwrap_or(format!("{}", ERROR_MSG_DATA));
     Ok(res)
+}
+
+#[tauri::command]
+pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> {
+    if x.is_none() || y.is_none() {
+        let enigo: Enigo = Enigo::new();
+        let (x, y) = enigo.mouse_location();
+        let util: Arc<Util> = UTIL_INSTANCE.clone();
+        let color = util
+            .get_screen_color(x, y)
+            .unwrap_or(format!("{}", ERROR_COLOR));
+        Ok(color)
+    } else {
+        let x = x.unwrap();
+        let y = y.unwrap();
+        let util: Arc<Util> = UTIL_INSTANCE.clone();
+        let color = util
+            .get_screen_color(x, y)
+            .unwrap_or(format!("{}", ERROR_COLOR));
+        Ok(color)
+    }
 }

@@ -1,5 +1,7 @@
 use crate::{
-    c_api::util::Util, types::{generate_result, mouse_types::Coordinate}, CLICKER, UTIL_INSTANCE
+    c_api::util::Util,
+    types::{generate_result, mouse_types::Coordinate},
+    CLICKER, UTIL_INSTANCE,
 };
 use enigo::*;
 use std::sync::{
@@ -143,11 +145,4 @@ pub async fn mouse_get_pos() -> Result<String, ()> {
     let (x, y) = enigo.mouse_location();
     let coordinate = Coordinate::new(x, y);
     Ok(generate_result(coordinate, 200))
-}
-
-#[tauri::command]
-pub async fn mouse_color() -> Result<String, ()> {
-    let util: Arc<Util> = UTIL_INSTANCE.clone();
-    let color = util.get_mouse_color().unwrap_or(format!("{}", ERROR_COLOR));
-    Ok(color)
 }
