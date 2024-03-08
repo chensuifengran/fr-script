@@ -1,6 +1,5 @@
 use crate::{
-    types::{generate_result, mouse_types::Coordinate},
-    CLICKER,
+    c_api::util::Util, types::{generate_result, mouse_types::Coordinate}, CLICKER, UTIL_INSTANCE
 };
 use enigo::*;
 use std::sync::{
@@ -9,6 +8,8 @@ use std::sync::{
 };
 use std::thread;
 use std::time::Duration;
+
+use super::constant::ERROR_COLOR;
 pub struct Clicker {
     pub running: Arc<AtomicBool>,
     pub handle: Option<thread::JoinHandle<()>>,
@@ -142,4 +143,11 @@ pub async fn mouse_get_pos() -> Result<String, ()> {
     let (x, y) = enigo.mouse_location();
     let coordinate = Coordinate::new(x, y);
     Ok(generate_result(coordinate, 200))
+}
+
+#[tauri::command]
+pub async fn mouse_color() -> Result<String, ()> {
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
+    let color = util.get_mouse_color().unwrap_or(format!("{}", ERROR_COLOR));
+    Ok(color)
 }

@@ -23,6 +23,7 @@ fn main() {
             mouse::start_clicker,
             mouse::stop_clicker,
             mouse::mouse_drag,
+            mouse::mouse_color,
             input::input_text,
             input::press_key,
             input::press_keys,

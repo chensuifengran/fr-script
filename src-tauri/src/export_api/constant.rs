@@ -5,3 +5,4 @@ pub const ERROR_MSG_DATA: &str = "{\"message\":\"error\",\"data\":[]}";
 pub const ERROR_OCR_RESULT: &str = "{\"code\":-2,\"result\":\"识别失败！\"}";
 pub const ERROR_VERSION: &str = "error_version";
 pub const ERROR_NOT_FOUND_LIB: &str = "无效的lib字段，请尝试重新初始化！";
+pub const ERROR_COLOR: &str = "{\"message\":\"error\",\"data\":[0,0,0]}";

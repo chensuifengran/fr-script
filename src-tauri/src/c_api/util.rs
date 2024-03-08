@@ -1,3 +1,4 @@
+use enigo::{Enigo, MouseControllable};
 use std::ffi::{c_char, CStr, CString};
 use std::sync::Arc;
 use libloading::Library;
@@ -499,6 +500,33 @@ impl Util {
                 target_index,
                 c_drive.as_ptr(),
             );
+            let c_str: &CStr = CStr::from_ptr(c_str);
+            let str_slice: &str = c_str.to_str()?;
+            Ok(str_slice.to_owned())
+        }
+    }
+
+    /// 获取鼠标指向位置的颜色
+    /// 
+    /// 示例：
+    /// 
+    /// ```
+    /// let util: Arc<Util> = UTIL_INSTANCE.clone();
+    /// let res: String = util.get_mouse_color().unwrap_or(format!("{}", ERROR_COLOR));
+    /// ```
+    /// 
+    /// 返回：
+    /// 
+    /// Result 类型，该类型可以是包含“String”值的“Ok”变体，也可以是包含“Box<dyn std::error::Error>”值的“Err”变体。
+    /// 
+    /// 返回值示例："{\"message\":\"success\",\"data\":[0,0,0]}"
+    pub fn get_mouse_color(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let enigo: Enigo = Enigo::new();
+        let (x, y) = enigo.mouse_location();
+        unsafe {
+            let func: libloading::Symbol<unsafe extern "C" fn(i32, i32) -> *const c_char> =
+                self.lib.get(b"getScreenColor")?;
+            let c_str: *const c_char = (*func)(x, y);
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = c_str.to_str()?;
             Ok(str_slice.to_owned())
