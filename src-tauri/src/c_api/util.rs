@@ -1,4 +1,3 @@
-use enigo::{Enigo, MouseControllable};
 use libloading::Library;
 use std::ffi::{c_char, CStr, CString};
 use std::sync::Arc;

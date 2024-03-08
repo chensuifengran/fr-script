@@ -1,7 +1,6 @@
 use crate::{
-    c_api::util::Util,
     types::{generate_result, mouse_types::Coordinate},
-    CLICKER, UTIL_INSTANCE,
+    CLICKER,
 };
 use enigo::*;
 use std::sync::{
@@ -11,7 +10,6 @@ use std::sync::{
 use std::thread;
 use std::time::Duration;
 
-use super::constant::ERROR_COLOR;
 pub struct Clicker {
     pub running: Arc<AtomicBool>,
     pub handle: Option<thread::JoinHandle<()>>,
