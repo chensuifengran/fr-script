@@ -347,9 +347,70 @@
 //   // });
 //   // await invoke("stop_clicker");
 // };
+import { invoke } from "@tauri-apps/api";
+import { registerAll, unregisterAll } from "@tauri-apps/api/globalShortcut";
+const sleep = (ms: number = 1000) => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+};
+
+const test = async () => {
+  let count = 0;
+  try {
+    while (1) {
+      count++;
+      console.log(count);
+      if (count === 2) {
+        registerAll(["Alt+S"], (s: string) => {
+          console.log(s);
+          count = 10;
+          unregisterAll();
+          throw new Error("test");
+        });
+      }
+      if (count >= 10) {
+        console.log("done");
+        break;
+      }
+      await sleep(1000);
+    }
+  } catch (error) {
+    console.log("error done", error);
+    unregisterAll();
+  }
+};
+const end = () => {};
+const start = () => {};
+const color = ref([0, 0, 0]);
+const rgb = computed(() => {
+  return `rgb(${color.value.join(",")})`;
+});
+let interval: any;
+onMounted(() => {
+  interval = setInterval(async () => {
+    const res = await invoke<string>("mouse_color");
+    const json = JSON.parse(res);
+    if (json.message === "success") {
+      color.value = json.data;
+    }
+  }, 200);
+});
+onBeforeUnmount(() => {
+  clearInterval(interval);
+});
 </script>
 
 <template>
+  <div>
+    <el-button @click="start">开始</el-button>
+    <el-button @click="end">结束</el-button>
+    <el-button @click="test">test</el-button>
+    <div class="show-color"></div>
+  </div>
+
   <!-- <div
     class="test"
     v-loading="loading"
@@ -419,6 +480,12 @@
 </style>
 
 <style lang="scss" scoped>
+.show-color {
+  width: 40px;
+  height: 40px;
+  background-color: v-bind(rgb);
+  display: inline-block;
+}
 // .test {
 //   padding: 10px;
 //   box-sizing: border-box;
