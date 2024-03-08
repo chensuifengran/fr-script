@@ -93,6 +93,14 @@ const routes = [
     meta:{
       title:"悬浮窗口"
     }
+  },
+  {
+    path:"/pointerUtil",
+    name:"pointerUtil",
+    component:()=>import(`../pages/PointerUtil.vue`),
+    meta:{
+      title:"鼠标工具"
+    }
   }
 ];
 export const topRoutes = [routes[1],routes[2],routes[3]];

@@ -391,7 +391,7 @@ const rgb = computed(() => {
 let interval: any;
 onMounted(() => {
   interval = setInterval(async () => {
-    const res = await invoke<string>("mouse_color");
+    const res = await invoke<string>("screen_color");
     const json = JSON.parse(res);
     if (json.message === "success") {
       color.value = json.data;
