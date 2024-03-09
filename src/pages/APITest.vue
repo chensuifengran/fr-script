@@ -45,7 +45,9 @@
         v-if="!allDocumentItems.length"
         description="没有找到相应的API"
       ></el-empty>
-      <div class="end" v-if="isEnd">------到底了，没有更多数据了------</div>
+      <div class="end" v-if="isEnd">
+        ------到底了，共{{ allDocumentItems.length }}个API------
+      </div>
       <div class="loading-box" v-show="mainLoading"><Loading />加载中...</div>
     </div>
     <el-drawer
@@ -82,7 +84,7 @@
           <el-icon><IEpDeleteFilled /></el-icon>清空输出
         </el-button>
       </template>
-      <el-scrollbar v-if="output.length">
+      <el-scrollbar v-if="output.length" class="output">
         <div v-for="text in output" :key="text" class="output-text">
           <el-text size="small">{{ text }}</el-text>
         </div>
@@ -213,9 +215,13 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   justify-content: center;
   flex: 1;
 }
-.output-text {
-  user-select: text;
+.output {
+  width: 100%;
+  .output-text {
+    user-select: text;
+  }
 }
+
 .options {
   margin-right: 5px;
 }
