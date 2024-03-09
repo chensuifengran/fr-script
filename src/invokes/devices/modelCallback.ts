@@ -7,5 +7,10 @@ export const modelCallback = async (
   }
 ) => {
   const res = await devicesFn();
-  testModuleCtx.showDetails(res);
+  if(res){
+    testModuleCtx.showDetails(JSON.stringify(res));
+  }else{
+    testModuleCtx.showDetails("获取设备列表失败");
+  }
+
 };
