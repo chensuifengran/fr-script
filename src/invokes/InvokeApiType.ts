@@ -3,6 +3,7 @@ export type InvokeApiType = {
   adbState: typeof import('./adbState/exportFn')["adbStateFn"],
   clickHomeKey: typeof import('./clickHomeKey/exportFn')["clickHomeKeyFn"],
   clickReturnKey: typeof import('./clickReturnKey/exportFn')["clickReturnKeyFn"],
+  cmd: typeof import('./cmd/exportFn')["cmdFn"],
   connectTo: typeof import('./connectTo/exportFn')["connectToFn"],
   cropPicture: typeof import('./cropPicture/exportFn')["cropPictureFn"],
   CV: {
