@@ -17,11 +17,13 @@
       <template #extra>
         <div>
           <el-button @click="invokeStartHandle" v-show="running === 0"
-            >开始<el-tag class="mgl-5" type="info" size="small">Alt+R</el-tag></el-button
+            >开始<el-tag class="mgl-5" type="info" size="small"
+              >Shift+Alt+S</el-tag
+            ></el-button
           >
           <el-button @click="() => initScript(true)" v-show="running === 1"
             >重新初始化<el-tag class="mgl-5" type="info" size="small"
-              >Alt+I</el-tag
+              >Shift+Alt+R</el-tag
             ></el-button
           >
         </div>
@@ -38,10 +40,11 @@
         <el-tag class="mgl-5" size="small" type="success">运行中</el-tag>
       </div>
       <el-button @click="stop" v-show="running === 2" type="danger"
-        >结束<el-tag class="mgl-5" type="info" size="small">Alt+S</el-tag></el-button
+        >结束<el-tag class="mgl-5" type="info" size="small"
+          >Shift+Alt+D</el-tag
+        ></el-button
       >
     </div>
-
     <div class="console-log-div" v-show="!isLoading">
       <renderer-form v-show="running === 0" :reInit="reInit" />
       <div class="log-box">
@@ -68,11 +71,18 @@
 </template>
 
 <script setup lang="ts">
+import { register, unregister } from "@tauri-apps/api/globalShortcut";
+import { WebviewWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import { transpile, ScriptTarget } from "typescript";
+import { devicesFn } from "../../invokes/devices/exportFn";
+import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
+import { connectToFn } from "../../invokes/connectTo/exportFn";
+import { cmdFn } from "../../invokes/cmd/exportFn";
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
+let endBeforeCompletion = false;
 const reInit = () => {
   if (isReInit.value) {
     isReInit.value = false;
@@ -81,6 +91,7 @@ const reInit = () => {
     return false;
   }
 };
+
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const appGSStore = useAppGlobalSettings();
@@ -107,7 +118,6 @@ const {
   allRunTimeApi,
   getFnProxyStrings,
 } = useScriptApi()!;
-const { globalWindowInfo } = useWebviewWindow();
 
 const running = ref(0);
 const logOutput = reactive<
@@ -173,9 +183,9 @@ const goBack = () => {
   });
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
-  const targetWindow = globalWindowInfo.value.windows.find((w) => w.label === "apiTest");
+  const targetWindow = WebviewWindow.getByLabel("apiTest");
   if (targetWindow) {
-    targetWindow.window.hide();
+    targetWindow.hide();
   }
 };
 const goEditor = () => {
@@ -184,50 +194,52 @@ const goEditor = () => {
   //路由跳转到编辑器
   router.replace("/script/editor");
 };
+const notDelFn = ["changeScriptRunState"];
 const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   if (taskId && taskId !== runningFnId.value) {
     return;
   }
   if (state === "stop") {
     running.value = 1;
-    pushLog("脚本已强制结束", "warning");
-    setTaskEndStatus("warning", "脚本已强制结束");
     //移除window.runTimeApi所有属性
     console.log("脚本已强制结束,移除window.runTimeApi所有属性");
     if ((window as any)["runTimeApi"]) {
       Object.keys((window as any).runTimeApi).forEach((key) => {
+        if (notDelFn.includes(key)) {
+          return;
+        }
         delete (window as any).runTimeApi[key];
       });
     }
+    WebviewWindow.getByLabel("main")?.show();
   } else if (state) {
     clearLogOutput();
     pushLog("脚本就绪，等待开始运行", "info");
     running.value = 0;
   } else {
+    if (endBeforeCompletion) {
+      return;
+    }
     running.value = 1;
+
     pushLog("脚本执行完成", "success");
     setTaskEndStatus("success", "脚本执行完成");
     console.log("脚本执行完成,移除window.runTimeApi所有属性");
     //移除window.runTimeApi所有属性
+    console.log("脚本已强制结束,移除window.runTimeApi所有属性");
     if ((window as any)["runTimeApi"]) {
       Object.keys((window as any).runTimeApi).forEach((key) => {
+        if (notDelFn.includes(key)) {
+          return;
+        }
         delete (window as any).runTimeApi[key];
       });
     }
     //显示当前窗口
-    // (window as any).api.changeWindowState("show", "main");
+    WebviewWindow.getByLabel("main")?.show();
   }
 };
-onUnmounted(() => {
-  console.log("移除window.runTimeApi所有属性");
 
-  //移除window.runTimeApi所有属性
-  if ((window as any)["runTimeApi"]) {
-    Object.keys((window as any).runTimeApi).forEach((key) => {
-      delete (window as any).runTimeApi[key];
-    });
-  }
-});
 const getCustomizeForm = () => {
   return new Promise<RendererList[]>((resolve) => {
     const signal =
@@ -249,15 +261,6 @@ const getCustomizeForm = () => {
 
 const run = (script: string, runId: string) => {
   script = script.replace(/\/\*[^\/]*\*\/|\/\/.+\n?/g, "");
-  // //TODO匹配script中的枚举类型KeyboardMap的枚举值，将其替换为keyMapObject对应的值
-  // const keyMapObject = KeyMapObject;
-  // script = script.replace(
-  //   /KeyboardMap\[['"]([^'"]+)['"]\]|KeyboardMap\.([a-zA-Z$_][a-zA-Z$_0-9]*)/g,
-  //   (_match, p1, p2) => {
-  //     return `"${keyMapObject[p1 || p2]}"`;
-  //   }
-  // );
-
   runningFnId.value = runId;
   //@ts-ignore
   window["runTimeApi"] = {
@@ -298,8 +301,6 @@ const run = (script: string, runId: string) => {
     isStop: false,
     SCRIPT_ID: getScriptId(),
   };
-
-  // (window as any).runTimeApi.RectUtil.runId = runId;
   const runScript = `
   with(window.runTimeApi){
 
@@ -319,7 +320,7 @@ const run = (script: string, runId: string) => {
     const signal = abortSignalInScript && abortSignalInScript.signal;
     const signalHandle = ()=>{
       const error = new DOMException('任务被手动终止');
-      changeScriptRunState('stop');
+      try{changeScriptRunState && changeScriptRunState('stop');}catch(e){console.error(e);}
       abortSignalInScript = undefined;
       signal.removeEventListener('abort',signalHandle);
       isStop = true;
@@ -328,7 +329,7 @@ const run = (script: string, runId: string) => {
     const evalFunction = async()=>{
       ${script}
       main && await main();
-      changeScriptRunState && changeScriptRunState(false, '${runId}');
+      try{changeScriptRunState && changeScriptRunState(false, '${runId}');}catch(e){console.error(e);}
     }
     evalFunction();
   }
@@ -340,9 +341,8 @@ const run = (script: string, runId: string) => {
 
 const stopAbort = ref();
 const invokeStartHandle = async () => {
-  //隐藏当前窗口
-  // (window as any).api.changeWindowState("hidden", "main");
-  // (window as any).api.openNotificationWindow();
+  endBeforeCompletion = false;
+  WebviewWindow.getByLabel("main")?.hide();
   running.value = 2;
   (window as any).runTimeApi.startScriptSignal?.abort();
   const target = scriptList.value.find((s) => s.id === openId!.value);
@@ -350,69 +350,30 @@ const invokeStartHandle = async () => {
   const targetDevice = target.setting.targetAdbDevice.trim();
   if (targetDevice !== "") {
     //获得所有设备，取消非目标设备的连接
-    // const devices =
-    //   (await (window as any).runTimeApi.showDevices!())
-    //     ?.split(",")
-    //     .filter((i) => i.trim() !== targetDevice && i.trim() !== "") || [];
-    // const excludeDevices = [...new Set([...devices, ...target.setting.excludeDevice])];
-    const excludeDevices = target.setting.excludeDevice;
+    const deviceList = (await devicesFn()) || [];
+    const excludeDevices = [...new Set([...deviceList, ...target.setting.excludeDevice])];
 
     for (let i = 0; i < excludeDevices?.length; i++) {
       console.log("与设备断开连接：", excludeDevices[i]);
-      //TODO断开连接
-      // await (window as any).runTimeApi.disConnectTo!(excludeDevices[i]);
+      await disConnectToFn(excludeDevices[i]);
     }
     //连接目标设备
     console.log("连接至设备：", targetDevice);
-    //TODO连接设备
-    // await (window as any).runTimeApi.connectTo!(targetDevice);
+    await connectToFn(targetDevice);
   }
 };
 const stop = () => {
-  // (window as any).api.changeWindowState("show", "main");
   isInit.value = false;
+  endBeforeCompletion = true;
   notAllowedFnId.value.push(runningFnId.value);
+  changeScriptRunState("stop");
+  pushLog("脚本已强制结束", "warning");
+  setTaskEndStatus("warning", "脚本已强制结束");
   stopAbort.value && stopAbort.value.abort();
+
   console.log("脚本已停止，随着出现的报错为正常情况，不影响使用");
 };
 const isInit = ref(false);
-watchEffect(async () => {
-  if (!isInit.value && running.value !== 1) {
-    return;
-  }
-  //TODO 判断当前窗口是否为控制台窗口，如是则添加全局快捷键
-  // if (curShow!.value === "console") {
-  //   switch (running.value) {
-  //     case 0:
-  //       //快捷键启动脚本
-  //       await (window as any).api.waitGlobalShortcutInvoke("Alt+r");
-  //       (window as any).api.systemNotification("风染脚本", "脚本已启动，按Alt+s停止");
-  //       invokeStartHandle();
-  //       break;
-  //     case 1:
-  //       //快捷键重新初始化脚本
-  //       await (window as any).api.waitGlobalShortcutInvoke("Alt+i");
-  //       (window as any).api.systemNotification(
-  //         "风染脚本",
-  //         "脚本已重新初始化，按Alt+r启动"
-  //       );
-  //       initScript();
-  //       break;
-  //     case 2:
-  //       //快捷键停止脚本
-  //       await (window as any).api.waitGlobalShortcutInvoke("Alt+s");
-  //       (window as any).api.systemNotification(
-  //         "风染脚本",
-  //         "脚本已停止，按Alt+i重新初始化"
-  //       );
-  //       stop();
-  //       break;
-  //   }
-  // } else {
-  //   (window as any).api.waitGlobalShortcutInvoke("closeAll");
-  // }
-});
-
 const initScript = async (reinit: boolean = false) => {
   if (reinit) {
     // await (window as any).api.openNotificationWindow();
@@ -443,8 +404,7 @@ const initScript = async (reinit: boolean = false) => {
 
     if ((target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
       const t = setTimeout(() => {
-        //TODO自动启动目标应用
-        // allRunTimeApi.execCommand(target.setting.targetApp, true);
+        cmdFn(target.setting.targetApp, true);
         clearTimeout(t);
       });
     }
@@ -458,10 +418,68 @@ const initScript = async (reinit: boolean = false) => {
     }, 300);
   }
 };
+const GlobalShortcutActions: Record<string, () => Promise<void> | void> = {
+  invokeStartHandle,
+  initScript,
+  stop,
+};
+const GlobalShortcuts = [
+  {
+    key: "Shift+Alt+S",
+    action: "invokeStartHandle",
+  },
+  {
+    key: "Shift+Alt+R",
+    action: "initScript",
+  },
+  {
+    key: "Shift+Alt+D",
+    action: "stop",
+  },
+];
+const registerGlobalShortcuts = async (targetIndex: number) => {
+  const targetShortcuts = GlobalShortcuts[targetIndex];
+  if (targetShortcuts) {
+    for (let i = 0; i < GlobalShortcuts.length; i++) {
+      await unregister(GlobalShortcuts[i].key);
+    }
+    //注册当前快捷键
+    register(targetShortcuts.key, () => {
+      if (GlobalShortcutActions[targetShortcuts.action]) {
+        GlobalShortcutActions[targetShortcuts.action]();
+      }
+    });
+  }
+};
+watchEffect(async () => {
+  if (!isInit.value && running.value !== 1) {
+    return;
+  }
+  await registerGlobalShortcuts(running.value);
+});
 
 const isLoading = ref(true);
-onMounted(() => {
+onMounted(async () => {
   initScript();
+  await registerGlobalShortcuts(running.value);
+  register("Alt+Ctrl+S", () => {
+    console.log("show");
+
+    WebviewWindow.getByLabel("main")?.show();
+  });
+});
+onUnmounted(() => {
+  //移除window.runTimeApi所有属性
+  if ((window as any)["runTimeApi"]) {
+    Object.keys((window as any).runTimeApi).forEach((key) => {
+      delete (window as any).runTimeApi[key];
+    });
+  }
+  //取消注册所有快捷键
+  GlobalShortcuts.forEach((s) => {
+    unregister(s.key);
+  });
+  unregister("Alt+Ctrl+S");
 });
 </script>
 
@@ -526,12 +544,6 @@ onMounted(() => {
         margin-bottom: 5px;
       }
     }
-
-    // .occupy_space_div {
-    //   width: 100%;
-    //   height: 200px;
-    //   opacity: 0;
-    // }
   }
 }
 
