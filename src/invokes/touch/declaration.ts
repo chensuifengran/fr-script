@@ -1,3 +1,3 @@
 export const declaration = `
-declare function click(x:number,y:number):Promise<string>;
+declare function touch(x:number,y:number):Promise<string>;
 `

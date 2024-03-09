@@ -8,8 +8,8 @@ export const touchFn = async (
     return"";
   }
   try {
-    const res = await execCommand.adb(adbCommands.CLICK_PREVAL + targetX + " " + targetY);
-    return JSON.stringify(res);
+    await execCommand.adb(adbCommands.CLICK_PREVAL + targetX + " " + targetY);
+    return "touch ok";
   } catch (e) {
     console.error(e);
     return JSON.stringify(e);
