@@ -36,6 +36,7 @@ export type InvokeApiType = {
     wheel: typeof import('./Mouse/wheel/exportFn')["wheelFn"],
   },
   ocr: typeof import('./ocr/exportFn')["ocrFn"],
+  screenColor: typeof import('./screenColor/exportFn')["screenColorFn"],
   screenshot: typeof import('./screenshot/exportFn')["screenshotFn"],
   slideTo: typeof import('./slideTo/exportFn')["slideToFn"],
   touch: typeof import('./touch/exportFn')["touchFn"],
