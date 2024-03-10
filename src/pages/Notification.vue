@@ -63,7 +63,7 @@
 </template>
 <script lang="ts" setup>
 import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
-const isMiniState = ref(true);
+const isMiniState = ref(false);
 const notificationChannel = new BroadcastChannel("notification-channel");
 const colorMap = {
   info: "#000",
@@ -129,6 +129,9 @@ const maximize = () => {
   isMiniState.value = false;
   appWindow.setSize(new LogicalSize(200, 135));
 };
+onMounted(() => {
+  minimize();
+});
 </script>
 
 <style lang="scss" scoped>
