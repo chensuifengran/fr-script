@@ -52,7 +52,18 @@
             color: colorMap[firstItem.type || 'info'],
           }"
         >
-          <span class="loader"></span> {{ firstItem.message }}
+          <span class="loader" v-if="firstItem.type === 'loading'"></span>
+          <el-icon size="small" v-else-if="firstItem.type === 'success'"
+            ><IEpSuccessFilled
+          /></el-icon>
+          <el-icon size="small" v-else-if="firstItem.type === 'warning'"
+            ><IEpWarningFilled
+          /></el-icon>
+          <el-icon size="small" v-else-if="firstItem.type === 'info'"
+            ><IEpInfoFilled
+          /></el-icon>
+          <el-icon size="small" v-else><IEpWarnTriangleFilled /></el-icon>
+          {{ firstItem.message }}
         </div>
         <el-button class="button" @click="maximize" circle size="small">
           <el-icon><IEpArrowDown /></el-icon>
@@ -143,6 +154,9 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   &:hover {
     background: v-bind(appAsideBgColor);
   }
