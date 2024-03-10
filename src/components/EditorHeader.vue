@@ -109,7 +109,7 @@ const { editorValue } = useScriptApi()!;
 const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
   const targetWindow = createWindow("apiTest", "/apiTest");
-  targetWindow.show();
+  targetWindow?.show();
 };
 const openPointerUtil = async () => {
   const targetWindow = createWindow("pointerUtil", "/pointerUtil", {
@@ -117,7 +117,7 @@ const openPointerUtil = async () => {
     width: 150,
     alwaysOnTop: true,
   });
-  targetWindow.show();
+  targetWindow?.show();
 };
 const goSetScript = () => {
   asideBarPos.value = "relative";

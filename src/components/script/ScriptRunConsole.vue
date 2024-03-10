@@ -12,6 +12,7 @@
           <el-tooltip effect="dark" content="脚本设置" placement="bottom">
             <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
           </el-tooltip>
+          <el-checkbox class="mgl-10" v-model="hideWindow" label="运行时隐藏窗口" />
         </div>
       </template>
       <template #extra>
@@ -55,7 +56,9 @@
             v-for="(log, idx) in logOutput"
             :key="idx"
             :title="`[${log.time}]: ${log.log}`"
-            :type="log.type === 'danger' ? 'error' : log.type"
+            :type="
+              log.type === 'danger' ? 'error' : log.type === 'loading' ? 'info' : log.type
+            "
             :closable="false"
           />
         </div>
@@ -80,6 +83,9 @@ import { devicesFn } from "../../invokes/devices/exportFn";
 import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
 import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
+const notificationChannel = new BroadcastChannel("notification-channel");
+
+const hideWindow = ref(true);
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
 let endBeforeCompletion = false;
@@ -124,11 +130,20 @@ const logOutput = reactive<
   {
     time: string;
     log: string;
-    type: "success" | "danger" | "info" | "warning";
+    type: "success" | "danger" | "info" | "warning" | "loading";
   }[]
 >([]);
-const clearLogOutput = () => logOutput.splice(0, logOutput.length);
-const pushLog = async (log: string, type?: "success" | "danger" | "info" | "warning") => {
+const clearLogOutput = () => {
+  logOutput.splice(0, logOutput.length);
+  notificationChannel.postMessage({
+    type: "clear-message",
+  });
+};
+
+const pushLog = async (
+  log: string,
+  type?: "success" | "danger" | "info" | "warning" | "loading"
+) => {
   const date = new Date(Date.now());
   //获取时分秒，时分秒不足两位补0
   const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
@@ -141,7 +156,14 @@ const pushLog = async (log: string, type?: "success" | "danger" | "info" | "warn
     log,
     type: type ? type : "info",
   });
-  //TODO通知
+  notificationChannel.postMessage({
+    type: "message",
+    payload: {
+      type,
+      message: log,
+      time: timeStr,
+    },
+  });
   const consoleLogDiv = document.getElementById("consoleLogDiv");
   consoleLogDiv && (consoleLogDiv.scrollTop = consoleLogDiv?.scrollHeight + 9999);
 };
@@ -194,7 +216,7 @@ const goEditor = () => {
   //路由跳转到编辑器
   router.replace("/script/editor");
 };
-const notDelFn = ["changeScriptRunState"];
+const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals"];
 const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   if (taskId && taskId !== runningFnId.value) {
     return;
@@ -203,25 +225,32 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     running.value = 1;
     //移除window.runTimeApi所有属性
     console.log("脚本已强制结束,移除window.runTimeApi所有属性");
+    //@ts-ignore
+    window["runTimeApi"].removeIntervals && window["runTimeApi"].removeIntervals();
     if ((window as any)["runTimeApi"]) {
       Object.keys((window as any).runTimeApi).forEach((key) => {
-        if (notDelFn.includes(key)) {
+        if (notDelApi.includes(key)) {
           return;
         }
         delete (window as any).runTimeApi[key];
       });
     }
-    WebviewWindow.getByLabel("main")?.show();
+    if (hideWindow.value) {
+      WebviewWindow.getByLabel("main")?.show();
+      notificationChannel.postMessage({
+        type: "done",
+      });
+    }
   } else if (state) {
     clearLogOutput();
     pushLog("脚本就绪，等待开始运行", "info");
     running.value = 0;
+    endBeforeCompletion = false;
   } else {
     if (endBeforeCompletion) {
       return;
     }
     running.value = 1;
-
     pushLog("脚本执行完成", "success");
     setTaskEndStatus("success", "脚本执行完成");
     console.log("脚本执行完成,移除window.runTimeApi所有属性");
@@ -229,14 +258,19 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     console.log("脚本已强制结束,移除window.runTimeApi所有属性");
     if ((window as any)["runTimeApi"]) {
       Object.keys((window as any).runTimeApi).forEach((key) => {
-        if (notDelFn.includes(key)) {
+        if (notDelApi.includes(key)) {
           return;
         }
         delete (window as any).runTimeApi[key];
       });
     }
     //显示当前窗口
-    WebviewWindow.getByLabel("main")?.show();
+    if (hideWindow.value) {
+      WebviewWindow.getByLabel("main")?.show();
+      notificationChannel.postMessage({
+        type: "done",
+      });
+    }
   }
 };
 
@@ -259,6 +293,7 @@ const getCustomizeForm = () => {
   });
 };
 
+const setIntervals: NodeJS.Timeout[] = [];
 const run = (script: string, runId: string) => {
   script = script.replace(/\/\*[^\/]*\*\/|\/\/.+\n?/g, "");
   runningFnId.value = runId;
@@ -271,6 +306,22 @@ const run = (script: string, runId: string) => {
     setAllTask,
     setCurTask,
     nextTask,
+    setInterval: (callback: () => void, ms?: number | undefined) => {
+      const timeout = setInterval(callback, ms);
+      setIntervals.push(timeout);
+      return timeout;
+    },
+    clearInterval: (timeout: NodeJS.Timeout) => {
+      clearInterval(timeout);
+      setIntervals.splice(setIntervals.indexOf(timeout), 1);
+    },
+    removeIntervals: () => {
+      setIntervals.forEach((i) => {
+        clearInterval(i);
+      });
+      setIntervals.splice(0, setIntervals.length);
+      console.log("已清除所有定时器");
+    },
     getAllTask,
     getCurTask,
     getCurTaskName,
@@ -329,6 +380,7 @@ const run = (script: string, runId: string) => {
     const evalFunction = async()=>{
       ${script}
       main && await main();
+      removeIntervals();
       try{changeScriptRunState && changeScriptRunState(false, '${runId}');}catch(e){console.error(e);}
     }
     evalFunction();
@@ -338,11 +390,25 @@ const run = (script: string, runId: string) => {
   //参数列表为空
   return new Function("", runScript);
 };
-
+const { createWindow } = useWebviewWindow();
 const stopAbort = ref();
 const invokeStartHandle = async () => {
   endBeforeCompletion = false;
-  WebviewWindow.getByLabel("main")?.hide();
+  if (hideWindow.value) {
+    WebviewWindow.getByLabel("main")?.hide();
+    const targetWindow = createWindow("notification", "/notification", {
+      height: 135,
+      width: 200,
+      alwaysOnTop: true,
+    });
+    targetWindow?.show();
+    notificationChannel.postMessage({
+      type: "init",
+      payload: {
+        name: name.value,
+      },
+    });
+  }
   running.value = 2;
   (window as any).runTimeApi.startScriptSignal?.abort();
   const target = scriptList.value.find((s) => s.id === openId!.value);
@@ -376,7 +442,12 @@ const stop = () => {
 const isInit = ref(false);
 const initScript = async (reinit: boolean = false) => {
   if (reinit) {
-    // await (window as any).api.openNotificationWindow();
+    const targetWindow = createWindow("notification", "/notification", {
+      height: 135,
+      width: 200,
+      alwaysOnTop: true,
+    });
+    targetWindow?.hide();
   }
   const fPath = getFileInfo("savePath");
   setTaskEndStatus(""); // 清空任务结束状态
@@ -459,14 +530,25 @@ watchEffect(async () => {
 });
 
 const isLoading = ref(true);
+const handleMsg = (e: MessageEvent<any>) => {
+  const { type } = e.data;
+  if (type === "end") {
+    stop();
+  }
+};
 onMounted(async () => {
   initScript();
+  const targetWindow = createWindow("notification", "/notification", {
+    height: 135,
+    width: 200,
+    alwaysOnTop: true,
+  });
+  targetWindow?.hide();
   await registerGlobalShortcuts(running.value);
   register("Alt+Ctrl+S", () => {
-    console.log("show");
-
     WebviewWindow.getByLabel("main")?.show();
   });
+  notificationChannel.addEventListener("message", handleMsg);
 });
 onUnmounted(() => {
   //移除window.runTimeApi所有属性
@@ -480,6 +562,7 @@ onUnmounted(() => {
     unregister(s.key);
   });
   unregister("Alt+Ctrl+S");
+  notificationChannel.removeEventListener("message", handleMsg);
 });
 </script>
 
@@ -568,6 +651,9 @@ onUnmounted(() => {
       opacity: 1;
     }
   }
+}
+.mgl-10 {
+  margin-left: 10px;
 }
 </style>
 <style lang="scss">

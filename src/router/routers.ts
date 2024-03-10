@@ -57,7 +57,6 @@ const routes = [
   },
 
 
-
   {
     path: "/setting",
     name: "setting",
@@ -100,6 +99,14 @@ const routes = [
     component:()=>import(`../pages/PointerUtil.vue`),
     meta:{
       title:"鼠标工具"
+    }
+  },
+  {
+    path:"/notification",
+    name:"notification",
+    component:()=>import(`../pages/Notification.vue`),
+    meta:{
+      title:"通知"
     }
   }
 ];

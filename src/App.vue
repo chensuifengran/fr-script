@@ -84,7 +84,7 @@ onMounted(async () => {
   const sIndex = window.location.href.indexOf("#");
   if (sIndex !== -1) {
     const path = window.location.href.substring(sIndex + 1);
-    const otherWindows = ["/floatWindow", "/apiTest", "/pointerUtil"];
+    const otherWindows = ["/floatWindow", "/apiTest", "/pointerUtil", "/notification"];
     if (otherWindows.includes(path)) {
       isMainWindow.value = false;
       setTimeout(() => {

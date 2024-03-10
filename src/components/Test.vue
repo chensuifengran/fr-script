@@ -349,6 +349,7 @@
 // };
 import { invoke } from "@tauri-apps/api";
 import { registerAll, unregisterAll } from "@tauri-apps/api/globalShortcut";
+const bc = new BroadcastChannel("my-channel");
 const sleep = (ms: number = 1000) => {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
@@ -383,7 +384,13 @@ const test = async () => {
   }
 };
 const end = () => {};
-const start = () => {};
+const start = () => {
+  bc.postMessage({
+    type: "message",
+    path: "/pointerUtil",
+    name: "pointerUtil",
+  });
+};
 const color = ref([0, 0, 0]);
 const rgb = computed(() => {
   return `rgb(${color.value.join(",")})`;
