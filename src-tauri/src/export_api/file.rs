@@ -130,3 +130,25 @@ pub async fn write_file(path: String, content: String) -> Result<String, String>
         Err(err) => Err(err.to_string()),
     }
 }
+
+#[tauri::command]
+pub async fn read_dir(path: String) -> Result<String, String> {
+    let path = path.replace("/", "\\");
+    let dir = match fs::read_dir(path) {
+        Ok(dir) => dir,
+        Err(err) => return Err(err.to_string()),
+    };
+    let mut file_list = Vec::new();
+    for entry in dir {
+        let entry = entry.unwrap();
+        let file_type = entry.file_type().unwrap();
+        let file_name = entry.file_name();
+        let file_info = format!(
+            "{{\"fileName\":\"{}\",\"fileType\":\"{}\"}}",
+            file_name.to_str().unwrap(),
+            if file_type.is_dir() { "dir" } else { "file" }
+        );
+        file_list.push(file_info);
+    }
+    Ok(format!("[{}]", file_list.join(",")))
+}

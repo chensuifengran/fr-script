@@ -52,6 +52,7 @@ fn main() {
             file::open_file_explorer,
             file::read_file,
             file::write_file,
+            file::read_dir,
             init::init,
             request::request_get,
             sys::open_in_default_browser,
