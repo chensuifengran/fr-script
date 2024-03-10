@@ -42,10 +42,20 @@ export const UTIL_DECLARE_STRING = `
     text: string;
     score: number;
   }
-  declare type OCRObject = {
-    code: number;
-    result: OCRResult[];
-  }
+  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading") => Promise<void>;
+  declare function sleep(ms: number):Promise<void>;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   declare interface TableFormHeader {
     prop: string;
     label: string;
@@ -352,10 +362,7 @@ export const UTIL_DECLARE_STRING = `
     log: string;
     type: "success" | "danger" | "info" | "warning";
   }[];
-  declare function pushLogProxy(
-    log: string,
-    type?: "success" | "danger" | "info" | "warning"
-  ) : void;
+
   declare function replaceRendererList(newRendererList: RendererList[]) : void;
   declare interface Window {
     api: {
@@ -416,7 +423,6 @@ export const UTIL_DECLARE_STRING = `
     };
     rendererList: RendererList[];
   }
-  declare function waitGlobalKeyInput(key:string, stopKey:string): Promise<boolean>;
 `;
 export const INPUT_KEY_TYPE = `
 declare type Key =

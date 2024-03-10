@@ -139,11 +139,49 @@ const clearLogOutput = () => {
     type: "clear-message",
   });
 };
-
-const pushLog = async (
-  log: string,
+const sleep = async (ms: number) => {
+  const count = parseInt("" + ms / 1000);
+  const remainder = ms % 1000;
+  if (count === 0) {
+    return new Promise<void>((res) => {
+      const t = setTimeout(() => {
+        clearTimeout(t);
+        res();
+      }, ms);
+    });
+  } else {
+    let isBreak = false;
+    for (let i = 0; i < count; i++) {
+      await new Promise<void>((res) => {
+        const t = setTimeout(() => {
+          clearTimeout(t);
+          res();
+        }, 1000);
+      });
+      //@ts-ignore
+      if (window.runTimeApi.isStop) {
+        isBreak = true;
+        break;
+      }
+    }
+    if (!isBreak) {
+      return new Promise<void>((res) => {
+        const t = setTimeout(() => {
+          clearTimeout(t);
+          res();
+        }, remainder);
+      });
+    }
+  }
+};
+const log = async (
+  msg: string,
   type?: "success" | "danger" | "info" | "warning" | "loading"
 ) => {
+  //@ts-ignore
+  if (window.runTimeApi.isStop) {
+    return;
+  }
   const date = new Date(Date.now());
   //获取时分秒，时分秒不足两位补0
   const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
@@ -153,14 +191,14 @@ const pushLog = async (
     .join(":");
   logOutput.push({
     time: timeStr,
-    log,
+    log: msg,
     type: type ? type : "info",
   });
   notificationChannel.postMessage({
     type: "message",
     payload: {
       type,
-      message: log,
+      message: msg,
       time: timeStr,
     },
   });
@@ -170,7 +208,6 @@ const pushLog = async (
 
 const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description") => {
   const target = scriptList.value.find((s) => s.id === openId!.value)!;
-
   switch (type) {
     case "id":
       return target?.id;
@@ -182,7 +219,6 @@ const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description
       return target?.savePath;
     case "version":
       return target?.version;
-
     default:
       console.error(type);
       return type;
@@ -243,7 +279,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     }
   } else if (state) {
     clearLogOutput();
-    pushLog("脚本就绪，等待开始运行", "info");
+    log("脚本就绪，等待开始运行", "info");
     running.value = 0;
     endBeforeCompletion = false;
   } else {
@@ -251,7 +287,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       return;
     }
     running.value = 1;
-    pushLog("脚本执行完成", "success");
+    log("脚本执行完成", "success");
     setTaskEndStatus("success", "脚本执行完成");
     console.log("脚本执行完成,移除window.runTimeApi所有属性");
     //移除window.runTimeApi所有属性
@@ -322,6 +358,7 @@ const run = (script: string, runId: string) => {
       setIntervals.splice(0, setIntervals.length);
       console.log("已清除所有定时器");
     },
+    sleep,
     getAllTask,
     getCurTask,
     getCurTaskName,
@@ -334,7 +371,7 @@ const run = (script: string, runId: string) => {
     buildTableForm,
     ElNotification,
     clearLogOutput,
-    pushLogProxy: pushLog,
+    log,
     WORK_DIR: appGSStore.envSetting.workDir,
     SCREEN_SHOT_PATH: appGSStore.envSetting.screenshotSavePath,
     SCREEN_SHOT_DIR: pathUtils.resolve(
@@ -354,11 +391,6 @@ const run = (script: string, runId: string) => {
   };
   const runScript = `
   with(window.runTimeApi){
-
-    const pushLog = (i,t) => {
-      if(isStop) throw new Error("任务已结束");
-      window.runTimeApi.pushLogProxy(i,t);
-    };
     ${getFnProxyStrings(runId)}
 
     changeScriptRunState(true);
@@ -382,6 +414,7 @@ const run = (script: string, runId: string) => {
       main && await main();
       removeIntervals();
       try{changeScriptRunState && changeScriptRunState(false, '${runId}');}catch(e){console.error(e);}
+      console.log('script run done!');
     }
     evalFunction();
   }
@@ -433,7 +466,7 @@ const stop = () => {
   endBeforeCompletion = true;
   notAllowedFnId.value.push(runningFnId.value);
   changeScriptRunState("stop");
-  pushLog("脚本已强制结束", "warning");
+  log("脚本已强制结束", "warning");
   setTaskEndStatus("warning", "脚本已强制结束");
   stopAbort.value && stopAbort.value.abort();
 
