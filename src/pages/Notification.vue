@@ -63,7 +63,7 @@
 </template>
 <script lang="ts" setup>
 import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
-const isMiniState = ref(false);
+const isMiniState = ref(true);
 const notificationChannel = new BroadcastChannel("notification-channel");
 const colorMap = {
   info: "#000",
