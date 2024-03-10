@@ -47,6 +47,7 @@
 import { storeToRefs } from "pinia";
 import { FileDropEvent, appWindow } from "@tauri-apps/api/window";
 import { UnlistenFn } from "@tauri-apps/api/event";
+import { relaunch } from "@tauri-apps/api/process";
 
 const selectedDeps = ref<
   {
@@ -162,7 +163,7 @@ const checkFullVersionInstallBaseVersion = async (
   }
   return false;
 };
-const install = async () => {
+const startInstall = async (restart = false) => {
   installInfo.loading = true;
   const failResult: string[] = [];
   installInfo.success = 0;
@@ -215,10 +216,35 @@ const install = async () => {
   //更新依赖信息
   await libUtil.checkDepUpdate();
   installInfo.loading = false;
+  if (restart) {
+    relaunch();
+  }
   const t = setTimeout(() => {
     installInfo.installed = false;
     clearTimeout(t);
   }, 10000);
+};
+const install = async () => {
+  let needRestart = false;
+  const target = selectedDeps.value.find((i) => i.path.includes("screenOperation.dll"));
+  if (target) {
+    const isExist = await libUtil.libExists("screenOperation.dll");
+    if (isExist) {
+      needRestart = true;
+    }
+  }
+  if (needRestart) {
+    ElMessageBox.confirm("检测到存在文件更新后需要重启才能生效，是否继续？", "提示", {
+      confirmButtonText: "继续",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(async () => {
+      await libUtil.pushUpdateDep(target!.path);
+      await startInstall(true);
+    });
+  } else {
+    await startInstall();
+  }
 };
 </script>
 

@@ -117,6 +117,9 @@ const collapsedAside = () => {
 const { showDepDrewer } = useDepInfo();
 const { getDepStateType } = libUtil;
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
+onBeforeMount(() => {
+  libUtil.batchUpdateDep();
+});
 </script>
 
 <template>
