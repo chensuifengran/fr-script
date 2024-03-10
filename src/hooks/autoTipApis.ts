@@ -120,6 +120,23 @@ const strIndexOfApi = (str: string) => {
             return newStrIndex === -1 ? index : index + length + newStrIndex;
           }
           return index;
+        } else {
+          //如果没找到，则尝试匹配不带scope的名字
+          const index = str.indexOf(api.exportFn.alias || api.name);
+          if (index !== -1) {
+            const length = api.exportFn.alias?.length || api.name?.length;
+            if (
+              str[index + length] !== "(" ||
+              !/\s/.test(str[index + length])
+            ) {
+              const newStr = str.slice(index + length);
+              const newStrIndex = newStr.indexOf(
+                api.exportFn.alias || api.name
+              );
+              return newStrIndex === -1 ? index : index + length + newStrIndex;
+            }
+            return index;
+          }
         }
       } else {
         const index = str.indexOf(api.exportFn.alias || api.name);
@@ -156,6 +173,12 @@ const apiAutoTip = () => {
     //↑当前行匹配到)
     if (startIndex !== -1 && startIndex < endIndex) {
       //↑当前行匹配到(，并且(在)前面
+      console.log(
+        "当前行匹配到(，并且(在)前面",
+        curLineContent,
+        startIndex,
+        endIndex
+      );
 
       const nameIndex = strIndexOfApi(curLineContent);
 
@@ -288,9 +311,18 @@ const apiAutoTip = () => {
           fnInfo.value = null;
           return;
         } else {
-          startFnIndex = mod!
+          const preLineStartIndex = mod!
             .getLineContent(pre + startLineNumber)
             .lastIndexOf("(");
+          const afterContent = mod!
+            .getLineContent(pre + startLineNumber)
+            .slice(preLineStartIndex + 1);
+          //判断(之后是否存在)，如果存在则不再往上找，直接返回
+          if (preLineStartIndex !== -1 && afterContent.includes(")")) {
+            fnInfo.value = null;
+            return;
+          }
+          startFnIndex = preLineStartIndex;
           const preLineContent =
             mod?.getLineContent(pre + startLineNumber) || "";
           matchContent = preLineContent + matchContent;

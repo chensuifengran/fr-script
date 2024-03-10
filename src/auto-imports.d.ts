@@ -9,6 +9,7 @@ declare global {
   const AutoTipUtils: typeof import('./hooks/autoTipApis')['AutoTipUtils']
   const EffectScope: typeof import('vue')['EffectScope']
   const ElMessage: typeof import('element-plus/es')['ElMessage']
+  const ElMessageBox: typeof import('element-plus/es')['ElMessageBox']
   const ElNotification: typeof import('element-plus/es')['ElNotification']
   const INPUT_KEY_TYPE: typeof import('./invokes/utilDeclareTypes')['INPUT_KEY_TYPE']
   const KeyOptions: typeof import('./invokes/invokeApiRegisterManager')['KeyOptions']

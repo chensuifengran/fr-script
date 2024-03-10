@@ -42,8 +42,18 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
               const dllVersion = await invoke<string>("get_dependence_version");
               const v = dllVersion.split("-");
               if(checkItem.name === "screenOperation.dll" && v[1] === checkItem.version){
+                const target = localInfos.find(i => i.name === checkItem.name);
+                if(target){
+                  target.version = v[1];
+                  localStorage.setItem("localDependentVersion", JSON.stringify(localInfos));
+                }
                 continue;
               }else if(v[0] === checkItem.version){
+                const target = localInfos.find(i => i.name === checkItem.name);
+                if(target){
+                  target.version = v[0];
+                  localStorage.setItem("localDependentVersion", JSON.stringify(localInfos));
+                }
                 continue;
               }
             } catch (error) {
@@ -146,6 +156,23 @@ const libExists = async (name: string) => {
     return fsUtils.getFileInfo(libPath);
   }
 };
+const pushUpdateDep = async(path:string)=>{
+  const installPath = await pathUtils.getInstallDir();
+  const libPath = await pathUtils.join(installPath,".wait_update");
+  await fsUtils.copy(path, libPath, false, true);
+}
+
+const batchUpdateDep = async()=>{
+  const installPath = await pathUtils.getInstallDir();
+  const waitUpdateDeps = await pathUtils.join(installPath,".wait_update");
+  const depList = await fsUtils.readDir(waitUpdateDeps);
+  for(const dep of depList){
+    const depPath = await pathUtils.join(waitUpdateDeps,dep.fileName);
+    await fsUtils.copy(depPath,installPath,true,true);
+  }
+}
+
+
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
   for (const dep of depList) {
@@ -595,4 +622,6 @@ export const libUtil = {
   installDep,
   diffLocalVersionConfig,
   getDepStateType,
+  pushUpdateDep,
+  batchUpdateDep
 };
