@@ -1,6 +1,6 @@
 export const apiDocument = <ApiDocumentType>{
   howToUse: `
-      将屏幕指定范围进行截图与模板图片对比，截图支持使用上次缓存
+      将屏幕指定范围进行截图与模板图片对比
       `,
   params: [
     {
