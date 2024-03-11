@@ -10,7 +10,8 @@
     "tauri": "tauri dev",
     "tauri:build": "pnpm build && tauri build",
     "tauri:only_build": "tauri build",
-    "genType":"node .\\src\\script\\genInvokeFnType.js"
+    "genType":"node .\\src\\script\\genInvokeFnType.js",
+    "verify": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
