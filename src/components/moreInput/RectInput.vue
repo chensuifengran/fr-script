@@ -1,19 +1,32 @@
 <template>
-  <el-card class="box-card">
-    <template #header>
-      <div class="card-header">
-        <span>截取指定位置</span>
-        <div>
-          <el-button @click="copyParam">复制参数</el-button>
-          <el-button @click="selectRect">截取屏幕矩形</el-button>
-        </div>
+  <div class="card">
+    <div class="title">
+      <el-text>截取{{ targetSrc.trim().length === 0 ? "屏幕" : "图片" }}指定位置</el-text>
+      <div class="title-btns">
+        <el-button size="small" @click="useParam">填入参数</el-button>
+        <el-button size="small" @click="copyParam">复制参数</el-button>
+        <el-button size="small" @click="selectRect">截取屏幕矩形</el-button>
       </div>
-    </template>
-    <el-input v-model.number="info.x"><template #prepend>x</template></el-input>
-    <el-input v-model.number="info.y"><template #prepend>y</template></el-input>
-    <el-input v-model.number="info.width"><template #prepend>width</template></el-input>
-    <el-input v-model.number="info.height"><template #prepend>height</template></el-input>
-  </el-card>
+    </div>
+    <div class="content">
+      <div class="line">
+        <el-input size="small" v-model.number="info.x"
+          ><template #prepend>x</template></el-input
+        >
+        <el-input size="small" v-model.number="info.y"
+          ><template #prepend>y</template></el-input
+        >
+      </div>
+      <div class="line">
+        <el-input size="small" v-model.number="info.width"
+          ><template #prepend>width(宽)</template></el-input
+        >
+        <el-input size="small" v-model.number="info.height"
+          ><template #prepend>height(高)</template></el-input
+        >
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +80,37 @@ const props = defineProps({
     default: "",
   },
 });
+const useParam = async () => {
+  try {
+    let { value } = await ElMessageBox.prompt(
+      "格式：x,y,width,height，例如：0,0,100,100",
+      "快速填入参数",
+      {
+        inputValue: "",
+      }
+    );
+    value = value.replace(/\s/g, "");
+    if (value.length > 0) {
+      let arr = value.split(",");
+      if (arr.length !== 4) {
+        arr = value.split("，");
+        if (arr.length !== 4) {
+          ElNotification({
+            title: "参数格式错误",
+            message: "请按照格式填写参数",
+            type: "error",
+            position: "bottom-right",
+          });
+          return;
+        }
+      }
+      info.value.x = parseInt(arr[0]);
+      info.value.y = parseInt(arr[1]);
+      info.value.width = parseInt(arr[2]);
+      info.value.height = parseInt(arr[3]);
+    }
+  } catch (error) {}
+};
 const selectRect = async () => {
   try {
     if (props.targetSrc && props.targetSrc !== "") {
@@ -91,13 +135,41 @@ const selectRect = async () => {
     console.error(error);
   }
 };
+const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
+  "appAsideBgColor"
+);
+const oppositeBgColor = computed(() => {
+  if (appAsideBgColor?.value) {
+    return appAsideBgColor.value === "#272727" ? "#f6f6f633" : "#27272733";
+  } else {
+    return "#f6f6f633";
+  }
+});
 </script>
 
 <style lang="scss" scoped>
-.card-header {
+.card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 10px 0 v-bind(oppositeBgColor);
+  .title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .content {
+    margin-top: 5px;
+    .line {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 3px;
+    }
+  }
 }
 </style>
 <style lang="scss"></style>

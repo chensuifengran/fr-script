@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-input spellcheck="false" v-model="value">
+    <el-input spellcheck="false" v-model="value" size="small">
       <template #prepend v-if="label !== ''"
         ><span
           :style="{

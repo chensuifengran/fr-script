@@ -40,7 +40,7 @@
         argItem && argItem.componentType === 'FileInput' && typeof model === 'string'
       "
     >
-      <FileInput v-model="model" :label="argItem.label" :dis-check="true" />
+      <FileInput v-model="model" :label="argItem.label" :verify="argItem.verifyPath" />
     </template>
     <template
       v-else-if="
@@ -54,13 +54,21 @@
         argItem && argItem.componentType === 'slider' && typeof model === 'number'
       "
     >
-      <el-slider
+      <SliderInput
+        v-model="model"
+        :max="argItem.range?.max"
+        :min="argItem.range?.min"
+        :step="argItem.range?.step"
+        :label="argItem.label"
+        size="small"
+      />
+      <!-- <el-slider
         v-model="model"
         :max="argItem.range?.max"
         :min="argItem.range?.min"
         :step="argItem.range?.step"
         size="small"
-      />
+      /> -->
     </template>
     <template
       v-else-if="
@@ -71,6 +79,7 @@
         v-model="model"
         :active-text="argItem.activeText || '是'"
         :inactive-text="argItem.inactiveText || '否'"
+        size="small"
       />
     </template>
     <template
@@ -82,7 +91,7 @@
         v-model="model"
         :label="argItem.label"
         :suffix="argItem.suffix || ''"
-        :mountedValue="argItem.mountedValue || ''"
+        :verify="argItem.verifyPath"
       />
     </template>
     <template
@@ -90,14 +99,14 @@
         argItem && argItem.componentType === 'numberInput' && typeof model === 'number'
       "
     >
-      <el-input-number class="input" v-model="model" :value-on-clear="0" />
+      <el-input-number class="input" v-model="model" :value-on-clear="0" size="small" />
     </template>
     <template
       v-else-if="
         argItem && argItem.componentType === 'input' && typeof model === 'string'
       "
     >
-      <el-input v-model="model">
+      <el-input v-model="model" size="small">
         <template #prepend> {{ argItem.label }} </template>
       </el-input>
     </template>
@@ -115,8 +124,8 @@
 <script lang="ts" setup>
 const { getInvokeApiMethods, getInvokeApiDialogModule } = useInvokeApiMethodsRegister();
 
-const notShowType = ["input", "FileInput", "DirInput"];
-const notFlexType = ["input", "FileInput", "DirInput", "slider", "RectInput"];
+const notShowType = ["input", "FileInput", "DirInput", "slider"];
+const notFlexType = ["input", "FileInput", "DirInput", "RectInput"];
 const parseOption = (item: string | number) => {
   if (typeof item === "number") {
     return {
@@ -292,7 +301,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
 
 <style lang="scss" scoped>
 .dynamics-input {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 5px;
   box-sizing: border-box;
   background: v-bind(appBackground);
