@@ -19,6 +19,13 @@ const background = computed(() => {
     return appBackground?.value;
   }
 });
+const mainBorderRadius = computed(() => {
+  if (isEditing.value) {
+    return "0";
+  } else {
+    return "10px 10px 10px 0";
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -30,6 +37,6 @@ const background = computed(() => {
   box-sizing: border-box;
   overflow-x: hidden;
   background: v-bind(background);
-  border-radius: 10px 10px 10px 0;
+  border-radius: v-bind(mainBorderRadius);
 }
 </style>

@@ -1,12 +1,16 @@
 <template>
   <el-page-header title="脚本列表" @back="goBack" className="editor-header">
     <template #content>
-      <span>
-        {{ fileInfo.name }}<span v-show="editorValue !== fileInfo.originData">*</span
-        ><el-tag size="small" type="success" v-show="fileInfo.declare">已声明</el-tag
-        ><el-tag size="small" type="warning" v-show="!fileInfo.declare">未声明</el-tag>
+      <div class="header-content">
+        <span>{{ fileInfo.name }}</span>
+        <span v-show="editorValue !== fileInfo.originData">*</span
+        ><el-tag class="mgl-5" size="small" type="success" v-show="fileInfo.declare"
+          >已声明</el-tag
+        ><el-tag class="mgl-5" size="small" type="warning" v-show="!fileInfo.declare"
+          >未声明</el-tag
+        >
         <el-button
-          class="tool-bar-item"
+          class="tool-bar-item mgl-5"
           v-if="!fileInfo.declare"
           link
           size="small"
@@ -14,7 +18,7 @@
           @click="declareMod.visible = true"
           >插入声明</el-button
         >
-      </span>
+      </div>
     </template>
     <template #extra>
       <div class="head-content">
@@ -276,6 +280,9 @@ const goBack = () => {
 </script>
 
 <style lang="scss" scoped>
+.mgl-5 {
+  margin-left: 5px;
+}
 .head-content {
   display: flex;
   flex-direction: row;
@@ -290,7 +297,7 @@ const goBack = () => {
     .dragable {
       flex: 1;
       height: 100%;
-      height: 40px;
+      height: 35px;
     }
   }
 }
@@ -298,13 +305,22 @@ const goBack = () => {
 <style lang="scss">
 .editor-header {
   width: 100%;
+  height: 100%;
+  position: relative;
+  .header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
   .el-page-header__header {
     width: 100%;
+    height: 100%;
     .el-page-header__extra {
       flex: 1;
       position: relative;
       .head-content {
         width: 100%;
+        height: 100%;
       }
     }
   }
@@ -313,7 +329,7 @@ const goBack = () => {
     justify-content: center;
     align-items: center;
     width: 40px;
-    height: 40px;
+    height: 100%;
     cursor: pointer;
     &.setup-btn {
       width: 22px;

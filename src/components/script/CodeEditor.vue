@@ -515,8 +515,7 @@ watchEffect(() => {
     }
   }
   #codeEditBox {
-    height: calc(100% - 30px);
-    margin-top: 5px;
+    height: calc(100% - 25px);
   }
 }
 </style>
