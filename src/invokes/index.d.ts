@@ -64,7 +64,7 @@ type TestModuleType = {
       placeholder?: string;
       activeText?: string;
       inactiveText?: string;
-      mountedValue?: string;
+      verifyPath?: boolean;
       suffix?: string;
       range?: {
         min: number;

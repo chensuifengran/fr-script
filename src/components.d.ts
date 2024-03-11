@@ -102,6 +102,7 @@ declare module 'vue' {
     ScriptRunConsole: typeof import('./components/script/ScriptRunConsole.vue')['default']
     ScriptSetting: typeof import('./components/script/ScriptSetting.vue')['default']
     ScriptSettingItem: typeof import('./components/script/ScriptSettingItem.vue')['default']
+    SliderInput: typeof import('./components/moreInput/SliderInput.vue')['default']
     Test: typeof import('./components/Test.vue')['default']
   }
   export interface ComponentCustomProperties {
