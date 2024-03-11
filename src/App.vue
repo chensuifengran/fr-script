@@ -205,9 +205,9 @@ onBeforeMount(() => {
         :title="'版本更新v' + appVersionInfo.version"
         class="version-update-dialog"
       >
-        <div class="dialog-content">
-          <div>{{ appVersionInfo.desc }}</div>
-          <div class="btn-content">
+        <div>{{ appVersionInfo.desc }}</div>
+        <template #footer>
+          <div>
             <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
               >取消</el-button
             >
@@ -220,7 +220,7 @@ onBeforeMount(() => {
               >{{ item.origin }}下载</el-button
             >
           </div>
-        </div>
+        </template>
       </el-dialog>
     </template>
     <template v-else>
