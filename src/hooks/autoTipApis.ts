@@ -173,13 +173,6 @@ const apiAutoTip = () => {
     //↑当前行匹配到)
     if (startIndex !== -1 && startIndex < endIndex) {
       //↑当前行匹配到(，并且(在)前面
-      console.log(
-        "当前行匹配到(，并且(在)前面",
-        curLineContent,
-        startIndex,
-        endIndex
-      );
-
       const nameIndex = strIndexOfApi(curLineContent);
 
       if (nameIndex !== -1) {
