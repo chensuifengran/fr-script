@@ -76,13 +76,24 @@
 import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
 const isMiniState = ref(false);
 const notificationChannel = new BroadcastChannel("notification-channel");
-const colorMap = {
-  info: "#000",
-  loading: "#000",
+const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
+  "appAsideBgColor"
+);
+const oppositeBgColor = computed(() => {
+  if (appAsideBgColor?.value) {
+    return appAsideBgColor.value === "#272727" ? "#f6f6f6" : "#272727";
+  } else {
+    return "#f6f6f6";
+  }
+});
+const colorMap = reactive({
+  info: oppositeBgColor?.value,
+  loading: oppositeBgColor?.value,
   success: "#67c23a",
   warning: "#e6a23c",
   danger: "#f56c6c",
-};
+});
 const scriptInfo = reactive<{
   name: string;
   currentMessage: {
@@ -118,10 +129,7 @@ notificationChannel.onmessage = (e) => {
     appWindow.hide();
   }
 };
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
-const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
+
 const close = () => {
   notificationChannel.postMessage({
     type: "end",
@@ -213,7 +221,7 @@ onMounted(() => {
   }
 }
 .loader {
-  color: #777777;
+  color: v-bind(oppositeBgColor);
   font-size: 12px;
   text-indent: -9999em;
   overflow: hidden;
