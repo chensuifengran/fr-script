@@ -28,45 +28,6 @@ const pathStrReset = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
   return pathStr.replaceAll("\\\\", "\\");
 };
-const keyMapRegex = /KeyboardMap\.(?:\[["']([^"']+)["']\]|(\w+))/;
-const matchKeyMap = (keyMapStr: string) => {
-  if (keyMapStr?.length === 0) return keyMapStr;
-  const match = keyMapStr.match(keyMapRegex);
-  if (match) {
-    const key = match[1] || match[2];
-    return key.replace(`"\\'\\""`, `'"`).replace(`\\'\\"`, `'"`);
-  } else {
-    const right = keyMapStr.lastIndexOf('"]') || keyMapStr.lastIndexOf("']");
-    if (right !== -1) {
-      return keyMapStr
-        .slice(0, right)
-        .replace("['", "")
-        .replace('["', "")
-        .replace("KeyboardMap", "")
-        .replace(`"\\'\\""`, `'"`)
-        .replace(`\\'\\"`, `'"`);
-    }
-    return keyMapStr
-      .replace("KeyboardMap.", "")
-      .replace(`"\\'\\""`, `'"`)
-      .replace(`\\'\\"`, `'"`);
-  }
-};
-
-const resetToKeyMapEnum = (keyMapStr: string) => {
-  if (keyMapStr?.length === 0) return keyMapStr;
-  //判断是否为数字或符号开头，是的话使用中括号访问，否则使用.访问
-  const regex = /^[0-9`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-  if (regex.test(keyMapStr)) {
-    return `KeyboardMap["${keyMapStr
-      .replaceAll('"', '\\"')
-      .replaceAll("'", "\\'")}"]`;
-  } else {
-    return `KeyboardMap.${keyMapStr
-      .replaceAll('"', '\\"')
-      .replaceAll("'", "\\'")}`;
-  }
-};
 
 const paramsProcess = async (args: string[]) => {
   const appGSStore = useAppGlobalSettings();
@@ -74,10 +35,7 @@ const paramsProcess = async (args: string[]) => {
 
   const _params: string[] = [];
   for (let index = 0; index < args.length; index++) {
-    let i = args[index];
-    if (!i.includes("KeyboardMap")) {
-      i = i.replaceAll('"', "").replaceAll("'", "");
-    }
+    let i = args[index].replaceAll('"', "").replaceAll("'", "");
     const arg = i
       .replaceAll(" ", "")
       .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
@@ -486,7 +444,5 @@ export const AutoTipUtils = {
   createDependencyProposals,
   pathStrProcess,
   pathStrReset,
-  matchKeyMap,
-  resetToKeyMapEnum,
   apiAutoTip,
 };
