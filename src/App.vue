@@ -31,7 +31,6 @@ const handleSelect = (index: string, menuClick = false) => {
   if (index === "setting") {
     libUtil.checkDepUpdate();
   }
-
   app.value.state.aside.currentItem = index;
   if (index === "script") {
     if (menuClick) {
@@ -77,7 +76,6 @@ onMounted(async () => {
     //自动保存当前全局配置以及导入之前的全局配置
     await appGSStore.init();
     await listStore.init();
-
     handleSelect(app.value.state.aside.currentItem);
     libUtil.checkDepUpdate();
   };
@@ -121,7 +119,6 @@ onBeforeMount(() => {
   libUtil.batchUpdateDep();
 });
 </script>
-
 <template>
   <div class="app" id="app">
     <FillApiParamDialog />
@@ -245,7 +242,6 @@ onBeforeMount(() => {
   }
 }
 </style>
-
 <style scoped lang="scss">
 #app {
   background: v-bind(appBackground);
@@ -270,7 +266,6 @@ onBeforeMount(() => {
   .title-tag {
     margin-left: 10px;
   }
-
   .aside {
     transition: all 1s;
     overflow-x: hidden;
@@ -292,7 +287,6 @@ onBeforeMount(() => {
       z-index: 999;
     }
   }
-
   .el-menu-vertical {
     width: 100%;
     height: 100%;
@@ -300,7 +294,6 @@ onBeforeMount(() => {
     flex-direction: column;
     justify-content: space-between;
   }
-
   .app-main {
     width: 100%;
     height: 100%;
@@ -357,7 +350,6 @@ onBeforeMount(() => {
     }
   }
 }
-
 //高度从0到60%，top从50%到20%的动画
 @keyframes aside-width {
   0% {

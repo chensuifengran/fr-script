@@ -1,8 +1,4 @@
-// const {registerAllInvokeApi} = invokeApiRegisterManager();
-
 import { InvokeApiType } from "../invokes/InvokeApiType";
-
-
 //弹窗
 const dialogModule = reactive({
   show: false,
@@ -32,15 +28,12 @@ const setTestModuleCtx = (ct: {
 const getInvokeApiMethods = () => {
   return invokeApiMethods;
 };
-
 const getInvokeApiDialogModule = () => {
   return dialogModule;
 };
-
 const getInvokeApiTestModules = () => {
   return invokeApiMethods.map((i) => i.testModule);
 };
-
 const registerInvokeApiMethods = (
   methods: InvokeApiMethodType[] | InvokeApiMethodType
 ) => {
@@ -70,7 +63,6 @@ const registerInvokeApiMethods = (
     invokeApiMethods.push(methods);
   }
 };
-
 const invokeDialog = (
   methodName: string,
   title?: string,
@@ -116,7 +108,6 @@ const invokeDialog = (
     }
   }
 };
-
 const exportAllFn = (): InvokeApiType => {
   const allFn: ExportFns = {};
   invokeApiMethods.forEach((i) => {
@@ -142,7 +133,6 @@ const exportAllFn = (): InvokeApiType => {
   });
   return allFn as InvokeApiType;
 };
-
 const getInvokeApiFnProxyStrings = (runId: string) => {
   return invokeApiMethods
     .map((i) => {

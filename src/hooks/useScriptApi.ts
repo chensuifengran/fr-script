@@ -7,7 +7,6 @@ import * as monaco from "monaco-editor";
 import { writeTextFile } from "@tauri-apps/api/fs";
 const { exportAllFn, getInvokeApiFnProxyStrings } =
   useInvokeApiMethodsRegister();
-
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 const buildTableForm = () => {
   return new TableForm();
@@ -64,7 +63,6 @@ const pushElementToCheckList = (
   }
   pushTo === "rendererList" && addRendererListToWindow();
 };
-
 //给渲染列表添加inputList类型元素
 const pushElementToInputList = (
   elem: {
@@ -106,7 +104,6 @@ const pushElementToInputList = (
   }
   pushTo === "rendererList" && addRendererListToWindow();
 };
-
 //给渲染列表添加selectList类型元素
 const pushElementToSelectList = (
   elem: {
@@ -255,7 +252,6 @@ const pushElementToMGSList = (
   }
   pushTo === "rendererList" && addRendererListToWindow();
 };
-
 const pushElementToTableList = (
   elem: {
     targetGroupLabel: string;
@@ -509,7 +505,6 @@ const buildForm = (
     }
   }
 };
-
 const allTask = ref(1);
 const curTask = ref(0);
 const curTaskName = ref("");
@@ -525,7 +520,6 @@ const registerEditorEvent = (name: string, cb: (event: any) => void) => {
     onEditorMounted.push(cb);
   }
 };
-
 const setAllTask = (num: number) => {
   allTask.value = num;
 };
@@ -556,10 +550,6 @@ const setTaskEndStatus = (
 const editorValue = ref("");
 export const useScriptApi = () => {
   /**
-   * 用于给脚本编辑器保存内容
-   */
-
-  /**
    * 在编辑器指定范围插入文本
    * @param text 需要插入的文本
    * @param insertHead 是否插入脚本头部声明
@@ -577,7 +567,6 @@ export const useScriptApi = () => {
     }
   ) => {
     const curSelection = editor!.getSelection()!; // 选择的文本范围或光标的当前位置
-
     const { startLineNumber, startColumn, endLineNumber, endColumn } = range
       ? range
       : curSelection;
@@ -620,7 +609,6 @@ export const useScriptApi = () => {
       clearTimeout(setTextTimer);
     }, 200);
   };
-
   const editorInit = () => {
     nextTick(async () => {
       const languages = monaco.languages.getLanguages();
@@ -654,7 +642,6 @@ export const useScriptApi = () => {
       });
       monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
       monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-
       monaco.languages.registerCompletionItemProvider("typescript", {
         provideCompletionItems: async function (model, position) {
           const { createDependencyProposals } = AutoTipUtils;
@@ -671,7 +658,6 @@ export const useScriptApi = () => {
         },
       });
       const appGSStore = useAppGlobalSettings();
-
       let editorTheme = "vs";
       const settingEditorTheme = appGSStore.editor.theme.value;
       if (settingEditorTheme === "跟随全局主题") {
@@ -695,7 +681,6 @@ export const useScriptApi = () => {
       } catch (error) {
         console.error("辅助声明文件写入失败：", error);
       }
-
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         editorTsDeclaration
       );
@@ -724,8 +709,6 @@ export const useScriptApi = () => {
       onEditorMounted.forEach((cb) => {
         cb(editor!);
       });
-
-      // console.log(editor)
       // 监听值的变化
       editor.onDidChangeModelContent((_val: any) => {
         editorValue.value = editor!.getValue();
@@ -744,7 +727,6 @@ export const useScriptApi = () => {
       onEditorMounted = [];
     }
   };
-
   // @ts-ignore
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
@@ -763,7 +745,6 @@ export const useScriptApi = () => {
       return new EditorWorker();
     },
   };
-
   const getEditor = () => editor;
   const getFnProxyStrings = (runId: string) => {
     return getInvokeApiFnProxyStrings(runId) + "\n";

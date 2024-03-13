@@ -31,15 +31,10 @@ const resolve = async (path: string, addPath: string) => {
   }
   return await pResolve(path, ...paths);
 };
-
 const getInstallDir = async () => {
   return (await invoke("get_install_dir")) as string;
 };
-
-
 export const pathUtils = {
-
-
   basename,
   join,
   resolve,

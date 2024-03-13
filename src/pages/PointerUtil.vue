@@ -117,7 +117,6 @@ const showTip = () => {
   }, 2000);
 };
 </script>
-
 <style lang="scss" scoped>
 .pointer-util-content {
   width: 100%;

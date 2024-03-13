@@ -90,7 +90,6 @@ const libCGSwitch = async (target: string, name: string) => {
       } else {
         prefix = "g_";
       }
-
       const libExists = await libUtil.libExists(prefix + name);
       if (libExists) {
         //存在则把该文件重命名为name
@@ -177,7 +176,6 @@ const switchOcrLib = async (target: "CPU" | "GPU", checkExists = true) => {
     ocr.value.value = ocr.value.value === "CPU" ? "GPU" : "CPU";
   }
 };
-
 const switchOcrRunType = async () => {
   await switchOcrLib(ocr.value.value);
 };
@@ -186,7 +184,6 @@ const haveUpdate = computed(() => {
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
   );
 });
-
 const { goAppUpdate } = useAppVersionInfo();
 </script>
 <template>
@@ -200,7 +197,6 @@ const { goAppUpdate } = useAppVersionInfo();
         </div>
       </div>
     </el-dialog>
-
     <h3 class="setting-title">App</h3>
     <div class="setting-item">
       <span>版本</span>
@@ -272,7 +268,6 @@ const { goAppUpdate } = useAppVersionInfo();
         ></span
       >
     </div>
-
     <h3 class="setting-title">显示</h3>
     <div class="setting-item">
       <span>在标题栏显示APP更新按钮</span>
@@ -286,7 +281,6 @@ const { goAppUpdate } = useAppVersionInfo();
         <el-option label="不显示" :value="false" />
       </el-select>
     </div>
-
     <h3 class="setting-title">编辑器</h3>
     <div class="setting-item">
       <span>主题</span>
@@ -310,7 +304,6 @@ const { goAppUpdate } = useAppVersionInfo();
     </div>
   </div>
 </template>
-
 <style lang="scss" scoped>
 .mr-5 {
   margin-right: 5px;
@@ -325,7 +318,6 @@ const { goAppUpdate } = useAppVersionInfo();
   padding: 5px 10px;
   box-sizing: border-box;
   overflow-y: scroll;
-
   .dialog-content {
     display: flex;
     flex-direction: column;

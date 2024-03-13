@@ -129,7 +129,6 @@ notificationChannel.onmessage = (e) => {
     appWindow.hide();
   }
 };
-
 const close = () => {
   notificationChannel.postMessage({
     type: "end",
@@ -152,7 +151,6 @@ onMounted(() => {
   minimize();
 });
 </script>
-
 <style lang="scss" scoped>
 .msg-item {
   padding: 5px 10px;
@@ -234,7 +232,6 @@ onMounted(() => {
   margin-right: 5px;
   animation: mltShdSpin 1.7s infinite ease, round 1.7s infinite ease;
 }
-
 @keyframes mltShdSpin {
   0% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
@@ -265,7 +262,6 @@ onMounted(() => {
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
 }
-
 @keyframes round {
   0% {
     transform: rotate(0deg);

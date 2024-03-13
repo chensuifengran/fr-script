@@ -65,7 +65,6 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
@@ -93,11 +92,9 @@ const {
   saveMod,
 } = useScriptInfo();
 const { invokeDialog } = useInvokeApiMethodsRegister();
-
 const fnInfo = AutoTipUtils.getFnInfo();
 const { apiAutoTip } = AutoTipUtils;
 const showEditor = ref(true);
-
 const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description") => {
   const target = scriptList.value.find((s) => s.id === openId!.value);
   if (target === undefined) {
@@ -121,14 +118,12 @@ const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description
   }
 };
 const scrollbarRef = ref<HTMLElement>();
-
 const wheelHandle = (event: any) => {
   event.preventDefault();
   //拿到y轴滚动的距离，让menuBoxRef的横向滚动跟着滚动
   const { deltaY } = event;
   scrollbarRef.value!.scrollLeft += deltaY;
 };
-
 const autoSaveDialog = reactive({
   visible: false,
   cb: <() => void>(() => {}),
@@ -283,14 +278,6 @@ const keydownHandle = (e: KeyboardEvent) => {
         );
       } else if (fnInfo.value.fnType === "util") {
         //TODO util方法的快捷参数填写弹窗
-        // openDialog(
-        //   fnInfo.value.name,
-        //   fnInfo.value.content || "",
-        //   fnInfo.value.name,
-        //   "changeArgs",
-        //   replaceParams,
-        //   fnInfo.value.params
-        // );
       }
     }
   }
@@ -352,7 +339,6 @@ const checkDeclare = () => {
     }
   }, 500);
 };
-
 watch(editorValue, () => {
   checkDeclare();
 });
@@ -363,35 +349,15 @@ const cursorHandle = (_e: any) => {
 const resizeHandle = () => {
   getEditor()?.layout();
 };
-// const { needSyncLastData } = useAutoTitleBar();
 onMounted(() => {
-  console.log("scriptEditor mounted");
-
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
   editorInit();
-
   getFile();
   document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
   registerEditorEvent("mounted", (editor: any) => {
     editor.onDidChangeCursorPosition(cursorHandle);
-    //解决在编辑器最小化时编辑器被销毁导致当前编辑器内容丢失的问题
-    //此问题之前存在，但现在最小化时不会销毁编辑器，所以不需要处理
-    // if (needSyncLastData.value) {
-    //   const { fileInfo } = useScriptInfo();
-    //   if (fileInfo.lastData !== fileInfo.originData) {
-    //     setText(fileInfo.lastData);
-    //     console.log("lastData", fileInfo.lastData);
-
-    //     ElMessage("已恢复上次编辑内容。");
-    //     needSyncLastData.value = false;
-    //   } else console.log(fileInfo.lastData, fileInfo.originData);
-    // } else {
-    //   console.log("originData", fileInfo.originData);
-
-    //   setText(fileInfo.originData || SCRIPT_TEMPLATE);
-    // }
     setText(fileInfo.originData || SCRIPT_TEMPLATE);
     const t = setTimeout(() => {
       checkDeclare();
@@ -451,7 +417,6 @@ const getFile = async () => {
   }
 };
 watch(openId!, getFile);
-
 watchEffect(() => {
   const text = preloadText.value;
   nextTick(() => {

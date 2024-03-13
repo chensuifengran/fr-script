@@ -1,5 +1,4 @@
 import { ListStore } from "../store/listStore";
-
 const { registerInvokeApiMethods } = useInvokeApiMethodsRegister();
 const getApiModules = async (listStore: ListStore) => {
   const apiModules = import.meta.glob("./**/index.ts", {
@@ -27,7 +26,6 @@ const getApiModules = async (listStore: ListStore) => {
 };
 const registerAllInvokeApi = async (listStore: ListStore) => {
   const allModules = await getApiModules(listStore);
-
   if (!allModules) return;
   //注册所有api
   registerInvokeApiMethods([...allModules]);

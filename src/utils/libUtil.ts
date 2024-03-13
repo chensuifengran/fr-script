@@ -12,7 +12,6 @@ import {
 import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
-
 const renameLib = async (name: string, targetName: string) => {
   try {
     const installPath = await pathUtils.getInstallDir();
@@ -23,7 +22,6 @@ const renameLib = async (name: string, targetName: string) => {
     console.error("库文件重命名失败：", error);
   }
 };
-
 const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
   if (!checkList) {
     checkList = await checkLibs();
@@ -120,7 +118,6 @@ const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
     JSON.stringify(currentVersionInfo)
   );
 };
-
 const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   if (!checkList) {
     checkList = await checkLibs();
@@ -140,7 +137,6 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   }
   return needUpdateInfo;
 };
-
 const syncOcrValue = async () => {
   const info = await libExists("paddle_inference.dll");
   if (info) {
@@ -148,7 +144,6 @@ const syncOcrValue = async () => {
     return size / 1024000 < 100 ? "CPU" : "GPU";
   }
 };
-
 const libExists = async (name: string) => {
   const installPath = await pathUtils.getInstallDir();
   const libPath = await pathUtils.join(installPath, name);
@@ -161,7 +156,6 @@ const pushUpdateDep = async(path:string)=>{
   const libPath = await pathUtils.join(installPath,".wait_update");
   await fsUtils.copy(path, libPath, false, true);
 }
-
 const batchUpdateDep = async()=>{
   const installPath = await pathUtils.getInstallDir();
   const waitUpdateDeps = await pathUtils.join(installPath,".wait_update");
@@ -171,8 +165,6 @@ const batchUpdateDep = async()=>{
     await fsUtils.copy(depPath,installPath,true,true);
   }
 }
-
-
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
   for (const dep of depList) {
@@ -209,7 +201,6 @@ const checkDepList = async (depList: DependenceItemType[]) => {
   }
   return resultList;
 };
-
 /**
  * 获取最新依赖库信息，同时对依赖文件进行检查
  * 返回结果为一个数组，数组中的每一项为一个依赖库的检查结果，包含以下属性：
@@ -245,7 +236,6 @@ const checkLibs = async () => {
   }
   return [];
 };
-
 //在checkLibs返回的结果中，提取出所有依赖库的名称
 const getAllLibsName = async (checkList: LibNameItemType[]) => {
   const libNames: string[] = [];
@@ -269,7 +259,6 @@ const getAllLibsName = async (checkList: LibNameItemType[]) => {
   }
   return libNames;
 };
-
 const getDepState = async (
   list: CheckDepItemType[],
   depName: string,
@@ -315,12 +304,10 @@ const getDepState = async (
     return false;
   }
 };
-
 const syncDepState = async (checkList: CheckDepItemType[]) => {
   //依赖名为screenOperation.dll的依赖库及子依赖库均存在时为：精简版
   //在精简版的基础上，依赖名为ppocr.dll的依赖库及子依赖库均存在时为：基础版
   //在基础班的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
-
   const resultMap: Record<string, boolean> = {};
   for (const dep of checkList) {
     resultMap[dep.name] = await getDepState(
@@ -329,7 +316,6 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
       dep.child_files
     );
   }
-
   let version: "完整版" | "基础版" | "精简版" | "不可用" = "不可用";
   if (
     resultMap["screenOperation.dll"] &&
@@ -351,7 +337,6 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   const { app } = storeToRefs(appGSStore);
   app.value.dependenceState = version;
 };
-
 const checkDepUpdate = async () => {
   const checkList = await checkLibs();
   if (checkList.length === 0) {
@@ -368,14 +353,12 @@ const checkDepUpdate = async () => {
   await syncDepState(checkList);
   //同步依赖最新版本
   const needUpdateInfo = await syncDependentVersion(checkList);
-
   const allNames = await getAllLibsName(checkList);
   const { allLibsName, needUpdateDepList } = useDepInfo();
   allLibsName.value = allNames;
   needUpdateDepList.value = needUpdateInfo;
   await syncDepPkgList();
 };
-
 /**
  * 根据当前状态检查距离后面的状态缺少哪些依赖库
  *  */
@@ -539,7 +522,6 @@ const checkDepLack = async () => {
   await syncDepState(checkList);
   return [simpleStateLackDeps, baseStateLackDeps, fullStateLackDeps];
 };
-
 const installDep = async (
   dep: { label: string; path: string },
   delOriginFile = false,
@@ -597,7 +579,6 @@ const syncDepPkgList = async () => {
     depPkgList.value = lastDepPkg;
   }
 };
-
 export const getDepStateType = (state: string) => {
   switch (state) {
     case "完整版":
@@ -610,7 +591,6 @@ export const getDepStateType = (state: string) => {
       return "info";
   }
 };
-
 export const libUtil = {
   libExists,
   renameLib,
