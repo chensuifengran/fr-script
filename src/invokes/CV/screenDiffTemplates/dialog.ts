@@ -1,4 +1,4 @@
-export const dialogOptions = {
+export const dialogOptions = <TestModuleType["dialog"]>{
   title: "屏幕中多模板的位置差异匹配",
   targetMethodName: "screenDiffTemplates",
   content: `
@@ -19,7 +19,9 @@ export const dialogOptions = {
     {
       name: "tempPaths",
       componentType: "FileInput",
+      multiple: true,
       value: "",
+      stringSeparator: "|",
       label: "模板图片路径，模板图片路径之间用|分隔",
     },
     {

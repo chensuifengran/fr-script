@@ -19,7 +19,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   const { range, tempPaths, targetIndex, drive } = options;
   const { showDetails } = testModuleCtx;
