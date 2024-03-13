@@ -9,7 +9,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   //判断options.imgPath格式是否正确
   const ext = options.imgPath.split(".").pop();

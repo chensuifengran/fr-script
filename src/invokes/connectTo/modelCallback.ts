@@ -12,7 +12,9 @@ export const modelCallback = async (
   }
 ) => {
   if(options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   console.time("连接到指定设备耗时");
   const res = await connectToFn(options.targetDevice);

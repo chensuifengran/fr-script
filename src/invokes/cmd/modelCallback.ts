@@ -14,7 +14,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   console.time("命令执行耗时");
   const res = await cmdFn(options.command, options.onlyExec);

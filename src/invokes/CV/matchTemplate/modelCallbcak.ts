@@ -14,7 +14,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   const { imgPath, tempPath, exactValue, scale } = options;
   const { showDetails } = testModuleCtx;

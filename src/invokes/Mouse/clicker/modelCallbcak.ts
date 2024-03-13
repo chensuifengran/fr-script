@@ -14,7 +14,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    return auxiliary.parameterReplace(options);
+    const res = auxiliary.parameterReplace(options);
+    AutoTipUtils.apiAutoTip();
+    return res;
   }
   if (options.delay > 0) {
     await new Promise((resolve) => {
