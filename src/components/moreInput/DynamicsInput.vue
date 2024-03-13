@@ -37,10 +37,18 @@
     </template>
     <template
       v-else-if="
-        argItem && argItem.componentType === 'FileInput' && typeof model === 'string'
+        argItem &&
+        argItem.componentType === 'FileInput' &&
+        (typeof model === 'string' || Array.isArray(model))
       "
     >
-      <FileInput v-model="model" :label="argItem.label" :verify="argItem.verifyPath" />
+      <FileInput
+        v-model="model"
+        :label="argItem.label"
+        :verify="argItem.verifyPath"
+        :multiple="argItem.multiple"
+        :string-separator="argItem.stringSeparator"
+      />
     </template>
     <template
       v-else-if="
