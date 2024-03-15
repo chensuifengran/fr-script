@@ -576,7 +576,9 @@ onMounted(async () => {
     width: 200,
     alwaysOnTop: true,
   });
-  targetWindow?.hide();
+  setTimeout(() => {
+    targetWindow?.hide();
+  });
   await registerGlobalShortcuts(running.value);
   register("Alt+Ctrl+S", () => {
     WebviewWindow.getByLabel("main")?.show();

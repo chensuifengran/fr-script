@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
+import { WebviewWindow } from "@tauri-apps/api/window";
 const { getDepStateType } = libUtil;
 const { goInstallDeps } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
@@ -184,6 +185,13 @@ const haveUpdate = computed(() => {
     version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
   );
 });
+const themeChangeHandler = () => {
+  const notifyWindow = WebviewWindow.getByLabel("notification");
+  if (notifyWindow) {
+    //主题切换时需关闭隐藏的通知窗口，否则主题切换会出现样式问题
+    notifyWindow.close();
+  }
+};
 const { goAppUpdate } = useAppVersionInfo();
 </script>
 <template>
@@ -229,7 +237,12 @@ const { goAppUpdate } = useAppVersionInfo();
     </div>
     <div class="setting-item">
       <span>全局主题</span>
-      <el-switch v-model="darkState" :active-icon="Moon" :inactive-icon="Sunny" />
+      <el-switch
+        v-model="darkState"
+        :active-icon="Moon"
+        :inactive-icon="Sunny"
+        @change="themeChangeHandler"
+      />
     </div>
     <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">

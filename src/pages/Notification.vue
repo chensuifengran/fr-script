@@ -29,7 +29,7 @@
           </el-tooltip>
         </div>
       </div>
-      <el-scrollbar height="100px" class="msg-box">
+      <el-scrollbar height="100px" class="msg-box" v-if="scriptInfo.currentMessage">
         <div
           v-for="item in scriptInfo.currentMessage"
           :key="JSON.stringify(item)"
@@ -62,7 +62,9 @@
           <el-icon size="small" v-else-if="firstItem.type === 'info'"
             ><IEpInfoFilled
           /></el-icon>
-          <el-icon size="small" v-else><IEpWarnTriangleFilled /></el-icon>
+          <el-icon size="small" v-else-if="firstItem.type === 'danger'"
+            ><IEpWarnTriangleFilled
+          /></el-icon>
           {{ firstItem.message }}
         </div>
         <el-button class="button" @click="maximize" circle size="small">
@@ -111,7 +113,7 @@ const scriptInfo = reactive<{
     },
   ],
 });
-const firstItem = computed(() => scriptInfo.currentMessage[0]);
+const firstItem = computed(() => scriptInfo.currentMessage[0] || {});
 notificationChannel.onmessage = (e) => {
   const { type, payload } = e.data as {
     type: string;
