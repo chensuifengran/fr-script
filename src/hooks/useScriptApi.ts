@@ -11,11 +11,214 @@ let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 const buildTableForm = () => {
   return new TableForm();
 };
+
+//拷贝一份默认配置
+let curRendererList: RendererList[] = [];
+const importLastRunConfig = async (rendererList?:RendererList[]) => {
+  if(!rendererList){
+    const { rendererList:r } = useListStore();
+    rendererList = r;
+  }
+  const scriptConfig = rendererList.find(
+    (i: RendererList) => i.groupLabel === "*脚本设置"
+  );
+  const mergeConfig = scriptConfig?.checkList.find((i) => i.label === "导入上次运行配置")
+    ?.checked;
+  if (mergeConfig) {
+    await nextTick();
+    const defaultObj: RendererList[] = JSON.parse(JSON.stringify(rendererList));
+    curRendererList = JSON.parse(JSON.stringify(rendererList));
+
+    const r = localStorage.getItem(
+      (window as any).runTimeApi.getScriptId!() + "-rendererList"
+    );
+    if (r) {
+      //合并配置
+
+      const targetObj: RendererList[] = JSON.parse(r);
+
+      for (let i = 0; i < defaultObj.length; i++) {
+        const defaultItem = defaultObj[i];
+        const targetItem = targetObj.find(
+          (item) => item.groupLabel === defaultItem.groupLabel
+        );
+        if (targetItem) {
+          //覆盖defaultItem的enable
+          defaultItem.enable = targetItem.enable;
+
+          //判断targetItem的selectList[index].value是否存在于defaultItem的selectList[index].options中
+          for (let j = 0; j < defaultItem.selectList.length; j++) {
+            const defaultSelectItem = defaultItem.selectList[j];
+            const targetSelectItem = targetItem.selectList.find(
+              (item) => item.label === defaultSelectItem.label
+            );
+            if (targetSelectItem) {
+              const options = defaultSelectItem.options;
+              if (options.includes(targetSelectItem.value)) {
+                defaultSelectItem.value = targetSelectItem.value;
+              }
+            }
+          }
+
+          //覆盖defaultItem的checkList[index]的checked
+          for (let j = 0; j < defaultItem.checkList.length; j++) {
+            const defaultCheckItem = defaultItem.checkList[j];
+            const targetCheckItem = targetItem.checkList.find(
+              (item) => item.label === defaultCheckItem.label
+            );
+            if (targetCheckItem) {
+              defaultCheckItem.checked = targetCheckItem.checked;
+            }
+          }
+
+          //覆盖defaultItem的inputList[index]的value
+          for (let j = 0; j < defaultItem.inputList.length; j++) {
+            const defaultInputItem = defaultItem.inputList[j];
+            const targetInputItem = targetItem.inputList.find(
+              (item) => item.label === defaultInputItem.label
+            );
+            if (targetInputItem) {
+              defaultInputItem.value = targetInputItem.value;
+            }
+          }
+
+          /*
+            提取defaultItem的groupSelectList[index]中的所有选项分组的value,
+            判断targetItem的groupSelectList[index].value,
+            是否存在于提取出来的数组中
+            存在则覆盖defaultItem的groupSelectList[index].value
+            */
+          const AllValues: string[] = [];
+          for (let j = 0; j < defaultItem.groupSelectList.length; j++) {
+            const defaultGroupSelectItem = defaultItem.groupSelectList[j];
+            const targetGroupSelectItem = targetItem.groupSelectList.find(
+              (item) => item.label === defaultGroupSelectItem.label
+            );
+            if (targetGroupSelectItem) {
+              const options = defaultGroupSelectItem.options;
+              for (let k = 0; k < options.length; k++) {
+                const option = options[k];
+                for (let l = 0; l < option.options.length; l++) {
+                  const item = option.options[l];
+                  AllValues.push(item.value);
+                }
+              }
+              if (AllValues.includes(targetGroupSelectItem.value)) {
+                defaultGroupSelectItem.value = targetGroupSelectItem.value;
+              }
+            }
+          }
+
+          /*
+            提取defaultItem的multipleGroupSelectList[index]中的所有选项分组的value,
+            判断targetItem的multipleGroupSelectList[index].value,
+            是否存在于提取出来的数组中
+            存在则覆盖defaultItem的multipleGroupSelectList[index].value
+            */
+          const AllMultipleValues: string[] = [];
+          for (let j = 0; j < defaultItem.multipleGroupSelectList.length; j++) {
+            const defaultMultipleGroupSelectItem = defaultItem.multipleGroupSelectList[j];
+            const targetMultipleGroupSelectItem = targetItem.multipleGroupSelectList.find(
+              (item) => item.label === defaultMultipleGroupSelectItem.label
+            );
+            if (targetMultipleGroupSelectItem) {
+              const options = defaultMultipleGroupSelectItem.options;
+              for (let k = 0; k < options.length; k++) {
+                const option = options[k];
+                for (let l = 0; l < option.options.length; l++) {
+                  const item = option.options[l];
+                  AllMultipleValues.push(item.value);
+                }
+              }
+              const targetMultipleGroupSelectItemValue =
+                targetMultipleGroupSelectItem.value;
+              const newTargetMultipleGroupSelectItemValue: string[] = [];
+              for (let k = 0; k < targetMultipleGroupSelectItemValue.length; k++) {
+                const item = targetMultipleGroupSelectItemValue[k];
+                if (AllMultipleValues.includes(item)) {
+                  newTargetMultipleGroupSelectItemValue.push(item);
+                }
+              }
+              defaultMultipleGroupSelectItem.value = newTargetMultipleGroupSelectItemValue;
+            }
+          }
+
+          //拿到defaultItem的tableList[index]的inputProp所有的propLabel
+          const AllTableInputPropLabel: string[] = [];
+          for (let j = 0; j < defaultItem.tableList.length; j++) {
+            const defaultTableItem = defaultItem.tableList[j];
+            const targetTableItem = targetItem.tableList.find(
+              (item) => item.label === defaultTableItem.label
+            );
+            if (targetTableItem) {
+              const inputProp = defaultTableItem.inputProp;
+              AllTableInputPropLabel.push(...inputProp.map((i) => i.propLabel));
+              //判断targetTableItem的tableData的每一项的键是否存在于AllTableInputPropLabel中
+              const tableData = targetTableItem.tableData;
+              for (let k = 0; k < tableData.length; k++) {
+                const item = tableData[k];
+                for (const key in item) {
+                  if (Object.prototype.hasOwnProperty.call(item, key)) {
+                    if (!AllTableInputPropLabel.includes(key)) {
+                      delete (item as any)[key];
+                    }
+                  }
+                }
+              }
+              //覆盖defaultTableItem的tableData
+              defaultTableItem.tableData = tableData;
+            }
+          }
+        }
+      }
+      defaultObj.find((i) => {
+        if (i.groupLabel === "*脚本设置") {
+          i.checkList.find((i) => i.label === "导入上次运行配置")!.checked = true;
+          return;
+        }
+      });
+      rendererList.splice(0, rendererList.length, ...defaultObj);
+    }
+    ElNotification.closeAll();
+    ElNotification({
+      title: "配置导入完成",
+      type: "success",
+      position: "bottom-right",
+    });
+  } else {
+    const { openId } = useScriptInfo();
+    if (openId.value === "-1") {
+      return;
+    }
+    ElNotification.closeAll();
+    ElNotification({
+      title: "取消配置导入",
+      type: "info",
+      position: "bottom-right",
+    });
+    curRendererList.find((i) => {
+      if (i.groupLabel === "*脚本设置") {
+        i.checkList.find((i) => i.label === "导入上次运行配置")!.checked = false;
+        return;
+      }
+    });
+    if(curRendererList.length){
+      rendererList.splice(0, rendererList.length, ...curRendererList);
+    }else{
+      rendererList.splice(0, rendererList.length, ...rendererList);
+    }
+
+  }
+};
 const addRendererListToWindow = () => {
   const { rendererList } = useListStore();
   //window对象没有rendererList属性时，添加rendererList属性
   //@ts-ignore
-  !window["rendererList"] && (window["rendererList"] = rendererList);
+  if(!window["rendererList"]){
+    //@ts-ignore
+    window["rendererList"] = rendererList;
+    console.log("rendererList属性已添加到window对象"); 
+  }
 };
 const replaceRendererList = (newRendererList: RendererList[]) => {
   const { rendererList } = useListStore();
@@ -750,6 +953,7 @@ export const useScriptApi = () => {
     return getInvokeApiFnProxyStrings(runId) + "\n";
   };
   return {
+    importLastRunConfig,
     getFnProxyStrings,
     replaceRendererList,
     pushElementToCheckList,

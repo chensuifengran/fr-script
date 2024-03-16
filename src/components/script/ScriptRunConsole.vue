@@ -48,7 +48,7 @@
     </div>
     <div class="console-log-div" v-show="!isLoading">
       <renderer-form v-show="running === 0" :reInit="reInit" />
-      <div class="log-box">
+      <div class="log-box" v-show="running !== 0">
         <el-alert title="历史输出：" type="info" />
         <div id="consoleLogDiv">
           <el-alert
@@ -89,13 +89,12 @@ const hideWindow = ref(true);
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
 let endBeforeCompletion = false;
-const reInit = () => {
+const reInit = (): boolean => {
   if (isReInit.value) {
     isReInit.value = false;
     return true;
-  } else {
-    return false;
   }
+  return false;
 };
 
 const listStore = useListStore();
@@ -113,6 +112,7 @@ const {
   pushElementToGSList,
   pushElementToTableList,
   buildForm,
+  importLastRunConfig,
   setAllTask,
   setCurTask,
   nextTask,
@@ -337,7 +337,28 @@ const run = (script: string, runId: string) => {
   window["runTimeApi"] = {
     ...allRunTimeApi,
     // devicesMapping: appStore.getDevicesMapping,
-    buildForm,
+    buildForm: (buildFormList: any) => {
+      buildForm(buildFormList);
+      if (openId.value !== "-1") {
+        const target = scriptList.value.find((i) => i.id === openId.value);
+        if (!target?.setting.autoImportLastRunConfig) {
+          return;
+        } else if (target.setting.autoImportLastRunConfig) {
+          const scriptConfig = (window as any).rendererList?.find(
+            (i: any) => i.groupLabel === "*脚本设置"
+          );
+          if (scriptConfig) {
+            const importLastRunConfigItem = scriptConfig.checkList.find(
+              (i: any) => i.label === "导入上次运行配置"
+            );
+            if (importLastRunConfigItem) {
+              importLastRunConfigItem.checked = true;
+              importLastRunConfig();
+            }
+          }
+        }
+      }
+    },
     // RectUtil,
     setAllTask,
     setCurTask,
