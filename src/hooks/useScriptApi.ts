@@ -217,7 +217,6 @@ const addRendererListToWindow = () => {
   if(!window["rendererList"]){
     //@ts-ignore
     window["rendererList"] = rendererList;
-    console.log("rendererList属性已添加到window对象"); 
   }
 };
 const replaceRendererList = (newRendererList: RendererList[]) => {
