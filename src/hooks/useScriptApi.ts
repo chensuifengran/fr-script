@@ -707,6 +707,7 @@ const buildForm = (
     }
   }
 };
+
 const allTask = ref(1);
 const curTask = ref(0);
 const curTaskName = ref("");
@@ -951,6 +952,25 @@ export const useScriptApi = () => {
   const getFnProxyStrings = (runId: string) => {
     return getInvokeApiFnProxyStrings(runId) + "\n";
   };
+  const getCustomizeForm = async () => {
+    const rendererForm = await new Promise<RendererList[]>((resolve) => {
+      const signal =
+        (window as any).runTimeApi.startScriptSignal &&
+        (window as any).runTimeApi.startScriptSignal.signal;
+      const signalHandle = () => {
+        (window as any).runTimeApi.abortSignalInScript = undefined;
+        signal!.removeEventListener("abort", signalHandle);
+        //保存此次运行选择的配置选项
+        localStorage.setItem(
+          (window as any).runTimeApi.getScriptId!() + "-rendererList",
+          JSON.stringify((window as any).rendererList)
+        );
+        resolve((window as any).rendererList);
+      };
+      signal!.addEventListener("abort", signalHandle);
+    });
+    return new rendererFormUtil.FormUtil(rendererForm);
+  };
   return {
     importLastRunConfig,
     getFnProxyStrings,
@@ -980,6 +1000,7 @@ export const useScriptApi = () => {
     disposeEditor,
     registerEditorEvent,
     unRegisterEditorEvent,
+    getCustomizeForm,
     allRunTimeApi: {
       ...exportAllFn(),
     },

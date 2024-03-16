@@ -123,6 +123,7 @@ const {
   buildTableForm,
   allRunTimeApi,
   getFnProxyStrings,
+  getCustomizeForm,
 } = useScriptApi()!;
 
 const running = ref(0);
@@ -139,7 +140,7 @@ const clearLogOutput = () => {
     type: "clear-message",
   });
 };
-const sleep = async (ms: number) => {
+const sleep = async (ms: number = 1000) => {
   const count = parseInt("" + ms / 1000);
   const remainder = ms % 1000;
   if (count === 0) {
@@ -174,7 +175,7 @@ const sleep = async (ms: number) => {
     }
   }
 };
-const log = async (
+const log = (
   msg: string,
   type?: "success" | "danger" | "info" | "warning" | "loading"
 ) => {
@@ -308,25 +309,6 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       });
     }
   }
-};
-
-const getCustomizeForm = () => {
-  return new Promise<RendererList[]>((resolve) => {
-    const signal =
-      (window as any).runTimeApi.startScriptSignal &&
-      (window as any).runTimeApi.startScriptSignal.signal;
-    const signalHandle = () => {
-      (window as any).runTimeApi.abortSignalInScript = undefined;
-      signal!.removeEventListener("abort", signalHandle);
-      //保存此次运行选择的配置选项
-      localStorage.setItem(
-        (window as any).runTimeApi.getScriptId!() + "-rendererList",
-        JSON.stringify((window as any).rendererList)
-      );
-      resolve((window as any).rendererList);
-    };
-    signal!.addEventListener("abort", signalHandle);
-  });
 };
 
 const setIntervals: NodeJS.Timeout[] = [];

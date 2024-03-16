@@ -1,13 +1,14 @@
 import { clickFn } from "../Mouse/click/exportFn";
+import { adbScreenshotFn } from "../adbScreenshot/exportFn";
 import { touchFn } from "../touch/exportFn";
 import { OCRResult } from "./exportFn";
 const sleep = (ms: number) => {
   return new Promise<void>((resolve) => {
-    const t = setTimeout(()=>{
+    const t = setTimeout(() => {
       clearTimeout(t);
       resolve();
     }, ms);
-  })
+  });
 };
 
 class FindResult {
@@ -45,7 +46,12 @@ export class OcrUtil {
     x: number;
     y: number;
   };
-  constructor(originX: number, originY: number, result: OCRResult[], reCall:() => Promise<OcrUtil | undefined>) {
+  constructor(
+    originX: number,
+    originY: number,
+    result: OCRResult[],
+    reCall: () => Promise<OcrUtil | undefined>
+  ) {
     this.result = result;
     this.ori = {
       x: originX,
@@ -79,11 +85,19 @@ export class OcrUtil {
     }
     return null;
   }
-  public async waitText(text: string, sleepMs:number = 1000, maxWaitCount:number = 10) {
+  public async waitText(
+    text: string,
+    adb = false,
+    sleepMs: number = 1000,
+    maxWaitCount: number = 10
+  ) {
     let result = false;
-    while(maxWaitCount--){
+    while (maxWaitCount--) {
+      if(adb){
+        await adbScreenshotFn();
+      }
       const reCallRes = await this.reCall();
-      if(reCallRes && reCallRes.includes([text])){
+      if (reCallRes && reCallRes.includes([text])) {
         result = true;
         break;
       }

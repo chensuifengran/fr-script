@@ -4,7 +4,7 @@ type GlobalSettings = {
     //最新版本
     latestVersion: string;
     depHaveUpdate: boolean;
-    dependenceState: '不可用' | '精简版' | '基础版' | '完整版';
+    dependenceState: "不可用" | "精简版" | "基础版" | "完整版";
     state: {
       aside: {
         collapsed: boolean;
@@ -25,16 +25,16 @@ type GlobalSettings = {
     options: ["GPU", "CPU"];
     gpuMemory: number;
   };
-  view:{
-    showUpdateInTitleBar:boolean;
+  view: {
+    showUpdateInTitleBar: boolean;
   };
-  editor:{
+  editor: {
     theme: {
       value: "跟随全局主题" | "明亮" | "暗黑";
       options: ["跟随全局主题", "明亮", "暗黑"];
     };
     runAutoSave: boolean;
-  }
+  };
 };
 type ScriptSettingType = {
   //自动导入上次运行配置
@@ -68,54 +68,60 @@ type TableFormHeader = {
   label: string;
   width?: number;
 };
+type InputListItem = {
+  label: string;
+  value: string;
+};
+type SelectListItem = {
+  label: string;
+  options: string[];
+  value: string;
+};
+type groupSelectListItem = {
+  label: string;
+  options: {
+    groupLabel: string;
+    options: {
+      value: string;
+      label: string;
+    }[];
+  }[];
+  value: string;
+};
+type MultiplSelectionItem = {
+  label: string;
+  options: {
+    groupLabel: string;
+    options: {
+      value: string;
+      label: string;
+    }[];
+  }[];
+  limit?: number;
+  value: string[];
+};
+type TableListItem = {
+  label: string;
+  tableData: object[];
+  tableHeader: TableFormHeader[];
+  inputProp: {
+    propLabel: string;
+    type: "select" | "input" | "input-number";
+    value: string | number;
+    options: string[];
+  }[];
+};
+type CheckListItem = { label: string; checked: boolean };
 type RendererList = {
   id?: string;
   groupLabel: string;
   enable: boolean;
-  checkList: { label: string; checked: boolean }[];
-  inputList: {
-    label: string;
-    value: string;
-  }[];
-  selectList: {
-    label: string;
-    options: string[];
-    value: string;
-  }[];
-  groupSelectList: {
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    value: string;
-  }[];
-  multipleGroupSelectList: {
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    limit?: number;
-    value: string[];
-  }[];
-  tableList: {
-    label: string;
-    tableData: object[];
-    tableHeader: TableFormHeader[];
-    inputProp: {
-      propLabel: string;
-      type: "select" | "input" | "input-number";
-      value: string | number;
-      options: string[];
-    }[];
-  }[];
+  checkList: CheckListItem[];
+  inputList: InputListItem[];
+  selectList: SelectListItem[];
+  groupSelectList: groupSelectListItem[];
+  multipleGroupSelectList: MultiplSelectionItem[];
+  tableList: TableListItem[];
 };
 
 type BuildFormItem =

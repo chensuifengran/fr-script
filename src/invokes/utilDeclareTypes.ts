@@ -1,4 +1,31 @@
 export const UTIL_DECLARE_STRING = `
+  declare class FormUtil {
+    constructor(form: RendererList[]);
+    /**
+     * 获取表单字段的值。
+     *
+     * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
+     *
+     * @param {("checkList" | "groupSelectList" | "inputList" | "multipleGroupSelectList" | "selectList" | "tableList")} valueType 字段类型。
+     * @param {string} label 字段标签。
+     * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
+     * @param {string} [groupLabel="*脚本设置"] 组标签，默认为 "*脚本设置"。
+     *
+     * @returns 字段的值，如果字段不存在或组不启用，则返回 failValue。
+     */
+    public getFieldValue<T = number | string | string[] | boolean | object[]>(
+      valueType:
+        | "checkList"
+        | "groupSelectList"
+        | "inputList"
+        | "multipleGroupSelectList"
+        | "selectList"
+        | "tableList",
+      label: string,
+      failValue: T,
+      groupLabel?: string
+    ): T;
+  }
   declare class MatchUtil {
     x:number;
     y:number;
@@ -30,7 +57,7 @@ export const UTIL_DECLARE_STRING = `
     constructor(originX: number, originY: number, result: OCRResult[], reCall:() => Promise<OcrUtil | undefined>);
     public includes(texts: string[]): boolean;
     public findText(text: string, offset?: [number, number]): FindResult | null;
-    public waitText(text: string, sleepMs?: number, maxWaitCount?: number): Promise<boolean>;
+    public waitText(text: string,adb?: boolean, sleepMs?: number, maxWaitCount?: number): Promise<boolean>;
   }
   declare type OCRResult = {
     position: [
@@ -42,8 +69,25 @@ export const UTIL_DECLARE_STRING = `
     text: string;
     score: number;
   }
-  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading") => Promise<void>;
-  declare function sleep(ms: number):Promise<void>;
+  /**
+    * 显示一条消息在运行窗口/通知窗口。
+    *
+    * @param {string} msg 要显示的消息。
+    * @param {("success" | "danger" | "info" | "warning" | "loading")} [type] 消息的类型，默认为 "info"。
+    * @returns void
+    */
+  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading") => void;
+  /**
+   * 等待一段时间。
+   *
+   * @param {number} ms 要暂停的时间，单位为毫秒, 默认值为1000。
+   * 
+   * @example await sleep();
+   * 
+   * @returns Promise<void>
+   *
+   */
+  declare function sleep(ms?: number):Promise<void>;
   
   
   
@@ -354,7 +398,11 @@ export const UTIL_DECLARE_STRING = `
   
   declare function closeProgressDialog(clear?: boolean): void;
   declare function getScriptId(): string;
-  declare function getCustomizeForm(): Promise<RendererList[]>;
+  /**
+   * 获取自定义表单
+   * @returns {Promise<FormUtil>}
+  */
+  declare function getCustomizeForm(): Promise<FormUtil>;
 
   declare function changeScriptRunState(state: boolean | "stop", taskId?: string) : void;
   declare function clearLogOutput() : {
