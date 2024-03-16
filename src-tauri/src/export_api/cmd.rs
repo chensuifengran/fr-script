@@ -1,3 +1,5 @@
+use std::process::Stdio;
+
 use crate::types::generate_result;
 use encoding_rs::GBK;
 
@@ -5,6 +7,9 @@ use encoding_rs::GBK;
 pub async fn run_cmd(command: String) -> Result<String, ()> {
     let res = std::process::Command::new("cmd")
         .args(&["/c", &command])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .stdin(Stdio::null())
         .output()
         .expect("failed to execute process");
     let (stdout, _, _) = GBK.decode(&res.stdout);
