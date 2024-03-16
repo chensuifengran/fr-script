@@ -258,7 +258,7 @@ const keydownHandle = (e: KeyboardEvent) => {
       if (!fnInfo.value.haveAuxiliary) {
         ElNotification({
           title: "提示",
-          message: "当前函数无需填写参数",
+          message: "当前函数无需填写参数或不支持快速填写参数。",
           type: "info",
           position: "bottom-right",
         });
