@@ -19,12 +19,12 @@
         <div>
           <el-button @click="invokeStartHandle" v-show="running === 0"
             >开始<el-tag class="mgl-5" type="info" size="small"
-              >Shift+Alt+S</el-tag
+              >Ctrl+Shift+A</el-tag
             ></el-button
           >
           <el-button @click="() => initScript(true)" v-show="running === 1"
             >重新初始化<el-tag class="mgl-5" type="info" size="small"
-              >Shift+Alt+R</el-tag
+              >Ctrl+Shift+D</el-tag
             ></el-button
           >
         </div>
@@ -42,7 +42,7 @@
       </div>
       <el-button @click="stop" v-show="running === 2" type="danger"
         >结束<el-tag class="mgl-5" type="info" size="small"
-          >Shift+Alt+D</el-tag
+          >Ctrl+Shift+S</el-tag
         ></el-button
       >
     </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { register, unregister } from "@tauri-apps/api/globalShortcut";
+import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
@@ -550,37 +550,43 @@ const GlobalShortcutActions: Record<string, () => Promise<void> | void> = {
 };
 const GlobalShortcuts = [
   {
-    key: "Shift+Alt+S",
+    key: "Ctrl+Shift+A",
     action: "invokeStartHandle",
   },
   {
-    key: "Shift+Alt+R",
+    key: "Ctrl+Shift+D",
     action: "initScript",
   },
   {
-    key: "Shift+Alt+D",
+    key: "Ctrl+Shift+S",
     action: "stop",
   },
 ];
-const registerGlobalShortcuts = async (targetIndex: number) => {
-  const targetShortcuts = GlobalShortcuts[targetIndex];
-  if (targetShortcuts) {
-    for (let i = 0; i < GlobalShortcuts.length; i++) {
-      await unregister(GlobalShortcuts[i].key);
-    }
-    //注册当前快捷键
-    register(targetShortcuts.key, () => {
-      if (GlobalShortcutActions[targetShortcuts.action]) {
-        GlobalShortcutActions[targetShortcuts.action]();
+let timer: NodeJS.Timeout;
+const registerGlobalShortcuts = (targetIndex: number) => {
+  timer && clearTimeout(timer);
+  timer = setTimeout(async () => {
+    clearTimeout(timer);
+    const targetShortcuts = GlobalShortcuts[targetIndex];
+    if (targetShortcuts) {
+      for (let i = 0; i < GlobalShortcuts.length; i++) {
+        await unregister(GlobalShortcuts[i].key);
       }
-    });
-  }
+      if (!(await isRegistered(targetShortcuts.key))) {
+        register(targetShortcuts.key, () => {
+          if (GlobalShortcutActions[targetShortcuts.action]) {
+            GlobalShortcutActions[targetShortcuts.action]();
+          }
+        });
+      }
+    }
+  }, 300);
 };
 watchEffect(async () => {
   if (!isInit.value && running.value !== 1) {
     return;
   }
-  await registerGlobalShortcuts(running.value);
+  registerGlobalShortcuts(running.value);
 });
 
 const isLoading = ref(true);
@@ -590,6 +596,7 @@ const handleMsg = (e: MessageEvent<any>) => {
     stop();
   }
 };
+
 onMounted(async () => {
   initScript();
   const targetWindow = createWindow("notification", "/notification", {
@@ -600,7 +607,7 @@ onMounted(async () => {
   setTimeout(() => {
     targetWindow?.hide();
   });
-  await registerGlobalShortcuts(running.value);
+  registerGlobalShortcuts(running.value);
   register("Alt+Ctrl+S", () => {
     WebviewWindow.getByLabel("main")?.show();
   });
