@@ -351,7 +351,7 @@ const resizeHandle = () => {
   getEditor()?.layout();
 };
 let windowFocusHandle: UnlistenFn;
-const loadContent = async (path?: string) => {
+const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   if (!path) {
     const p = getFileInfo("savePath");
     if (!p) {
@@ -359,12 +359,35 @@ const loadContent = async (path?: string) => {
     }
     path = p;
   }
-  fileInfo.originData = await fsUtils.readFile(path);
+  const newContent = await fsUtils.readFile(path);
+  if (fileInfo.originData === newContent) {
+    return;
+  }
+  if (type === "focus" && editorValue.value !== fileInfo.originData) {
+    // try {
+    //   await ElMessageBox.confirm(
+    //     "检测到当前脚本源内容已改变，是否载入最新内容，此操作将覆盖当前编辑器内容！",
+    //     "同步数据",
+    //     {
+    //       confirmButtonText: "载入最新内容",
+    //       cancelButtonText: "保留当前内容",
+    //       type: "warning",
+    //       confirmButtonClass: "el-button--warning",
+    //     }
+    //   );
+    // } catch (error) {
+    //   return;
+    // }
+    fileInfo.originData = newContent;
+    return;
+  }
+  fileInfo.originData = newContent;
   fileInfo.name = getFileInfo("name")!;
   fileInfo.description = getFileInfo("description")!;
   fileInfo.savePath = path;
   fileInfo.version = getFileInfo("version")!;
   setText(fileInfo.originData);
+  type === "focus" && ElMessage.info("已载入最新内容");
 };
 onMounted(async () => {
   isEditing.value = true;
@@ -383,7 +406,7 @@ onMounted(async () => {
     }, 200);
   });
   windowFocusHandle = await listen("tauri://focus", () => {
-    loadContent();
+    loadContent("focus");
   });
 });
 onBeforeUnmount(() => {
@@ -400,7 +423,7 @@ const getFile = async () => {
     const path = getFileInfo("savePath");
     if (path) {
       try {
-        loadContent(path);
+        loadContent("init", path);
       } catch (e) {
         console.error(e);
         ElNotification({
