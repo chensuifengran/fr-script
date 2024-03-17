@@ -183,7 +183,7 @@ const saveScriptFile = async () => {
   }
 };
 const chooseSavePath = async () => {
-  const path = (await fsUtils.selectFile()) as string | undefined;
+  const path = (await fsUtils.selectFile(false)) as string | undefined;
   if (path) {
     saveMod.savePath = path;
     fileInfo.savePath = path;
@@ -221,7 +221,7 @@ const saveNewScript = async () => {
     console.error(e);
     ElNotification({
       title: "保存失败",
-      message: "未知错误，详见控制台",
+      message: JSON.stringify(e),
       type: "error",
       position: "bottom-right",
     });
