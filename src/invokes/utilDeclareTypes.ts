@@ -76,7 +76,7 @@ export const UTIL_DECLARE_STRING = `
     * @param {("success" | "danger" | "info" | "warning" | "loading")} [type] 消息的类型，默认为 "info"。
     * @returns void
     */
-  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading") => void;
+  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading"): void;
   /**
    * 等待一段时间。
    *
