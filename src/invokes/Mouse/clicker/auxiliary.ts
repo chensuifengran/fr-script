@@ -8,15 +8,24 @@ export const auxiliary = <AuxiliaryType>{
       (i) => i.name === "clicker" && i.scope === "Mouse"
     );
     selfModule!.testModule!.dialog.args!.forEach((i, index) => {
-      i.value = +params[index] || 0;
+      if(index !== 2){
+        i.value = +params[index] || 0;
+      }else{
+        i.value = params[index] || 'left';
+      }
     });
   },
   //参数处理方法
   parameterReplace: (options: {
     duration: number;
     sleep: number;
+    button: "left" | "right" | "middle";
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
-    options.replaceCurFnArgs(`${options.duration}, ${options.sleep}`);
+    if(options.button === 'left'){
+      options.replaceCurFnArgs(`${options.duration}, ${options.sleep}`);
+    }else{
+      options.replaceCurFnArgs(`${options.duration}, ${options.sleep}, '${options.button}'`);
+    }
   },
 };

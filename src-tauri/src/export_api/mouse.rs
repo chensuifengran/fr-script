@@ -23,7 +23,7 @@ impl Clicker {
         }
     }
 
-    pub fn start(&mut self, duration: Duration, sleep: u64) {
+    pub fn start(&mut self, duration: Duration, sleep: u64, button:MouseButton) {
         let running = self.running.clone();
         running.store(true, Ordering::SeqCst);
 
@@ -34,7 +34,7 @@ impl Clicker {
             while running.load(Ordering::SeqCst)
                 && std::time::Instant::now() - start_time < duration
             {
-                enigo.mouse_click(MouseButton::Left);
+                enigo.mouse_click(button);
                 thread::sleep(Duration::from_millis(sleep));
             }
         }));
@@ -55,15 +55,27 @@ pub fn stop_clicker() {
     clicker.stop();
 }
 #[tauri::command]
-pub fn start_clicker(duration: u64, sleep: Option<u64>) {
+pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
     if duration == 0 {
         stop_clicker();
         return;
     }
+    let button = match button {
+        Some(button) => {
+            if button == 0 {
+                MouseButton::Left
+            } else if button == 1 {
+                MouseButton::Middle
+            } else {
+                MouseButton::Right
+            }
+        },
+        None => MouseButton::Left,
+    };
     let sleep = sleep.unwrap_or(50);
     let mut clicker = CLICKER.lock().unwrap();
     clicker.stop();
-    clicker.start(Duration::from_secs(duration), sleep);
+    clicker.start(Duration::from_secs(duration), sleep, button);
 }
 
 #[tauri::command]
