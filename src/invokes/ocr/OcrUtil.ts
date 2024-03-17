@@ -1,15 +1,9 @@
+import { timeUtil } from "../../utils/timeUtil";
 import { clickFn } from "../Mouse/click/exportFn";
 import { adbScreenshotFn } from "../adbScreenshot/exportFn";
 import { touchFn } from "../touch/exportFn";
 import { OCRResult } from "./exportFn";
-const sleep = (ms: number) => {
-  return new Promise<void>((resolve) => {
-    const t = setTimeout(() => {
-      clearTimeout(t);
-      resolve();
-    }, ms);
-  });
-};
+
 
 class FindResult {
   centerPos: [number, number];
@@ -59,7 +53,7 @@ export class OcrUtil {
     };
     this.reCall = reCall;
   }
-  public includes(texts: string[]) {
+  includes=(texts: string[]) => {
     return !!this.result.find((i) => {
       for (const text of texts) {
         if (i.text === text || i.text.includes(text)) {
@@ -68,7 +62,7 @@ export class OcrUtil {
       }
     });
   }
-  public findText(text: string, offset?: [number, number]) {
+  findText = (text: string, offset?: [number, number])=> {
     const target = this.result.find(
       (i) => i.text === text || i.text.includes(text)
     );
@@ -85,12 +79,15 @@ export class OcrUtil {
     }
     return null;
   }
-  public async waitText(
+  waitText = async(
     text: string,
     adb = false,
     sleepMs: number = 1000,
     maxWaitCount: number = 10
-  ) {
+  ) =>{
+    if(this.findText(text)){
+      return true;
+    }
     let result = false;
     while (maxWaitCount--) {
       if(adb){
@@ -101,7 +98,7 @@ export class OcrUtil {
         result = true;
         break;
       }
-      await sleep(sleepMs);
+      await timeUtil.sleep(sleepMs);
     }
     return result;
   }

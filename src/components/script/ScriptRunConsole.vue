@@ -83,6 +83,7 @@ import { devicesFn } from "../../invokes/devices/exportFn";
 import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
 import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
+import { timeUtil } from "../../utils/timeUtil";
 const notificationChannel = new BroadcastChannel("notification-channel");
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
@@ -142,41 +143,7 @@ const clearLogOutput = () => {
     type: "clear-message",
   });
 };
-const sleep = async (ms: number = 1000) => {
-  const count = parseInt("" + ms / 1000);
-  const remainder = ms % 1000;
-  if (count === 0) {
-    return new Promise<void>((res) => {
-      const t = setTimeout(() => {
-        clearTimeout(t);
-        res();
-      }, ms);
-    });
-  } else {
-    let isBreak = false;
-    for (let i = 0; i < count; i++) {
-      await new Promise<void>((res) => {
-        const t = setTimeout(() => {
-          clearTimeout(t);
-          res();
-        }, 1000);
-      });
-      //@ts-ignore
-      if (window.runTimeApi.isStop) {
-        isBreak = true;
-        break;
-      }
-    }
-    if (!isBreak) {
-      return new Promise<void>((res) => {
-        const t = setTimeout(() => {
-          clearTimeout(t);
-          res();
-        }, remainder);
-      });
-    }
-  }
-};
+
 const log = (
   msg: string,
   type?: "success" | "danger" | "info" | "warning" | "loading"
@@ -363,7 +330,7 @@ const run = (script: string, runId: string) => {
       setIntervals.splice(0, setIntervals.length);
       console.log("已清除所有定时器");
     },
-    sleep,
+    sleep: timeUtil.sleep,
     getAllTask,
     getCurTask,
     getCurTaskName,
