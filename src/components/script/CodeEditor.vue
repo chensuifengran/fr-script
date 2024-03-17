@@ -66,6 +66,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 const appGSStore = useAppGlobalSettings();
@@ -349,12 +350,28 @@ const cursorHandle = (_e: any) => {
 const resizeHandle = () => {
   getEditor()?.layout();
 };
-onMounted(() => {
+let windowFocusHandle: UnlistenFn;
+const loadContent = async (path?: string) => {
+  if (!path) {
+    const p = getFileInfo("savePath");
+    if (!p) {
+      return;
+    }
+    path = p;
+  }
+  fileInfo.originData = await fsUtils.readFile(path);
+  fileInfo.name = getFileInfo("name")!;
+  fileInfo.description = getFileInfo("description")!;
+  fileInfo.savePath = path;
+  fileInfo.version = getFileInfo("version")!;
+  setText(fileInfo.originData);
+};
+onMounted(async () => {
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
   editorInit();
-  getFile();
+  await getFile();
   document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
   registerEditorEvent("mounted", (editor: any) => {
     editor.onDidChangeCursorPosition(cursorHandle);
@@ -365,6 +382,9 @@ onMounted(() => {
       clearTimeout(t);
     }, 200);
   });
+  windowFocusHandle = await listen("tauri://focus", () => {
+    loadContent();
+  });
 });
 onBeforeUnmount(() => {
   unRegisterEditorEvent("mounted");
@@ -372,6 +392,7 @@ onBeforeUnmount(() => {
   document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
   disposeEditor();
   isEditing.value = false;
+  windowFocusHandle && windowFocusHandle();
 });
 const getFile = async () => {
   const currentName = router.currentRoute.value.name;
@@ -379,12 +400,7 @@ const getFile = async () => {
     const path = getFileInfo("savePath");
     if (path) {
       try {
-        fileInfo.originData = await fsUtils.readFile(path);
-        fileInfo.name = getFileInfo("name")!;
-        fileInfo.description = getFileInfo("description")!;
-        fileInfo.savePath = path;
-        fileInfo.version = getFileInfo("version")!;
-        setText(fileInfo.originData);
+        loadContent(path);
       } catch (e) {
         console.error(e);
         ElNotification({

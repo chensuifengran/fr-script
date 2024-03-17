@@ -17,7 +17,7 @@
         <el-tooltip
           class="box-item"
           effect="dark"
-          content="打开脚本所在目录"
+          content="打开脚本"
           placement="bottom"
         >
           <el-icon class="icon" @click.stop="openFIleDialog"><IEpFolder /></el-icon>

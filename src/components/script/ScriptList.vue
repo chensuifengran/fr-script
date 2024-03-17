@@ -123,7 +123,23 @@ const editorScriptFile = (index: number) => {
 };
 const openFile = async (index: number) => {
   const path = scriptList.value[index].savePath;
-  invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
+  try {
+    await ElMessageBox.confirm(
+      "文件夹：打开脚本所在目录文件夹\nvscode：尝试使用vscode打开脚本文件",
+      "请选择打开方式",
+      {
+        confirmButtonText: "vscode",
+        cancelButtonText: "文件夹",
+        type: "info",
+        distinguishCancelAndClose: true,
+      }
+    );
+    execCommand.run(`code ${path}`);
+  } catch (error: any) {
+    if (error === "cancel") {
+      invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
+    }
+  }
 };
 
 const onAddItem = () => {
