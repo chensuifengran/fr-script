@@ -1,7 +1,8 @@
-use std::process::Stdio;
+use std::{os::windows::process::CommandExt, process::Stdio};
 
 use crate::types::generate_result;
 use encoding_rs::GBK;
+use winapi::um::winbase::CREATE_NO_WINDOW;
 
 #[tauri::command]
 pub async fn run_cmd(command: String) -> Result<String, ()> {
@@ -10,6 +11,7 @@ pub async fn run_cmd(command: String) -> Result<String, ()> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .stdin(Stdio::null())
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
         .expect("failed to execute process");
     let (stdout, _, _) = GBK.decode(&res.stdout);
