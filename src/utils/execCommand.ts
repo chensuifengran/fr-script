@@ -1,6 +1,10 @@
 import { invoke } from "@tauri-apps/api";
 const { resolve, getInstallDir } = pathUtils;
 const run = async (cmd: string) => {
+  if((cmd ?? '') === ''){
+    console.error('命令不能为空');
+    return '命令不能为空';
+  }
   try {
     const res = await invoke<string>("run_cmd", {
       command: cmd,
