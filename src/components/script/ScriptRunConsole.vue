@@ -47,7 +47,7 @@
       >
     </div>
     <div class="console-log-div" v-show="!isLoading">
-      <renderer-form v-show="running === 0" :reInit="reInit" />
+      <async-renderer-form v-show="running === 0" :reInit="reInit" />
       <div class="log-box" v-show="running !== 0">
         <el-alert title="历史输出：" type="info" />
         <div id="consoleLogDiv">
@@ -84,7 +84,9 @@ import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
 import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
 const notificationChannel = new BroadcastChannel("notification-channel");
-
+const AsyncRendererForm = defineAsyncComponent(
+  () => import("@/components/script/RendererForm.vue")
+);
 const hideWindow = ref(true);
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
@@ -579,7 +581,7 @@ const handleMsg = (e: MessageEvent<any>) => {
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   initScript();
   const targetWindow = createWindow("notification", "/notification", {
     height: 135,
