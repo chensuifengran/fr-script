@@ -29,7 +29,7 @@ export const modelCallback = async (
   )?.testModule;
 
   selfModule!.document!.example!.code = codeHighLight(
-    `const res = await screenColor(${options.x}, ${options.y});`
+    `const colorUtil = await screenColor(${options.x}, ${options.y});`
   );
   testModuleCtx.showDetails(res && JSON.stringify(res), "screenColor");
 };
