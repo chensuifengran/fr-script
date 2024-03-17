@@ -184,7 +184,7 @@ const options = reactive<
     label: string;
   }[]
 >([]);
-watchEffect(async () => {
+watchEffect(() => {
   if (openId.value === "-1") return;
   const target = scriptList.value.find((item) => item.id === openId.value);
   if (!target?.setting) {
