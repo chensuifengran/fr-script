@@ -1,6 +1,6 @@
 class FormUtil {
   constructor(public form: RendererList[]) {}
-  public getFieldValue<T = number | string | string[] | boolean | object[]>(
+  getFieldValue = <T = number | string | string[] | boolean | object[]>(
     valueType:
       | "checkList"
       | "groupSelectList"
@@ -11,12 +11,12 @@ class FormUtil {
     label: string,
     failValue: T,
     groupLabel: string = "*脚本设置"
-  ): T {
+  ): T => {
     const group = this.form.find((i) => {
-      i.groupLabel === groupLabel;
+      return i.groupLabel === groupLabel;
     });
     if (group) {
-      if(!group.enable){
+      if (!group.enable) {
         return failValue;
       }
       const field = group[valueType].find((i) => i.label === label);
@@ -39,7 +39,7 @@ class FormUtil {
     } else {
       return failValue;
     }
-  }
+  };
 }
 
 export const rendererFormUtil = {
