@@ -39,7 +39,6 @@ impl Clicker {
             }
         }));
     }
-
     pub fn stop(&mut self) {
         self.running.store(false, Ordering::SeqCst);
 
