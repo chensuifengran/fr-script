@@ -1,19 +1,25 @@
-export const dialogOptions = {
-  title: "获得屏幕指定坐标颜色",
-  targetMethodName: "screenColor",
+export const dialogOptions = <TestModuleType['dialog']>{
+  title: "获得图片指定坐标颜色",
+  targetMethodName: "imgColor",
   content:
-    "获取[指定坐标/鼠标所在坐标]的颜色，返回颜色工具实例。x、y坐标任意值为-1时使用鼠标位置",
+    "识别图片指定坐标颜色，返回颜色工具实例",
   args: [
+    {
+      name:'path',
+      componentType: "FileInput",
+      value: "",
+      label: "图片路径",
+    },
     {
       name: "x",
       componentType: "numberInput",
-      value: -1,
+      value: 0,
       label: "x坐标",
     },
     {
       name: "y",
       componentType: "numberInput",
-      value: -1,
+      value: 0,
       label: "y坐标",
     },
     {

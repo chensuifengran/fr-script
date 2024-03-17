@@ -3,7 +3,6 @@ use std::sync::Arc;
 use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 use crate::UTIL_INSTANCE;
 use crate::{c_api::util::Util, types::generate_result, PPOCR_INSTANCE};
-use image::GenericImageView;
 
 /// 裁剪图片
 ///
@@ -275,59 +274,23 @@ pub async fn screen_ocr(
 /// * `image_path` - 图片路径
 /// * `x` - 坐标点x坐标
 /// * `y` - 坐标点y坐标
-/// * `value_format` - 返回值格式，可选值为"hex"或者不传，不传时返回"R,G,B,A"格式的字符串，传"hex"时返回"#RRGGBBAA"格式的字符串
 ///
 /// 返回：
 ///
 /// 返回一个字符串，包含坐标点的颜色值，如果坐标点超出图片范围，返回空字符串
 #[tauri::command]
-pub async fn get_img_color(
-    image_path: &str,
-    x: u32,
-    y: u32,
-    value_format: Option<&str>,
+pub async fn img_color(
+    path: &str,
+    x: i32,
+    y: i32
 ) -> Result<String, ()> {
-    match image::open(image_path) {
-        // 如果成功，获取图片的宽度和高度
-        Ok(image) => {
-            let (width, height) = image.dimensions();
-            // 检查坐标点是否在图片范围内
-            if x < width && y < height {
-                // 获取坐标点的像素
-                match value_format {
-                    Some("hex") => {
-                        let pixel = image.get_pixel(x, y);
-                        println!("pixel:{:?}", pixel);
-                        // 获取像素的RGBA值
-                        let rgba: [u8; 4] = pixel.0;
-                        let hex = format!(
-                            "#{:02X}{:02X}{:02X}{:02X}",
-                            rgba[0], rgba[1], rgba[2], rgba[3]
-                        );
-                        // 返回RGB值
-                        Ok(hex)
-                    }
-                    _ => {
-                        let pixel = image.get_pixel(x, y);
-                        println!("none_pixel:{:?}", pixel);
-                        // 获取像素的RGBA值
-                        let rgba: [u8; 4] = pixel.0;
-                        // 返回RGB值
-                        Ok(format!("{},{},{},{}", rgba[0], rgba[1], rgba[2], rgba[3]))
-                    }
-                }
-            } else {
-                // 坐标点超出图片范围，返回空字符串
-                println!("坐标点超出图片范围");
-                Ok(format!(""))
-            }
-        }
-        // 如果失败，返回空字符串
-        Err(err) => {
-            println!("图片读取失败:{:?}", err);
-            Ok(format!(""))
-        }
-    }
+    let x = if x < 0 { 0 } else { x };
+    let y = if y < 0 { 0 } else { y };
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
+    let res: String = util
+        .get_image_color(x, y,path)
+        .unwrap_or("".to_string());
+    Ok(res)
 }
 
 /// 识别屏幕指定范围的文字信息是否包含所提供的文字

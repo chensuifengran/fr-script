@@ -1,5 +1,5 @@
 export const apiDocument = <ApiDocumentType>{
-  howToUse: "获取[指定坐标/鼠标所在坐标]像素点的rgb值",
+  howToUse: "识别屏幕指定坐标颜色，返回颜色工具实例",
   params: [
     {
       name: "x",

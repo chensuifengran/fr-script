@@ -22,6 +22,7 @@ export type InvokeApiType = {
     unlisten: typeof import('./GlobalShortcut/unlisten/exportFn')["unlistenFn"],
     waitKeys: typeof import('./GlobalShortcut/waitKeys/exportFn')["waitKeysFn"],
   },
+  imgColor: typeof import('./imgColor/exportFn')["imgColorFn"],
   Input: {
     combined: typeof import('./Input/combined/exportFn')["combinedFn"],
     keyDown: typeof import('./Input/keyDown/exportFn')["keyDownFn"],
