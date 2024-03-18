@@ -10,6 +10,8 @@ export const clickFn = async (
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;
   }
+  x = Math.round(x);
+  y = Math.round(y);
   try {
     if (button === "left") {
       await invoke("mouse_move_click", {
