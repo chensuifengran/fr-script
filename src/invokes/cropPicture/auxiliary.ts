@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "cropPicture"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value = AutoTipUtils.pathStrReset(params[0] || "");
@@ -39,11 +40,11 @@ export const auxiliary = <AuxiliaryType>{
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     options.replaceCurFnArgs(
-      `"${AutoTipUtils.pathStrProcess(options.path)}",${options.range.x},${
+      `${AutoTipUtils.replaceConstantPath(options.path)},${options.range.x},${
         options.range.y
       },${options.range.width},${
         options.range.height
-      },"${AutoTipUtils.pathStrProcess(options.outPath)}"`
+      },"${AutoTipUtils.replaceConstantPath(options.outPath)}"`
     );
   },
 };

@@ -4,7 +4,9 @@ export const auxiliary = <AuxiliaryType>{
   parameterBackfill: async (...args: string[]) => {
     let params = await AutoTipUtils.paramsProcess(args);
     //当前函数的信息
-    const selfModule = getInvokeApiMethods().find((i) => i.name === "randomMove" && i.scope === "Mouse");
+    const selfModule = getInvokeApiMethods().find(
+      (i) => i.name === "randomMove" && i.scope === "Mouse"
+    );
     let rangeStr = "";
     if (params.length > 2) {
       for (let i = 2; i < params.length; i++) {
@@ -12,7 +14,8 @@ export const auxiliary = <AuxiliaryType>{
       }
     }
     rangeStr = rangeStr.slice(1);
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value = +(params[0] || "");

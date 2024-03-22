@@ -24,6 +24,30 @@ const pathStrProcess = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
   return pathStr.replaceAll("\\", "\\\\");
 };
+
+/**
+ * @param path 需要处理的路径
+ * @returns 如果path包含路径常量，则替换成常量名[+"相对路径"]，否则返回"path"
+ */
+const replaceConstantPath = (path: string) => {
+  const appGSStore = useAppGlobalSettings();
+  let { workDir, screenshotSavePath } = appGSStore.envSetting;
+  path = path.replaceAll("\\", "\\\\");
+  workDir = workDir.replaceAll("\\", "\\\\");
+  screenshotSavePath = screenshotSavePath.replaceAll("\\", "\\\\");
+  if (path === screenshotSavePath) {
+    return "SCREEN_SHOT_PATH";
+  } else if (path.startsWith(screenshotSavePath)) {
+    return `SCREEN_SHOT_PATH+"${path.slice(screenshotSavePath.length)}"`;
+  }
+  if (path === workDir) {
+    return "WORK_DIR";
+  } else if (path.startsWith(workDir)) {
+    return `WORK_DIR+"${path.slice(workDir.length)}"`;
+  }
+  return `"${path}"`;
+};
+
 const pathStrReset = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
   return pathStr.replaceAll("\\\\", "\\");
@@ -37,7 +61,7 @@ const paramsProcess = async (args: string[]) => {
   for (let index = 0; index < args.length; index++) {
     let i = args[index].replaceAll('"', "").replaceAll("'", "");
     const arg = i
-      .replaceAll(" ", "")
+      .replace(/\s/g, "")
       .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
       .replace(
         "SCREEN_SHOT_PATH+",
@@ -445,4 +469,5 @@ export const AutoTipUtils = {
   pathStrProcess,
   pathStrReset,
   apiAutoTip,
+  replaceConstantPath,
 };

@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "getImageSize"
     );
-    selfModule!.testModule!.dialog.args![0].value = AutoTipUtils.pathStrReset(
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args![0].value = AutoTipUtils.pathStrReset(
       params[0] || ""
     );
   },
@@ -16,6 +17,6 @@ export const auxiliary = <AuxiliaryType>{
     path: string;
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
-    options.replaceCurFnArgs(`"${AutoTipUtils.pathStrProcess(options.path)}"`);
+    options.replaceCurFnArgs(`${AutoTipUtils.replaceConstantPath(options.path)}`);
   },
 };

@@ -7,8 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "combined" && i.scope === "Input"
     );
-
-    selfModule!.testModule!.dialog.args!.forEach((i) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i) => {
       i.value = params.map((i) => i.replace("[", "").replace("]", ""));
     });
   },

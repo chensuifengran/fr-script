@@ -6,7 +6,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenDiffTemplates" && i.scope === "CV"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value.x = +params[0] || 0;
@@ -21,7 +22,7 @@ export const auxiliary = <AuxiliaryType>{
           i.value = +params[5] || 0;
           break;
         case 3:
-          i.value = !params[6] ? 'auto' : params[6].toUpperCase();
+          i.value = !params[6] ? "auto" : params[6].toUpperCase();
           break;
         default:
           break;
@@ -46,7 +47,7 @@ export const auxiliary = <AuxiliaryType>{
         options.range.height
       }, "${AutoTipUtils.pathStrProcess(options.tempPaths)}",${
         options.targetIndex
-      }${options.drive === 'auto' ? '' : `, "${options.drive}"`}`
+      }${options.drive === "auto" ? "" : `, "${options.drive}"`}`
     );
   },
 };

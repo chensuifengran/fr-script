@@ -5,7 +5,8 @@ export const auxiliary = <AuxiliaryType>{
   parameterBackfill: async (...args: string[]) => {
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "slideTo");
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       i.value = +params[index] || 0;
     });
   },

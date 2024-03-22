@@ -10,6 +10,8 @@ export const devicesFn = async (taskId?: string) => {
       .replace(/\s/g, "")
       .split("device")
       .filter((i) => i !== "");
+    const listStore = useListStore();
+    listStore.deviceList = deviceList;
     return deviceList;
   } catch (e) {
     console.error("devicesFn error:", e);

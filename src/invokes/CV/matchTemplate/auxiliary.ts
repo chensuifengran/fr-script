@@ -6,7 +6,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "matchTemplate" && i.scope === "CV"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
         case 1:
@@ -31,9 +32,9 @@ export const auxiliary = <AuxiliaryType>{
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     options.replaceCurFnArgs(
-      `"${AutoTipUtils.pathStrProcess(
+      `${AutoTipUtils.replaceConstantPath(
         options.imgPath
-      )}","${AutoTipUtils.pathStrProcess(options.tempPath)}",${
+      )},${AutoTipUtils.replaceConstantPath(options.tempPath)},${
         options.exactValue
       },${options.scale}`
     );

@@ -5,7 +5,8 @@ export const auxiliary = <AuxiliaryType>{
   parameterBackfill: async (...args: string[]) => {
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "ocr");
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value = {
@@ -38,11 +39,12 @@ export const auxiliary = <AuxiliaryType>{
       options.replaceCurFnArgs(
         `${options.rect.x},${options.rect.y},${options.rect.width},${options.rect.height}`
       );
-    }else{
+    } else {
+      const p = AutoTipUtils.replaceConstantPath(options.imgPath);
       options.replaceCurFnArgs(
-        ` ${options.rect.x}, ${options.rect.y}, ${options.rect.width}, ${
+        `${options.rect.x}, ${options.rect.y}, ${options.rect.width}, ${
           options.rect.height
-        }, "${AutoTipUtils.pathStrProcess(options.imgPath)}"`
+        }, ${p}`
       );
     }
   },

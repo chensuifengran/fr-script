@@ -7,11 +7,12 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "clicker" && i.scope === "Mouse"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
-      if(index !== 2){
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
+      if (index !== 2) {
         i.value = +params[index] || 0;
-      }else{
-        i.value = params[index] || 'left';
+      } else {
+        i.value = params[index] || "left";
       }
     });
   },
@@ -22,10 +23,12 @@ export const auxiliary = <AuxiliaryType>{
     button: "left" | "right" | "middle";
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
-    if(options.button === 'left'){
+    if (options.button === "left") {
       options.replaceCurFnArgs(`${options.duration}, ${options.sleep}`);
-    }else{
-      options.replaceCurFnArgs(`${options.duration}, ${options.sleep}, '${options.button}'`);
+    } else {
+      options.replaceCurFnArgs(
+        `${options.duration}, ${options.sleep}, '${options.button}'`
+      );
     }
   },
 };

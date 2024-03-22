@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "getImgRectInfo"
     );
-    selfModule!.testModule!.dialog.args![0].value = AutoTipUtils.pathStrReset(
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args![0].value = AutoTipUtils.pathStrReset(
       params[0] || ""
     );
   },
@@ -16,6 +17,6 @@ export const auxiliary = <AuxiliaryType>{
     imgPath: string;
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
-    options.replaceCurFnArgs(`"${AutoTipUtils.pathStrProcess(options.imgPath)}"`);
+    options.replaceCurFnArgs(`${AutoTipUtils.replaceConstantPath(options.imgPath)}`);
   },
 };

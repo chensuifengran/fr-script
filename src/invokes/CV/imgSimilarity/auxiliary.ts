@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "imgSimilarity" && i.scope === "CV"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
         case 1:
@@ -37,11 +38,11 @@ export const auxiliary = <AuxiliaryType>{
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     options.replaceCurFnArgs(
-      `"${AutoTipUtils.pathStrProcess(
+      `${AutoTipUtils.replaceConstantPath(
         options.pathA
-      )}","${AutoTipUtils.pathStrProcess(options.pathB)}",${
-        options.rect.x
-      },${options.rect.y},${options.rect.width},${options.rect.height}`
+      )},${AutoTipUtils.replaceConstantPath(options.pathB)},${options.rect.x},${
+        options.rect.y
+      },${options.rect.width},${options.rect.height}`
     );
   },
 };

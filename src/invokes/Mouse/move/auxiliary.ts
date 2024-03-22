@@ -6,7 +6,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "move" && i.scope === "Mouse"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       if (index === 2) {
         i.value = params[index] === "true" ? true : false || false;
       } else {
@@ -23,7 +24,7 @@ export const auxiliary = <AuxiliaryType>{
   }) => {
     if (options.isRelative) {
       options.replaceCurFnArgs(`${options.x}, ${options.y}, true`);
-      return
+      return;
     }
     options.replaceCurFnArgs(`${options.x}, ${options.y}`);
   },

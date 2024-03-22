@@ -4,7 +4,8 @@ export const auxiliary = <AuxiliaryType>{
   parameterBackfill: async (...args: string[]) => {
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "cmd");
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch(index){
         case 0:
           i.value = params[0] || "";

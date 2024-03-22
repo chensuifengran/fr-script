@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenColor"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       i.value = +params[index] || 0;
     });
   },
@@ -18,9 +19,9 @@ export const auxiliary = <AuxiliaryType>{
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     const { x, y, replaceCurFnArgs } = options;
-    if(x !==undefined && y !==undefined && x !== -1 && y !== -1){
+    if (x !== undefined && y !== undefined && x !== -1 && y !== -1) {
       replaceCurFnArgs(`${x},${y}`);
-    }else{
+    } else {
       replaceCurFnArgs("");
     }
   },

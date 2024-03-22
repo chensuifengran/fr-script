@@ -7,7 +7,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenshot"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value = AutoTipUtils.pathStrReset(params[4] || "");
@@ -53,7 +54,7 @@ export const auxiliary = <AuxiliaryType>{
       options.replaceCurFnArgs(``);
     } else if (!options.selectRange) {
       options.replaceCurFnArgs(
-        `-1,-1,-1,-1, "${AutoTipUtils.pathStrProcess(options.path)}"`
+        `-1,-1,-1,-1, ${AutoTipUtils.replaceConstantPath(options.path)}`
       );
     } else if (options.path === "") {
       options.replaceCurFnArgs(
@@ -69,7 +70,7 @@ export const auxiliary = <AuxiliaryType>{
           options.range.width +
           "," +
           options.range.height
-        }, "${AutoTipUtils.pathStrProcess(options.path)}"`
+        }, ${AutoTipUtils.replaceConstantPath(options.path)}`
       );
     }
   },

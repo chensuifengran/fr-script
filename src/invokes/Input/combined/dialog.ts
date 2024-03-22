@@ -12,6 +12,7 @@ export const dialogOptions = {
       notAllowCreate: true,
       label: "鼠标按键",
       options: KeyOptions, 
+      selectOptionSeparator: ":",
     },
     {
       name: "delay",

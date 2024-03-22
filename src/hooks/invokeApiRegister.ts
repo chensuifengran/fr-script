@@ -89,12 +89,13 @@ const invokeDialog = (
         const callArgsObject: ExportFns = {
           replaceCurFnArgs,
         };
+        const dialog = targetMethod!.testModule!.dialog;
         for (
           let i = 0;
-          i < targetMethod!.testModule!.dialog.args!.length;
+          i < dialog.args!.length;
           i++
         ) {
-          const arg = targetMethod!.testModule!.dialog.args![i];
+          const arg = dialog.args![i];
           if (!arg.onlyTest || (arg.onlyTest && callType === "test")) {
             callArgsObject[arg.name] = arg.value;
           }

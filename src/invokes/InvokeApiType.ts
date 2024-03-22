@@ -22,7 +22,6 @@ export type InvokeApiType = {
     unlisten: typeof import('./GlobalShortcut/unlisten/exportFn')["unlistenFn"],
     waitKeys: typeof import('./GlobalShortcut/waitKeys/exportFn')["waitKeysFn"],
   },
-  imgColor: typeof import('./imgColor/exportFn')["imgColorFn"],
   Input: {
     combined: typeof import('./Input/combined/exportFn')["combinedFn"],
     keyDown: typeof import('./Input/keyDown/exportFn')["keyDownFn"],
@@ -40,6 +39,7 @@ export type InvokeApiType = {
   ocr: typeof import('./ocr/exportFn')["ocrFn"],
   screenColor: typeof import('./screenColor/exportFn')["screenColorFn"],
   screenshot: typeof import('./screenshot/exportFn')["screenshotFn"],
+  screenshotColor: typeof import('./screenshotColor/exportFn')["screenshotColorFn"],
   slideTo: typeof import('./slideTo/exportFn')["slideToFn"],
   touch: typeof import('./touch/exportFn')["touchFn"],
 };

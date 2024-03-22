@@ -11,6 +11,7 @@ export const dialogOptions = {
       notAllowCreate: true,
       label: "需要按下的按键",
       options: KeyOptions, 
+      selectOptionSeparator: ":",
     },
     {
       name: "delay",

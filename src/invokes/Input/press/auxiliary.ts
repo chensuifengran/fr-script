@@ -7,17 +7,16 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "press" && i.scope === "Input"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       i.value = params[index] || "A";
     });
   },
   //参数处理方法
   parameterReplace: (options: {
-    key:Key,
+    key: Key;
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
-    options.replaceCurFnArgs(
-      `'${options.key}'`
-    );
+    options.replaceCurFnArgs(`'${options.key}'`);
   },
 };

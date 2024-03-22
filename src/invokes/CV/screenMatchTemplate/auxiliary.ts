@@ -6,7 +6,8 @@ export const auxiliary = <AuxiliaryType>{
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenMatchTemplate" && i.scope === "CV"
     );
-    selfModule!.testModule!.dialog.args!.forEach((i, index) => {
+    const dialog = selfModule!.testModule!.dialog;
+    dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value.x = +params[0] || 0;
@@ -48,7 +49,7 @@ export const auxiliary = <AuxiliaryType>{
     options.replaceCurFnArgs(
       `${options.range.x}, ${options.range.y}, ${options.range.width}, ${
         options.range.height
-      }, "${AutoTipUtils.pathStrProcess(options.tempPath)}", ${
+      }, ${AutoTipUtils.replaceConstantPath(options.tempPath)}, ${
         options.exactValue
       }, ${options.scale}${
         options.drive === "auto" ? "" : `, "${options.drive}"`
