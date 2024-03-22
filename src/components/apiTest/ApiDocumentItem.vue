@@ -10,14 +10,31 @@ const props = defineProps({
     default: "invokeApi",
   },
 });
-
+const listStore = useListStore();
+const dialog = computed(() => {
+  const d = props.model?.dialog;
+  return {
+    ...d,
+    args: d?.args?.map((arg) => {
+      let opts = arg.options;
+      if (opts) {
+        if (typeof opts === "function") {
+          opts = opts(listStore);
+        }
+      }
+      return {
+        ...arg,
+        options: opts,
+      };
+    }),
+  };
+});
 const aliasName = computed(() => {
-  return getInvokeApiMethods().find(
-    (i) => i.name === props.model?.dialog.targetMethodName
-  )?.exportFn?.alias;
+  const targetMethodName = dialog.value?.targetMethodName;
+  return getInvokeApiMethods().find((i) => i.name === targetMethodName)?.exportFn?.alias;
 });
 const name = computed(() => {
-  return props.model?.dialog.title || props.model?.dialog.targetMethodName;
+  return dialog.value?.title || dialog.value?.targetMethodName;
 });
 const { invokeDialog, getInvokeApiMethods } = useInvokeApiMethodsRegister();
 
@@ -56,10 +73,10 @@ onMounted(() => {
 const resetExampleCode = () => {
   if (firstExampleCode.length) {
     let target: InvokeApiMethodType | undefined;
+
+    const targetMethodName = dialog.value?.targetMethodName;
     if (props.type === "invokeApi") {
-      target = getInvokeApiMethods().find(
-        (i) => i.name === props.model?.dialog.targetMethodName
-      );
+      target = getInvokeApiMethods().find((i) => i.name === targetMethodName);
     } else if (props.type === "util") {
     }
 
@@ -69,9 +86,7 @@ const resetExampleCode = () => {
         codes.splice(0, codes.length, ...firstExampleCode);
       }
     } else {
-      console.error(
-        `重置示例失败：未找到${props.model?.dialog.targetMethodName}的测试模块`
-      );
+      console.error(`重置示例失败：未找到${targetMethodName}的测试模块`);
     }
   }
 };
@@ -128,15 +143,15 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       <div class="info">
         <el-icon class="icon" v-if="!showDetails"><IEpArrowRight /></el-icon>
         <el-icon class="icon" v-else><IEpArrowDown /></el-icon>
-        <span>[{{ aliasName || model?.dialog.targetMethodName }}]{{ name }}</span>
+        <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
       </div>
       <el-button
         v-if="type === 'invokeApi'"
         size="small"
         @click.stop="invokeDialog(
-            model!.dialog.targetMethodName!,
-            aliasName || model!.dialog.targetMethodName,
-            model!.dialog.content,
+            dialog?.targetMethodName!,
+            aliasName || dialog?.targetMethodName,
+            dialog?.content,
             'test'
             )"
         >测试调用</el-button
@@ -147,7 +162,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       <div class="content" v-if="model?.document" ref="detailsContentRef">
         <div class="api-details-item">
           <span>方法名：</span>
-          <span>{{ aliasName || model?.dialog.targetMethodName }}</span>
+          <span>{{ aliasName || dialog?.targetMethodName }}</span>
         </div>
         <div class="api-details-item" v-if="model.document.howToUse">
           <span>方法描述：</span>

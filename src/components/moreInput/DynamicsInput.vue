@@ -70,13 +70,6 @@
         :label="argItem.label"
         size="small"
       />
-      <!-- <el-slider
-        v-model="model"
-        :max="argItem.range?.max"
-        :min="argItem.range?.min"
-        :step="argItem.range?.step"
-        size="small"
-      /> -->
     </template>
     <template
       v-else-if="
@@ -131,17 +124,18 @@
 </template>
 <script lang="ts" setup>
 const { getInvokeApiMethods, getInvokeApiDialogModule } = useInvokeApiMethodsRegister();
-
+const listStore = useListStore();
 const notShowType = ["input", "FileInput", "DirInput", "slider"];
 const notFlexType = ["input", "FileInput", "DirInput", "RectInput"];
 const parseOption = (item: string | number) => {
-  if (typeof item === "number") {
+  const separator = argItem.value?.selectOptionSeparator;
+  if (typeof item === "number" || !separator) {
     return {
       label: item,
       value: item,
     };
   }
-  const arr = item.split(":");
+  const arr = item.split(separator);
   return {
     label: arr[0],
     value: arr[1] || arr[0],
@@ -175,14 +169,6 @@ const props = defineProps({
     default: "invokeApi",
   },
 });
-// onMounted(() => {
-//   console.log(
-//     "DynamicsInput",
-//     argItem.value,
-//     argItem.value?.componentType === "numberInput",
-//     typeof model.value
-//   );
-// });
 const name = computed(() => {
   if (props.type === "invokeApi") {
     return (
@@ -201,7 +187,15 @@ const argItem = computed(() => {
   const invokeApiTarget = getInvokeApiMethods().find((item) => item.name === props.name)
     ?.testModule;
   if (props.type === "invokeApi" && invokeApiTarget) {
-    return invokeApiTarget.dialog.args!.find((item) => item.name === props.argName);
+    const dialog = invokeApiTarget.dialog;
+    dialog.args?.forEach((arg) => {
+      if (arg.options) {
+        if (typeof arg.options === "function") {
+          arg.options = arg.options(listStore);
+        }
+      }
+    });
+    return dialog.args!.find((item) => item.name === props.argName);
   }
   return undefined;
 });
@@ -218,7 +212,8 @@ const targetSrc = computed(() => {
   const invokeApiTarget = getInvokeApiMethods().find((item) => item.name === props.name)
     ?.testModule;
   if (invokeApiTarget && targetName) {
-    const targetArg = invokeApiTarget.dialog.args!.find(
+    const dialog = invokeApiTarget.dialog;
+    const targetArg = dialog.args!.find(
       (item) => item.name === targetName
     );
     if (targetArg) {
@@ -236,7 +231,8 @@ const displayConditionIsOk = computed(() => {
     if (testModule) {
       let fieldValue = (testModule.dialog as any)[conditionFieldName];
       if (fieldValue === undefined) {
-        fieldValue = testModule.dialog.args!.find(
+        const dialog = testModule.dialog;
+        fieldValue = dialog.args!.find(
           (item) => item.name === conditionFieldName
         )?.value;
       }
@@ -296,7 +292,17 @@ watch(model, (val, oldValue) => {
   }
 
   if (target) {
-    const arg = target.testModule?.dialog.args!.find(
+    const dialog = target.testModule?.dialog;
+    if (dialog) {
+      dialog.args?.forEach((arg) => {
+        if (arg.options) {
+          if (typeof arg.options === "function") {
+            arg.options = arg.options(listStore);
+          }
+        }
+      });
+    }
+    const arg = dialog?.args!.find(
       (item) => item.name === props.argName
     );
     if (arg) {
@@ -318,12 +324,15 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+
   .label {
     width: 200px;
   }
+
   .input {
     max-width: 150px;
   }
+
   &:last-of-type {
     margin-bottom: 0;
   }

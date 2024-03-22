@@ -27,53 +27,55 @@ type ApiDocumentType = {
   //编辑器代码片段
   codeSnippet?: string;
 };
-
+type ArgItem = {
+  noTest?: boolean;
+  onlyTest?: boolean;
+  name: string;
+  componentType:
+    | "select"
+    | "input"
+    | "FileInput"
+    | "RectInput"
+    | "slider"
+    | "switch"
+    | "DirInput"
+    | "numberInput"
+    | "numberRangeInput";
+  label: string;
+  options?: string[] | number[] | ((store: ListStore) => string[] | number[]);
+  selectOptionSeparator?: string;
+  notAllowCreate?: boolean;
+  checked?: boolean;
+  value?: any;
+  multiple?: boolean;
+  stringSeparator?: string;
+  //用于RectInput组件读取的图片路径字段
+  targetSrc?: string;
+  //显示条件，可以指定当前testModule的属性值，如果该值为true，则显示
+  displayCondition?: string;
+  placeholder?: string;
+  activeText?: string;
+  inactiveText?: string;
+  verifyPath?: boolean;
+  suffix?: string;
+  range?: {
+    min: number;
+    max: number;
+    step?: number;
+  };
+};
+type TestModuleDialogType = {
+  notOpen?: boolean;
+  title?: string;
+  targetMethodName: string;
+  content?: string;
+  args?: ArgItem[];
+};
 type TestModuleType = {
   canBeCalled?: boolean;
   itemType?: "invokeApi" | "util";
   weight: number;
-  dialog: {
-    notOpen?: boolean;
-    title?: string;
-    targetMethodName: string;
-    content?: string;
-    args?: {
-      noTest?: boolean;
-      onlyTest?: boolean;
-      name: string;
-      componentType:
-        | "select"
-        | "input"
-        | "FileInput"
-        | "RectInput"
-        | "slider"
-        | "switch"
-        | "DirInput"
-        | "numberInput"
-        | "numberRangeInput";
-      label: string;
-      options?: string[] | number[];
-      notAllowCreate?: boolean;
-      checked?: boolean;
-      value?: any;
-      multiple?: boolean;
-      stringSeparator?: string;
-      //用于RectInput组件读取的图片路径字段
-      targetSrc?: string;
-      //显示条件，可以指定当前testModule的属性值，如果该值为true，则显示
-      displayCondition?: string;
-      placeholder?: string;
-      activeText?: string;
-      inactiveText?: string;
-      verifyPath?: boolean;
-      suffix?: string;
-      range?: {
-        min: number;
-        max: number;
-        step?: number;
-      };
-    }[];
-  };
+  dialog: TestModuleDialogType;
   callback: (...args: any[]) => Promise<void> | void;
   document?: ApiDocumentType;
 };
