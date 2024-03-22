@@ -1,15 +1,9 @@
 export const dialogOptions = <TestModuleType['dialog']>{
-  title: "获得图片指定坐标颜色",
-  targetMethodName: "imgColor",
+  title: "识别[屏幕/ADB设备]截图指定坐标颜色",
+  targetMethodName: "screenshotColor",
   content:
-    "识别图片指定坐标颜色，返回颜色工具实例",
+    "识别[屏幕/ADB设备]截图指定坐标颜色，返回颜色工具实例",
   args: [
-    {
-      name:'path',
-      componentType: "FileInput",
-      value: "",
-      label: "图片路径",
-    },
     {
       name: "x",
       componentType: "numberInput",
@@ -21,6 +15,13 @@ export const dialogOptions = <TestModuleType['dialog']>{
       componentType: "numberInput",
       value: 0,
       label: "y坐标",
+    },
+    {
+      name: "mod",
+      componentType: "select",
+      value: "normal",
+      label: "截图模式",
+      options: ["normal", "adb"],
     },
     {
       name: "delay",
