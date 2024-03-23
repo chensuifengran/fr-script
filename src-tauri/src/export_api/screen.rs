@@ -1,16 +1,20 @@
-use std::sync::Arc;
-use enigo::*;
 use crate::{c_api::util::Util, types::generate_result, UTIL_INSTANCE};
+use enigo::*;
+use std::sync::Arc;
 
 use super::{
-    constant::{ERROR_COLOR, ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT},
+    constant::{
+        ERROR_COLOR, ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT,
+    },
     tools::auto_select_drive,
 };
 
 pub fn detect_image_path_extensions(path: &str) -> bool {
     let image_extensions = ["jpg", "jpeg", "png", "bmp", "tiff"];
-    let ext = path.split('.').rev().next().unwrap();
-    image_extensions.contains(&ext)
+    match path.split('.').rev().next() {
+        Some(ext) => image_extensions.contains(&ext),
+        None => false,
+    }
 }
 
 /// 获取屏幕尺寸并将结果作为 JSON 字符串返回。
@@ -26,6 +30,9 @@ pub async fn get_screen_size() -> Result<String, ()> {
     let res: String = util
         .get_screen_size()
         .unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
+    if res == format!("{}", ERROR_WIDTH_HEIGHT) {
+        log::error!("[command]get_screen_size:获取屏幕尺寸失败");
+    }
     Ok(res)
 }
 
@@ -40,6 +47,9 @@ pub async fn get_screen_size() -> Result<String, ()> {
 pub async fn get_screen_zoom() -> Result<f64, ()> {
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: f64 = util.get_screen_zoom().unwrap_or(-1.0);
+    if res == -1.0 {
+        log::error!("[command]get_screen_zoom:获取屏幕缩放级别失败");
+    }
     Ok(res)
 }
 
@@ -80,9 +90,32 @@ pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<St
         _ => 200,
     };
     let msg: String = match res {
-        -1 => "程序出现异常，截图失败".to_string(),
-        -2 => "截图保存不能为空".to_string(),
-        -3 => "不支持的图片扩展名".to_string(),
+        -1 => {
+            log::error!("[command]screenshot:截图失败 [{}, {}, {}, {}, {}]", path, x, y, w, h);
+            "截图失败".to_string()
+        }
+        -2 => {
+            log::error!(
+                "[command]screenshot:图片路径为空 [{}, {}, {}, {}, {}]",
+                path,
+                x,
+                y,
+                w,
+                h
+            );
+            "图片路径为空".to_string()
+        }
+        -3 => {
+            log::error!(
+                "[command]screenshot:图片路径不合法 [{}, {}, {}, {}, {}]",
+                path,
+                x,
+                y,
+                w,
+                h
+            );
+            "图片路径不合法".to_string()
+        }
         _ => "截图成功".to_string(),
     };
     Ok(generate_result(format!("{}", msg), code))
@@ -101,6 +134,9 @@ pub async fn get_screen_rect_info() -> Result<String, ()> {
     let res: String = util
         .get_screen_rect_info()
         .unwrap_or(format!("{}", ERROR_RECT_INFO));
+    if res == format!("{}", ERROR_RECT_INFO) {
+        log::error!("[command]get_screen_rect_info:获取屏幕矩形信息失败");
+    }
     Ok(res)
 }
 
@@ -142,7 +178,19 @@ pub async fn screen_match_template(
     let res: String = util
         .screen_match_template(x, y, width, height, temp_path, exact_value, scale, &drive)
         .unwrap_or(format!("{}", ERROR_COORDINATE));
-
+    if res == format!("{}", ERROR_COORDINATE) {
+        log::error!(
+            "[command]screen_match_template:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}, {}, {}]",
+            x,
+            y,
+            width,
+            height,
+            temp_path,
+            exact_value,
+            scale,
+            drive
+        );
+    }
     Ok(res)
 }
 
@@ -195,6 +243,18 @@ pub async fn screen_diff_templates(
     let res: String = util
         .screen_diff_templates(x, y, width, height, temp_paths, target_index, &drive)
         .unwrap_or(format!("{}", ERROR_MSG_DATA));
+    if res == format!("{}", ERROR_MSG_DATA) {
+        log::error!(
+            "[command]screen_diff_templates:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}, {}]",
+            x,
+            y,
+            width,
+            height,
+            temp_paths,
+            target_index,
+            drive
+        );
+    }
     Ok(res)
 }
 
@@ -207,6 +267,9 @@ pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> 
         let color = util
             .get_screen_color(x, y)
             .unwrap_or(format!("{}", ERROR_COLOR));
+        if color == format!("{}", ERROR_COLOR) {
+            log::error!("[command]screen_color:获取屏幕颜色失败 [{}, {}]", x, y);
+        }
         Ok(color)
     } else {
         let x = x.unwrap();
@@ -215,6 +278,9 @@ pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> 
         let color = util
             .get_screen_color(x, y)
             .unwrap_or(format!("{}", ERROR_COLOR));
+        if color == format!("{}", ERROR_COLOR) {
+            log::error!("[command]screen_color:获取屏幕颜色失败 [{}, {}]", x, y);
+        }
         Ok(color)
     }
 }

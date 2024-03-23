@@ -5,59 +5,19 @@ use crate::global::{GPU_MEM, TEMP_DRIVE};
 pub struct PPOCR {
     lib: Library,
 }
-/*
-pub struct PPOCR {
-    lib: Option<Library>,
-}
-impl Drop for PPOCR {
-    fn drop(&mut self) {
-        match &self.lib {
-            Some(lib) => unsafe {
-                lib.close();
-            },
-            None => {}
-        }
-    }
-}
 
 impl PPOCR {
     pub fn new() -> PPOCR {
         PPOCR {
-            lib: unsafe { Some(Library::new("ppocr.dll").unwrap()) },
-        }
-    }
-
-    /// 获取依赖版本
-    ///
-    /// 示例：
-    ///
-    /// ```
-    /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
-    /// let res: String = ppocr.get_version().unwrap_or(format!("{}",ERROR_VERSION));
-    /// ```
-    ///
-    /// 返回：
-    ///
-    /// {const char*} 版本号
-    pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
-        match &self.lib {
-            Some(lib) => unsafe {
-                let get_version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> =
-                    lib.get(b"getVersion").expect("dll中未发现getVersion方法");
-                let result_c: *const c_char = (*get_version)();
-                let c_str: &CStr = CStr::from_ptr(result_c);
-                let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
-                Ok(str_slice.to_owned())
+            lib: unsafe {
+                match Library::new("ppocr.dll") {
+                    Ok(lib) => lib,
+                    Err(e) => {
+                        log::error!("[FFI][Util::new()]: 加载ppocr.dll失败：{:?}", e);
+                        panic!("{:?}", e);
+                    }
+                }
             },
-            None => Ok(format!("{}", ERROR_VERSION)),
-        }
-    }
-}
-*/
-impl PPOCR {
-    pub fn new() -> PPOCR {
-        PPOCR {
-            lib: unsafe { Library::new("ppocr.dll").expect("ppocr.dll加载失败！") },
         }
     }
 
@@ -75,13 +35,29 @@ impl PPOCR {
     /// {const char*} 版本号
     pub fn get_version(&self) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
-            let get_version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> = self
-                .lib
-                .get(b"getVersion")
-                .expect("dll中未发现getVersion方法");
+            let get_version: libloading::Symbol<unsafe extern "C" fn() -> *const c_char> =
+                match self.lib.get(b"getVersion") {
+                    Ok(get_version) => get_version,
+                    Err(e) => {
+                        log::error!(
+                            "[FFI][PPOCR::get_version()]: 加载getVersion方法失败：{:?}",
+                            e
+                        );
+                        return Err(Box::new(e));
+                    }
+                };
             let result_c: *const c_char = (*get_version)();
             let c_str: &CStr = CStr::from_ptr(result_c);
-            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            let str_slice: &str = match c_str.to_str() {
+                Ok(str_slice) => str_slice,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::get_version()][result]: CStr类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             Ok(str_slice.to_owned())
         }
     }
@@ -105,7 +81,13 @@ impl PPOCR {
     pub fn init(&self, gpu_mem: i32) -> bool {
         unsafe {
             let init: libloading::Symbol<unsafe extern "C" fn(i32) -> i32> =
-                self.lib.get(b"tryInit").expect("dll中未发现tryInit方法");
+                match self.lib.get(b"tryInit") {
+                    Ok(init) => init,
+                    Err(e) => {
+                        log::error!("[FFI][PPOCR::init()]: 加载tryInit方法失败：{:?}", e);
+                        return false;
+                    }
+                };
             let result: i32 = (*init)(gpu_mem);
             if result == 0 {
                 false
@@ -153,11 +135,35 @@ impl PPOCR {
         unsafe {
             let ppocr: libloading::Symbol<
                 unsafe extern "C" fn(*const c_char, i32, i32, i32, i32, i32) -> *const c_char,
-            > = self.lib.get(b"ppocr").expect("dll中未发现ppocr方法");
-            let path_c = CString::new(path).expect("CString类型转换失败");
+            > = match self.lib.get(b"ppocr") {
+                Ok(ppocr) => ppocr,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::ocr_rect()]: 加载ppocr方法失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
+            let path_c = match CString::new(path) {
+                Ok(path_c) => path_c,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::ocr_rect()][path]: CString类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             let result_c: *const c_char = (*ppocr)(path_c.as_ptr(), x, y, width, height, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
-            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            let str_slice: &str = match c_str.to_str() {
+                Ok(str_slice) => str_slice,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::ocr_rect()][result]: CStr类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             Ok(str_slice.to_owned())
         }
     }
@@ -192,11 +198,32 @@ impl PPOCR {
         unsafe {
             let ppocr: libloading::Symbol<
                 unsafe extern "C" fn(*const c_char, i32) -> *const c_char,
-            > = self.lib.get(b"imageProcess").expect("dll中未发现imageProcess方法");
-            let img_path_c = CString::new(img_path).expect("CString类型转换失败");
+            > = match self.lib.get(b"imageProcess") {
+                Ok(ppocr) => ppocr,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::ocr()]: 加载imageProcess方法失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
+            let img_path_c = match CString::new(img_path) {
+                Ok(img_path_c) => img_path_c,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::ocr()][img_path]: CString类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             let result_c: *const c_char = (*ppocr)(img_path_c.as_ptr(), GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
-            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            let str_slice: &str = match c_str.to_str() {
+                Ok(str_slice) => str_slice,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::ocr()][result]: CStr类型转换失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
             Ok(str_slice.to_owned())
         }
     }
@@ -237,14 +264,26 @@ impl PPOCR {
         unsafe {
             let screen_ocr: libloading::Symbol<
                 unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
-            > = self
-                .lib
-                .get(b"screenOcr")
-                .expect("dll中未发现screenOcr方法");
+            > = match self.lib.get(b"screenOcr") {
+                Ok(screen_ocr) => screen_ocr,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::screen_ocr()]: 加载screenOcr方法失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
             let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result_c: *const c_char = (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
-            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            let str_slice: &str = match c_str.to_str() {
+                Ok(str_slice) => str_slice,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::screen_ocr()][result]: CStr类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             Ok(str_slice.to_owned())
         }
     }
@@ -285,15 +324,27 @@ impl PPOCR {
         unsafe {
             let screen_ocr_only_texts: libloading::Symbol<
                 unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
-            > = self
-                .lib
-                .get(b"screenOcrOnlyTexts")
-                .expect("dll中未发现screenOcrOnlyTexts方法");
+            > = match self.lib.get(b"screenOcrOnlyTexts") {
+                Ok(screen_ocr_only_texts) => screen_ocr_only_texts,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::screen_ocr_only_texts()]: 加载screenOcrOnlyTexts方法失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
             let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result_c: *const c_char =
                 (*screen_ocr_only_texts)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
-            let str_slice: &str = c_str.to_str().expect("CStr类型转换失败");
+            let str_slice: &str = match c_str.to_str() {
+                Ok(str_slice) => str_slice,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::screen_ocr_only_texts()][result]: CStr类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             Ok(str_slice.to_owned())
         }
     }
@@ -331,11 +382,23 @@ impl PPOCR {
         unsafe {
             let screen_ocr_find_texts: libloading::Symbol<
                 unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, c_char, i32) -> i32,
-            > = self
-                .lib
-                .get(b"screenOcrFindTexts")
-                .expect("dll中未发现screenOcrFindTexts方法");
-            let includes_texts_c = CString::new(includes_texts).expect("CString类型转换失败");
+            > = match self.lib.get(b"screenOcrFindTexts") {
+                Ok(screen_ocr_find_texts) => screen_ocr_find_texts,
+                Err(e) => {
+                    log::error!("[FFI][PPOCR::screen_ocr_find_texts()]: 加载screenOcrFindTexts方法失败：{:?}", e);
+                    return Err(Box::new(e));
+                }
+            };
+            let includes_texts_c = match CString::new(includes_texts) {
+                Ok(includes_texts_c) => includes_texts_c,
+                Err(e) => {
+                    log::error!(
+                        "[FFI][PPOCR::screen_ocr_find_texts()][includes_texts]: CString类型转换失败：{:?}",
+                        e
+                    );
+                    return Err(Box::new(e));
+                }
+            };
             let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
             let result: i32 = (*screen_ocr_find_texts)(
                 x,

@@ -23,13 +23,12 @@ impl Clicker {
         }
     }
 
-    pub fn start(&mut self, duration: Duration, sleep: u64, button:MouseButton) {
+    pub fn start(&mut self, duration: Duration, sleep: u64, button: MouseButton) {
+        self.stop();
         let running = self.running.clone();
         running.store(true, Ordering::SeqCst);
-
+        let mut enigo = Enigo::new();
         self.handle = Some(thread::spawn(move || {
-            let mut enigo = Enigo::new();
-
             let start_time = std::time::Instant::now();
             while running.load(Ordering::SeqCst)
                 && std::time::Instant::now() - start_time < duration
@@ -39,20 +38,30 @@ impl Clicker {
             }
         }));
     }
+
     pub fn stop(&mut self) {
         self.running.store(false, Ordering::SeqCst);
-
         if let Some(handle) = self.handle.take() {
-            handle.join().unwrap();
+            match handle.join() {
+                Ok(_) => {}
+                Err(e) => {
+                    log::error!("clicker stop :{:?}", e);
+                }
+            }
         }
     }
 }
 
 #[tauri::command]
 pub fn stop_clicker() {
-    let mut clicker = CLICKER.lock().unwrap();
-    clicker.stop();
+    match CLICKER.lock() {
+        Ok(mut clicker) => clicker.stop(),
+        Err(e) => {
+            log::error!("[command]stop_clicker :{:?}", e);
+        }
+    }
 }
+
 #[tauri::command]
 pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
     if duration == 0 {
@@ -68,13 +77,16 @@ pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
             } else {
                 MouseButton::Right
             }
-        },
+        }
         None => MouseButton::Left,
     };
     let sleep = sleep.unwrap_or(50);
-    let mut clicker = CLICKER.lock().unwrap();
-    clicker.stop();
-    clicker.start(Duration::from_secs(duration), sleep, button);
+    match CLICKER.lock() {
+        Ok(mut clicker) => clicker.start(Duration::from_secs(duration), sleep, button.clone()),
+        Err(e) => {
+            log::error!("[command]start_clicker :{:?} [{}, {}, {:?}]", e, duration, sleep, button);
+        }
+    }
 }
 
 #[tauri::command]

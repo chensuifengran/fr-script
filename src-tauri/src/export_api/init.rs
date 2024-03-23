@@ -38,7 +38,7 @@ pub async fn init(gpu_mem: Option<i32>, temp_drive: Option<&str>) -> Result<bool
         }
         Ok(res)
     } else {
-        println!("初始化失败，临时文件存储盘符{}不可用", temp_drive);
+        log::error!("[command]初始化失败，临时文件存储盘符{}不可用", temp_drive);
         Err(())
     }
 }

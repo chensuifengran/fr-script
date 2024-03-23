@@ -29,6 +29,9 @@
         "icons/icon256x256.png",
         "icons/icon.ico",
         "icons/icon.png"
+      ],
+      "resources": [
+        "resources/*"
       ]
     },
     "security": {

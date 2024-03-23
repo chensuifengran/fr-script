@@ -6,14 +6,19 @@ use winapi::um::winbase::CREATE_NO_WINDOW;
 
 #[tauri::command]
 pub async fn run_cmd(command: String) -> Result<String, ()> {
-    let res = std::process::Command::new("cmd")
-        .args(&["/c", &command])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .stdin(Stdio::null())
-        .creation_flags(CREATE_NO_WINDOW)
-        .output()
-        .expect("failed to execute process");
+    let res = match std::process::Command::new("cmd")
+    .args(&["/c", &command])
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .stdin(Stdio::null())
+    .creation_flags(CREATE_NO_WINDOW)
+    .output(){
+        Ok(res) => res,
+        Err(e) => {
+            log::error!("[command]run_cmd :执行命令失败：{:?} [{}]", e, command);
+            return Ok(generate_result(e.to_string(), 500));
+        }
+    };
     let (stdout, _, _) = GBK.decode(&res.stdout);
     let (stderr, _, _) = GBK.decode(&res.stderr);
 

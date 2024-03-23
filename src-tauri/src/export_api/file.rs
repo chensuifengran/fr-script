@@ -9,9 +9,33 @@ use crate::types::generate_result;
 /// 当前可执行文件的安装目录。
 #[tauri::command]
 pub fn get_install_dir() -> String {
-    let exe_path = std::env::current_exe().unwrap();
-    let install_dir = exe_path.parent().unwrap();
-    install_dir.to_str().unwrap().to_string()
+    let exe_path = match std::env::current_exe() {
+        Ok(path) => path,
+        Err(e) => {
+            log::error!(
+                "[command]get_install_dir :无法获得本程序可执行文件路径: {}",
+                e
+            );
+            return String::new();
+        }
+    };
+
+    let install_dir = match exe_path.parent() {
+        Some(dir) => dir,
+        None => {
+            log::error!("[command]get_install_dir :无法获得本程序所在目录");
+            return String::new();
+        }
+    };
+
+    let install_dir_str = match install_dir.to_str() {
+        Some(s) => s,
+        None => {
+            log::error!("[command]get_install_dir :无法转换本程序所在目录为字符串");
+            return String::new();
+        }
+    };
+    install_dir_str.to_string()
 }
 
 /// 获取文件的基本信息

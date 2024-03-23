@@ -39,8 +39,30 @@ pub async fn crop_picture(
         _ => 200,
     };
     let msg: String = match res {
-        0 => "裁剪后图片输出写入失败".to_string(),
-        -1 => "程序出现异常，裁剪失败".to_string(),
+        0 => {
+            log::error!(
+                "[command]crop_picture:裁剪失败 [{}, {}, {}, {}, {}, {}]",
+                path,
+                x,
+                y,
+                width,
+                height,
+                out_path
+            );
+            "裁剪失败".to_string()
+        }
+        -1 => {
+            log::error!(
+                "[command]crop_picture:程序出现异常，裁剪失败 [{}, {}, {}, {}, {}, {}]",
+                path,
+                x,
+                y,
+                width,
+                height,
+                out_path
+            );
+            "程序出现异常，裁剪失败".to_string()
+        }
         _ => "裁剪成功".to_string(),
     };
     Ok(generate_result(format!("{}", msg), code))
@@ -63,6 +85,12 @@ pub async fn get_img_rect_info(img_path: &str) -> Result<String, ()> {
     let res: String = util
         .get_img_rect_info(img_path)
         .unwrap_or(format!("{}", ERROR_RECT_INFO));
+    if res == format!("{}", ERROR_RECT_INFO) {
+        log::error!(
+            "[command]get_img_rect_info:获取图片矩形信息失败 [{}]",
+            img_path
+        );
+    }
     Ok(res)
 }
 
@@ -91,6 +119,15 @@ pub async fn match_template(
     let res: String = util
         .match_template(img_path, temp_path, exact_value, scale)
         .unwrap_or(format!("{}", ERROR_COORDINATE));
+    if res == format!("{}", ERROR_COORDINATE) {
+        log::error!(
+            "[command]match_template:模板匹配失败 [{}, {}, {}, {}]",
+            img_path,
+            temp_path,
+            exact_value,
+            scale
+        );
+    }
     Ok(res)
 }
 
@@ -126,6 +163,17 @@ pub async fn get_similarity_value(
     let res: f64 = util
         .get_similarity_value(path_a, x, y, width, height, path_b)
         .unwrap_or(-1.0);
+    if res == -1.0 {
+        log::error!(
+            "[command]get_similarity_value:获取相似度失败 [{}, {}, {}, {}, {}, {}]",
+            path_a,
+            x,
+            y,
+            width,
+            height,
+            path_b
+        );
+    }
     Ok(res)
 }
 
@@ -146,6 +194,9 @@ pub async fn get_img_size(path: &str) -> Result<String, ()> {
     let res: String = util
         .get_image_size(path)
         .unwrap_or(format!("{}", ERROR_WIDTH_HEIGHT));
+    if res == format!("{}", ERROR_WIDTH_HEIGHT) {
+        log::error!("[command]get_img_size:获取图片尺寸失败 [{}]", path);
+    }
     Ok(res)
 }
 
@@ -199,11 +250,29 @@ pub async fn ocr(
         let res: String = ppocr
             .ocr(img_path)
             .unwrap_or(format!("{}", ERROR_OCR_RESULT));
+        if res == format!("{}", ERROR_OCR_RESULT) {
+            log::error!(
+                "[command][full screen]ocr:识别失败 [{}, {}, {}, {}]",
+                x,
+                y,
+                width,
+                height
+            );
+        }
         Ok(res)
     } else {
         let res: String = ppocr
             .ocr_rect(img_path, x, y, width, height)
             .unwrap_or(format!("{}", ERROR_OCR_RESULT));
+        if res == format!("{}", ERROR_OCR_RESULT) {
+            log::error!(
+                "[command]ocr:识别失败 [{}, {}, {}, {}]",
+                x,
+                y,
+                width,
+                height
+            );
+        }
         Ok(res)
     }
 }
@@ -257,13 +326,35 @@ pub async fn screen_ocr(
         None => false,
     };
     if only_text {
-        Ok(ppocr
-            .screen_ocr_only_texts(x, y, width, height)
-            .unwrap_or(format!("{}", ERROR_OCR_RESULT)))
+        match ppocr.screen_ocr_only_texts(x, y, width, height) {
+            Ok(res) => Ok(res),
+            Err(e) => {
+                log::error!(
+                    "[command][only_texts]screen_ocr :{:?} [{}, {}, {}, {}]",
+                    e,
+                    x,
+                    y,
+                    width,
+                    height
+                );
+                Ok(format!("{}", ERROR_OCR_RESULT))
+            }
+        }
     } else {
-        Ok(ppocr
-            .screen_ocr(x, y, width, height)
-            .unwrap_or(format!("{}", ERROR_OCR_RESULT)))
+        match ppocr.screen_ocr(x, y, width, height) {
+            Ok(res) => Ok(res),
+            Err(e) => {
+                log::error!(
+                    "[command]screen_ocr :{:?} [{}, {}, {}, {}]",
+                    e,
+                    x,
+                    y,
+                    width,
+                    height
+                );
+                Ok(format!("{}", ERROR_OCR_RESULT))
+            }
+        }
     }
 }
 
@@ -279,17 +370,14 @@ pub async fn screen_ocr(
 ///
 /// 返回一个字符串，包含坐标点的颜色值，如果坐标点超出图片范围，返回空字符串
 #[tauri::command]
-pub async fn img_color(
-    path: &str,
-    x: i32,
-    y: i32
-) -> Result<String, ()> {
+pub async fn img_color(path: &str, x: i32, y: i32) -> Result<String, ()> {
     let x = if x < 0 { 0 } else { x };
     let y = if y < 0 { 0 } else { y };
     let util: Arc<Util> = UTIL_INSTANCE.clone();
-    let res: String = util
-        .get_image_color(x, y,path)
-        .unwrap_or("".to_string());
+    let res: String = util.get_image_color(x, y, path).unwrap_or("".to_string());
+    if res == "".to_string() {
+        log::error!("[command]img_color :[{}, {}, {}]", path, x, y);
+    }
     Ok(res)
 }
 
@@ -339,6 +427,17 @@ pub async fn screen_ocr_contains(
                 Ok(false)
             }
         }
-        Err(_) => Err(()),
+        Err(e) => {
+            log::error!(
+                "[command]screen_ocr_contains :{:?} [{}, {}, {}, {}, {}]",
+                e,
+                x,
+                y,
+                width,
+                height,
+                texts
+            );
+            Ok(false)
+        }
     }
 }

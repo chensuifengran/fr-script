@@ -1,7 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{ cmd, file, image, init, input, mouse, request, screen, sys, tools};
+use fr_script::export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools};
 use tauri::Manager;
-
 fn main() {
     tauri::Builder::default()
         .setup(|_app: &mut tauri::App| {
@@ -10,6 +9,11 @@ fn main() {
                 let window = _app.get_window("main").unwrap();
                 window.open_devtools();
             }
+            let resource_path = _app
+                .path_resolver()
+                .resolve_resource("resources/log4rs.yml")
+                .expect("failed to resolve resource");
+            log4rs::init_file(resource_path, Default::default()).unwrap();
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -56,6 +60,7 @@ fn main() {
             init::init,
             request::request_get,
             sys::open_in_default_browser,
+            sys::error_report,
             cmd::run_cmd
         ])
         .run(tauri::generate_context!())

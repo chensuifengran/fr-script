@@ -1,3 +1,4 @@
+
 use crate::{
     c_api::util::Util,
     PPOCR_INSTANCE, UTIL_INSTANCE,
@@ -19,9 +20,15 @@ pub fn test_drive(drive: &char) -> bool {
     match fs::File::create(format!("{}:\\__test_out__.png", drive)) {
         Ok(_) => match fs::remove_file(format!("{}:\\__test_out__.png", drive)) {
             Ok(_) => true,
-            Err(_) => false,
+            Err(e) => {
+                log::error!("test_drive :{:?} [{}]", e, drive);
+                false
+            },
         },
-        Err(_) => false,
+        Err(e) => {
+            log::error!("test_drive :{:?} [{}]", e, drive);
+            false
+        },
     }
 }
 
@@ -57,8 +64,10 @@ pub fn auto_select_drive() -> Result<char, ()> {
 pub async fn get_dependence_version() -> Result<String, ()> {
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let ppocr = PPOCR_INSTANCE.clone();
-    
     let p_version: String = ppocr.get_version().unwrap_or(format!("{}", ERROR_VERSION));
     let u_version: String = util.get_version().unwrap_or(format!("{}", ERROR_VERSION));
+    if p_version == format!("{}", ERROR_VERSION) || u_version == format!("{}", ERROR_VERSION) {
+        log::error!("[command]get_dependence_version: ppocr version={}, util version={}", p_version, u_version);
+    }
     Ok(format!("{}-{}", p_version, u_version))
 }
