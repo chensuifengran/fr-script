@@ -4,13 +4,13 @@
   "version": "2.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "dev": "node .\\script\\switchEnv && vite",
+    "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",
     "preview": "vite preview",
     "tauri": "tauri dev",
     "tauri:build": "pnpm build && tauri build",
     "tauri:only_build": "tauri build",
-    "genType":"node .\\src\\script\\genInvokeFnType.js",
+    "genType":"node .\\script\\genInvokeFnType.js",
     "verify": "vue-tsc --noEmit"
   },
   "dependencies": {

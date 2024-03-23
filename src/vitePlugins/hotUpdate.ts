@@ -6,7 +6,7 @@ import chalk from "chalk";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const scriptPath = resolve(__dirname, "../script/genInvokeFnType.js");
+const scriptPath = resolve(__dirname, "../../script/genInvokeFnType.js");
 let timer: any;
 const runScript = () => {
   timer && clearTimeout(timer);
