@@ -160,6 +160,7 @@
 <script lang="ts" setup>
 import { ElInput } from "element-plus";
 import { storeToRefs } from "pinia";
+import { devicesFn } from "../../invokes/devices/exportFn";
 const drawer = ref(false);
 const active = ref(1);
 const nextStep = () => {
@@ -177,13 +178,14 @@ const goBack = () => {
 const targetIndex = ref(-1);
 const { openId, contentTransform, asideBarPos } = useScriptInfo();
 const listStore = useListStore();
-const { scriptList } = storeToRefs(listStore);
-const options = reactive<
-  {
-    value: string;
-    label: string;
-  }[]
->([]);
+const { scriptList, deviceList } = storeToRefs(listStore);
+const options = deviceList.value.map((item) => ({
+  label: item,
+  value: item,
+}));
+onMounted(() => {
+  devicesFn();
+});
 watchEffect(() => {
   if (openId.value === "-1") return;
   const target = scriptList.value.find((item) => item.id === openId.value);
