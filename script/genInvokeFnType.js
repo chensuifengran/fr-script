@@ -3,7 +3,7 @@ import { dirname, resolve } from "path";
 import { readdirSync } from "fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const invokesPath = resolve(__dirname, "../invokes");
+const invokesPath = resolve(__dirname, "../src/invokes");
 import { writeFileSync } from "fs";
 try {
   console.time("generate use time")
