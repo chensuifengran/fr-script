@@ -15,6 +15,6 @@ pub async fn open_in_default_browser(url: String) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn error_report(msg: String) -> Result<(), ()> {
-    log::error!("[front end]: {}", msg);
+    log::error!("[前端]: {}", msg);
     Ok(())
 }

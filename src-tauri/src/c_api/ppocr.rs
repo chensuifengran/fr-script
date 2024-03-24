@@ -1,5 +1,5 @@
 use libloading::Library;
-use std::ffi::{c_char, CStr, CString};
+use std::{ffi::{c_char, CStr, CString}, ptr::addr_of};
 
 use crate::global::{GPU_MEM, TEMP_DRIVE};
 pub struct PPOCR {
@@ -271,7 +271,7 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
             let result_c: *const c_char = (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
@@ -331,7 +331,7 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
             let result_c: *const c_char =
                 (*screen_ocr_only_texts)(x, y, width, height, c_temp_drive, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
@@ -399,7 +399,7 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(&TEMP_DRIVE)).as_ptr();
+            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
             let result: i32 = (*screen_ocr_find_texts)(
                 x,
                 y,
