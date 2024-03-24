@@ -10,7 +10,7 @@ export const dialogOptions = {
       value: [],
       multiple: true,
       notAllowCreate: true,
-      label: "鼠标按键",
+      label: "键盘按键",
       options: KeyOptions, 
       selectOptionSeparator: ":",
     },

@@ -48,5 +48,5 @@ export const apiDocument = <ApiDocumentType>{
   },
   searchKeys: ["OCR", "ocr", "图片", "指定范围"],
   codeSnippet:
-    "const ocrUtil = await ocr(${1:-x}, ${2:-y}, ${3:width}, ${4:height})",
+    "const ocrUtil = await ocr(${1:x}, ${2:y}, ${3:width}, ${4:height})",
 };

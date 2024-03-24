@@ -8,5 +8,5 @@ export const apiDocument = <ApiDocumentType>{
       code: codeHighLight(`const res = await adbScreenshot();`),
     },
     searchKeys: ["ADB",'adb', "截图"],
-    codeSnippet: "const ${1:res} = await adbScreenshot();",
+    codeSnippet: "await adbScreenshot();",
   }

@@ -50,5 +50,5 @@ export const apiDocument = <ApiDocumentType>{
   },
   searchKeys: ["模板", "图片", "位置", "中心坐标", "opencv", "cv", "匹配"],
   codeSnippet:
-    "const { x, y } = await CV.matchTemplate('${1:imgPath}', '${2:tempPath}', ${3:exactValue}, ${4:scale});",
+    "const matchUtil = await CV.matchTemplate('${1:imgPath}', '${2:tempPath}', ${3:exactValue}, ${4:scale});",
 };

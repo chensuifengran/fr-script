@@ -31,5 +31,5 @@ export const apiDocument = <ApiDocumentType>{
       `),
   },
   searchKeys: ["unlisten", "listen", "触发", "快捷键"],
-  codeSnippet: "const unlisten = await GlobalShortcut.listen(['${1:key}'],(key)=>{});",
+  codeSnippet: "const unlisten = await GlobalShortcut.listen(['${1:key}'],(key)=>{${2:}});",
 };

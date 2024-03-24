@@ -33,5 +33,5 @@ export const apiDocument = <ApiDocumentType>{
   },
   searchKeys: ["mouse", "random", "move", "移动","随机"],
   codeSnippet:
-    "const ${1:res} = await Mouse.randomMove('${2:x}', '${3:y}', `${4:[[0,0],[0,0]]}}`);",
+    "const ${1:res} = await Mouse.randomMove(${2:x}, ${3:y}, ${4:[[0,0],[0,0]]});",
 };

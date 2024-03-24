@@ -44,7 +44,7 @@ export const auxiliary = <AuxiliaryType>{
         options.range.y
       },${options.range.width},${
         options.range.height
-      },"${AutoTipUtils.replaceConstantPath(options.outPath)}"`
+      },${AutoTipUtils.replaceConstantPath(options.outPath)}`
     );
   },
 };
