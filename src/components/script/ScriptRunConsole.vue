@@ -46,7 +46,7 @@
         ></el-button
       >
     </div>
-    <div class="console-log-div" v-show="!isLoading">
+    <div class="console-log-div" v-if="!isLoading">
       <async-renderer-form v-show="running === 0" :reInit="reInit" />
       <div class="log-box" v-show="running !== 0">
         <el-alert title="历史输出：" type="info" />
@@ -68,7 +68,7 @@
   <teleport to="body">
     <div class="loading-box" v-if="isLoading">
       <loading />
-      <div>脚本初始化中...</div>
+      <div>脚本初始化中,OCR服务为GPU时首次加载需要较长时间...</div>
     </div>
   </teleport>
 </template>
@@ -85,6 +85,7 @@ import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
 import { timeUtil } from "../../utils/timeUtil";
 import { UnlistenFn } from "@tauri-apps/api/event";
+import { ocrFn } from "../../invokes/ocr/exportFn";
 const { notify } = eventUtil;
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
@@ -421,9 +422,7 @@ const initScript = async (reinit: boolean = false) => {
   const taskId = nanoid();
   try {
     stopAbort.value = new AbortController();
-
     let scriptStr = "";
-
     if (!fPath) {
       scriptStr = tempEditorValue!.value;
     } else {
@@ -431,15 +430,14 @@ const initScript = async (reinit: boolean = false) => {
         target: ScriptTarget.ES2016,
       });
     }
-
+    if (appGSStore.ocr.value === "GPU" && scriptStr.includes("ocr")) {
+      await ocrFn(0, 0, 1, 1);
+    }
     run(scriptStr, "fn" + taskId)();
-
     isInit.value = true;
     isReInit.value = true;
-
     const target = scriptList.value.find((s) => s.id === openId!.value);
     if (!target) return;
-
     if ((target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
       const t = setTimeout(() => {
         cmdFn(target.setting.targetApp, true);
@@ -503,12 +501,6 @@ watchEffect(async () => {
 });
 
 const isLoading = ref(true);
-const handleMsg = (e: MessageEvent<any>) => {
-  const { type } = e.data;
-  if (type === "end") {
-    stop();
-  }
-};
 let unlistenNotify: UnlistenFn;
 onMounted(async () => {
   initScript();
@@ -524,7 +516,12 @@ onMounted(async () => {
   register("Alt+Ctrl+S", () => {
     WebviewWindow.getByLabel("main")?.show();
   });
-  unlistenNotify = await notify.listen(handleMsg);
+  unlistenNotify = await notify.listen((data) => {
+    const { type } = data.payload as { type: string; payload: any };
+    if (type === "end") {
+      stop();
+    }
+  });
 });
 onUnmounted(() => {
   //移除window.runTimeApi所有属性
