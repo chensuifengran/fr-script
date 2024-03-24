@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 const LOG_4_RS_YML = `
 refresh_rate: 30 seconds
 appenders:
@@ -19,7 +19,7 @@ appenders:
       roller:
         kind: delete
     encoder:
-      pattern: "{d(%Y-%m-%d %H:%M:%S%.3f)} {l} [{T}] {M}: {m}{n}"
+      pattern: "{d(%Y-%m-%d %H:%M:%S%.3f)} {M}: {m}{n}"
 root:
   level: __LOG_LEVEL__
   appenders:
@@ -45,4 +45,17 @@ writeFileSync(
     encoding: "utf-8",
   }
 );
-console.log("✨日志级别已设置为：" + level);
+const packageJson = JSON.parse(
+  readFileSync(resolve(__dirname, "../package.json"), {
+    encoding: "utf-8",
+  })
+);
+packageJson.env = level === 'DEBUG' ? 'development' : 'production';
+writeFileSync(
+  resolve(__dirname, "../package.json"),
+  JSON.stringify(packageJson, null, 2),
+  {
+    encoding: "utf-8",
+  }
+);
+console.log("✨ 日志级别已设置为：" + level, '当前环境：', packageJson.env);

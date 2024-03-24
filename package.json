@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.0.1",
   "type": "module",
+  "env": "development",
   "scripts": {
     "dev": "node .\\script\\switchEnv && vite",
     "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",
@@ -10,7 +11,7 @@
     "tauri": "tauri dev",
     "tauri:build": "pnpm build && tauri build",
     "tauri:only_build": "tauri build",
-    "genType":"node .\\script\\genInvokeFnType.js",
+    "genType": "node .\\script\\genInvokeFnType.js",
     "verify": "vue-tsc --noEmit"
   },
   "dependencies": {
@@ -40,6 +41,6 @@
     "vite": "^5.1.4",
     "vue": "^3.4.20",
     "vue-tsc": "^1.8.27",
-    "chalk":"^5.3.0"
+    "chalk": "^5.3.0"
   }
 }
