@@ -716,7 +716,51 @@ const buildForm = (
     }
   }
 };
-
+const languages = monaco.languages.getLanguages();
+const supportLanguageIds = ["javascript", "typescript", "json"];
+//禁用语言
+languages.forEach((language) => {
+  if (supportLanguageIds.indexOf(language.id) === -1) {
+    monaco.languages.setLanguageConfiguration(language.id, {});
+  }
+});
+monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+  noSemanticValidation: true,
+  noSyntaxValidation: false,
+});
+monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+  target: monaco.languages.typescript.ScriptTarget.ESNext,
+  module: monaco.languages.typescript.ModuleKind.ESNext,
+  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+  allowNonTsExtensions: true,
+  allowSyntheticDefaultImports: true,
+  esModuleInterop: true,
+  noEmit: true,
+  typeRoots: ["node_modules/@types"],
+});
+monaco.languages.register({
+  id: "typescript",
+  extensions: [".ts"],
+  aliases: ["TypeScript", "ts", "typescript"],
+  mimetypes: ["text/typescript"],
+});
+monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+monaco.languages.registerCompletionItemProvider("typescript", {
+  provideCompletionItems: async function (model, position) {
+    const { createDependencyProposals } = AutoTipUtils;
+    const word = model.getWordUntilPosition(position);
+    const range = {
+      startLineNumber: position.lineNumber,
+      endLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endColumn: word.endColumn,
+    };
+    return {
+      suggestions: await createDependencyProposals(range),
+    };
+  },
+});
 const allTask = ref(1);
 const curTask = ref(0);
 const curTaskName = ref("");
@@ -822,51 +866,6 @@ const setText = (text: string) => {
 };
 const editorInit = () => {
   nextTick(async () => {
-    const languages = monaco.languages.getLanguages();
-    const supportLanguageIds = ["javascript", "typescript", "json"];
-    //禁用语言
-    languages.forEach((language) => {
-      if (supportLanguageIds.indexOf(language.id) === -1) {
-        monaco.languages.setLanguageConfiguration(language.id, {});
-      }
-    });
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: false,
-    });
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ESNext,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      allowNonTsExtensions: true,
-      allowSyntheticDefaultImports: true,
-      esModuleInterop: true,
-      noEmit: true,
-      typeRoots: ["node_modules/@types"],
-    });
-    monaco.languages.register({
-      id: "typescript",
-      extensions: [".ts"],
-      aliases: ["TypeScript", "ts", "typescript"],
-      mimetypes: ["text/typescript"],
-    });
-    monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-    monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-    monaco.languages.registerCompletionItemProvider("typescript", {
-      provideCompletionItems: async function (model, position) {
-        const { createDependencyProposals } = AutoTipUtils;
-        const word = model.getWordUntilPosition(position);
-        const range = {
-          startLineNumber: position.lineNumber,
-          endLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endColumn: word.endColumn,
-        };
-        return {
-          suggestions: await createDependencyProposals(range),
-        };
-      },
-    });
     const appGSStore = useAppGlobalSettings();
     let editorTheme = "vs";
     const settingEditorTheme = appGSStore.editor.theme.value;
