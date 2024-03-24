@@ -14,9 +14,9 @@ appenders:
       roller:
         kind: delete
     encoder:
-      pattern: "{d(%Y-%m-%d %H:%M:%S%.3f)} {l} [{T}] {M}: {m}{n}"
+      pattern: "{d(%Y-%m-%d %H:%M:%S%.3f)} {M}: {m}{n}"
 root:
-  level: ERROR
+  level: DEBUG
   appenders:
     - stdout
     - rolling_file
