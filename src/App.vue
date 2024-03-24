@@ -3,6 +3,7 @@ import { Expand, Fold } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
+import { appWindow } from "@tauri-apps/api/window";
 const { registerAllInvokeApi } = invokeApiRegisterManager();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
@@ -64,35 +65,32 @@ const aside_width = computed(() => {
 const isMainWindow = ref(true);
 provide("isMainWindow", isMainWindow);
 onMounted(async () => {
-  const init = async () => {
-    window.addEventListener("resize", () => {
-      syncWindowInnerWidth(window.innerWidth);
-      if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
-        collapsedAside();
-      } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
-        collapsedAside();
-      }
-    });
+  const init = async (listenResize = true) => {
+    listenResize &&
+      window.addEventListener("resize", () => {
+        syncWindowInnerWidth(window.innerWidth);
+        if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
+          collapsedAside();
+        } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
+          collapsedAside();
+        }
+      });
     //自动保存当前全局配置以及导入之前的全局配置
     await appGSStore.init();
     await listStore.init();
     handleSelect(app.value.state.aside.currentItem);
     libUtil.checkDepUpdate();
   };
-  const sIndex = window.location.href.indexOf("#");
-  if (sIndex !== -1) {
-    const path = window.location.href.substring(sIndex + 1);
-    const otherWindows = ["/floatWindow", "/apiTest", "/pointerUtil", "/notification"];
-    if (otherWindows.includes(path)) {
-      isMainWindow.value = false;
-      setTimeout(() => {
-        router.replace({
-          path,
-        });
-      }, 1000);
-    } else {
-      init();
+  const currentWindowLabel = appWindow.label;
+  if (currentWindowLabel !== "main") {
+    const notInitWindows = ["floatWindow", "pointerUtil", "notification"];
+    if (!notInitWindows.includes(currentWindowLabel)) {
+      await init(false);
     }
+    router.replace({
+      path: "/" + currentWindowLabel,
+    });
+    isMainWindow.value = false;
   } else {
     init();
   }

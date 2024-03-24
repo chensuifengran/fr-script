@@ -3,6 +3,10 @@ export const connectToFn = async (targetDevice: string, taskId?: string) => {
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;
   }
+  if ((targetDevice?.trim() ?? "") === "") {
+    console.warn("connectToFn: targetDevice为空");
+    return;
+  }
   let res = "出现异常";
   try {
     res = (await execCommand.adb(adbCommands.CONNECT_PREVAL + targetDevice))!;
