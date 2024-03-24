@@ -84,7 +84,8 @@ import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
 import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
 import { timeUtil } from "../../utils/timeUtil";
-const notificationChannel = new BroadcastChannel("notification-channel");
+import { UnlistenFn } from "@tauri-apps/api/event";
+const { notify } = eventUtil;
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
 );
@@ -139,9 +140,7 @@ const logOutput = reactive<
 >([]);
 const clearLogOutput = () => {
   logOutput.splice(0, logOutput.length);
-  notificationChannel.postMessage({
-    type: "clear-message",
-  });
+  notify.clear();
 };
 
 const log = (
@@ -164,13 +163,10 @@ const log = (
     log: msg,
     type: type ? type : "info",
   });
-  notificationChannel.postMessage({
-    type: "message",
-    payload: {
-      type,
-      message: msg,
-      time: timeStr,
-    },
+  notify.send({
+    type,
+    message: msg,
+    time: timeStr,
   });
   if (type === "danger") {
     logUtil.scriptConsoleErrorReport(msg, name.value + version.value);
@@ -246,9 +242,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     }
     if (hideWindow.value) {
       WebviewWindow.getByLabel("main")?.show();
-      notificationChannel.postMessage({
-        type: "done",
-      });
+      notify.done();
     }
   } else if (state) {
     clearLogOutput();
@@ -276,9 +270,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     //显示当前窗口
     if (hideWindow.value) {
       WebviewWindow.getByLabel("main")?.show();
-      notificationChannel.postMessage({
-        type: "done",
-      });
+      notify.done();
     }
   }
 };
@@ -380,11 +372,8 @@ const invokeStartHandle = async () => {
       alwaysOnTop: true,
     });
     targetWindow?.show();
-    notificationChannel.postMessage({
-      type: "init",
-      payload: {
-        name: name.value,
-      },
+    notify.init({
+      name: name.value,
     });
   }
   running.value = 2;
@@ -520,8 +509,8 @@ const handleMsg = (e: MessageEvent<any>) => {
     stop();
   }
 };
-
-onMounted(() => {
+let unlistenNotify: UnlistenFn;
+onMounted(async () => {
   initScript();
   const targetWindow = createWindow("notification", "/notification", {
     height: 135,
@@ -535,7 +524,7 @@ onMounted(() => {
   register("Alt+Ctrl+S", () => {
     WebviewWindow.getByLabel("main")?.show();
   });
-  notificationChannel.addEventListener("message", handleMsg);
+  unlistenNotify = await notify.listen(handleMsg);
 });
 onUnmounted(() => {
   //移除window.runTimeApi所有属性
@@ -549,7 +538,7 @@ onUnmounted(() => {
     unregister(s.key);
   });
   unregister("Alt+Ctrl+S");
-  notificationChannel.removeEventListener("message", handleMsg);
+  unlistenNotify();
 });
 </script>
 

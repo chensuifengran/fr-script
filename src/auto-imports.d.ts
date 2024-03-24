@@ -49,6 +49,7 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const editorTsDeclaration: typeof import('./invokes/apiDeclaration')['editorTsDeclaration']
   const effectScope: typeof import('vue')['effectScope']
+  const eventUtil: typeof import('./utils/eventUtil')['eventUtil']
   const execCommand: typeof import('./utils/execCommand')['execCommand']
   const execCopy: typeof import('./utils/copyTextToUser')['execCopy']
   const extendRef: typeof import('@vueuse/core')['extendRef']

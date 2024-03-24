@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools};
+use fr_script::{event::register_event_handler, export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools}};
 use tauri::Manager;
 fn main() {
     tauri::Builder::default()
@@ -14,6 +14,7 @@ fn main() {
                 .resolve_resource("resources/log4rs.yml")
                 .expect("failed to resolve resource");
             log4rs::init_file(resource_path, Default::default()).unwrap();
+            register_event_handler(_app);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

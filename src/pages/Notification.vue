@@ -75,9 +75,10 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { UnlistenFn } from "@tauri-apps/api/event";
 import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
 const isMiniState = ref(false);
-const notificationChannel = new BroadcastChannel("notification-channel");
+const { notify } = eventUtil;
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
   "appAsideBgColor"
@@ -114,27 +115,8 @@ const scriptInfo = reactive<{
   ],
 });
 const firstItem = computed(() => scriptInfo.currentMessage[0] || {});
-notificationChannel.onmessage = (e) => {
-  const { type, payload } = e.data as {
-    type: string;
-    payload: any;
-  };
-  if (type === "message") {
-    scriptInfo.currentMessage.unshift(payload);
-  } else if (type === "init") {
-    scriptInfo.name = payload.name;
-    scriptInfo.currentMessage = [];
-  } else if (type === "clear-message") {
-    scriptInfo.currentMessage = [];
-  } else if (type === "done") {
-    scriptInfo.currentMessage = [];
-    appWindow.hide();
-  }
-};
 const close = () => {
-  notificationChannel.postMessage({
-    type: "end",
-  });
+  notify.end();
   appWindow.close();
 };
 const home = () => {
@@ -143,14 +125,35 @@ const home = () => {
 };
 const minimize = () => {
   isMiniState.value = true;
-  appWindow.setSize(new LogicalSize(200, 35));
+  appWindow.setSize(new LogicalSize(230, 35));
 };
 const maximize = () => {
   isMiniState.value = false;
-  appWindow.setSize(new LogicalSize(200, 135));
+  appWindow.setSize(new LogicalSize(230, 135));
 };
-onMounted(() => {
+let unlistenNotify: UnlistenFn;
+onMounted(async () => {
   minimize();
+  unlistenNotify = await notify.listen((data) => {
+    const { type, payload } = data.payload as {
+      type: string;
+      payload: any;
+    };
+    if (type === "message") {
+      scriptInfo.currentMessage.unshift(payload);
+    } else if (type === "init") {
+      scriptInfo.name = payload.name;
+      scriptInfo.currentMessage = [];
+    } else if (type === "clear-message") {
+      scriptInfo.currentMessage = [];
+    } else if (type === "done") {
+      scriptInfo.currentMessage = [];
+      appWindow.hide();
+    }
+  });
+});
+onBeforeUnmount(() => {
+  unlistenNotify();
 });
 </script>
 <style lang="scss" scoped>

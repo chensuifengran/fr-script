@@ -4,6 +4,7 @@ pub mod export_api;
 pub mod types;
 pub mod c_api;
 pub mod global;
+pub mod event;
 use std::sync::Mutex;
 # [macro_use] extern crate lazy_static;
 lazy_static! {
