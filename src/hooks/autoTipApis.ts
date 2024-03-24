@@ -404,7 +404,7 @@ const createDependencyProposals = async (range: {
   }[]
 > => {
   //获取当前文件夹下的所有index.ts模块
-  const allModulesAndFn = import.meta.glob("./**/index.ts", {
+  const allModulesAndFn = import.meta.glob("../invokes/**/index.ts", {
     eager: true,
   });
   const _apiModules = [];
@@ -459,6 +459,8 @@ const createDependencyProposals = async (range: {
       endColumn: number;
     };
   }[];
+  console.log('allSnippet', allSnippet);
+  
   return allSnippet;
 };
 export const AutoTipUtils = {

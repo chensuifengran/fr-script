@@ -125,7 +125,7 @@ const {
   getCurTaskName,
   buildTableForm,
   allRunTimeApi,
-  getFnProxyStrings,
+  getWillRunScript,
   getCustomizeForm,
 } = useScriptApi()!;
 
@@ -172,6 +172,9 @@ const log = (
       time: timeStr,
     },
   });
+  if (type === "danger") {
+    logUtil.scriptConsoleErrorReport(msg, name.value + version.value);
+  }
   const consoleLogDiv = document.getElementById("consoleLogDiv");
   consoleLogDiv && (consoleLogDiv.scrollTop = consoleLogDiv?.scrollHeight + 9999);
 };
@@ -361,37 +364,7 @@ const run = (script: string, runId: string) => {
     isStop: false,
     SCRIPT_ID: getScriptId(),
   };
-  const runScript = `
-  with(window.runTimeApi){
-    ${getFnProxyStrings(runId)}
-
-    changeScriptRunState(true);
-    replaceRendererList([]);
-    pushElementToCheckList({
-      targetGroupLabel: "*脚本设置",
-      label: "导入上次运行配置",
-      checked: false
-    });
-    const signal = abortSignalInScript && abortSignalInScript.signal;
-    const signalHandle = ()=>{
-      const error = new DOMException('任务被手动终止');
-      try{changeScriptRunState && changeScriptRunState('stop');}catch(e){console.error(e);}
-      abortSignalInScript = undefined;
-      signal.removeEventListener('abort',signalHandle);
-      isStop = true;
-    }
-    signal.addEventListener('abort',signalHandle);
-    const evalFunction = async()=>{
-      ${script}
-      main && await main();
-      removeIntervals();
-      try{changeScriptRunState && changeScriptRunState(false, '${runId}');}catch(e){console.error(e);}
-      console.log('script run done!');
-    }
-    evalFunction();
-  }
-
-  `;
+  const runScript = getWillRunScript(runId, script);
   //参数列表为空
   return new Function("", runScript);
 };

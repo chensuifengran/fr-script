@@ -14,16 +14,17 @@ const buildTableForm = () => {
 
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
-const importLastRunConfig = async (rendererList?:RendererList[]) => {
-  if(!rendererList){
-    const { rendererList:r } = useListStore();
+const importLastRunConfig = async (rendererList?: RendererList[]) => {
+  if (!rendererList) {
+    const { rendererList: r } = useListStore();
     rendererList = r;
   }
   const scriptConfig = rendererList.find(
     (i: RendererList) => i.groupLabel === "*脚本设置"
   );
-  const mergeConfig = scriptConfig?.checkList.find((i) => i.label === "导入上次运行配置")
-    ?.checked;
+  const mergeConfig = scriptConfig?.checkList.find(
+    (i) => i.label === "导入上次运行配置"
+  )?.checked;
   if (mergeConfig) {
     await nextTick();
     const defaultObj: RendererList[] = JSON.parse(JSON.stringify(rendererList));
@@ -117,10 +118,12 @@ const importLastRunConfig = async (rendererList?:RendererList[]) => {
             */
           const AllMultipleValues: string[] = [];
           for (let j = 0; j < defaultItem.multipleGroupSelectList.length; j++) {
-            const defaultMultipleGroupSelectItem = defaultItem.multipleGroupSelectList[j];
-            const targetMultipleGroupSelectItem = targetItem.multipleGroupSelectList.find(
-              (item) => item.label === defaultMultipleGroupSelectItem.label
-            );
+            const defaultMultipleGroupSelectItem =
+              defaultItem.multipleGroupSelectList[j];
+            const targetMultipleGroupSelectItem =
+              targetItem.multipleGroupSelectList.find(
+                (item) => item.label === defaultMultipleGroupSelectItem.label
+              );
             if (targetMultipleGroupSelectItem) {
               const options = defaultMultipleGroupSelectItem.options;
               for (let k = 0; k < options.length; k++) {
@@ -133,13 +136,18 @@ const importLastRunConfig = async (rendererList?:RendererList[]) => {
               const targetMultipleGroupSelectItemValue =
                 targetMultipleGroupSelectItem.value;
               const newTargetMultipleGroupSelectItemValue: string[] = [];
-              for (let k = 0; k < targetMultipleGroupSelectItemValue.length; k++) {
+              for (
+                let k = 0;
+                k < targetMultipleGroupSelectItemValue.length;
+                k++
+              ) {
                 const item = targetMultipleGroupSelectItemValue[k];
                 if (AllMultipleValues.includes(item)) {
                   newTargetMultipleGroupSelectItemValue.push(item);
                 }
               }
-              defaultMultipleGroupSelectItem.value = newTargetMultipleGroupSelectItemValue;
+              defaultMultipleGroupSelectItem.value =
+                newTargetMultipleGroupSelectItemValue;
             }
           }
 
@@ -173,7 +181,8 @@ const importLastRunConfig = async (rendererList?:RendererList[]) => {
       }
       defaultObj.find((i) => {
         if (i.groupLabel === "*脚本设置") {
-          i.checkList.find((i) => i.label === "导入上次运行配置")!.checked = true;
+          i.checkList.find((i) => i.label === "导入上次运行配置")!.checked =
+            true;
           return;
         }
       });
@@ -198,23 +207,23 @@ const importLastRunConfig = async (rendererList?:RendererList[]) => {
     });
     curRendererList.find((i) => {
       if (i.groupLabel === "*脚本设置") {
-        i.checkList.find((i) => i.label === "导入上次运行配置")!.checked = false;
+        i.checkList.find((i) => i.label === "导入上次运行配置")!.checked =
+          false;
         return;
       }
     });
-    if(curRendererList.length){
+    if (curRendererList.length) {
       rendererList.splice(0, rendererList.length, ...curRendererList);
-    }else{
+    } else {
       rendererList.splice(0, rendererList.length, ...rendererList);
     }
-
   }
 };
 const addRendererListToWindow = () => {
   const { rendererList } = useListStore();
   //window对象没有rendererList属性时，添加rendererList属性
   //@ts-ignore
-  if(!window["rendererList"]){
+  if (!window["rendererList"]) {
     //@ts-ignore
     window["rendererList"] = rendererList;
   }
@@ -751,185 +760,240 @@ const setTaskEndStatus = (
   }
 };
 const editorValue = ref("");
-export const useScriptApi = () => {
-  /**
-   * 在编辑器指定范围插入文本
-   * @param text 需要插入的文本
-   * @param insertHead 是否插入脚本头部声明
-   * @param range 范围参数
-   * @returns
-   */
-  const insertText = (
-    text: string,
-    insertHead = false,
-    range?: {
-      startLineNumber: number;
-      startColumn: number;
-      endLineNumber: number;
-      endColumn: number;
+/**
+ * 在编辑器指定范围插入文本
+ * @param text 需要插入的文本
+ * @param insertHead 是否插入脚本头部声明
+ * @param range 范围参数
+ * @returns
+ */
+const insertText = (
+  text: string,
+  insertHead = false,
+  range?: {
+    startLineNumber: number;
+    startColumn: number;
+    endLineNumber: number;
+    endColumn: number;
+  }
+) => {
+  const curSelection = editor!.getSelection()!; // 选择的文本范围或光标的当前位置
+  const { startLineNumber, startColumn, endLineNumber, endColumn } = range
+    ? range
+    : curSelection;
+  if (insertHead) {
+    const txt: string = editor!.getValue();
+    const originText =
+      txt.indexOf("请勿删除，此声明会在脚本读取时用到！") === -1
+        ? txt
+        : txt.replace(txt.substring(0, txt.indexOf(" */") + 3), "");
+    return editor!.setValue(text + "\n" + originText);
+  }
+  // 在光标位置插入文本
+  editor!.executeEdits("", [
+    {
+      range: new monaco.Range(
+        startLineNumber,
+        startColumn,
+        endLineNumber,
+        endColumn
+      ),
+      text, // 插入的文本
+      forceMoveMarkers: true,
+    },
+  ]);
+  editor!.focus();
+  // 核心 设置光标的位置
+  editor!.setPosition({
+    column: startColumn + text.length,
+    lineNumber: startLineNumber,
+  });
+};
+let setTextTimer: any = null;
+const setText = (text: string) => {
+  setTextTimer && clearTimeout(setTextTimer);
+  setTextTimer = setTimeout(() => {
+    if (editor) {
+      editor.setValue("");
+      editor.setValue(text);
     }
-  ) => {
-    const curSelection = editor!.getSelection()!; // 选择的文本范围或光标的当前位置
-    const { startLineNumber, startColumn, endLineNumber, endColumn } = range
-      ? range
-      : curSelection;
-    if (insertHead) {
-      const txt: string = editor!.getValue();
-      const originText =
-        txt.indexOf("请勿删除，此声明会在脚本读取时用到！") === -1
-          ? txt
-          : txt.replace(txt.substring(0, txt.indexOf(" */") + 3), "");
-      return editor!.setValue(text + "\n" + originText);
-    }
-    // 在光标位置插入文本
-    editor!.executeEdits("", [
-      {
-        range: new monaco.Range(
-          startLineNumber,
-          startColumn,
-          endLineNumber,
-          endColumn
-        ),
-        text, // 插入的文本
-        forceMoveMarkers: true,
+    clearTimeout(setTextTimer);
+  }, 200);
+};
+const editorInit = () => {
+  nextTick(async () => {
+    const languages = monaco.languages.getLanguages();
+    const supportLanguageIds = ["javascript", "typescript", "json"];
+    //禁用语言
+    languages.forEach((language) => {
+      if (supportLanguageIds.indexOf(language.id) === -1) {
+        monaco.languages.setLanguageConfiguration(language.id, {});
+      }
+    });
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: false,
+    });
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      allowNonTsExtensions: true,
+      allowSyntheticDefaultImports: true,
+      esModuleInterop: true,
+      noEmit: true,
+      typeRoots: ["node_modules/@types"],
+    });
+    monaco.languages.register({
+      id: "typescript",
+      extensions: [".ts"],
+      aliases: ["TypeScript", "ts", "typescript"],
+      mimetypes: ["text/typescript"],
+    });
+    monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+    monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+    monaco.languages.registerCompletionItemProvider("typescript", {
+      provideCompletionItems: async function (model, position) {
+        const { createDependencyProposals } = AutoTipUtils;
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+        return {
+          suggestions: await createDependencyProposals(range),
+        };
       },
-    ]);
-    editor!.focus();
-    // 核心 设置光标的位置
-    editor!.setPosition({
-      column: startColumn + text.length,
-      lineNumber: startLineNumber,
     });
-  };
-  let setTextTimer: any = null;
-  const setText = (text: string) => {
-    setTextTimer && clearTimeout(setTextTimer);
-    setTextTimer = setTimeout(() => {
-      if (editor) {
-        editor.setValue("");
-        editor.setValue(text);
-      }
-      clearTimeout(setTextTimer);
-    }, 200);
-  };
-  const editorInit = () => {
-    nextTick(async () => {
-      const languages = monaco.languages.getLanguages();
-      const supportLanguageIds = ["javascript", "typescript", "json"];
-      //禁用语言
-      languages.forEach((language) => {
-        if (supportLanguageIds.indexOf(language.id) === -1) {
-          monaco.languages.setLanguageConfiguration(language.id, {});
-        }
-      });
-      monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-        noSemanticValidation: true,
-        noSyntaxValidation: false,
-      });
-      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        target: monaco.languages.typescript.ScriptTarget.ESNext,
-        module: monaco.languages.typescript.ModuleKind.ESNext,
-        moduleResolution:
-          monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-        allowNonTsExtensions: true,
-        allowSyntheticDefaultImports: true,
-        esModuleInterop: true,
-        noEmit: true,
-        typeRoots: ["node_modules/@types"],
-      });
-      monaco.languages.register({
-        id: "typescript",
-        extensions: [".ts"],
-        aliases: ["TypeScript", "ts", "typescript"],
-        mimetypes: ["text/typescript"],
-      });
-      monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-      monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-      monaco.languages.registerCompletionItemProvider("typescript", {
-        provideCompletionItems: async function (model, position) {
-          const { createDependencyProposals } = AutoTipUtils;
-          const word = model.getWordUntilPosition(position);
-          const range = {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endColumn: word.endColumn,
-          };
-          return {
-            suggestions: await createDependencyProposals(range),
-          };
-        },
-      });
-      const appGSStore = useAppGlobalSettings();
-      let editorTheme = "vs";
-      const settingEditorTheme = appGSStore.editor.theme.value;
-      if (settingEditorTheme === "跟随全局主题") {
-        const isDark = useDark({});
-        editorTheme = isDark.value ? "vs-dark" : "vs";
-      } else {
-        editorTheme = settingEditorTheme === "明亮" ? "vs" : "vs-dark";
-      }
-      //将editorTsDeclaration写入到csfr.d.ts文件中
-      try {
-        if (
-          appGSStore.envSetting.workDir &&
-          appGSStore.envSetting.workDir.length
-        ) {
-          const targetPath = await pathUtils.join(
-            appGSStore.envSetting.workDir,
-            "./lib/csfr.d.ts"
-          );
-          await writeTextFile(targetPath, editorTsDeclaration);
-        }
-      } catch (error) {
-        console.error("辅助声明文件写入失败：", error);
-      }
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        editorTsDeclaration
-      );
-      !editor
-        ? (editor = monaco.editor.create(
-            document.getElementById("codeEditBox") as HTMLElement,
-            {
-              value: editorValue.value, // 编辑器初始显示文字
-              language: "typescript", // 语言支持自行查阅demo
-              automaticLayout: true, // 自适应布局
-              theme: editorTheme, // 官方自带三种主题vs, hc-black, or vs-dark
-              foldingStrategy: "indentation",
-              renderLineHighlight: "all", // 行亮
-              selectOnLineNumbers: true, // 显示行号
-              tabSize: 2, // tab缩进大小
-              minimap: {
-                enabled: true,
-              },
-              readOnly: false, // 只读
-              fontSize: 16, // 字体大小
-              scrollBeyondLastLine: false, // 取消代码后面一大段空白
-              overviewRulerBorder: false, // 不要滚动条的边框
-            }
-          ))
-        : editor!.setValue("");
-      onEditorMounted.forEach((cb) => {
-        cb(editor!);
-      });
-      // 监听值的变化
-      editor.onDidChangeModelContent((_val: any) => {
-        editorValue.value = editor!.getValue();
-      });
-    });
-  };
-  const formatCode = () => {
-    editor?.getAction("editor.action.formatDocument")?.run();
-  };
-  const disposeEditor = () => {
-    editor?.dispose();
-    editor = null;
-  };
-  const unRegisterEditorEvent = (name: string) => {
-    if (name === "mounted") {
-      onEditorMounted = [];
+    const appGSStore = useAppGlobalSettings();
+    let editorTheme = "vs";
+    const settingEditorTheme = appGSStore.editor.theme.value;
+    if (settingEditorTheme === "跟随全局主题") {
+      const isDark = useDark({});
+      editorTheme = isDark.value ? "vs-dark" : "vs";
+    } else {
+      editorTheme = settingEditorTheme === "明亮" ? "vs" : "vs-dark";
     }
-  };
+    //将editorTsDeclaration写入到csfr.d.ts文件中
+    try {
+      if (
+        appGSStore.envSetting.workDir &&
+        appGSStore.envSetting.workDir.length
+      ) {
+        const targetPath = await pathUtils.join(
+          appGSStore.envSetting.workDir,
+          "./lib/csfr.d.ts"
+        );
+        await writeTextFile(targetPath, editorTsDeclaration);
+      }
+    } catch (error) {
+      console.error("辅助声明文件写入失败：", error);
+    }
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      editorTsDeclaration
+    );
+    !editor
+      ? (editor = monaco.editor.create(
+          document.getElementById("codeEditBox") as HTMLElement,
+          {
+            value: editorValue.value, // 编辑器初始显示文字
+            language: "typescript", // 语言支持自行查阅demo
+            automaticLayout: true, // 自适应布局
+            theme: editorTheme, // 官方自带三种主题vs, hc-black, or vs-dark
+            foldingStrategy: "indentation",
+            renderLineHighlight: "all", // 行亮
+            selectOnLineNumbers: true, // 显示行号
+            tabSize: 2, // tab缩进大小
+            minimap: {
+              enabled: true,
+            },
+            readOnly: false, // 只读
+            fontSize: 16, // 字体大小
+            scrollBeyondLastLine: false, // 取消代码后面一大段空白
+            overviewRulerBorder: false, // 不要滚动条的边框
+          }
+        ))
+      : editor!.setValue("");
+    onEditorMounted.forEach((cb) => {
+      cb(editor!);
+    });
+    // 监听值的变化
+    editor.onDidChangeModelContent((_val: any) => {
+      editorValue.value = editor!.getValue();
+    });
+  });
+};
+const formatCode = () => {
+  editor?.getAction("editor.action.formatDocument")?.run();
+};
+const disposeEditor = () => {
+  editor?.dispose();
+  editor = null;
+};
+const unRegisterEditorEvent = (name: string) => {
+  if (name === "mounted") {
+    onEditorMounted = [];
+  }
+};
+const getEditor = () => editor;
+const getCustomizeForm = async () => {
+  const rendererForm = await new Promise<RendererList[]>((resolve) => {
+    const signal =
+      (window as any).runTimeApi.startScriptSignal &&
+      (window as any).runTimeApi.startScriptSignal.signal;
+    const signalHandle = () => {
+      (window as any).runTimeApi.abortSignalInScript = undefined;
+      signal!.removeEventListener("abort", signalHandle);
+      //保存此次运行选择的配置选项
+      localStorage.setItem(
+        (window as any).runTimeApi.getScriptId!() + "-rendererList",
+        JSON.stringify((window as any).rendererList)
+      );
+      resolve((window as any).rendererList);
+    };
+    signal!.addEventListener("abort", signalHandle);
+  });
+  return new rendererFormUtil.FormUtil(rendererForm);
+};
+const getWillRunScript = (runId: string, script: string) => {
+  const scriptTemplate = `
+    try{
+      with(window.runTimeApi){
+        ${getInvokeApiFnProxyStrings(runId) + "\n"}
+        changeScriptRunState(true);
+        replaceRendererList([]);
+        pushElementToCheckList({
+          targetGroupLabel: "*脚本设置",
+          label: "导入上次运行配置",
+          checked: false
+        });
+        const signal = abortSignalInScript && abortSignalInScript.signal;
+        const signalHandle = ()=>{
+          const error = new DOMException('任务被手动终止');
+          try{changeScriptRunState && changeScriptRunState('stop');}catch(e){console.warn(e);}
+          abortSignalInScript = undefined;
+          signal.removeEventListener('abort',signalHandle);
+          isStop = true;
+        }
+        signal.addEventListener('abort',signalHandle);
+        const evalFunction = async()=>{
+          ${script}
+          main && await main();
+          removeIntervals();
+          try{changeScriptRunState && changeScriptRunState(false, '${runId}');}catch(e){console.error(e);}
+          console.log('script run done!');
+        }
+        evalFunction();
+      }
+    }catch(e){
+      console.error(e);
+    }
+  `;
+  return scriptTemplate;
+};
+export const useScriptApi = () => {
   // @ts-ignore
   self.MonacoEnvironment = {
     getWorker(_: string, label: string) {
@@ -948,32 +1012,8 @@ export const useScriptApi = () => {
       return new EditorWorker();
     },
   };
-  const getEditor = () => editor;
-  const getFnProxyStrings = (runId: string) => {
-    return getInvokeApiFnProxyStrings(runId) + "\n";
-  };
-  const getCustomizeForm = async () => {
-    const rendererForm = await new Promise<RendererList[]>((resolve) => {
-      const signal =
-        (window as any).runTimeApi.startScriptSignal &&
-        (window as any).runTimeApi.startScriptSignal.signal;
-      const signalHandle = () => {
-        (window as any).runTimeApi.abortSignalInScript = undefined;
-        signal!.removeEventListener("abort", signalHandle);
-        //保存此次运行选择的配置选项
-        localStorage.setItem(
-          (window as any).runTimeApi.getScriptId!() + "-rendererList",
-          JSON.stringify((window as any).rendererList)
-        );
-        resolve((window as any).rendererList);
-      };
-      signal!.addEventListener("abort", signalHandle);
-    });
-    return new rendererFormUtil.FormUtil(rendererForm);
-  };
   return {
     importLastRunConfig,
-    getFnProxyStrings,
     replaceRendererList,
     pushElementToCheckList,
     pushElementToInputList,
@@ -1001,6 +1041,7 @@ export const useScriptApi = () => {
     registerEditorEvent,
     unRegisterEditorEvent,
     getCustomizeForm,
+    getWillRunScript,
     allRunTimeApi: {
       ...exportAllFn(),
     },

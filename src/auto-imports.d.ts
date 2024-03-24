@@ -69,6 +69,7 @@ declare global {
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const libUtil: typeof import('./utils/libUtil')['libUtil']
+  const logUtil: typeof import('./utils/logUtil')['logUtil']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
