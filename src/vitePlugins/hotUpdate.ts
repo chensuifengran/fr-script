@@ -8,12 +8,12 @@ const __dirname = dirname(__filename);
 
 const scriptPath = resolve(__dirname, "../../script/genBuiltInApiType.js");
 let timer: any;
-const runScript = (type: "all" | "api" | "declare") => {
+const runScript = (type: "api" | "declare") => {
   timer && clearTimeout(timer);
   timer = setTimeout(() => {
     //使用node执行scriptPath脚本
     exec(
-      `node ${scriptPath}${type === "all" ? "" : " " + type}`,
+      `node ${scriptPath} ${type}`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`执行错误: ${error}`);
