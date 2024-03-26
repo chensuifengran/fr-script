@@ -2,12 +2,12 @@
   <div
     class="dynamics-input"
     v-if="
-      (type === 'invokeApi' ? invokeApiDialogModule.title === name : false) &&
+      (type === 'invokeApi' ? dynamicDialog.title === name : false) &&
       displayConditionIsOk
     "
     v-show="
-      (!onlyTest || (onlyTest && invokeApiDialogModule.callType === 'test')) &&
-      !(noTest && invokeApiDialogModule.callType === 'test')
+      (!onlyTest || (onlyTest && dynamicDialog.callType === 'test')) &&
+      !(noTest && dynamicDialog.callType === 'test')
     "
   >
     <span
@@ -123,7 +123,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-const { getInvokeApiMethods, getInvokeApiDialogModule } = useInvokeApiMethodsRegister();
+const { dynamicDialog } = useCore();
 const listStore = useListStore();
 const notShowType = ["input", "FileInput", "DirInput", "slider"];
 const notFlexType = ["input", "FileInput", "DirInput", "RectInput"];
@@ -142,7 +142,6 @@ const parseOption = (item: string | number) => {
   };
 };
 
-const invokeApiDialogModule = getInvokeApiDialogModule();
 const props = defineProps({
   name: {
     type: String,

@@ -1,6 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { screenMatchTemplateFn } from "./exportFn";
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 export const modelCallback = async (
   options: {
     range: {

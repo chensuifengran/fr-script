@@ -1,6 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { getImageSizeFn } from "./exportFn";
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 
 export const modelCallback = async (
   //弹窗填写的参数

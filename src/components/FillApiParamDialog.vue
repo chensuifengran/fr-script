@@ -1,9 +1,9 @@
 <template>
   <GeneralDialog
-    v-model="dialogModule.show"
-    :title="dialogModule.title"
-    :content="dialogModule.content"
-    :callback="dialogModule.callback"
+    v-model="dynamicDialog.show"
+    :title="dynamicDialog.title"
+    :content="dynamicDialog.content"
+    :callback="dynamicDialog.callback"
     :isTestModule="true"
   >
     <template #element>
@@ -24,15 +24,10 @@
 </template>
 
 <script setup lang="ts">
-const {
-  getInvokeApiDialogModule,
-  getInvokeApiTestModules,
-} = useInvokeApiMethodsRegister();
-
-const dialogModule = computed(() => getInvokeApiDialogModule());
+const { dynamicDialog, getBuiltInApiTestModules } = useCore();
 const listStore = useListStore();
 const invokeApiTestModules = computed(() => {
-  const oriModules = getInvokeApiTestModules();
+  const oriModules = getBuiltInApiTestModules();
   oriModules.forEach((m) => {
     m?.dialog.args?.forEach((a) => {
       if (a.options) {

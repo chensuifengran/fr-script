@@ -261,7 +261,6 @@ const configChangeHandle = async (label?: string) => {
   if (label === "导入上次运行配置") {
     await importLastRunConfig(rendererList);
   }
-  // window["rendererList"] = JSON.parse(JSON.stringify(rendererList));
 };
 
 const onAddItem = (t: {

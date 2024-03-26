@@ -15,7 +15,7 @@ type FnInfo = {
 };
 
 const { basename, resolve } = pathUtils;
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 
 const fnInfo = ref<FnInfo | null>(null);
 const getFnInfo = () => fnInfo;

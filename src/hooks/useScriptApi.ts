@@ -5,8 +5,9 @@ import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import * as monaco from "monaco-editor";
 import { writeTextFile } from "@tauri-apps/api/fs";
-const { exportAllFn, getInvokeApiFnProxyStrings } =
-  useInvokeApiMethodsRegister();
+import { storeToRefs } from "pinia";
+import { WebviewWindow } from "@tauri-apps/api/window";
+const { exportAllFn, genBuiltInApi } = useCore();
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 const buildTableForm = () => {
   return new TableForm();
@@ -31,7 +32,7 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
     curRendererList = JSON.parse(JSON.stringify(rendererList));
 
     const r = localStorage.getItem(
-      (window as any).runTimeApi.getScriptId!() + "-rendererList"
+      window[CORE_NAMESPACES].getScriptId!() + "-rendererList"
     );
     if (r) {
       //合并配置
@@ -221,11 +222,8 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
 };
 const addRendererListToWindow = () => {
   const { rendererList } = useListStore();
-  //window对象没有rendererList属性时，添加rendererList属性
-  //@ts-ignore
-  if (!window["rendererList"]) {
-    //@ts-ignore
-    window["rendererList"] = rendererList;
+  if (!window[CORE_NAMESPACES].rendererList) {
+    window[CORE_NAMESPACES].rendererList = rendererList;
   }
 };
 const replaceRendererList = (newRendererList: RendererList[]) => {
@@ -811,7 +809,7 @@ const editorValue = ref("");
  * @param range 范围参数
  * @returns
  */
-const insertText = (
+export const insertText = (
   text: string,
   insertHead = false,
   range?: {
@@ -940,27 +938,28 @@ const getEditor = () => editor;
 const getCustomizeForm = async () => {
   const rendererForm = await new Promise<RendererList[]>((resolve) => {
     const signal =
-      (window as any).runTimeApi.startScriptSignal &&
-      (window as any).runTimeApi.startScriptSignal.signal;
+      window[CORE_NAMESPACES].startScriptSignal &&
+      window[CORE_NAMESPACES].startScriptSignal.signal;
     const signalHandle = () => {
-      (window as any).runTimeApi.abortSignalInScript = undefined;
+      window[CORE_NAMESPACES].abortSignalInScript = undefined;
       signal!.removeEventListener("abort", signalHandle);
       //保存此次运行选择的配置选项
       localStorage.setItem(
-        (window as any).runTimeApi.getScriptId!() + "-rendererList",
-        JSON.stringify((window as any).rendererList)
+        window[CORE_NAMESPACES].getScriptId!() + "-rendererList",
+        JSON.stringify(window[CORE_NAMESPACES].rendererList)
       );
-      resolve((window as any).rendererList);
+      resolve(window[CORE_NAMESPACES].rendererList);
     };
     signal!.addEventListener("abort", signalHandle);
   });
   return new rendererFormUtil.FormUtil(rendererForm);
 };
+const abortSignalInScript = ref<AbortController | undefined>();
 const getWillRunScript = (runId: string, script: string) => {
   const scriptTemplate = `
     try{
-      with(window.runTimeApi){
-        ${getInvokeApiFnProxyStrings(runId) + "\n"}
+      with(window['${CORE_NAMESPACES}']){
+        ${genBuiltInApi(runId) + "\n"}
         changeScriptRunState(true);
         replaceRendererList([]);
         pushElementToCheckList({
@@ -992,25 +991,180 @@ const getWillRunScript = (runId: string, script: string) => {
   `;
   return scriptTemplate;
 };
+const setIntervals: NodeJS.Timeout[] = [];
+const _setInterval = (callback: () => void, ms?: number | undefined) => {
+  const timeout = setInterval(callback, ms);
+  setIntervals.push(timeout);
+  return timeout;
+};
+const _clearInterval = (timeout: NodeJS.Timeout) => {
+  clearInterval(timeout);
+  setIntervals.splice(setIntervals.indexOf(timeout), 1);
+};
+const removeIntervals = () => {
+  setIntervals.forEach((i) => {
+    clearInterval(i);
+  });
+  setIntervals.splice(0, setIntervals.length);
+  console.log("已清除所有定时器");
+};
+const getFileInfo = (
+  type: "id" | "savePath" | "name" | "version" | "description"
+) => {
+  const listStore = useListStore();
+  const { scriptList } = storeToRefs(listStore);
+  const { openId } = useScriptInfo();
+  const target = scriptList.value.find((s) => s.id === openId!.value)!;
+  switch (type) {
+    case "id":
+      return target?.id;
+    case "name":
+      return target?.name;
+    case "description":
+      return target?.description;
+    case "savePath":
+      return target?.savePath;
+    case "version":
+      return target?.version;
+    default:
+      console.error(type);
+      return type;
+  }
+};
+const running = ref(0);
+const { notify } = eventUtil;
+const getScriptId = () => getFileInfo("id");
+let endBeforeCompletion = false;
+const setEndBeforeCompletion = (status: boolean) => {
+  endBeforeCompletion = status;
+};
+
+const hideWindow = ref(true);
+const logOutput = reactive<
+  {
+    time: string;
+    log: string;
+    type: "success" | "danger" | "info" | "warning" | "loading";
+  }[]
+>([]);
+const clearLogOutput = () => {
+  logOutput.splice(0, logOutput.length);
+  notify.clear();
+};
+
+const log = (
+  msg: string,
+  type?: "success" | "danger" | "info" | "warning" | "loading"
+) => {
+  //@ts-ignore
+  if (window[CORE_NAMESPACES].isStop) {
+    return;
+  }
+  const date = new Date(Date.now());
+  //获取时分秒，时分秒不足两位补0
+  const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
+    .map((i) => {
+      return i < 10 ? "0" + i : i;
+    })
+    .join(":");
+  logOutput.push({
+    time: timeStr,
+    log: msg,
+    type: type ? type : "info",
+  });
+  notify.send({
+    type,
+    message: msg,
+    time: timeStr,
+  });
+  if (type === "danger") {
+    logUtil.scriptConsoleErrorReport(msg, name.value + version.value);
+  }
+  const consoleLogDiv = document.getElementById("consoleLogDiv");
+  consoleLogDiv &&
+    (consoleLogDiv.scrollTop = consoleLogDiv?.scrollHeight + 9999);
+};
+
+const name = computed(() => {
+  return getFileInfo("name");
+});
+const version = computed(() => {
+  return getFileInfo("version");
+});
+const savePath = computed(() => {
+  return getFileInfo("savePath");
+});
+const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals"];
+const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
+  const { runningFnId } = useScriptRuntime();
+  if (taskId && taskId !== runningFnId.value) {
+    return;
+  }
+  if (state === "stop") {
+    running.value = 1;
+    window[CORE_NAMESPACES].removeIntervals &&
+      window[CORE_NAMESPACES].removeIntervals();
+    if (window[CORE_NAMESPACES]) {
+      Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
+        if (notDelApi.includes(key)) {
+          return;
+        }
+        //@ts-ignore
+        delete window[CORE_NAMESPACES][key];
+      });
+    }
+    if (hideWindow.value) {
+      WebviewWindow.getByLabel("main")?.show();
+      notify.done();
+    }
+  } else if (state) {
+    clearLogOutput();
+    log("脚本就绪，等待开始运行", "info");
+    running.value = 0;
+    endBeforeCompletion = false;
+  } else {
+    if (endBeforeCompletion) {
+      return;
+    }
+    running.value = 1;
+    log("脚本执行完成", "success");
+    setTaskEndStatus("success", "脚本执行完成");
+    if (window[CORE_NAMESPACES]) {
+      Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
+        if (notDelApi.includes(key)) {
+          return;
+        }
+        //@ts-ignore
+        delete window[CORE_NAMESPACES][key];
+      });
+    }
+    //显示当前窗口
+    if (hideWindow.value) {
+      WebviewWindow.getByLabel("main")?.show();
+      notify.done();
+    }
+  }
+};
 export const useScriptApi = () => {
   // @ts-ignore
-  self.MonacoEnvironment = {
-    getWorker(_: string, label: string) {
-      if (label === "json") {
-        return new jsonWorker();
-      }
-      if (label === "css" || label === "scss" || label === "less") {
-        return new cssWorker();
-      }
-      if (label === "html" || label === "handlebars" || label === "razor") {
-        return new htmlWorker();
-      }
-      if (["typescript", "javascript"].includes(label)) {
-        return new tsWorker();
-      }
-      return new EditorWorker();
-    },
-  };
+  !self.MonacoEnvironment &&
+    (self.MonacoEnvironment = {
+      getWorker(_: string, label: string) {
+        if (label === "json") {
+          return new jsonWorker();
+        }
+        if (label === "css" || label === "scss" || label === "less") {
+          return new cssWorker();
+        }
+        if (label === "html" || label === "handlebars" || label === "razor") {
+          return new htmlWorker();
+        }
+        if (["typescript", "javascript"].includes(label)) {
+          return new tsWorker();
+        }
+        return new EditorWorker();
+      },
+    });
   return {
     importLastRunConfig,
     replaceRendererList,
@@ -1020,16 +1174,6 @@ export const useScriptApi = () => {
     pushElementToGSList,
     pushElementToMGSList,
     pushElementToTableList,
-    buildForm,
-    setAllTask,
-    setCurTask,
-    getAllTask,
-    getCurTask,
-    getCurTaskName,
-    nextTask,
-    getTaskStatus,
-    setTaskEndStatus,
-    buildTableForm,
     editorValue,
     editorInit,
     insertText,
@@ -1039,10 +1183,110 @@ export const useScriptApi = () => {
     disposeEditor,
     registerEditorEvent,
     unRegisterEditorEvent,
-    getCustomizeForm,
     getWillRunScript,
-    allRunTimeApi: {
-      ...exportAllFn(),
+    setEndBeforeCompletion,
+    getEndBeforeCompletion: () => endBeforeCompletion,
+    getFileInfo,
+  };
+};
+
+export const useScriptView = () => {
+  return {
+    running,
+    name,
+    version,
+    hideWindow,
+    savePath,
+    logOutput,
+  };
+};
+
+export const useBuiltInApi = () => {
+  // @ts-ignore
+  !self.MonacoEnvironment &&
+    (self.MonacoEnvironment = {
+      getWorker(_: string, label: string) {
+        if (label === "json") {
+          return new jsonWorker();
+        }
+        if (label === "css" || label === "scss" || label === "less") {
+          return new cssWorker();
+        }
+        if (label === "html" || label === "handlebars" || label === "razor") {
+          return new htmlWorker();
+        }
+        if (["typescript", "javascript"].includes(label)) {
+          return new tsWorker();
+        }
+        return new EditorWorker();
+      },
+    });
+  const { openId } = useScriptInfo();
+  const { rendererList } = useListStore();
+  const appGSStore = useAppGlobalSettings();
+  const listStore = useListStore();
+  const { scriptList } = storeToRefs(listStore);
+  return {
+    WORK_DIR: appGSStore.envSetting.workDir,
+    SCREEN_SHOT_PATH: appGSStore.envSetting.screenshotSavePath,
+    SCREEN_SHOT_DIR: pathUtils.resolve(
+      appGSStore.envSetting.screenshotSavePath || "",
+      "../"
+    ),
+    __httpValue: "http://",
+    SCRIPT_ROOT_DIR: pathUtils.resolve(getFileInfo("savePath") || "", "../"),
+    isStop: false,
+    SCRIPT_ID: getScriptId(),
+    buildForm: (buildFormList: BuildFormList) => {
+      buildForm(buildFormList);
+      if (openId.value !== "-1") {
+        const target = scriptList.value.find((i) => i.id === openId.value);
+        if (!target?.setting.autoImportLastRunConfig) {
+          return;
+        } else if (target.setting.autoImportLastRunConfig) {
+          const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
+            (i) => i.groupLabel === "*脚本设置"
+          );
+          if (scriptConfig) {
+            const importLastRunConfigItem = scriptConfig.checkList.find(
+              (i) => i.label === "导入上次运行配置"
+            );
+            if (importLastRunConfigItem) {
+              importLastRunConfigItem.checked = true;
+              importLastRunConfig();
+            }
+          }
+        }
+      }
     },
+    setAllTask,
+    setCurTask,
+    getAllTask,
+    getCurTask,
+    getCurTaskName,
+    nextTask,
+    getTaskStatus,
+    setTaskEndStatus,
+    buildTableForm,
+    getCustomizeForm,
+    sleep: timeUtil.sleep,
+    abortSignalInScript: abortSignalInScript.value,
+    startScriptSignal: new AbortController(),
+    setInterval: _setInterval,
+    clearInterval: _clearInterval,
+    removeIntervals,
+    rendererList,
+    getScriptId,
+    changeScriptRunState,
+    log,
+    clearLogOutput,
+    ...exportAllFn(),
+    replaceRendererList,
+    pushElementToCheckList,
+    pushElementToInputList,
+    pushElementToSelectList,
+    pushElementToGSList,
+    pushElementToMGSList,
+    pushElementToTableList,
   };
 };

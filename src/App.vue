@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
 import { appWindow } from "@tauri-apps/api/window";
-const { registerAllInvokeApi } = invokeApiRegisterManager();
+const { registerAllInvokeApi } = useCore();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { app } = storeToRefs(appGSStore);
@@ -94,7 +94,7 @@ onMounted(async () => {
   } else {
     init();
   }
-  registerAllInvokeApi(listStore);
+  registerAllInvokeApi();
 });
 const isDark = useDark({});
 provide("isDark", isDark);

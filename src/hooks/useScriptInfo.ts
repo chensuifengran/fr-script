@@ -7,9 +7,6 @@ const contentTransform = ref('translateX(0)');
 const asideBarPos = ref('relative');
 const testApiWinId = ref<number>(-1);
 const isEditing = ref(false);
-const {
-  insertText,
-} = useScriptApi()!;
 const fileInfo = reactive({
   originData: "",
   lastData: "",

@@ -83,17 +83,16 @@ import { devicesFn } from "../../invokes/devices/exportFn";
 import { disConnectToFn } from "../../invokes/disConnectTo/exportFn";
 import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
-import { timeUtil } from "../../utils/timeUtil";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 const { notify } = eventUtil;
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
 );
-const hideWindow = ref(true);
+const { running, name, version, hideWindow, savePath, logOutput } = useScriptView();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
-let endBeforeCompletion = false;
+
 const reInit = (): boolean => {
   if (isReInit.value) {
     isReInit.value = false;
@@ -104,107 +103,14 @@ const reInit = (): boolean => {
 
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
-const appGSStore = useAppGlobalSettings();
+
 const { openId, tempEditorValue, contentTransform, asideBarPos } = useScriptInfo();
 const goSetScript = () => {
   router.replace("/script/setting");
 };
-const {
-  replaceRendererList,
-  pushElementToCheckList,
-  pushElementToSelectList,
-  pushElementToMGSList,
-  pushElementToGSList,
-  pushElementToTableList,
-  buildForm,
-  importLastRunConfig,
-  setAllTask,
-  setCurTask,
-  nextTask,
-  setTaskEndStatus,
-  getAllTask,
-  getCurTask,
-  getCurTaskName,
-  buildTableForm,
-  allRunTimeApi,
-  getWillRunScript,
-  getCustomizeForm,
-} = useScriptApi()!;
 
-const running = ref(0);
-const logOutput = reactive<
-  {
-    time: string;
-    log: string;
-    type: "success" | "danger" | "info" | "warning" | "loading";
-  }[]
->([]);
-const clearLogOutput = () => {
-  logOutput.splice(0, logOutput.length);
-  notify.clear();
-};
+const { setEndBeforeCompletion, getFileInfo, getWillRunScript } = useScriptApi()!;
 
-const log = (
-  msg: string,
-  type?: "success" | "danger" | "info" | "warning" | "loading"
-) => {
-  //@ts-ignore
-  if (window.runTimeApi.isStop) {
-    return;
-  }
-  const date = new Date(Date.now());
-  //获取时分秒，时分秒不足两位补0
-  const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
-    .map((i) => {
-      return i < 10 ? "0" + i : i;
-    })
-    .join(":");
-  logOutput.push({
-    time: timeStr,
-    log: msg,
-    type: type ? type : "info",
-  });
-  notify.send({
-    type,
-    message: msg,
-    time: timeStr,
-  });
-  if (type === "danger") {
-    logUtil.scriptConsoleErrorReport(msg, name.value + version.value);
-  }
-  const consoleLogDiv = document.getElementById("consoleLogDiv");
-  consoleLogDiv && (consoleLogDiv.scrollTop = consoleLogDiv?.scrollHeight + 9999);
-};
-
-const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description") => {
-  const target = scriptList.value.find((s) => s.id === openId!.value)!;
-  switch (type) {
-    case "id":
-      return target?.id;
-    case "name":
-      return target?.name;
-    case "description":
-      return target?.description;
-    case "savePath":
-      return target?.savePath;
-    case "version":
-      return target?.version;
-    default:
-      console.error(type);
-      return type;
-  }
-};
-const getScriptId = () => getFileInfo("id");
-
-const name = computed(() => {
-  return getFileInfo("name");
-});
-const version = computed(() => {
-  return getFileInfo("version");
-});
-const savePath = computed(() => {
-  return getFileInfo("savePath");
-});
 const goBack = () => {
   router.replace({
     path: "/script/list",
@@ -222,149 +128,21 @@ const goEditor = () => {
   //路由跳转到编辑器
   router.replace("/script/editor");
 };
-const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals"];
-const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
-  if (taskId && taskId !== runningFnId.value) {
-    return;
-  }
-  if (state === "stop") {
-    running.value = 1;
-    //移除window.runTimeApi所有属性
-    console.log("脚本已强制结束,移除window.runTimeApi所有属性");
-    //@ts-ignore
-    window["runTimeApi"].removeIntervals && window["runTimeApi"].removeIntervals();
-    if ((window as any)["runTimeApi"]) {
-      Object.keys((window as any).runTimeApi).forEach((key) => {
-        if (notDelApi.includes(key)) {
-          return;
-        }
-        delete (window as any).runTimeApi[key];
-      });
-    }
-    if (hideWindow.value) {
-      WebviewWindow.getByLabel("main")?.show();
-      notify.done();
-    }
-  } else if (state) {
-    clearLogOutput();
-    log("脚本就绪，等待开始运行", "info");
-    running.value = 0;
-    endBeforeCompletion = false;
-  } else {
-    if (endBeforeCompletion) {
-      return;
-    }
-    running.value = 1;
-    log("脚本执行完成", "success");
-    setTaskEndStatus("success", "脚本执行完成");
-    console.log("脚本执行完成,移除window.runTimeApi所有属性");
-    //移除window.runTimeApi所有属性
-    console.log("脚本已强制结束,移除window.runTimeApi所有属性");
-    if ((window as any)["runTimeApi"]) {
-      Object.keys((window as any).runTimeApi).forEach((key) => {
-        if (notDelApi.includes(key)) {
-          return;
-        }
-        delete (window as any).runTimeApi[key];
-      });
-    }
-    //显示当前窗口
-    if (hideWindow.value) {
-      WebviewWindow.getByLabel("main")?.show();
-      notify.done();
-    }
-  }
-};
-
-const setIntervals: NodeJS.Timeout[] = [];
+const builtInApi = useBuiltInApi();
 const run = (script: string, runId: string) => {
   script = script.replace(/\/\*[^\/]*\*\/|\/\/.+\n?/g, "");
   runningFnId.value = runId;
-  //@ts-ignore
-  window["runTimeApi"] = {
-    ...allRunTimeApi,
-    // devicesMapping: appStore.getDevicesMapping,
-    buildForm: (buildFormList: any) => {
-      buildForm(buildFormList);
-      if (openId.value !== "-1") {
-        const target = scriptList.value.find((i) => i.id === openId.value);
-        if (!target?.setting.autoImportLastRunConfig) {
-          return;
-        } else if (target.setting.autoImportLastRunConfig) {
-          const scriptConfig = (window as any).rendererList?.find(
-            (i: any) => i.groupLabel === "*脚本设置"
-          );
-          if (scriptConfig) {
-            const importLastRunConfigItem = scriptConfig.checkList.find(
-              (i: any) => i.label === "导入上次运行配置"
-            );
-            if (importLastRunConfigItem) {
-              importLastRunConfigItem.checked = true;
-              importLastRunConfig();
-            }
-          }
-        }
-      }
-    },
-    // RectUtil,
-    setAllTask,
-    setCurTask,
-    nextTask,
-    setInterval: (callback: () => void, ms?: number | undefined) => {
-      const timeout = setInterval(callback, ms);
-      setIntervals.push(timeout);
-      return timeout;
-    },
-    clearInterval: (timeout: NodeJS.Timeout) => {
-      clearInterval(timeout);
-      setIntervals.splice(setIntervals.indexOf(timeout), 1);
-    },
-    removeIntervals: () => {
-      setIntervals.forEach((i) => {
-        clearInterval(i);
-      });
-      setIntervals.splice(0, setIntervals.length);
-      console.log("已清除所有定时器");
-    },
-    sleep: timeUtil.sleep,
-    getAllTask,
-    getCurTask,
-    getCurTaskName,
-    abortSignalInScript: stopAbort.value,
-    getScriptId,
-    startScriptSignal: new AbortController(),
-    getCustomizeForm,
-    changeScriptRunState,
-    // filePathIsExits,
-    buildTableForm,
-    ElNotification,
-    clearLogOutput,
-    log,
-    WORK_DIR: appGSStore.envSetting.workDir,
-    SCREEN_SHOT_PATH: appGSStore.envSetting.screenshotSavePath,
-    SCREEN_SHOT_DIR: pathUtils.resolve(
-      appGSStore.envSetting.screenshotSavePath || "",
-      "../"
-    ),
-    pushElementToSelectList,
-    pushElementToCheckList,
-    pushElementToMGSList,
-    pushElementToGSList,
-    pushElementToTableList,
-    replaceRendererList,
-    __httpValue: "http://",
-    SCRIPT_ROOT_DIR: pathUtils.resolve(getFileInfo("savePath") || "", "../"),
-    isStop: false,
-    SCRIPT_ID: getScriptId(),
+  window[CORE_NAMESPACES] = {
+    ...builtInApi,
   };
   const runScript = getWillRunScript(runId, script);
   //参数列表为空
   return new Function("", runScript);
 };
 const { createWindow } = useWebviewWindow();
-const stopAbort = ref();
+
 const invokeStartHandle = async () => {
-  endBeforeCompletion = false;
+  setEndBeforeCompletion(false);
   if (hideWindow.value) {
     WebviewWindow.getByLabel("main")?.hide();
     const targetWindow = createWindow("notification", "/notification", {
@@ -378,7 +156,7 @@ const invokeStartHandle = async () => {
     });
   }
   running.value = 2;
-  (window as any).runTimeApi.startScriptSignal?.abort();
+  window[CORE_NAMESPACES].startScriptSignal?.abort();
   const target = scriptList.value.find((s) => s.id === openId!.value);
   if (!target) return;
   const targetDevice = target.setting.targetAdbDevice.trim();
@@ -398,12 +176,12 @@ const invokeStartHandle = async () => {
 };
 const stop = () => {
   isInit.value = false;
-  endBeforeCompletion = true;
+  setEndBeforeCompletion(true);
   notAllowedFnId.value.push(runningFnId.value);
-  changeScriptRunState("stop");
-  log("脚本已强制结束", "warning");
-  setTaskEndStatus("warning", "脚本已强制结束");
-  stopAbort.value && stopAbort.value.abort();
+  builtInApi.changeScriptRunState("stop");
+  builtInApi.log("脚本已强制结束", "warning");
+  builtInApi.setTaskEndStatus("warning", "脚本已强制结束");
+  builtInApi.abortSignalInScript && builtInApi.abortSignalInScript.abort();
 
   console.log("脚本已停止，随着出现的报错为正常情况，不影响使用");
 };
@@ -418,10 +196,11 @@ const initScript = async (reinit: boolean = false) => {
     targetWindow?.hide();
   }
   const fPath = getFileInfo("savePath");
-  setTaskEndStatus(""); // 清空任务结束状态
+  builtInApi.setTaskEndStatus(""); // 清空任务结束状态
   const taskId = nanoid();
+  const appGSStore = useAppGlobalSettings();
   try {
-    stopAbort.value = new AbortController();
+    builtInApi.abortSignalInScript = new AbortController();
     let scriptStr = "";
     if (!fPath) {
       scriptStr = tempEditorValue!.value;
@@ -524,10 +303,10 @@ onMounted(async () => {
   });
 });
 onUnmounted(() => {
-  //移除window.runTimeApi所有属性
-  if ((window as any)["runTimeApi"]) {
-    Object.keys((window as any).runTimeApi).forEach((key) => {
-      delete (window as any).runTimeApi[key];
+  if (window[CORE_NAMESPACES]) {
+    Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
+      //@ts-ignore
+      delete window[CORE_NAMESPACES][key];
     });
   }
   //取消注册所有快捷键

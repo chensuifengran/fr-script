@@ -1,6 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { getImgRectInfoFn } from "./exportFn";
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 
 export const modelCallback = async (
   options: { imgPath: string; replaceCurFnArgs?: (targetArgs: string) => void },

@@ -1,6 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { keyDownFn } from "./exportFn";
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 
 export const modelCallback = async (
   options: {

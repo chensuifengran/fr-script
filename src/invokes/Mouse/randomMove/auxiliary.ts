@@ -1,4 +1,4 @@
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法，快速填写参数弹窗打开时调用，用于弹窗内参数值的回填
   parameterBackfill: async (...args: string[]) => {

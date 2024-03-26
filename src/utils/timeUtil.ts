@@ -1,3 +1,4 @@
+
 const sleep = async (ms: number = 1000) => {
   const count = parseInt("" + ms / 1000);
   const remainder = ms % 1000;
@@ -18,7 +19,7 @@ const sleep = async (ms: number = 1000) => {
         }, 1000);
       });
       //@ts-ignore
-      if (window.runTimeApi && window.runTimeApi?.isStop) {
+      if (window[CORE_NAMESPACES] && window[CORE_NAMESPACES]?.isStop) {
         isBreak = true;
         break;
       }

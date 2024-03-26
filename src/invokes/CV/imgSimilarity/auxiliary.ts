@@ -1,4 +1,4 @@
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法

@@ -21,7 +21,7 @@
           class="api-test-bar"
           data-tauri-drag-region
           style="cursor: move"
-          v-if="showApiTestSearch"
+          v-if="showApiTestSearch && isMainWindow"
         >
           <el-input
             class="search-ipt"
@@ -103,7 +103,7 @@
 import Loading from "../components/Loading.vue";
 import { storeToRefs } from "pinia";
 const pageContentRef = ref<HTMLElement>();
-const { getInvokeApiTestModules, setTestModuleCtx } = useInvokeApiMethodsRegister();
+const { getBuiltInApiTestModules, setTestModuleCtx } = useCore();
 const { info, windowInnerWidth } = useAutoTitleBar();
 const appGSStore = useAppGlobalSettings();
 const { app } = storeToRefs(appGSStore);
@@ -158,7 +158,7 @@ const load = async () => {
 };
 const allDocumentItems = computed<TestModuleType[]>(() => {
   const allList = [
-    ...getInvokeApiTestModules()
+    ...getBuiltInApiTestModules()
       .filter((d) => {
         if (antiShakeValue.value) {
           return (

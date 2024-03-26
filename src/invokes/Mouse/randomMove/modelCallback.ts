@@ -1,7 +1,7 @@
 import { randomMoveFn } from "./exportFn";
 
 import { auxiliary } from "./auxiliary";
-const { getInvokeApiMethods } = useInvokeApiMethodsRegister();
+
 export const modelCallback = async (
   options: {
     x: number;

@@ -490,7 +490,6 @@ export const UTIL_DECLARE_STRING = `
         type: "showItemInFolder" | "openPath";
       }) => Promise<boolean>;
     };
-    rendererList: RendererList[];
   }
 `;
 export const INPUT_KEY_TYPE = `

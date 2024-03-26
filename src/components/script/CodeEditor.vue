@@ -92,7 +92,7 @@ const {
   declareMod,
   saveMod,
 } = useScriptInfo();
-const { invokeDialog } = useInvokeApiMethodsRegister();
+const { invokeDynamicDialog } = useCore();
 const fnInfo = AutoTipUtils.getFnInfo();
 const { apiAutoTip } = AutoTipUtils;
 const showEditor = ref(true);
@@ -269,7 +269,7 @@ const keydownHandle = (e: KeyboardEvent) => {
         insertText(targetArgs, false, fnInfo.value!.paramsRange);
       };
       if (fnInfo.value.fnType === "invokeApi") {
-        invokeDialog(
+        invokeDynamicDialog(
           fnInfo.value.name,
           fnInfo.value.name,
           fnInfo.value.content || "",

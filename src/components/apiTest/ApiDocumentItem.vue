@@ -36,7 +36,7 @@ const aliasName = computed(() => {
 const name = computed(() => {
   return dialog.value?.title || dialog.value?.targetMethodName;
 });
-const { invokeDialog, getInvokeApiMethods } = useInvokeApiMethodsRegister();
+const { invokeDynamicDialog } = useCore();
 
 const detailsContentRef = ref<HTMLDivElement>();
 const showDetails = ref(false);
@@ -148,7 +148,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       <el-button
         v-if="type === 'invokeApi'"
         size="small"
-        @click.stop="invokeDialog(
+        @click.stop="invokeDynamicDialog(
             dialog?.targetMethodName!,
             aliasName || dialog?.targetMethodName,
             dialog?.content,
