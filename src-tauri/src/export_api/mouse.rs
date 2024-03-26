@@ -144,10 +144,27 @@ pub async fn mouse_release(button: i32) -> Result<String, ()> {
 }
 
 #[tauri::command]
-pub async fn mouse_drag(x: i32, y: i32, to_x: i32, to_y: i32) -> Result<String, ()> {
+pub async fn mouse_drag(x: i32, y: i32, to_x: i32, to_y: i32, duration: Option<i32>) -> Result<String, ()> {
+    //duration为从x,y到to_x,to_y的时间，单位为ms
     let mut enigo: Enigo = Enigo::new();
-    enigo.mouse_move_to(x, y);
+    if x < 0 || y < 0 {
+        let (cur_x, cur_y) = enigo.mouse_location();
+        enigo.mouse_move_to(cur_x, cur_y);
+    } else {
+        enigo.mouse_move_to(x, y);
+    }
     enigo.mouse_down(MouseButton::Left);
+    if let Some(duration) = duration {
+        let dx = (to_x - x) as f32;
+        let dy = (to_y - y) as f32;
+        let step = 10;
+        let step_x = dx / step as f32;
+        let step_y = dy / step as f32;
+        for _ in 0..step {
+            enigo.mouse_move_relative(step_x as i32, step_y as i32);
+            thread::sleep(Duration::from_millis(duration as u64 / step as u64));
+        }
+    }
     enigo.mouse_move_to(to_x, to_y);
     enigo.mouse_up(MouseButton::Left);
     Ok(generate_result(String::from("mouse_drag ok"), 200))
