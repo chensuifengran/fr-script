@@ -11,7 +11,7 @@
     "tauri": "tauri dev",
     "tauri:build": "pnpm build && tauri build",
     "tauri:only_build": "tauri build",
-    "genType": "node .\\script\\genInvokeFnType.js",
+    "genType": "node .\\script\\genBuiltInApiType.js",
     "verify": "vue-tsc --noEmit"
   },
   "dependencies": {
