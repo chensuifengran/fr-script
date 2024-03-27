@@ -31,7 +31,10 @@ const props = defineProps({
     default: "",
   },
 });
-
+const itemBackground = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
+  "appAsideBgColor"
+);
+const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 const showAliBtn = computed(() => {
   return !!props.item.download_url.find((item) => item.origin === "阿里云盘");
 });
@@ -89,8 +92,6 @@ const goDownload = async (type: number) => {
     }
   }
 };
-
-const itemBackground = inject("appAsideBgColor");
 </script>
 
 <style lang="scss" scoped>
@@ -108,17 +109,14 @@ const itemBackground = inject("appAsideBgColor");
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-
     .desc {
       margin-left: 10px;
-      //斜体
       font-style: italic;
       font-size: 12px;
-      color: #626262;
     }
   }
   &:hover {
-    background-color: #a0e0bd;
+    background-color: v-bind(appBackground);
   }
 }
 </style>
