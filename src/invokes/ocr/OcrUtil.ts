@@ -5,7 +5,7 @@ import { touchFn } from "../touch/exportFn";
 import { OCRResult } from "./exportFn";
 
 
-class FindResult {
+export class FindResult {
   centerPos: [number, number];
   text: string;
   score: number;

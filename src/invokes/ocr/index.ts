@@ -4,6 +4,7 @@ import { modelCallback } from "./modelCallback";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
+import { FindResult, OcrUtil } from "./OcrUtil";
 
 export const ocrApi = <InvokeApiMethodType>{
   name: "ocr",
@@ -17,5 +18,6 @@ export const ocrApi = <InvokeApiMethodType>{
     document: apiDocument,
   },
   declaration,
-  auxiliary
+  auxiliary,
+  helperClass:[OcrUtil, FindResult]
 };

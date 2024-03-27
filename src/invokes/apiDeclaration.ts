@@ -48,3 +48,4 @@ ${INPUT_KEY_TYPE}
 ${UTIL_DECLARE_STRING}
 ${allDeclarationString}
 `;
+console.log(editorTsDeclaration);

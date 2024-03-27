@@ -97,6 +97,8 @@ type InvokeApiMethodType = {
   auxiliary?: AuxiliaryType;
   //编辑器提示声明
   declaration?: string;
+  //辅助类
+  helperClass?:Function[];
 };
 type Key =
   // 数字键

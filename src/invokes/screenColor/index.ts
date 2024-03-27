@@ -4,6 +4,7 @@ import { apiDocument } from "./document";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
+import { ColorUtil } from "./ColorUtil";
 
 export const screenColorApi = <InvokeApiMethodType>{
   name: "screenColor",
@@ -17,5 +18,6 @@ export const screenColorApi = <InvokeApiMethodType>{
     document: apiDocument,
   },
   declaration,
-  auxiliary
+  auxiliary,
+  helperClass:[ColorUtil]
 };

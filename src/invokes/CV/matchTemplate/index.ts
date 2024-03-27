@@ -4,6 +4,7 @@ import { apiDocument } from "./document";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
+import { MatchUtil } from "./MatchUtil";
 
 export const matchTemplateApi = <InvokeApiMethodType>{
   name: "matchTemplate",
@@ -18,5 +19,6 @@ export const matchTemplateApi = <InvokeApiMethodType>{
     document: apiDocument,
   },
   declaration,
-  auxiliary
+  auxiliary,
+  helperClass:[MatchUtil]
 };

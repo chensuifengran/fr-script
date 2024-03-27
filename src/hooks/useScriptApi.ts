@@ -30,15 +30,12 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
     await nextTick();
     const defaultObj: RendererList[] = JSON.parse(JSON.stringify(rendererList));
     curRendererList = JSON.parse(JSON.stringify(rendererList));
-
     const r = localStorage.getItem(
       window[CORE_NAMESPACES].getScriptId!() + "-rendererList"
     );
     if (r) {
       //合并配置
-
       const targetObj: RendererList[] = JSON.parse(r);
-
       for (let i = 0; i < defaultObj.length; i++) {
         const defaultItem = defaultObj[i];
         const targetItem = targetObj.find(
@@ -47,7 +44,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
         if (targetItem) {
           //覆盖defaultItem的enable
           defaultItem.enable = targetItem.enable;
-
           //判断targetItem的selectList[index].value是否存在于defaultItem的selectList[index].options中
           for (let j = 0; j < defaultItem.selectList.length; j++) {
             const defaultSelectItem = defaultItem.selectList[j];
@@ -61,7 +57,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               }
             }
           }
-
           //覆盖defaultItem的checkList[index]的checked
           for (let j = 0; j < defaultItem.checkList.length; j++) {
             const defaultCheckItem = defaultItem.checkList[j];
@@ -72,7 +67,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               defaultCheckItem.checked = targetCheckItem.checked;
             }
           }
-
           //覆盖defaultItem的inputList[index]的value
           for (let j = 0; j < defaultItem.inputList.length; j++) {
             const defaultInputItem = defaultItem.inputList[j];
@@ -83,7 +77,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               defaultInputItem.value = targetInputItem.value;
             }
           }
-
           /*
             提取defaultItem的groupSelectList[index]中的所有选项分组的value,
             判断targetItem的groupSelectList[index].value,
@@ -110,7 +103,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               }
             }
           }
-
           /*
             提取defaultItem的multipleGroupSelectList[index]中的所有选项分组的value,
             判断targetItem的multipleGroupSelectList[index].value,
@@ -151,7 +143,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
                 newTargetMultipleGroupSelectItemValue;
             }
           }
-
           //拿到defaultItem的tableList[index]的inputProp所有的propLabel
           const AllTableInputPropLabel: string[] = [];
           for (let j = 0; j < defaultItem.tableList.length; j++) {
@@ -220,17 +211,20 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
     }
   }
 };
+
 const addRendererListToWindow = () => {
   const { rendererList } = useListStore();
   if (!window[CORE_NAMESPACES].rendererList) {
     window[CORE_NAMESPACES].rendererList = rendererList;
   }
 };
+
 const replaceRendererList = (newRendererList: RendererList[]) => {
   const { rendererList } = useListStore();
   rendererList.splice(0, rendererList.length, ...newRendererList);
   addRendererListToWindow();
 };
+
 //给渲染列表添加checkList类型元素
 const pushElementToCheckList = (
   elem: {
@@ -1201,6 +1195,17 @@ export const useScriptView = () => {
   };
 };
 
+class FormUtil {
+  constructor(_rendererList: RendererList[]) {
+    throw new Error("此类只能用于getCustomizeForm方法调用后生成实例！");
+  }
+}
+
+/**
+ * 脚本运行时的所有内置api,返回新增内置API后请
+ * 前往../invokes/utilDeclareTypes.ts中添加类型声明，
+ * 用于提供给编辑器进行代码提示。
+ */
 export const useBuiltInApi = () => {
   // @ts-ignore
   !self.MonacoEnvironment &&
@@ -1226,39 +1231,48 @@ export const useBuiltInApi = () => {
   const appGSStore = useAppGlobalSettings();
   const listStore = useListStore();
   const { scriptList } = storeToRefs(listStore);
-  return {
-    WORK_DIR: appGSStore.envSetting.workDir,
-    SCREEN_SHOT_PATH: appGSStore.envSetting.screenshotSavePath,
-    SCREEN_SHOT_DIR: pathUtils.resolve(
-      appGSStore.envSetting.screenshotSavePath || "",
-      "../"
-    ),
-    __httpValue: "http://",
-    SCRIPT_ROOT_DIR: pathUtils.resolve(getFileInfo("savePath") || "", "../"),
-    isStop: false,
-    SCRIPT_ID: getScriptId(),
-    buildForm: (buildFormList: BuildFormList) => {
-      buildForm(buildFormList);
-      if (openId.value !== "-1") {
-        const target = scriptList.value.find((i) => i.id === openId.value);
-        if (!target?.setting.autoImportLastRunConfig) {
-          return;
-        } else if (target.setting.autoImportLastRunConfig) {
-          const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
-            (i) => i.groupLabel === "*脚本设置"
+  const _buildForm = (buildFormList: BuildFormList) => {
+    buildForm(buildFormList);
+    if (openId.value !== "-1") {
+      const target = scriptList.value.find((i) => i.id === openId.value);
+      if (!target?.setting.autoImportLastRunConfig) {
+        return;
+      } else if (target.setting.autoImportLastRunConfig) {
+        const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
+          (i) => i.groupLabel === "*脚本设置"
+        );
+        if (scriptConfig) {
+          const importLastRunConfigItem = scriptConfig.checkList.find(
+            (i) => i.label === "导入上次运行配置"
           );
-          if (scriptConfig) {
-            const importLastRunConfigItem = scriptConfig.checkList.find(
-              (i) => i.label === "导入上次运行配置"
-            );
-            if (importLastRunConfigItem) {
-              importLastRunConfigItem.checked = true;
-              importLastRunConfig();
-            }
+          if (importLastRunConfigItem) {
+            importLastRunConfigItem.checked = true;
+            importLastRunConfig();
           }
         }
       }
-    },
+    }
+  };
+  const WORK_DIR = appGSStore.envSetting.workDir;
+  const SCREEN_SHOT_DIR = pathUtils.resolve(
+    appGSStore.envSetting.screenshotSavePath || "",
+    "../"
+  );
+  const SCREEN_SHOT_PATH = appGSStore.envSetting.screenshotSavePath;
+  const SCRIPT_ROOT_DIR = pathUtils.resolve(
+    getFileInfo("savePath") || "",
+    "../"
+  );
+  return {
+    FormUtil,
+    WORK_DIR,
+    SCREEN_SHOT_PATH,
+    SCREEN_SHOT_DIR,
+    __httpValue: "http://",
+    SCRIPT_ROOT_DIR,
+    isStop: false,
+    SCRIPT_ID: getScriptId(),
+    buildForm: _buildForm,
     setAllTask,
     setCurTask,
     getAllTask,
@@ -1288,5 +1302,6 @@ export const useBuiltInApi = () => {
     pushElementToGSList,
     pushElementToMGSList,
     pushElementToTableList,
+
   };
 };
