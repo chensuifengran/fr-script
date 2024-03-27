@@ -33,6 +33,9 @@
           <el-button class="output-btn" @click="info.apiTest.openOutput = true"
             ><el-icon><IEpNotification /></el-icon
           ></el-button>
+          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+            ><code-icon
+          /></el-button>
         </div>
       </transition>
       <ApiDocumentItem
@@ -259,6 +262,9 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     .api-test-bar {
       display: flex;
       flex-direction: row;
+      .output-btn {
+        margin-left: 5px;
+      }
     }
     .loading-box {
       position: absolute;

@@ -17,7 +17,7 @@
             content="编辑脚本"
             placement="bottom"
           >
-            <el-icon class="icon" @click.stop="editorScriptFile"><IEpEdit /></el-icon>
+            <code-icon class="icon" @click.stop="editorScriptFile" />
           </el-tooltip>
           <el-tooltip
             class="box-item"
@@ -25,7 +25,7 @@
             content="运行脚本"
             placement="bottom"
           >
-            <el-icon class="icon" @click.stop="runScript"><IEpSwitchButton /></el-icon>
+            <run-icon class="icon" @click.stop="runScript" />
           </el-tooltip>
         </div>
       </template>

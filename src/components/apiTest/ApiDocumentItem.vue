@@ -145,18 +145,31 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
         <el-icon class="icon" v-else><IEpArrowDown /></el-icon>
         <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
       </div>
-      <el-button
+      <el-tooltip
+        effect="dark"
+        content="测试调用"
+        placement="left"
         v-if="type === 'invokeApi'"
-        size="small"
-        @click.stop="invokeDynamicDialog(
+      >
+        <el-button
+          size="small"
+          type="primary"
+          circle
+          @click.stop="invokeDynamicDialog(
             dialog?.targetMethodName!,
             aliasName || dialog?.targetMethodName,
             dialog?.content,
             'test'
             )"
-        >测试调用</el-button
-      >
-      <el-button v-else size="small" :disabled="!model!.canBeCalled">测试调用</el-button>
+        >
+          <invoke-icon />
+        </el-button>
+      </el-tooltip>
+      <el-tooltip v-else effect="dark" content="查看文档" placement="left">
+        <el-button size="small" :disabled="!model!.canBeCalled"
+          ><invoke-icon
+        /></el-button>
+      </el-tooltip>
     </div>
     <div class="api-details" v-if="showDetails">
       <div class="content" v-if="model?.document" ref="detailsContentRef">

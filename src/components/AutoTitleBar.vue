@@ -39,9 +39,12 @@
               placeholder="可输入API的关键字对API进行筛选"
             >
             </el-input>
-            <el-button class="output-btn" @click="info.apiTest.openOutput = true"
+            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle
               ><el-icon><IEpNotification /></el-icon
             ></el-button>
+            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle
+              ><code-icon
+            /></el-button>
           </div>
         </transition>
       </div>

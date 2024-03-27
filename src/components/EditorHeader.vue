@@ -30,7 +30,7 @@
             content="打开鼠标工具"
             placement="bottom"
           >
-            <el-button size="small" @click="openPointerUtil"
+            <el-button size="small" @click="openPointerUtil" circle
               ><el-icon><IEpPointer /></el-icon
             ></el-button>
           </el-tooltip>
@@ -40,9 +40,9 @@
             content="打开调试窗口"
             placement="bottom"
           >
-            <el-button size="small" @click="openApiTest"
-              ><el-icon><IEpChromeFilled /></el-icon
-            ></el-button>
+            <el-button size="small" @click="openApiTest" circle
+              ><invoke-icon
+            /></el-button>
           </el-tooltip>
           <el-tooltip
             class="box-item"
@@ -50,7 +50,7 @@
             content="前往脚本设置"
             placement="bottom"
           >
-            <el-button size="small" @click="goSetScript"
+            <el-button size="small" @click="goSetScript" circle
               ><el-icon><IEpSetting /></el-icon
             ></el-button>
           </el-tooltip>
@@ -60,7 +60,7 @@
             content="打开脚本"
             placement="bottom"
           >
-            <el-button size="small" @click="openFile"
+            <el-button size="small" @click="openFile" circle
               ><el-icon><IEpFolder /></el-icon
             ></el-button>
           </el-tooltip>
@@ -70,9 +70,9 @@
             content="运行脚本"
             placement="bottom"
           >
-            <el-button size="small" @click="runScript"
-              ><el-icon><IEpSwitchButton /></el-icon
-            ></el-button>
+            <el-button size="small" @click="runScript" circle>
+              <run-icon />
+            </el-button>
           </el-tooltip>
           <el-tooltip
             class="box-item"
@@ -80,9 +80,9 @@
             content="[Ctrl+S]保存"
             placement="bottom"
           >
-            <el-button size="small" type="primary" @click="saveScriptFile"
-              ><el-icon><IEpDocumentChecked /></el-icon
-            ></el-button>
+            <el-button size="small" type="primary" @click="saveScriptFile" circle>
+              <save-icon />
+            </el-button>
           </el-tooltip>
         </div>
         <slot className="title-btns" />

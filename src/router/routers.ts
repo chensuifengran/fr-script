@@ -1,10 +1,15 @@
-import { Cpu,ChromeFilled,Printer,Setting,InfoFilled } from '@element-plus/icons-vue';
+import {
+  Setting,
+  InfoFilled,
+} from "@element-plus/icons-vue";
+import ScriptIcon from "../components/svgIcon/ScriptIcon.vue";
+import InvokeIcon from "../components/svgIcon/InvokeIcon.vue";
+import ProjectIcon from "../components/svgIcon/ProjectIcon.vue";
 const routes = [
   {
     path: "/",
     redirect: "/script/list",
   },
-
 
   {
     path: "/script",
@@ -12,9 +17,9 @@ const routes = [
     component: () => import(`../pages/ScriptConsole.vue`),
     meta: {
       title: "脚本",
-      icon:Cpu
+      icon: ScriptIcon,
     },
-    children:[
+    children: [
       {
         path: "list",
         name: "scriptList",
@@ -26,16 +31,16 @@ const routes = [
         component: () => import(`../components/script/CodeEditor.vue`),
       },
       {
-        path:"setting",
-        name:"scriptSetting",
-        component:()=>import(`../components/script/ScriptSetting.vue`)
+        path: "setting",
+        name: "scriptSetting",
+        component: () => import(`../components/script/ScriptSetting.vue`),
       },
       {
-        path:"run",
-        name:"scriptRunConsole",
-        component:()=>import(`../components/script/ScriptRunConsole.vue`)
-      }
-    ]
+        path: "run",
+        name: "scriptRunConsole",
+        component: () => import(`../components/script/ScriptRunConsole.vue`),
+      },
+    ],
   },
   {
     path: "/apiTest",
@@ -43,7 +48,7 @@ const routes = [
     component: () => import(`../pages/APITest.vue`),
     meta: {
       title: "调试",
-      icon: ChromeFilled
+      icon: InvokeIcon,
     },
   },
   {
@@ -52,10 +57,9 @@ const routes = [
     component: () => import(`../pages/ScriptProject.vue`),
     meta: {
       title: "工程",
-      icon: Printer
+      icon: ProjectIcon,
     },
   },
-
 
   {
     path: "/setting",
@@ -63,7 +67,7 @@ const routes = [
     component: () => import(`../pages/SettingPage.vue`),
     meta: {
       title: "设置",
-      icon:Setting
+      icon: Setting,
     },
   },
   {
@@ -72,7 +76,7 @@ const routes = [
     component: () => import(`../pages/About.vue`),
     meta: {
       title: "关于",
-      icon: InfoFilled
+      icon: InfoFilled,
     },
   },
 
@@ -82,37 +86,36 @@ const routes = [
     component: () => import(`../pages/ScriptRunWindow.vue`),
     meta: {
       title: "脚本运行窗口",
-      icon:Cpu
+      icon: ScriptIcon,
     },
   },
   {
-    path:"/floatWindow",
-    name:"floatWindow",
-    component:()=>import(`../pages/FloatWindow.vue`),
-    meta:{
-      title:"悬浮窗口"
-    }
+    path: "/floatWindow",
+    name: "floatWindow",
+    component: () => import(`../pages/FloatWindow.vue`),
+    meta: {
+      title: "悬浮窗口",
+    },
   },
   {
-    path:"/pointerUtil",
-    name:"pointerUtil",
-    component:()=>import(`../pages/PointerUtil.vue`),
-    meta:{
-      title:"鼠标工具"
-    }
+    path: "/pointerUtil",
+    name: "pointerUtil",
+    component: () => import(`../pages/PointerUtil.vue`),
+    meta: {
+      title: "鼠标工具",
+    },
   },
   {
-    path:"/notification",
-    name:"notification",
-    component:()=>import(`../pages/Notification.vue`),
-    meta:{
-      title:"通知"
-    }
-  }
+    path: "/notification",
+    name: "notification",
+    component: () => import(`../pages/Notification.vue`),
+    meta: {
+      title: "通知",
+    },
+  },
 ];
-export const topRoutes = [routes[1],routes[2],routes[3]];
-export const bottomRoutes = [routes[4],routes[5]];
+export const topRoutes = [routes[1], routes[2], routes[3]];
+export const bottomRoutes = [routes[4], routes[5]];
 export const hideRoutes = [routes[6]];
-
 
 export default routes;

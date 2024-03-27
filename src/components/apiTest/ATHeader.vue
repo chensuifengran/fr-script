@@ -16,6 +16,9 @@
       <el-button class="circle-btn" type="info" circle @click="openOutput"
         ><el-icon><IEpNotification /></el-icon
       ></el-button>
+      <el-button class="circle-btn" type="info" circle @click="openOutput">
+        <code-icon />
+      </el-button>
       <el-button class="circle-btn" type="info" circle @click="showApiTestButton"
         ><el-icon><IEpSemiSelect /></el-icon
       ></el-button>

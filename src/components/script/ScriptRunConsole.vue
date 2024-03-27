@@ -7,7 +7,7 @@
             >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
           >
           <el-tooltip effect="dark" content="编辑脚本" placement="bottom">
-            <el-icon class="icon" @click.stop="goEditor"><IEpEdit /></el-icon>
+            <code-icon class="icon" @click.stop="goEditor" />
           </el-tooltip>
           <el-tooltip effect="dark" content="脚本设置" placement="bottom">
             <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
@@ -18,10 +18,9 @@
       <template #extra>
         <div>
           <el-button @click="invokeStartHandle" v-show="running === 0"
-            >开始<el-tag class="mgl-5" type="info" size="small"
-              >Ctrl+Shift+A</el-tag
-            ></el-button
-          >
+            ><el-tag class="mgl-5" type="info" size="small">Ctrl+Shift+A</el-tag>
+            <run-icon
+          /></el-button>
           <el-button @click="() => initScript(true)" v-show="running === 1"
             >重新初始化<el-tag class="mgl-5" type="info" size="small"
               >Ctrl+Shift+D</el-tag

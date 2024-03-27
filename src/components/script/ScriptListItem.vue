@@ -12,21 +12,16 @@
           <el-icon class="icon" @click.stop="deleteScript"><IEpDeleteFilled /></el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="编辑脚本" placement="bottom">
-          <el-icon class="icon" @click.stop="editorScriptFile"><IEpEdit /></el-icon>
+          <code-icon class="icon" @click.stop="editorScriptFile" />
         </el-tooltip>
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="打开脚本"
-          placement="bottom"
-        >
+        <el-tooltip class="box-item" effect="dark" content="打开脚本" placement="bottom">
           <el-icon class="icon" @click.stop="openFIleDialog"><IEpFolder /></el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="脚本设置" placement="bottom">
           <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="运行脚本" placement="bottom">
-          <el-icon class="icon" @click.stop="runScript"><IEpSwitchButton /></el-icon>
+          <run-icon class="icon" @click.stop="runScript" />
         </el-tooltip>
       </div>
     </div>
