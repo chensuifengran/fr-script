@@ -149,6 +149,11 @@ pub async fn read_file(path: String) -> Result<String, String> {
 #[tauri::command]
 pub async fn write_file(path: String, content: String) -> Result<String, String> {
     let path = path.replace("/", "\\");
+    //判断文件所在目录是否存在，不存在则创建
+    let parent_dir = std::path::Path::new(&path).parent().unwrap();
+    if !parent_dir.exists() {
+        fs::create_dir_all(parent_dir).unwrap();
+    }
     match fs::write(path, content) {
         Ok(_) => Ok("文件写入成功".to_string()),
         Err(err) => Err(err.to_string()),
