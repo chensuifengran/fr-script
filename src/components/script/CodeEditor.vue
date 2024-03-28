@@ -73,7 +73,7 @@ const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const {
-  getEditor,
+  findEditor,
   editorInit,
   editorValue,
   insertText,
@@ -82,7 +82,8 @@ const {
   disposeEditor,
   registerEditorEvent,
   unRegisterEditorEvent,
-} = useScriptApi()!;
+} = useEditor();
+const EDITOR_DOM_ID = "codeEditBox";
 const {
   openId,
   preloadText,
@@ -231,6 +232,7 @@ const saveNewScript = async () => {
 };
 const insertDeclare = () => {
   insertText(
+    EDITOR_DOM_ID,
     `/**
  * 请勿删除，此声明会在脚本读取时用到！
  * @version:${declareMod.version}
@@ -266,7 +268,7 @@ const keydownHandle = (e: KeyboardEvent) => {
         return;
       }
       const replaceParams = (targetArgs: string) => {
-        insertText(targetArgs, false, fnInfo.value!.paramsRange);
+        insertText(EDITOR_DOM_ID, targetArgs, false, fnInfo.value!.paramsRange);
       };
       if (fnInfo.value.fnType === "invokeApi") {
         invokeDynamicDialog(
@@ -348,7 +350,7 @@ const cursorHandle = (_e: any) => {
   fileInfo.lastData = editorValue.value;
 };
 const resizeHandle = () => {
-  getEditor()?.layout();
+  findEditor(EDITOR_DOM_ID)?.layout();
 };
 let windowFocusHandle: UnlistenFn;
 const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
@@ -386,19 +388,19 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   fileInfo.description = getFileInfo("description")!;
   fileInfo.savePath = path;
   fileInfo.version = getFileInfo("version")!;
-  setText(fileInfo.originData);
+  setText(EDITOR_DOM_ID, fileInfo.originData);
   type === "focus" && ElMessage.info("已载入最新内容");
 };
 onMounted(async () => {
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
-  editorInit();
+  editorInit(EDITOR_DOM_ID);
   await getFile();
   document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
   registerEditorEvent("mounted", (editor: any) => {
     editor.onDidChangeCursorPosition(cursorHandle);
-    setText(fileInfo.originData || SCRIPT_TEMPLATE);
+    setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE);
     const t = setTimeout(() => {
       checkDeclare();
       showEditor.value = true;
@@ -434,13 +436,13 @@ const getFile = async () => {
         });
         fileInfo.originData = SCRIPT_TEMPLATE;
         fileInfo.savePath = "";
-        setText(SCRIPT_TEMPLATE);
+        setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
         return;
       }
     } else {
       fileInfo.originData = SCRIPT_TEMPLATE;
       fileInfo.savePath = "";
-      setText(SCRIPT_TEMPLATE);
+      setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
       ElNotification({
         title: "提示",
         message: "文件读取失败，路径为空，进入新增模式",
@@ -452,14 +454,14 @@ const getFile = async () => {
     //-1表示新建脚本
     fileInfo.originData = SCRIPT_TEMPLATE;
     fileInfo.savePath = "";
-    setText(SCRIPT_TEMPLATE);
+    setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
   }
 };
 watch(openId!, getFile);
 watchEffect(() => {
   const text = preloadText.value;
   nextTick(() => {
-    setText(text);
+    setText(EDITOR_DOM_ID, text);
   });
 });
 </script>

@@ -117,7 +117,7 @@ import { listen } from "@tauri-apps/api/event";
 const { info, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
-const { editorValue } = useScriptApi();
+const { getEditorValue } = useEditor();
 const titleBarHeight = computed(() => {
   return isEditing.value ? "35px" : "40px";
 });
@@ -137,6 +137,10 @@ const maxHandle = async () => {
 };
 const closeHandle = async () => {
   if (isEditing.value) {
+    const editorValue = getEditorValue("codeEditBox");
+    if (!editorValue) {
+      return;
+    }
     if (fileInfo.originData !== editorValue.value) {
       await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
       fileInfo.originData = editorValue.value;

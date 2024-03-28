@@ -298,6 +298,7 @@ export const UTIL_DECLARE_STRING = `
     enable?: boolean | undefined;
   }): void;
 `;
+//@ts-ignore
 const RETAIN_STRING = `
 declare type TableFormHeader = {
   prop: string;

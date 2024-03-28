@@ -3,7 +3,7 @@
     <template #content>
       <div class="header-content">
         <span>{{ fileInfo.name }}</span>
-        <span v-show="editorValue !== fileInfo.originData">*</span
+        <span v-show="isDifferentValue">*</span
         ><el-tag class="mgl-5" size="small" type="success" v-show="fileInfo.declare"
           >已声明</el-tag
         ><el-tag class="mgl-5" size="small" type="warning" v-show="!fileInfo.declare"
@@ -109,7 +109,10 @@ const {
   autoSaveDialog,
   isEditing,
 } = useScriptInfo();
-const { editorValue } = useScriptApi()!;
+const { getEditorValue } = useEditor()!;
+const isDifferentValue = computed(
+  () => getEditorValue("codeEditBox")?.value !== fileInfo.originData
+);
 const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
   const targetWindow = createWindow("apiTest", "/apiTest");
@@ -150,8 +153,9 @@ const openFile = async () => {
   }
 };
 const runScript = () => {
+  const editorValue = getEditorValue("codeEditBox");
   const unsaveRun = () => {
-    tempEditorValue.value = editorValue.value;
+    tempEditorValue.value = editorValue?.value || "";
     autoSaveDialog.visible = false;
     const testWindow = WebviewWindow.getByLabel("apiTest");
     if (testWindow) {
@@ -175,7 +179,7 @@ const runScript = () => {
       });
     }
   };
-  if (editorValue.value !== fileInfo.originData) {
+  if (editorValue?.value !== fileInfo.originData) {
     if (appGSStore.editor.runAutoSave) {
       saveRun();
     } else {
@@ -200,9 +204,10 @@ const saveScriptFile = async () => {
     if (fileInfo.savePath.trim().length) {
       //编辑的脚本，直接写入内容
       try {
-        if (editorValue.value !== fileInfo.originData) {
-          await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
-          fileInfo.originData = editorValue.value;
+        const editorValue = getEditorValue("codeEditBox");
+        if (editorValue?.value !== fileInfo.originData) {
+          await fsUtils.writeFile(fileInfo.savePath, editorValue?.value || "");
+          fileInfo.originData = editorValue?.value || "";
           ElNotification({
             title: "提示",
             message: "保存成功",
@@ -243,8 +248,9 @@ const saveScriptFile = async () => {
 const saveNewScript = async () => {
   saveMod.visible = false;
   try {
-    await fsUtils.writeFile(fileInfo.savePath, editorValue.value);
-    fileInfo.originData = editorValue.value;
+    const editorValue = getEditorValue("codeEditBox");
+    await fsUtils.writeFile(fileInfo.savePath, editorValue?.value || "");
+    fileInfo.originData = editorValue?.value || "";
     const id = nanoid();
     scriptList.value.push({
       id,

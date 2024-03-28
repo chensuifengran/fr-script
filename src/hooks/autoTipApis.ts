@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+import { useEditor } from "./useEditor";
 type FnInfo = {
   fnType?: "invokeApi" | "util";
   name: string;
@@ -15,7 +16,6 @@ type FnInfo = {
 };
 
 const { basename, resolve } = pathUtils;
-
 
 const fnInfo = ref<FnInfo | null>(null);
 const getFnInfo = () => fnInfo;
@@ -138,11 +138,14 @@ const strIndexOfApi = (str: string) => {
 };
 
 const apiAutoTip = () => {
-  const { getEditor } = useScriptApi()!;
+  const { findEditor } = useEditor();
   // 获取编辑器实例
-  const editor = getEditor();
+  const editor = findEditor("codeEditBox");
+  if(!editor){
+    return;
+  }
   // 获取当前选择的文本范围或光标的当前位置
-  const curSelection = editor?.getSelection()!;
+  const curSelection = editor.getSelection()!;
   // 获取当前选择的文本所在行的行号
   const { startLineNumber } = curSelection;
   // 获取当前文本模型
@@ -459,8 +462,8 @@ const createDependencyProposals = async (range: {
       endColumn: number;
     };
   }[];
-  console.log('allSnippet', allSnippet);
-  
+  console.log("allSnippet", allSnippet);
+
   return allSnippet;
 };
 export const AutoTipUtils = {
