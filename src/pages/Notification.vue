@@ -65,7 +65,10 @@
           <el-icon size="small" v-else-if="firstItem.type === 'danger'"
             ><IEpWarnTriangleFilled
           /></el-icon>
-          {{ firstItem.message }}
+          <el-tag size="small" type="primary" v-if="firstItem.type === 'loading'">{{
+            useTime
+          }}</el-tag>
+          <el-text class="mgl-5">{{ firstItem.message }}</el-text>
         </div>
         <el-button class="button" @click="maximize" circle size="small">
           <el-icon><IEpArrowDown /></el-icon>
@@ -78,6 +81,13 @@
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
 const isMiniState = ref(false);
+const loadingTime = ref(1);
+const useTime = computed(() => {
+  const hours = Math.floor(loadingTime.value / 3600);
+  const minutes = Math.floor((loadingTime.value % 3600) / 60);
+  const seconds = Math.floor(loadingTime.value % 60);
+  return `${hours ? `${hours}:` : ""}${minutes ? `${minutes}:` : ""}${seconds}`;
+});
 const { notify } = eventUtil;
 const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
@@ -132,6 +142,7 @@ const maximize = () => {
   appWindow.setSize(new LogicalSize(230, 135));
 };
 let unlistenNotify: UnlistenFn;
+let currentInterval: any;
 onMounted(async () => {
   minimize();
   unlistenNotify = await notify.listen((data) => {
@@ -140,7 +151,14 @@ onMounted(async () => {
       payload: any;
     };
     if (type === "message") {
+      currentInterval && clearInterval(currentInterval);
       scriptInfo.currentMessage.unshift(payload);
+      if (payload.type === "loading") {
+        loadingTime.value = 1;
+        currentInterval = setInterval(() => {
+          loadingTime.value += 1;
+        }, 1000);
+      }
     } else if (type === "init") {
       scriptInfo.name = payload.name;
       scriptInfo.currentMessage = [];
@@ -153,10 +171,14 @@ onMounted(async () => {
   });
 });
 onBeforeUnmount(() => {
+  currentInterval && clearInterval(currentInterval);
   unlistenNotify();
 });
 </script>
 <style lang="scss" scoped>
+.mgl-5 {
+  margin-left: 5px;
+}
 .msg-item {
   padding: 5px 10px;
   background: v-bind(appBackground);
