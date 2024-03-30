@@ -54,9 +54,12 @@
             flexDirection: s.label.length && s.label.length > 6 ? 'column' : 'row',
           }"
         >
-          <el-text>{{ s.label }}</el-text>
+          <el-text class="mgr-10">{{ s.label }}</el-text>
           <el-select
             class="select"
+            :style="{
+              minWidth: getSelectMinWidth(s.value),
+            }"
             v-model="s.value"
             :placeholder="s.label"
             @change="rendererListChangeHandle"
@@ -72,7 +75,7 @@
           </el-select>
         </div>
         <div class="select-item" v-for="s in g.multipleGroupSelectList" :key="s.label">
-          <el-text>{{ s.label }}</el-text>
+          <el-text class="mgr-10">{{ s.label }}</el-text>
           <el-select
             multiple
             size="small"
@@ -97,10 +100,13 @@
           </el-select>
         </div>
         <div class="select-item" v-for="s in g.groupSelectList" :key="s.label">
-          <el-text>{{ s.label }}</el-text>
+          <el-text class="mgr-10">{{ s.label }}</el-text>
           <el-select
             size="small"
             v-model="s.value"
+            :style="{
+              minWidth: getSelectMinWidth(s.value),
+            }"
             :placeholder="s.label"
             :disabled="!g.enable"
             @change="rendererListChangeHandle"
@@ -377,11 +383,20 @@ const isCheckFlow = (g: RendererList) => {
     g.inputList.length > 0
   );
 };
+
+const getSelectMinWidth = (text: string) => {
+  const len = Math.min(text.length - 1, 7);
+  let d = 45;
+  return `${d + len * 15}px`;
+};
 </script>
 
 <style lang="scss" scoped>
 .mgl-5 {
   margin-left: 5px;
+}
+.mgr-10 {
+  margin-right: 10px;
 }
 .renderer-form {
   margin-bottom: 10px;
@@ -412,6 +427,7 @@ const isCheckFlow = (g: RendererList) => {
           max-width: 50%;
         }
         margin-bottom: 5px;
+        margin-top: 5px;
       }
       .check-item {
         margin-right: 0;
