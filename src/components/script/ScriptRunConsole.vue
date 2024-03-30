@@ -129,7 +129,7 @@ const goEditor = () => {
 };
 const builtInApi = useBuiltInApi();
 const run = (script: string, runId: string) => {
-  script = script.replace(/\/\*[^\/]*\*\/|\/\/.+\n?/g, "");
+  script = script.replace(ANNOTATION_REGEX, "");
   runningFnId.value = runId;
   window[CORE_NAMESPACES] = {
     ...builtInApi,
@@ -205,10 +205,13 @@ const initScript = async (reinit: boolean = false) => {
       scriptStr = tempEditorValue!.value;
     } else {
       scriptStr = transpile(await fsUtils.readFile(fPath), {
-        target: ScriptTarget.ES2016,
+        target: ScriptTarget.ESNext,
       });
     }
-    if (appGSStore.ocr.value === "GPU" && scriptStr.includes("ocr")) {
+    if (
+      appGSStore.ocr.value === "GPU" &&
+      scriptStr.replace(ANNOTATION_REGEX, "").includes("ocr")
+    ) {
       await ocrFn(0, 0, 1, 1);
     }
     run(scriptStr, "fn" + taskId)();

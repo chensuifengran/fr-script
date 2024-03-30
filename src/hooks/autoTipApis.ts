@@ -151,7 +151,9 @@ const apiAutoTip = () => {
   // 获取当前文本模型
   const mod = editor?.getModel();
   // 获取当前选择的文本所在行的内容
-  const curLineContent = mod?.getLineContent(startLineNumber) || "";
+  let curLineContent = mod?.getLineContent(startLineNumber) || "";
+  // 将当前选择的文本所在行的内容的注释部分清空
+  curLineContent = curLineContent.replace(ANNOTATION_REGEX, "");
   const endIndex = curLineContent.lastIndexOf(")");
   const startIndex = curLineContent.lastIndexOf("(");
   if (endIndex !== -1) {
@@ -159,7 +161,6 @@ const apiAutoTip = () => {
     if (startIndex !== -1 && startIndex < endIndex) {
       //↑当前行匹配到(，并且(在)前面
       const nameIndex = strIndexOfApi(curLineContent);
-
       if (nameIndex !== -1) {
         if (nameIndex !== 0 && !/\s/.test(curLineContent[nameIndex - 1])) {
           fnInfo.value = null;

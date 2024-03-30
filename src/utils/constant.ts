@@ -30,3 +30,4 @@ const main = async () => {
   
 };
 `;
+export const ANNOTATION_REGEX = /\/\*[^\/]*\*\/|\/\/.+\n?/g;
