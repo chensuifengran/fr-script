@@ -411,7 +411,7 @@ declare type Key =
   | "ScrollLock" // 滚动锁定键
   | "Semicolon" // 分号键
   | "Equal" // 等号键
-  | "Comma" // 逗号键
+  | "OEMComma" // 逗号键
   | "Dash" // 破折号键
   | "Period" // 句号键
   | "Slash" // 斜杠键

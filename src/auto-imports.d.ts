@@ -6,6 +6,7 @@
 export {}
 declare global {
   const $http: typeof import('./api/config')['$http']
+  const ANNOTATION_REGEX: typeof import('./utils/constant')['ANNOTATION_REGEX']
   const AutoTipUtils: typeof import('./hooks/autoTipApis')['AutoTipUtils']
   const CORE_NAMESPACES: typeof import('./hooks/useCore')['CORE_NAMESPACES']
   const EffectScope: typeof import('vue')['EffectScope']
