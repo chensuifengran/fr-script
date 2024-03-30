@@ -110,9 +110,14 @@ const {
   isEditing,
 } = useScriptInfo();
 const { getEditorValue } = useEditor()!;
-const isDifferentValue = computed(
-  () => getEditorValue("codeEditBox")?.value !== fileInfo.originData
-);
+const isDifferentValue = computed(() => {
+  const v = getEditorValue("codeEditBox");
+  if (!v) {
+    return !fileInfo.originData;
+  }
+  const isDifferent = v.value !== fileInfo.originData;
+  return isDifferent;
+});
 const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
   const targetWindow = createWindow("apiTest", "/apiTest");
