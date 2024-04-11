@@ -1,18 +1,38 @@
 <template>
   <div>
-    <el-input spellcheck="false" v-model="value" size="small">
-      <template #prepend v-if="label !== ''"
-        ><span
+    <el-text
+      v-if="label !== '' && label.length > 10"
+      :style="{
+        color: pathExits ? undefined : 'red',
+      }"
+    >
+      {{ label }}
+    </el-text>
+    <el-autocomplete
+      v-model="value"
+      :fetch-suggestions="querySearch"
+      size="small"
+      @select="selectHandler"
+    >
+      <template #prepend v-if="label !== '' && label.length <= 10"
+        ><el-text
           :style="{
             color: pathExits ? undefined : 'red',
           }"
-          >{{ label }}</span
-        ></template
+        >
+          {{ label }}
+        </el-text></template
       >
       <template #append>
         <el-button @click="selectFilePath">选择路径</el-button>
       </template>
-    </el-input>
+      <template #default="{ item }">
+        <div class="suggestion-item">
+          <el-text>{{ item.value }}</el-text
+          ><el-tag size="small">{{ item.label }}</el-tag>
+        </div>
+      </template>
+    </el-autocomplete>
     <div v-show="!pathExits" class="tip">
       <el-icon color="red"><IEpCircleCloseFilled /></el-icon
       ><el-tag type="danger"
@@ -46,6 +66,40 @@ const props = defineProps({
     default: false,
   },
 });
+type SuggestionItem = {
+  label: string;
+  value: string;
+};
+const suggestions = reactive<SuggestionItem[]>([]);
+const querySearch = (queryString: string, cb: (s: SuggestionItem[]) => void) => {
+  const results = queryString
+    ? suggestions.filter((item) => {
+        return item.value.includes(queryString) || item.label.includes(queryString);
+      })
+    : suggestions;
+  cb(results);
+};
+onMounted(async () => {
+  const appGSStore = useAppGlobalSettings();
+  const workDir = appGSStore.envSetting.workDir;
+  const screenshotPath = appGSStore.envSetting.screenshotSavePath;
+  const installDir = await pathUtils.getInstallDir();
+  suggestions.push({
+    label: "工作目录",
+    value: workDir,
+  });
+  suggestions.push({
+    label: "截图路径",
+    value: screenshotPath,
+  });
+  suggestions.push({
+    label: "安装目录",
+    value: installDir,
+  });
+});
+const selectHandler = (item: Record<string, any>) => {
+  value.value = item.value;
+};
 watch(value, async () => {
   if (!props.verify) return;
   pathExits.value = await exists(value.value);
@@ -66,6 +120,13 @@ const selectFilePath = async () => {
 .tip {
   display: flex;
   align-items: center;
+}
+.suggestion-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 </style>
 <style lang="scss"></style>
