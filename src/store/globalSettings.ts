@@ -26,7 +26,7 @@ export const useAppGlobalSettings = defineStore("globalSettings", {
         screenshotSavePath: "",
       },
       ocr: {
-        value: "GPU",
+        value: "CPU",
         options: ["GPU", "CPU"],
         gpuMemory: 1000,
       },
