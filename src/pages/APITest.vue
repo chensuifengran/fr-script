@@ -33,9 +33,6 @@
           <el-button class="output-btn" @click="info.apiTest.openOutput = true"
             ><el-icon><IEpNotification /></el-icon
           ></el-button>
-          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
-            ><code-icon
-          /></el-button>
         </div>
       </transition>
       <ApiDocumentItem

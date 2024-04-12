@@ -42,9 +42,6 @@
             <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle
               ><el-icon><IEpNotification /></el-icon
             ></el-button>
-            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle
-              ><code-icon
-            /></el-button>
           </div>
         </transition>
       </div>
