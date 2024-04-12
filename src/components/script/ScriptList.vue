@@ -44,6 +44,7 @@
     </el-affix>
 
     <div class="list" v-infinite-scroll="load" :infinite-scroll-distance="40">
+      <el-empty v-if="scriptList.length === 0" description="暂无脚本" />
       <ScriptListItem
         v-for="item in lazyList"
         :key="item.id"
