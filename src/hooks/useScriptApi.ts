@@ -801,7 +801,18 @@ const getWillRunScript = (runId: string, script: string) => {
 };
 const setIntervals: NodeJS.Timeout[] = [];
 const _setInterval = (callback: () => void, ms?: number | undefined) => {
-  const timeout = setInterval(callback, ms);
+  const timeout = setInterval(()=>{
+    try{
+      const {isStop} = window[CORE_NAMESPACES];
+      if(isStop){
+        _clearInterval(timeout);
+        return;
+      }
+      callback();
+    }catch(e){
+      console.error(e);
+    }
+  }, ms);
   setIntervals.push(timeout);
   return timeout;
 };
@@ -906,7 +917,7 @@ const version = computed(() => {
 const savePath = computed(() => {
   return getFileInfo("savePath");
 });
-const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals", "log"];
+const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals", "log", 'setInterval'];
 const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   const { runningFnId } = useScriptRuntime();
   if (taskId && taskId !== runningFnId.value) {
