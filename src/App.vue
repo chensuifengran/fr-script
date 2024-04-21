@@ -116,9 +116,10 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
   libUtil.batchUpdateDep();
 });
+const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
 </script>
 <template>
-  <div class="app" id="app">
+  <div class="app">
     <FillApiParamDialog />
     <template v-if="isMainWindow">
       <AutoTitleBar />
@@ -227,22 +228,19 @@ onBeforeMount(() => {
     </template>
   </div>
 </template>
-<style lang="scss">
-.common-layout {
-  .el-overlay {
-    border-radius: 10px;
-    overflow: hidden;
-  }
-}
-.version-update-dialog {
-  .el-dialog__body {
-    padding: 10px;
-  }
-}
-</style>
+
 <style scoped lang="scss">
-#app {
+.app {
+  width: 100%;
+  height: 100%;
   background: v-bind(appBackground);
+  border-radius: v-bind(borderRadius);
+  opacity: v-bind(appOpacity);
+  overflow: hidden;
+  border: v-bind(borderColor) 1px solid;
+  box-sizing: border-box;
+  transition: all 1s;
+  transform: v-bind(appTransform);
 }
 .dialog-content {
   display: flex;
@@ -308,7 +306,16 @@ onBeforeMount(() => {
   border-radius: 6px;
 }
 .app {
+  .version-update-dialog {
+    .el-dialog__body {
+      padding: 10px;
+    }
+  }
   .common-layout {
+    .el-overlay {
+      border-radius: 10px;
+      overflow: hidden;
+    }
     .el-container {
       width: 100%;
       height: 100%;
