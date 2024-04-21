@@ -3,65 +3,48 @@
     <el-page-header @back="goBack" v-show="running !== 2" title="脚本列表">
       <template #content>
         <div class="head-content">
-          <span class="s-name"
-            >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
-          >
+          <span class="s-name">{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span>
           <el-tooltip effect="dark" content="编辑脚本" placement="bottom">
             <code-icon class="icon" @click.stop="goEditor" />
           </el-tooltip>
           <el-tooltip effect="dark" content="脚本设置" placement="bottom">
-            <el-icon class="icon" @click.stop="goSetScript"><IEpSetting /></el-icon>
+            <el-icon class="icon" @click.stop="goSetScript">
+              <IEpSetting />
+            </el-icon>
           </el-tooltip>
           <el-checkbox class="mgl-10" v-model="hideWindow" label="运行时隐藏窗口" />
         </div>
       </template>
       <template #extra>
         <div>
-          <el-button @click="invokeStartHandle" v-show="running === 0"
-            ><el-tag class="mgl-5" type="info" size="small">Ctrl+Shift+A</el-tag>
-            <run-icon
-          /></el-button>
-          <el-button @click="() => initScript(true)" v-show="running === 1"
-            >重新初始化<el-tag class="mgl-5" type="info" size="small"
-              >Ctrl+Shift+D</el-tag
-            ></el-button
-          >
+          <el-tooltip effect="dark" content="Ctrl+Shift+A" placement="bottom">
+            <el-button @click="invokeStartHandle" v-show="running === 0" plain>运行</el-button>
+          </el-tooltip>
+          <el-tooltip effect="dark" content="Ctrl+Shift+D" placement="bottom">
+            <el-button @click="() => initScript(true)" v-show="running === 1" plain>重新初始化</el-button>
+          </el-tooltip>
         </div>
       </template>
     </el-page-header>
     <div v-show="running === 2" class="end-box">
       <div>
-        <span class="s-name"
-          >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
-        >
+        <span class="s-name">{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span>
         <el-tag class="mgl-5" size="small" type="info" v-show="savePath">{{
           savePath
         }}</el-tag>
         <el-tag class="mgl-5" size="small" type="success">运行中</el-tag>
+        <DotLoader style="margin-left: 15px" />
       </div>
-      <el-button @click="stop" v-show="running === 2" type="danger"
-        >结束<el-tag class="mgl-5" type="info" size="small"
-          >Ctrl+Shift+S</el-tag
-        ></el-button
-      >
+      <div>
+        <el-button @click="enableFloatWindow(false)" v-show="running === 2" type="primary" plain>小窗运行</el-button>
+        <el-tooltip effect="dark" content="Ctrl+Shift+S" placement="bottom">
+          <el-button @click="stop" v-show="running === 2" type="danger" plain>结束</el-button>
+        </el-tooltip>
+      </div>
     </div>
-    <div class="console-log-div" v-if="!isLoading">
+    <div class="console-log-div" v-show="!isLoading">
       <async-renderer-form v-show="running === 0" :reInit="reInit" />
-      <div class="log-box" v-show="running !== 0">
-        <el-alert title="历史输出：" type="info" />
-        <div id="consoleLogDiv">
-          <el-alert
-            class="alert-item"
-            v-for="(log, idx) in logOutput"
-            :key="idx"
-            :title="`[${log.time}]: ${log.log}`"
-            :type="
-              log.type === 'danger' ? 'error' : log.type === 'loading' ? 'info' : log.type
-            "
-            :closable="false"
-          />
-        </div>
-      </div>
+      <log-timeline v-show="running !== 0" :data="logOutput" :running="running === 2" />
     </div>
   </div>
   <teleport to="body">
@@ -139,20 +122,23 @@ const run = (script: string, runId: string) => {
   return new Function("", runScript);
 };
 const { createWindow } = useWebviewWindow();
-
-const invokeStartHandle = async () => {
-  setEndBeforeCompletion(false);
-  if (hideWindow.value) {
-    WebviewWindow.getByLabel("main")?.hide();
-    const targetWindow = createWindow("notification", "/notification", {
-      height: 135,
-      width: 200,
-      alwaysOnTop: true,
-    });
-    targetWindow?.show();
+const enableFloatWindow = (isInit: boolean = false) => {
+  WebviewWindow.getByLabel("main")?.hide();
+  const targetWindow = createWindow("notification", "/notification", {
+    height: 135,
+    width: 200,
+    alwaysOnTop: true,
+  });
+  targetWindow?.show();
+  isInit &&
     notify.init({
       name: name.value,
     });
+};
+const invokeStartHandle = async () => {
+  setEndBeforeCompletion(false);
+  if (hideWindow.value) {
+    enableFloatWindow(true);
   }
   running.value = 2;
   window[CORE_NAMESPACES].startScriptSignal?.abort();
@@ -186,6 +172,7 @@ const stop = () => {
 };
 const isInit = ref(false);
 const initScript = async (reinit: boolean = false) => {
+  logOutput.splice(0, logOutput.length);
   if (reinit) {
     const targetWindow = createWindow("notification", "/notification", {
       height: 135,
@@ -330,14 +317,17 @@ onUnmounted(() => {
   overflow-x: hidden;
   box-sizing: border-box;
   padding: 10px;
+
   .head-content {
     display: flex;
     flex-direction: row;
     align-items: center;
+
     .s-name {
       font-size: 15px;
       font-weight: bold;
     }
+
     .icon {
       cursor: pointer;
       margin-left: 10px;
@@ -368,7 +358,7 @@ onUnmounted(() => {
       width: 100%;
       height: 100%;
 
-      & > div:last-of-type {
+      &>div:last-of-type {
         flex: 1;
         height: 100%;
         display: flex;
@@ -377,6 +367,7 @@ onUnmounted(() => {
         overflow: scroll;
         padding: 5px 0 0 0;
       }
+
       .alert-item {
         margin-bottom: 5px;
       }
@@ -387,6 +378,7 @@ onUnmounted(() => {
 .mgl-5 {
   margin-left: 5px;
   position: relative;
+
   .go-editor {
     position: absolute;
     top: 0;
@@ -401,19 +393,21 @@ onUnmounted(() => {
     color: #fff;
     transition: opacity 0.5s;
     opacity: 0;
+
     &:hover {
       opacity: 1;
     }
   }
 }
+
 .mgl-10 {
   margin-left: 10px;
 }
 </style>
 <style lang="scss">
 .log-box {
-  & > .el-card {
-    & > .el-card__body {
+  &>.el-card {
+    &>.el-card__body {
       height: 100%;
       display: flex;
       flex-direction: column;
