@@ -159,6 +159,10 @@ const pushUpdateDep = async(path:string)=>{
 const batchUpdateDep = async()=>{
   const installPath = await pathUtils.getInstallDir();
   const waitUpdateDeps = await pathUtils.join(installPath,".wait_update");
+  //判断.wait_update文件夹是否存在
+  if(!await libExists('.wait_update')){
+    return;
+  }
   const depList = await fsUtils.readDir(waitUpdateDeps);
   for(const dep of depList){
     const depPath = await pathUtils.join(waitUpdateDeps,dep.fileName);
