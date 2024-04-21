@@ -25,6 +25,7 @@ declare global {
       getImageSize: typeof import("./invokes/getImageSize/exportFn")["getImageSizeFn"];
       getImgRectInfo: typeof import("./invokes/getImgRectInfo/exportFn")["getImgRectInfoFn"];
       getScreenRectInfo: typeof import("./invokes/getScreenRectInfo/exportFn")["getScreenRectInfoFn"];
+      getScreenSize: typeof import("./invokes/getScreenSize/exportFn")["getScreenSizeFn"];
       GlobalShortcut: {
         listen: typeof import("./invokes/GlobalShortcut/listen/exportFn")["listenFn"];
         unlisten: typeof import("./invokes/GlobalShortcut/unlisten/exportFn")["unlistenFn"];
@@ -42,6 +43,7 @@ declare global {
         clicker: typeof import("./invokes/Mouse/clicker/exportFn")["clickerFn"];
         drag: typeof import("./invokes/Mouse/drag/exportFn")["dragFn"];
         move: typeof import("./invokes/Mouse/move/exportFn")["moveFn"];
+        pos: typeof import("./invokes/Mouse/pos/exportFn")["posFn"];
         randomMove: typeof import("./invokes/Mouse/randomMove/exportFn")["randomMoveFn"];
         wheel: typeof import("./invokes/Mouse/wheel/exportFn")["wheelFn"];
       };

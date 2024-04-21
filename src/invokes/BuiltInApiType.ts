@@ -16,6 +16,7 @@ export type BuiltInApiType = {
   getImageSize: typeof import("./getImageSize/exportFn")["getImageSizeFn"];
   getImgRectInfo: typeof import("./getImgRectInfo/exportFn")["getImgRectInfoFn"];
   getScreenRectInfo: typeof import("./getScreenRectInfo/exportFn")["getScreenRectInfoFn"];
+  getScreenSize: typeof import("./getScreenSize/exportFn")["getScreenSizeFn"];
   GlobalShortcut: {    listen: typeof import("./GlobalShortcut/listen/exportFn")["listenFn"];
     unlisten: typeof import("./GlobalShortcut/unlisten/exportFn")["unlistenFn"];
     waitKeys: typeof import("./GlobalShortcut/waitKeys/exportFn")["waitKeysFn"];
@@ -30,6 +31,7 @@ export type BuiltInApiType = {
     clicker: typeof import("./Mouse/clicker/exportFn")["clickerFn"];
     drag: typeof import("./Mouse/drag/exportFn")["dragFn"];
     move: typeof import("./Mouse/move/exportFn")["moveFn"];
+    pos: typeof import("./Mouse/pos/exportFn")["posFn"];
     randomMove: typeof import("./Mouse/randomMove/exportFn")["randomMoveFn"];
     wheel: typeof import("./Mouse/wheel/exportFn")["wheelFn"];
   };
