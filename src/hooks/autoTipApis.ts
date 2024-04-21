@@ -463,8 +463,6 @@ const createDependencyProposals = async (range: {
       endColumn: number;
     };
   }[];
-  console.log("allSnippet", allSnippet);
-
   return allSnippet;
 };
 export const AutoTipUtils = {
