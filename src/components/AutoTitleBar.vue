@@ -219,9 +219,10 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  box-sizing: border-box;
   z-index: 100;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
