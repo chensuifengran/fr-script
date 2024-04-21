@@ -1,4 +1,4 @@
-import { emit, listen } from "@tauri-apps/api/event";
+import { emit, listen, Event } from "@tauri-apps/api/event";
 const notify = {
   clear: () =>
     emit("notify", {
@@ -22,8 +22,13 @@ const notify = {
       type: "message",
       payload,
     }),
-  listen: async (callback: (payload: any) => void) => {
-    const unlisten = await listen("notify", (payload) => {
+  sendCustom: (payload: { name: string; message: string }) =>
+    emit("notify", {
+      type: "custom-message",
+      payload,
+    }),
+  listen: async <T = any>(callback: (payload: Event<T>) => void) => {
+    const unlisten = await listen<T>("notify", (payload) => {
       callback(payload);
     });
     return unlisten;

@@ -1,5 +1,11 @@
 import { storeToRefs } from "pinia";
 import { WebviewWindow } from "@tauri-apps/api/window";
+export type LogOutputType = {
+  time: string;
+  log: string;
+  type: "success" | "danger" | "info" | "warning" | "loading";
+  timestamp: number;
+};
 const { exportAllFn, genBuiltInApi } = useCore();
 const buildTableForm = () => {
   return new TableForm();
@@ -864,11 +870,7 @@ const setEndBeforeCompletion = (status: boolean) => {
 
 const hideWindow = ref(true);
 const logOutput = reactive<
-  {
-    time: string;
-    log: string;
-    type: "success" | "danger" | "info" | "warning" | "loading";
-  }[]
+  LogOutputType[]
 >([]);
 const clearLogOutput = () => {
   logOutput.splice(0, logOutput.length);
@@ -894,6 +896,7 @@ const log = (
     time: timeStr,
     log: msg,
     type: type ? type : "info",
+    timestamp: Date.now()
   });
   notify.send({
     type,
@@ -942,7 +945,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     }
   } else if (state) {
     clearLogOutput();
-    log("脚本就绪，等待开始运行", "info");
+    log("脚本就绪，等待开始运行", "loading");
     running.value = 0;
     endBeforeCompletion = false;
   } else {

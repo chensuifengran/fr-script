@@ -1,95 +1,47 @@
 <template>
-  <div
-    class="notification-content"
-    :style="{
-      borderRadius: isMiniState ? '35px' : undefined,
-    }"
-  >
-    <template v-if="!isMiniState">
-      <div class="title">
-        <el-text size="small" data-tauri-drag-region style="cursor: move">{{
-          scriptInfo.name
-        }}</el-text>
-        <div data-tauri-drag-region style="cursor: move" class="move"></div>
-        <div class="btns">
-          <el-tooltip effect="dark" content="精简显示" placement="bottom">
-            <el-button class="btn" size="small" @click="minimize" circle
-              ><el-icon><IEpArrowLeft /></el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip effect="dark" content="返回主界面" placement="bottom">
-            <el-button class="btn" size="small" @click="home" circle
-              ><el-icon><IEpHouse /></el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip effect="dark" content="结束运行" placement="bottom">
-            <el-button class="btn" type="danger" size="small" @click="close" circle
-              ><el-icon><IEpClose /></el-icon
-            ></el-button>
-          </el-tooltip>
-        </div>
-      </div>
-      <el-scrollbar height="100px" class="msg-box" v-if="scriptInfo.currentMessage">
-        <div
-          v-for="item in scriptInfo.currentMessage"
-          :key="JSON.stringify(item)"
-          class="msg-item"
-          :style="{
-            color: colorMap[item.type || 'info'],
-          }"
-        >
-          [{{ item.time }}]: {{ item.message }}
-        </div>
-      </el-scrollbar>
-    </template>
-    <template v-else>
-      <div class="mini-box" data-tauri-drag-region style="cursor: move">
-        <div
-          class="msg-item max"
-          data-tauri-drag-region
-          style="cursor: move"
-          :style="{
-            color: colorMap[firstItem.type || 'info'],
-          }"
-        >
-          <span class="loader" v-if="firstItem.type === 'loading'"></span>
-          <el-icon size="small" v-else-if="firstItem.type === 'success'"
-            ><IEpSuccessFilled
-          /></el-icon>
-          <el-icon size="small" v-else-if="firstItem.type === 'warning'"
-            ><IEpWarningFilled
-          /></el-icon>
-          <el-icon size="small" v-else-if="firstItem.type === 'info'"
-            ><IEpInfoFilled
-          /></el-icon>
-          <el-icon size="small" v-else-if="firstItem.type === 'danger'"
-            ><IEpWarnTriangleFilled
-          /></el-icon>
-          <el-tag size="small" type="primary" v-if="firstItem.type === 'loading'">{{
-            useTime
-          }}</el-tag>
-          <el-text class="mgl-5">{{ firstItem.message }}</el-text>
-        </div>
-        <el-button class="button" @click="maximize" circle size="small">
-          <el-icon><IEpArrowDown /></el-icon>
-        </el-button>
-      </div>
-    </template>
+  <div class="notification-content" data-tauri-drag-region style="cursor: move" v-show="fullWindow">
+    <div class="max" data-tauri-drag-region style="cursor: move" :style="{
+      color: colorMap[firstItem.type || 'info'],
+    }">
+      <DotLoader class="dot-loader" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move"/>
+      <el-icon size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region style="cursor: move">
+        <IEpSuccessFilled data-tauri-drag-region />
+      </el-icon>
+      <el-icon size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region style="cursor: move">
+        <IEpWarningFilled data-tauri-drag-region />
+      </el-icon>
+      <el-icon size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region style="cursor: move">
+        <IEpInfoFilled data-tauri-drag-region />
+      </el-icon>
+      <el-icon size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region style="cursor: move">
+        <IEpWarnTriangleFilled data-tauri-drag-region />
+      </el-icon>
+      <el-tag size="small" type="primary" v-if="firstItem.type === 'loading'" data-tauri-drag-region
+        style="cursor: move">{{ useTime }}</el-tag>
+      <el-text class="mgl-5" data-tauri-drag-region style="cursor: move">{{
+        firstItem.message
+      }}</el-text>
+    </div>
+    <div class="btns">
+      <el-button class="btn" size="small" @click="home" circle><el-icon>
+          <IEpHouse />
+        </el-icon></el-button>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { UnlistenFn } from "@tauri-apps/api/event";
-import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
-const isMiniState = ref(false);
+import {
+  LogicalSize,
+  PhysicalPosition,
+  PhysicalSize,
+  WebviewWindow,
+  appWindow,
+} from "@tauri-apps/api/window";
+const { borderRadius, appOpacity, appTransform } = useAppTheme();
+const { createWindow } = useWebviewWindow();
+let adsorptionPredictionWindow: WebviewWindow | undefined;
 const loadingTime = ref(1);
-const useTime = computed(() => {
-  const hours = Math.floor(loadingTime.value / 3600);
-  const minutes = Math.floor((loadingTime.value % 3600) / 60);
-  const seconds = Math.floor(loadingTime.value % 60);
-  return `${hours ? `${hours}:` : ""}${minutes ? `${minutes}:` : ""}${seconds}`;
-});
-const { notify } = eventUtil;
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
   "appAsideBgColor"
 );
@@ -100,6 +52,14 @@ const oppositeBgColor = computed(() => {
     return "#f6f6f6";
   }
 });
+const useTime = computed(() => {
+  const hours = Math.floor(loadingTime.value / 3600);
+  const minutes = Math.floor((loadingTime.value % 3600) / 60);
+  const seconds = Math.floor(loadingTime.value % 60);
+  return `${hours ? `${hours}:` : ""}${minutes ? `${minutes}:` : ""}${seconds}`;
+});
+const { notify } = eventUtil;
+
 const colorMap = reactive({
   info: oppositeBgColor?.value,
   loading: oppositeBgColor?.value,
@@ -125,26 +85,163 @@ const scriptInfo = reactive<{
   ],
 });
 const firstItem = computed(() => scriptInfo.currentMessage[0] || {});
-const close = () => {
-  notify.end();
-  appWindow.close();
-};
 const home = () => {
   WebviewWindow.getByLabel("main")?.show();
   appWindow.hide();
 };
-const minimize = () => {
-  isMiniState.value = true;
-  appWindow.setSize(new LogicalSize(230, 35));
-};
-const maximize = () => {
-  isMiniState.value = false;
-  appWindow.setSize(new LogicalSize(230, 135));
-};
+
+
+//吸附距离
+const DISTENCE = 50;
+//收缩后宽度或高度
+const shrinkWidthOrHeight = 10;
+let checkStateInterval: NodeJS.Timeout | undefined;
+const stateCache = <{ lastX: number, lastY: number, lastMirrorPos: 'left' | 'right' | 'top' | '' }>{
+  lastX: 0,
+  lastY: 0,
+  lastMirrorPos: ''
+}
+let SCREEN_SIZE: { width: number, height: number } | null;
+let absorbTimer: NodeJS.Timeout | undefined;
+const fullWindow = ref(true);
+watch(fullWindow, async () => {
+  absorbTimer && clearTimeout(absorbTimer);
+  const mirrorWindow = adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
+  if (fullWindow.value) {
+    //恢复窗口
+    appTransform.value = `none`;
+    borderRadius.value = '20px';
+    await appWindow?.setSize(new LogicalSize(300, 40));
+    appOpacity.value = 1;
+    await nextTick();
+    if (stateCache.lastMirrorPos === 'right') {
+      if (SCREEN_SIZE) {
+        const appPos = await mirrorWindow?.outerPosition();
+        await appWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE.width - 300, appPos?.y || 0));
+      }
+    }
+  } else {
+    //吸附窗口
+    if (stateCache.lastMirrorPos === '') {
+      return;
+    }
+    const appPos = await appWindow.outerPosition();
+    const appSize = await appWindow.innerSize();
+    if (stateCache.lastMirrorPos === 'left') {
+      await appWindow?.setPosition(new PhysicalPosition(0, appPos.y));
+      appTransform.value = `translateX(calc(-100% + ${shrinkWidthOrHeight}px))`
+      borderRadius.value = '0px 10px 10px 0px';
+      absorbTimer = setTimeout(() => {
+        appWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, appSize.height));
+        appOpacity.value = 0.5;
+        clearTimeout(absorbTimer);
+      }, 1000);
+    } else if (stateCache.lastMirrorPos === 'right') {
+      await appWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE!.width - appSize.width, appPos.y));
+      appTransform.value = `translateX(calc(100% - ${shrinkWidthOrHeight}px))`
+      borderRadius.value = '10px 0px 0px 10px';
+      absorbTimer = setTimeout(async () => {
+        await appWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, appSize.height));
+        await appWindow.setPosition(new PhysicalPosition(SCREEN_SIZE!.width - shrinkWidthOrHeight, appPos.y));
+        appOpacity.value = 0.5;
+        clearTimeout(absorbTimer);
+      }, 1000);
+    } else {
+      await appWindow?.setPosition(new PhysicalPosition(appPos.x, 0));
+      appTransform.value = `translateY(calc(-100% + ${shrinkWidthOrHeight}px))`
+      borderRadius.value = '0px 0px 10px 10px';
+      absorbTimer = setTimeout(async () => {
+        await appWindow?.setSize(new LogicalSize(appSize.width, shrinkWidthOrHeight));
+        appOpacity.value = 0.5;
+        clearTimeout(absorbTimer);
+      }, 1000);
+    }
+    await mirrorWindow?.hide();
+  }
+});
+const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosition) => {
+  const appSize = windowSize || (await appWindow.innerSize());
+  const { x, y } = windowPos || (await appWindow.outerPosition());
+  const { width } = await useBuiltInApi().getScreenSize();
+  let pos: "left" | "right" | "top" | "" = "";
+  if (y < DISTENCE) {
+    if (x < DISTENCE) {
+      if (y <= x) {
+        pos = "top";
+      } else {
+        pos = "left";
+      }
+    } else if (width - appSize.width - x < DISTENCE) {
+      if (y <= width - appSize.width - x) {
+        pos = "top";
+      } else {
+        pos = "right";
+      }
+    } else {
+      pos = "top";
+    }
+  } else {
+    if (x < DISTENCE) {
+      pos = "left";
+    } else if (width - appSize.width - x < DISTENCE) {
+      pos = "right";
+    }
+  }
+  return pos;
+}
+
+
+const mouseInWindow = async (windowSize: PhysicalSize, windowPos: PhysicalPosition) => {
+  const { x, y } = await useBuiltInApi().Mouse.pos();
+  if (x >= windowPos.x && x <= windowPos.x + windowSize.width && y >= windowPos.y && y <= windowPos.y + windowSize.height) {
+    return true;
+  } else {
+    return false;
+  }
+}
+const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winSize: PhysicalSize, winPos: PhysicalPosition) => {
+  const mirrorWindow = adsorptionPredictionWindow || WebviewWindow.getByLabel('floatWindow');
+  if (!fullWindow.value) {
+    mirrorWindow?.hide();
+    return;
+  }
+  if (mirrorPos === '') {
+    mirrorWindow?.hide();
+    return;
+  }
+  if (mirrorPos === 'top') {
+    await notify.sendCustom({
+      name: "borderRadius",
+      message: "0 0 10px 10px",
+    });
+
+    await mirrorWindow?.setSize(new LogicalSize(winSize.width, shrinkWidthOrHeight));
+    await mirrorWindow?.setPosition(new PhysicalPosition(winPos.x, 0));
+  } else if (mirrorPos === 'left') {
+    await notify.sendCustom({
+      name: "borderRadius",
+      message: "0px 10px 10px 0px",
+    });
+    await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
+    await mirrorWindow?.setPosition(new PhysicalPosition(0, winPos.y));
+
+  } else if (mirrorPos === 'right') {
+    await notify.sendCustom({
+      name: "borderRadius",
+      message: "10px 0px 0px 10px",
+    });
+    await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
+    if (!SCREEN_SIZE) {
+      SCREEN_SIZE = await useBuiltInApi().getScreenSize();
+    }
+    await mirrorWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE.width - shrinkWidthOrHeight, winPos.y));
+  }
+  await mirrorWindow?.show();
+}
 let unlistenNotify: UnlistenFn;
-let currentInterval: any;
+let currentInterval: NodeJS.Timeout;
 onMounted(async () => {
-  minimize();
+  SCREEN_SIZE = await useBuiltInApi().getScreenSize();
   unlistenNotify = await notify.listen((data) => {
     const { type, payload } = data.payload as {
       type: string;
@@ -169,132 +266,91 @@ onMounted(async () => {
       appWindow.hide();
     }
   });
+  adsorptionPredictionWindow = createWindow("floatWindow", "/floatWindow", {
+    height: 300,
+    width: 40,
+    alwaysOnTop: false,
+  });
+  await notify.sendCustom({
+    name: "opacity",
+    message: "0.5",
+  });
+  nextTick(() => {
+    WebviewWindow.getByLabel("floatWindow")?.hide();
+  });
+  const timer = setTimeout(() => {
+    WebviewWindow.getByLabel("floatWindow")?.hide();
+    clearTimeout(timer);
+  }, 500);
+  appWindow.setSize(new LogicalSize(300, 40));
+  borderRadius.value = "20px";
+  checkStateInterval = setInterval(async () => {
+    const mousePos = await useBuiltInApi().Mouse.pos();
+    if (mousePos.x === stateCache.lastX && mousePos.y === stateCache.lastY) {
+      return;
+    } else {
+      stateCache.lastX = mousePos.x;
+      stateCache.lastY = mousePos.y;
+    }
+    const winSize = await appWindow.innerSize();
+    const winPos = await appWindow.outerPosition();
+    const mirrorPos = await getMirrorPos(winSize, winPos);
+    stateCache.lastMirrorPos = mirrorPos;
+    if (mirrorPos === '') {
+      fullWindow.value = true;
+    } else {
+      const mouseLeaveWindow = !await mouseInWindow(winSize, winPos);
+      if (mouseLeaveWindow) {
+        fullWindow.value = false;
+      } else {
+        fullWindow.value = true;
+      }
+    }
+    await updateMirrorWindow(mirrorPos, winSize, winPos);
+  }, 200);
 });
 onBeforeUnmount(() => {
   currentInterval && clearInterval(currentInterval);
+  checkStateInterval && clearInterval(checkStateInterval);
   unlistenNotify();
+  WebviewWindow.getByLabel("floatWindow")?.hide();
 });
+
 </script>
 <style lang="scss" scoped>
 .mgl-5 {
   margin-left: 5px;
 }
-.msg-item {
-  padding: 5px 10px;
-  background: v-bind(appBackground);
-  margin-bottom: 1px;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  &:hover {
-    background: v-bind(appAsideBgColor);
-  }
-}
 .notification-content {
   width: 100%;
   height: 100%;
   position: relative;
-
-  .msg-box {
-    width: 100%;
-    background-color: v-bind(appAsideBgColor);
-  }
-  .title {
-    display: flex;
-    align-items: center;
-    padding: 0 0 0 10px;
-    height: 30px;
-    background-color: v-bind(appAsideBgColor);
-    border-bottom: 1px solid v-bind(appBackground);
-    .move {
-      flex: 1;
-      height: 35px;
-    }
-    .btns {
-      width: 90px;
-      .btn {
-        margin: 0;
-        margin-right: 5px;
-        padding: 0;
-      }
-    }
-  }
-  .mini-box {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 5px;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    .max {
-      flex: 1;
-      &:hover {
-        background: v-bind(appBackground);
-      }
-    }
-    .button {
-      background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+  opacity: v-bind(appOpacity);
+  .btns {
+    display: none;
+    .btn {
       margin: 0;
+      margin-right: 5px;
       padding: 0;
     }
   }
-}
-.loader {
-  color: v-bind(oppositeBgColor);
-  font-size: 12px;
-  text-indent: -9999em;
-  overflow: hidden;
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  border-radius: 50%;
-  position: relative;
-  transform: translateZ(0);
-  margin-right: 5px;
-  animation: mltShdSpin 1.7s infinite ease, round 1.7s infinite ease;
-}
-@keyframes mltShdSpin {
-  0% {
-    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
-      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
-  }
-  5%,
-  95% {
-    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
-      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
-  }
-  10%,
-  59% {
-    box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em,
-      -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em,
-      -0.297em -0.775em 0 -0.477em;
-  }
-  20% {
-    box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em,
-      -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em,
-      -0.749em -0.34em 0 -0.477em;
-  }
-  38% {
-    box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em,
-      -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em, -0.82em -0.09em 0 -0.477em;
-  }
-  100% {
-    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
-      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+  &:hover {
+    .btns {
+      display: flex;
+    }
   }
 }
-@keyframes round {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.dot-loader{
+  margin-right: 10px;
+  margin-left: 10px;
 }
+
 </style>
