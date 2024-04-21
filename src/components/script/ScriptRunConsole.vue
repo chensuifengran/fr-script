@@ -44,7 +44,7 @@
     </div>
     <div class="console-log-div" v-show="!isLoading">
       <async-renderer-form v-show="running === 0" :reInit="reInit" />
-      <log-timeline v-show="running !== 0" :data="logOutput" :running="running === 2" />
+      <log-timeline v-show="running !== 0" :data="logOutput"/>
     </div>
   </div>
   <teleport to="body">

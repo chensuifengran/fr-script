@@ -19,10 +19,6 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
-  running: {
-    type: Boolean,
-    default: false
-  },
 });
 const showMaxCount = ref(20);
 const load = () => {
