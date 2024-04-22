@@ -162,7 +162,7 @@ watch(fullWindow, async () => {
 const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosition) => {
   const appSize = windowSize || (await appWindow.innerSize());
   const { x, y } = windowPos || (await appWindow.outerPosition());
-  const { width } = await useBuiltInApi().getScreenSize();
+  const { width } = await invokeBaseApi.getScreenSize();
   let pos: "left" | "right" | "top" | "" = "";
   if (y < DISTENCE) {
     if (x < DISTENCE) {
@@ -192,7 +192,7 @@ const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosit
 
 
 const mouseInWindow = async (windowSize: PhysicalSize, windowPos: PhysicalPosition) => {
-  const { x, y } = await useBuiltInApi().Mouse.pos();
+  const { x, y } = await invokeBaseApi.getMousePos();
   if (x >= windowPos.x && x <= windowPos.x + windowSize.width && y >= windowPos.y && y <= windowPos.y + windowSize.height) {
     return true;
   } else {
@@ -224,7 +224,6 @@ const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winS
     });
     await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
     await mirrorWindow?.setPosition(new PhysicalPosition(0, winPos.y));
-
   } else if (mirrorPos === 'right') {
     await notify.sendCustom({
       name: "borderRadius",
@@ -232,7 +231,7 @@ const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winS
     });
     await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
     if (!SCREEN_SIZE) {
-      SCREEN_SIZE = await useBuiltInApi().getScreenSize();
+      SCREEN_SIZE = await invokeBaseApi.getScreenSize();
     }
     await mirrorWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE.width - shrinkWidthOrHeight, winPos.y));
   }
@@ -241,7 +240,7 @@ const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winS
 let unlistenNotify: UnlistenFn;
 let currentInterval: NodeJS.Timeout;
 onMounted(async () => {
-  SCREEN_SIZE = await useBuiltInApi().getScreenSize();
+  SCREEN_SIZE = await invokeBaseApi.getScreenSize();
   unlistenNotify = await notify.listen((data) => {
     const { type, payload } = data.payload as {
       type: string;
@@ -285,7 +284,7 @@ onMounted(async () => {
   appWindow.setSize(new LogicalSize(300, 40));
   borderRadius.value = "20px";
   checkStateInterval = setInterval(async () => {
-    const mousePos = await useBuiltInApi().Mouse.pos();
+    const mousePos = await invokeBaseApi.getMousePos();
     if (mousePos.x === stateCache.lastX && mousePos.y === stateCache.lastY) {
       return;
     } else {
@@ -321,6 +320,7 @@ onBeforeUnmount(() => {
 .mgl-5 {
   margin-left: 5px;
 }
+
 .notification-content {
   width: 100%;
   height: 100%;
@@ -334,23 +334,26 @@ onBeforeUnmount(() => {
   padding-right: 10px;
   box-sizing: border-box;
   opacity: v-bind(appOpacity);
+
   .btns {
     display: none;
+
     .btn {
       margin: 0;
       margin-right: 5px;
       padding: 0;
     }
   }
+
   &:hover {
     .btns {
       display: flex;
     }
   }
 }
-.dot-loader{
+
+.dot-loader {
   margin-right: 10px;
   margin-left: 10px;
 }
-
 </style>

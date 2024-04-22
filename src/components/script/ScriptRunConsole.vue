@@ -44,7 +44,7 @@
     </div>
     <div class="console-log-div" v-show="!isLoading">
       <async-renderer-form v-show="running === 0" :reInit="reInit" />
-      <log-timeline v-show="running !== 0" :data="logOutput"/>
+      <log-timeline v-show="running !== 0" :data="logOutput" />
     </div>
   </div>
   <teleport to="body">
@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import { transpile, ScriptTarget } from "typescript";
@@ -71,6 +71,7 @@ const { notify } = eventUtil;
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
 );
+
 const { running, name, version, hideWindow, savePath, logOutput } = useScriptView();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
@@ -122,16 +123,16 @@ const run = (script: string, runId: string) => {
   return new Function("", runScript);
 };
 const { createWindow } = useWebviewWindow();
-const enableFloatWindow = (isInit: boolean = false) => {
-  WebviewWindow.getByLabel("main")?.hide();
+const enableFloatWindow = async (isInit: boolean = false) => {
+  appWindow.hide();
   const targetWindow = createWindow("notification", "/notification", {
-    height: 135,
-    width: 200,
+    height: 40,
+    width: 300,
     alwaysOnTop: true,
   });
-  targetWindow?.show();
+  await targetWindow?.show();
   isInit &&
-    notify.init({
+    await notify.init({
       name: name.value,
     });
 };
@@ -167,7 +168,6 @@ const stop = () => {
   builtInApi.log("脚本已强制结束", "warning");
   builtInApi.setTaskEndStatus("warning", "脚本已强制结束");
   builtInApi.abortSignalInScript && builtInApi.abortSignalInScript.abort();
-
   console.log("脚本已停止，随着出现的报错为正常情况，不影响使用");
 };
 const isInit = ref(false);
@@ -282,7 +282,7 @@ onMounted(async () => {
   });
   registerGlobalShortcuts(running.value);
   register("Alt+Ctrl+S", () => {
-    WebviewWindow.getByLabel("main")?.show();
+    appWindow.show();
   });
   unlistenNotify = await notify.listen((data) => {
     const { type } = data.payload as { type: string; payload: any };

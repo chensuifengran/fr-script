@@ -66,7 +66,6 @@ declare module 'vue' {
     FillApiParamDialog: typeof import('./components/FillApiParamDialog.vue')['default']
     GeneralDialog: typeof import('./components/dialog/GeneralDialog.vue')['default']
     IEpArrowDown: typeof import('~icons/ep/arrow-down')['default']
-    IEpArrowLeft: typeof import('~icons/ep/arrow-left')['default']
     IEpArrowRight: typeof import('~icons/ep/arrow-right')['default']
     IEpCircleCloseFilled: typeof import('~icons/ep/circle-close-filled')['default']
     IEpClose: typeof import('~icons/ep/close')['default']
