@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api";
-
 export const getScreenSizeFn = async (taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
@@ -9,11 +7,8 @@ export const getScreenSizeFn = async (taskId?: string) => {
     };
   }
   try {
-    const res = await invoke<string>("get_screen_size");
-    return JSON.parse(res) as {
-      width: number;
-      height: number;
-    };
+    const res = await invokeBaseApi.getScreenSize();
+    return res;
   } catch (e) {
     console.error(e);
     return {

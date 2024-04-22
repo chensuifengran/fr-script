@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api";
-
 export const posFn = async (taskId?: string) => {
   
   const { notAllowedFnId } = useScriptRuntime();
@@ -10,8 +8,8 @@ export const posFn = async (taskId?: string) => {
     };
   }
   try {
-    const res = await invoke<string>("mouse_get_pos");
-    return (JSON.parse(res) as any).message as { x: number; y: number };
+    const res = await invokeBaseApi.getMousePos();
+    return res;
   } catch (e) {
     console.error(e);
     return {
