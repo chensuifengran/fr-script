@@ -1,24 +1,24 @@
 <template>
   <div class="notification-content" data-tauri-drag-region style="cursor: move" v-show="fullWindow">
-    <div class="max" data-tauri-drag-region style="cursor: move" :style="{
+    <div class="content" data-tauri-drag-region style="cursor: move" :style="{
       color: colorMap[firstItem.type || 'info'],
     }">
-      <DotLoader class="dot-loader" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move"/>
-      <el-icon size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region style="cursor: move">
+      <DotLoader class="icon" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move"/>
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region style="cursor: move">
         <IEpSuccessFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region style="cursor: move">
         <IEpWarningFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region style="cursor: move">
         <IEpInfoFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region style="cursor: move">
         <IEpWarnTriangleFilled data-tauri-drag-region />
       </el-icon>
-      <el-tag size="small" type="primary" v-if="firstItem.type === 'loading'" data-tauri-drag-region
+      <el-tag class="icon" size="small" type="primary" v-if="firstItem.type === 'loading'" data-tauri-drag-region
         style="cursor: move">{{ useTime }}</el-tag>
-      <el-text class="mgl-5" data-tauri-drag-region style="cursor: move">{{
+      <el-text class="message" data-tauri-drag-region style="cursor: move">{{
         firstItem.message
       }}</el-text>
     </div>
@@ -317,9 +317,6 @@ onBeforeUnmount(() => {
 
 </script>
 <style lang="scss" scoped>
-.mgl-5 {
-  margin-left: 5px;
-}
 
 .notification-content {
   width: 100%;
@@ -334,10 +331,33 @@ onBeforeUnmount(() => {
   padding-right: 10px;
   box-sizing: border-box;
   opacity: v-bind(appOpacity);
+  .content{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 30px;
+  }
+  .message{
+    margin-left: 5px;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
   .btns {
     display: none;
-
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    flex-direction: row;
+    align-items: center;
     .btn {
       margin: 0;
       margin-right: 5px;
@@ -352,8 +372,9 @@ onBeforeUnmount(() => {
   }
 }
 
-.dot-loader {
+.icon{
   margin-right: 10px;
   margin-left: 10px;
+  font-size: 12px;
 }
 </style>
