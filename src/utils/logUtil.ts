@@ -18,14 +18,20 @@ const setProductionErrorReport = () => {
     isSetReport = true;
   }
 };
-const scriptConsoleErrorReport = (msg: string, name?:string) => {
+const scriptConsoleErrorReport = (msg: string, name?: string) => {
   if (isProduction) {
     invoke("error_report", {
-      msg:`[${name || '脚本控制台'}]${msg}`,
+      msg: `[${name || "脚本控制台"}]${msg}`,
     });
   }
 };
+const report = (msg: any) => {
+  return invoke<void>("error_report", {
+    msg: JSON.stringify(msg),
+  });
+};
 export const logUtil = {
   setProductionErrorReport,
-  scriptConsoleErrorReport
+  scriptConsoleErrorReport,
+  report,
 };
