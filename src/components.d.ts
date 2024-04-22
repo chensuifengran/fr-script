@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AffixIcon: typeof import('./components/svgIcon/AffixIcon.vue')['default']
     ApiDocumentItem: typeof import('./components/apiTest/ApiDocumentItem.vue')['default']
     AppSetting: typeof import('./components/AppSetting.vue')['default']
     ATHeader: typeof import('./components/apiTest/ATHeader.vue')['default']

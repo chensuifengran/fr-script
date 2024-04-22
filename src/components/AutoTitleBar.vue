@@ -5,16 +5,12 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="showQuitDialog = false">取消</el-button>
-        <el-button type="danger" @click="closeHandle"
-          >{{ isEditing ? "保存并" : "" }}退出</el-button
-        >
+        <el-button type="danger" @click="closeHandle">{{ isEditing ? "保存并" : "" }}退出</el-button>
       </span>
     </template>
   </el-dialog>
-  <transition
-    enter-active-class="animate__animated animate__fadeInUp"
-    leave-active-class="animate__animated animate__fadeOutDown"
-  >
+  <transition enter-active-class="animate__animated animate__fadeInUp"
+    leave-active-class="animate__animated animate__fadeOutDown">
     <div data-tauri-drag-region class="titlebar" v-if="!isEditing" style="cursor: move">
       <div class="title" data-tauri-drag-region style="cursor: move">
         <div class="text">
@@ -22,84 +18,81 @@
             info.title
           }}</span>
         </div>
-        <transition
-          enter-active-class="animate__animated animate__fadeInUp"
-          leave-active-class="animate__animated animate__fadeOutDown"
-        >
-          <div
-            class="api-test-bar"
-            data-tauri-drag-region
-            v-if="showApiTestSearch"
-            style="cursor: move"
-          >
-            <el-input
-              class="search-ipt"
-              v-model="info.apiTest.searchValue"
-              clearable
-              placeholder="可输入API的关键字对API进行筛选"
-            >
+        <transition enter-active-class="animate__animated animate__fadeInUp"
+          leave-active-class="animate__animated animate__fadeOutDown">
+          <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch" style="cursor: move">
+            <el-input class="search-ipt" v-model="info.apiTest.searchValue" clearable placeholder="可输入API的关键字对API进行筛选">
             </el-input>
-            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle
-              ><el-icon><IEpNotification /></el-icon
-            ></el-button>
+            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle><el-icon>
+                <IEpNotification />
+              </el-icon></el-button>
           </div>
         </transition>
       </div>
       <div class="btn">
-        <el-tooltip
-          effect="light"
-          content="基础功能不可用，点我安装依赖"
-          placement="bottom"
-          v-if="appGSStore.app.dependenceState === '不可用'"
-        >
+        <el-tooltip effect="light" content="基础功能不可用，点我安装依赖" placement="bottom"
+          v-if="appGSStore.app.dependenceState === '不可用'">
           <div class="titlebar-button warning-btn" @click="goInstallDeps()">
-            <el-icon><IEpWarning /></el-icon>
+            <el-icon>
+              <IEpWarning />
+            </el-icon>
           </div>
         </el-tooltip>
-        <el-tooltip
-          effect="light"
-          content="有新版本，点我更新"
-          placement="bottom"
-          v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar"
-        >
+        <el-tooltip effect="light" content="有新版本，点我更新" placement="bottom"
+          v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar">
           <div class="titlebar-button setup-btn" @click="openDownloadDialog">
-            <el-icon><IEpDownload /></el-icon>
+            <el-icon>
+              <IEpDownload />
+            </el-icon>
           </div>
         </el-tooltip>
 
+        <div class="titlebar-button" @click="toggleMostTop">
+          <AffixIcon :style="{
+            color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
+          }" />
+        </div>
         <div class="titlebar-button" @click="minHandle">
-          <el-icon><IEpMinus /></el-icon>
+          <el-icon>
+            <IEpMinus />
+          </el-icon>
         </div>
         <div class="titlebar-button" @click="maxHandle">
-          <el-icon
-            ><IEpFullScreen v-show="!isFullScreen" /><IEpCopyDocument
-              v-show="isFullScreen"
-          /></el-icon>
+          <el-icon>
+            <IEpFullScreen v-show="!isFullScreen" />
+            <IEpCopyDocument v-show="isFullScreen" />
+          </el-icon>
         </div>
         <div class="titlebar-button danger" @click="showQuitDialog = true">
-          <el-icon><IEpClose /></el-icon>
+          <el-icon>
+            <IEpClose />
+          </el-icon>
         </div>
       </div>
     </div>
-    <div
-      class="titlebar"
-      data-tauri-drag-region
-      v-else-if="isEditing"
-      style="cursor: move"
-    >
+    <div class="titlebar" data-tauri-drag-region v-else-if="isEditing" style="cursor: move">
       <EditorHeader>
         <div class="btn-content">
+          <div class="titlebar-button" @click="toggleMostTop">
+            <AffixIcon :style="{
+              color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
+            }" />
+          </div>
           <div class="titlebar-button" @click="minHandle">
-            <el-icon><IEpMinus /></el-icon>
+            <el-icon>
+              <IEpMinus />
+            </el-icon>
           </div>
           <div class="titlebar-button" @click="maxHandle">
-            <el-icon
-              ><IEpFullScreen v-show="!isFullScreen" /><IEpCopyDocument
-                v-show="isFullScreen"
-            /></el-icon>
+            <el-icon>
+              <IEpFullScreen v-show="!isFullScreen" />
+              <IEpCopyDocument v-show="isFullScreen" />
+            </el-icon>
           </div>
           <div class="titlebar-button danger" @click="showQuitDialog = true">
-            <el-icon><IEpClose /></el-icon>
+            <el-icon>
+              <IEpClose />
+            </el-icon>
           </div>
         </div>
       </EditorHeader>
@@ -115,6 +108,15 @@ const { info, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
 const { getEditorValue } = useEditor();
+const mostTop = ref(false);
+const toggleMostTop = () => {
+  mostTop.value = !mostTop.value;
+  if (mostTop.value) {
+    appWindow.setAlwaysOnTop(true);
+  } else {
+    appWindow.setAlwaysOnTop(false);
+  }
+};
 const titleBarHeight = computed(() => {
   return isEditing.value ? "35px" : "40px";
 });
@@ -144,12 +146,13 @@ const closeHandle = async () => {
     }
   }
   const allWindow = getAll();
-  allWindow.forEach((w) => {
+  for (let i = 0; i < allWindow.length; i++) {
+    const w = allWindow[i];
     if (w.label !== "main") {
-      w.close();
+      await w.close();
     }
-  });
-  appWindow.close();
+  }
+  await appWindow.close();
 };
 
 const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
@@ -228,17 +231,20 @@ onUnmounted(() => {
   border-radius: 10px 10px 0 0;
   padding-left: 10px;
   padding-right: 5px;
+
   .btn-content {
     display: flex;
     flex-direction: row;
     align-items: center;
   }
+
   .title {
     display: flex;
     flex-direction: row;
     align-items: center;
     flex: 1;
   }
+
   .text {
     color: var(--el-text-color-primary);
     // margin-left: 5px;
@@ -246,21 +252,25 @@ onUnmounted(() => {
     flex-direction: row;
     align-items: center;
   }
+
   .api-test-bar {
     flex: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+
     .search-ipt {
       width: 500px;
       position: v-bind(searchPosition);
     }
+
     .output-btn {
       margin-left: 5px;
       position: v-bind(searchPosition);
     }
   }
+
   .btn,
   .btn-content {
     .titlebar-button {
@@ -270,6 +280,7 @@ onUnmounted(() => {
       width: 40px;
       height: 40px;
       cursor: pointer;
+
       &.setup-btn {
         width: 22px;
         height: 22px;
@@ -277,10 +288,12 @@ onUnmounted(() => {
         background-color: var(--el-color-primary);
         color: #fff;
         margin-right: 5px;
+
         &:hover {
           background-color: rgb(3, 211, 89);
         }
       }
+
       &.warning-btn {
         width: 22px;
         height: 22px;
@@ -288,13 +301,16 @@ onUnmounted(() => {
         background-color: rgb(255, 45, 34);
         color: #fff;
         margin-right: 5px;
+
         &:hover {
           background-color: rgb(255, 87, 34);
         }
       }
+
       &:hover {
         background: var(--el-color-primary-light-7);
       }
+
       &.danger {
         &:hover {
           background: rgb(255, 45, 34);
