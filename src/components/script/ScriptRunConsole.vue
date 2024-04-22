@@ -131,10 +131,16 @@ const enableFloatWindow = async (isInit: boolean = false) => {
     alwaysOnTop: true,
   });
   await targetWindow?.show();
-  isInit &&
+  if (isInit) {
     await notify.init({
       name: name.value,
     });
+  } else {
+    await notify.sendCustom({
+      name: 'continue',
+      message: ''
+    })
+  }
 };
 const invokeStartHandle = async () => {
   setEndBeforeCompletion(false);

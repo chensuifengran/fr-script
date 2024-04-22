@@ -3,17 +3,21 @@
     <div class="content" data-tauri-drag-region style="cursor: move" :style="{
       color: colorMap[firstItem.type || 'info'],
     }">
-      <DotLoader class="icon" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move"/>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region style="cursor: move">
+      <DotLoader class="icon" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move" />
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region
+        style="cursor: move">
         <IEpSuccessFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region
+        style="cursor: move">
         <IEpWarningFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region
+        style="cursor: move">
         <IEpInfoFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region style="cursor: move">
+      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region
+        style="cursor: move">
         <IEpWarnTriangleFilled data-tauri-drag-region />
       </el-icon>
       <el-tag class="icon" size="small" type="primary" v-if="firstItem.type === 'loading'" data-tauri-drag-region
@@ -84,10 +88,12 @@ const scriptInfo = reactive<{
     },
   ],
 });
+let leaveWindow = false;
 const firstItem = computed(() => scriptInfo.currentMessage[0] || {});
 const home = () => {
   WebviewWindow.getByLabel("main")?.show();
   appWindow.hide();
+  leaveWindow = true;
 };
 
 
@@ -239,6 +245,7 @@ const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winS
 }
 let unlistenNotify: UnlistenFn;
 let currentInterval: NodeJS.Timeout;
+
 onMounted(async () => {
   SCREEN_SIZE = await invokeBaseApi.getScreenSize();
   unlistenNotify = await notify.listen((data) => {
@@ -257,12 +264,19 @@ onMounted(async () => {
       }
     } else if (type === "init") {
       scriptInfo.name = payload.name;
+      leaveWindow = false;
       scriptInfo.currentMessage = [];
     } else if (type === "clear-message") {
       scriptInfo.currentMessage = [];
     } else if (type === "done") {
       scriptInfo.currentMessage = [];
       appWindow.hide();
+      leaveWindow = true;
+    } else if (type === 'custom-message') {
+      const { name } = payload;
+      if (name === 'continue') {
+        leaveWindow = false;
+      }
     }
   });
   adsorptionPredictionWindow = createWindow("floatWindow", "/floatWindow", {
@@ -284,6 +298,9 @@ onMounted(async () => {
   appWindow.setSize(new LogicalSize(300, 40));
   borderRadius.value = "20px";
   checkStateInterval = setInterval(async () => {
+    if (leaveWindow || !(await appWindow.isVisible())) {
+      return;
+    }
     const mousePos = await invokeBaseApi.getMousePos();
     if (mousePos.x === stateCache.lastX && mousePos.y === stateCache.lastY) {
       return;
@@ -317,7 +334,6 @@ onBeforeUnmount(() => {
 
 </script>
 <style lang="scss" scoped>
-
 .notification-content {
   width: 100%;
   height: 100%;
@@ -331,7 +347,8 @@ onBeforeUnmount(() => {
   padding-right: 10px;
   box-sizing: border-box;
   opacity: v-bind(appOpacity);
-  .content{
+
+  .content {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -341,7 +358,8 @@ onBeforeUnmount(() => {
     bottom: 0;
     right: 30px;
   }
-  .message{
+
+  .message {
     margin-left: 5px;
     font-size: 12px;
     text-overflow: ellipsis;
@@ -358,6 +376,7 @@ onBeforeUnmount(() => {
     width: 30px;
     flex-direction: row;
     align-items: center;
+
     .btn {
       margin: 0;
       margin-right: 5px;
@@ -372,7 +391,7 @@ onBeforeUnmount(() => {
   }
 }
 
-.icon{
+.icon {
   margin-right: 10px;
   margin-left: 10px;
   font-size: 12px;
