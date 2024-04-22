@@ -45,7 +45,7 @@ const showApiTestButton = () => {
     mainWindow.setFocus();
   }
 };
-const isMainWindow = inject<Ref<boolean>>("isMainWindow");
+const { isMainWindow } = useAppLayout();
 const appBackground = inject("appBackground");
 const appAsideBgColor = inject("appAsideBgColor");
 let clickCount = 0;

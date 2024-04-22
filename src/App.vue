@@ -5,6 +5,7 @@ import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
 import { appWindow } from "@tauri-apps/api/window";
 const { registerAllInvokeApi } = useCore();
+const { isMainWindow } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { app } = storeToRefs(appGSStore);
@@ -62,8 +63,6 @@ const aside_width = computed(() => {
     return "97px";
   }
 });
-const isMainWindow = ref(true);
-provide("isMainWindow", isMainWindow);
 onMounted(async () => {
   const init = async (listenResize = true) => {
     listenResize &&
@@ -116,7 +115,7 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
   libUtil.batchUpdateDep();
 });
-const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
+const { borderRadius, appOpacity, borderColor, appTransform } = useAppTheme();
 </script>
 <template>
   <div class="app">
@@ -127,45 +126,24 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
         <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
           <template #header="{ titleId, titleClass }">
             <h4 :id="titleId" :class="titleClass">
-              依赖管理<el-tag
-                :type="getDepStateType(app.dependenceState)"
-                size="small"
-                class="title-tag"
-                >{{ app.dependenceState }}</el-tag
-              >
+              依赖管理<el-tag :type="getDepStateType(app.dependenceState)" size="small" class="title-tag">{{
+                app.dependenceState }}</el-tag>
             </h4>
           </template>
           <DepDrewer />
         </el-drawer>
         <el-container>
           <el-aside class="aside">
-            <el-tooltip
-              effect="dark"
-              :content="app.state.aside.collapsed ? '展开' : '折叠'"
-              placement="right"
-            >
-              <el-button
-                class="aside-btn"
-                :icon="app.state.aside.collapsed ? Expand : Fold"
-                text
-                @click="collapsedAside"
-              />
+            <el-tooltip effect="dark" :content="app.state.aside.collapsed ? '展开' : '折叠'" placement="right">
+              <el-button class="aside-btn" :icon="app.state.aside.collapsed ? Expand : Fold" text
+                @click="collapsedAside" />
             </el-tooltip>
-            <el-menu
-              :collapse="app.state.aside.collapsed"
-              :collapse-transition="false"
-              popper-effect="dark"
-              class="el-menu-vertical"
-              :default-active="app.state.aside.currentItem"
-              :key="menuKey"
-              @select="(index) => handleSelect(index, true)"
-            >
+            <el-menu :collapse="app.state.aside.collapsed" :collapse-transition="false" popper-effect="dark"
+              class="el-menu-vertical" :default-active="app.state.aside.currentItem" :key="menuKey"
+              @select="(index) => handleSelect(index, true)">
               <div>
-                <el-menu-item
-                  v-for="topRoute in topRoutes"
-                  :index="topRoute.name"
-                  :key="topRoute.path + '|' + topRoute.meta!.title"
-                >
+                <el-menu-item v-for="topRoute in topRoutes" :index="topRoute.name"
+                  :key="topRoute.path + '|' + topRoute.meta!.title">
                   <el-icon>
                     <component :is="topRoute.meta!.icon" />
                   </el-icon>
@@ -174,11 +152,8 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
               </div>
               <div data-tauri-drag-region style="flex: 1; cursor: move"></div>
               <div>
-                <el-menu-item
-                  v-for="bottomRoute in bottomRoutes"
-                  :index="bottomRoute.name"
-                  :key="bottomRoute.path+ '|' + bottomRoute.meta!.title"
-                >
+                <el-menu-item v-for="bottomRoute in bottomRoutes" :index="bottomRoute.name"
+                  :key="bottomRoute.path + '|' + bottomRoute.meta!.title">
                   <el-icon>
                     <component :is="bottomRoute.meta!.icon" />
                   </el-icon>
@@ -196,25 +171,14 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
           </el-main>
         </el-container>
       </div>
-      <el-dialog
-        v-model="appVersionInfo.openDialog"
-        :title="'版本更新v' + appVersionInfo.version"
-        class="version-update-dialog"
-      >
+      <el-dialog v-model="appVersionInfo.openDialog" :title="'版本更新v' + appVersionInfo.version"
+        class="version-update-dialog">
         <div>{{ appVersionInfo.desc }}</div>
         <template #footer>
           <div>
-            <el-button type="info" size="small" @click="appVersionInfo.openDialog = false"
-              >取消</el-button
-            >
-            <el-button
-              size="small"
-              v-for="item in appVersionInfo.downloadUrl"
-              :key="item.origin"
-              type="primary"
-              @click="goDownloadNewApp(item)"
-              >{{ item.origin }}下载</el-button
-            >
+            <el-button type="info" size="small" @click="appVersionInfo.openDialog = false">取消</el-button>
+            <el-button size="small" v-for="item in appVersionInfo.downloadUrl" :key="item.origin" type="primary"
+              @click="goDownloadNewApp(item)">{{ item.origin }}下载</el-button>
           </div>
         </template>
       </el-dialog>
@@ -242,10 +206,12 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
   transition: all 1s;
   transform: v-bind(appTransform);
 }
+
 .dialog-content {
   display: flex;
   flex-direction: column;
   padding: 10px;
+
   .btn-content {
     display: flex;
     flex-direction: row;
@@ -253,26 +219,31 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
     margin-top: 20px;
   }
 }
+
 .common-layout {
   width: 100%;
   top: v-bind(contentTop);
   height: v-bind(contentHeight);
   position: relative;
   overflow: hidden;
+
   .title-tag {
     margin-left: 10px;
   }
+
   .aside {
     transition: all 1s;
     overflow-x: hidden;
     width: v-bind(aside_width);
     position: v-bind(asideBarPos);
     transform: v-bind(contentTransform);
+
     &:hover {
       .aside-btn {
         display: block;
       }
     }
+
     .aside-btn {
       position: absolute;
       width: 30px;
@@ -283,6 +254,7 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
       z-index: 999;
     }
   }
+
   .el-menu-vertical {
     width: 100%;
     height: 100%;
@@ -290,6 +262,7 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
     flex-direction: column;
     justify-content: space-between;
   }
+
   .app-main {
     width: 100%;
     height: 100%;
@@ -305,31 +278,37 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
   background-color: var(--el-color-primary);
   border-radius: 6px;
 }
+
 .app {
   .version-update-dialog {
     .el-dialog__body {
       padding: 10px;
     }
   }
+
   .common-layout {
     .el-overlay {
       border-radius: 10px;
       overflow: hidden;
     }
+
     .el-container {
       width: 100%;
       height: 100%;
       position: relative;
+
       .aside {
         .el-menu-vertical {
           background: v-bind(appAsideBgColor);
           border-right: 0;
+
           .el-menu-item {
             .el-menu-tooltip__trigger {
               display: flex;
               flex-direction: row;
               justify-content: center;
               align-items: center;
+
               .el-icon {
                 margin-right: 0;
               }
@@ -337,6 +316,7 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
 
             &.is-active {
               position: relative;
+
               &::before {
                 content: "";
                 position: absolute;
@@ -355,12 +335,14 @@ const { borderRadius, appOpacity, borderColor,appTransform } = useAppTheme();
     }
   }
 }
+
 //高度从0到60%，top从50%到20%的动画
 @keyframes aside-width {
   0% {
     height: 0;
     top: 50%;
   }
+
   100% {
     height: 60%;
     top: 20%;
