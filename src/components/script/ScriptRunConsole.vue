@@ -139,7 +139,7 @@ const enableFloatWindow = async (isInit: boolean = false) => {
 const invokeStartHandle = async () => {
   setEndBeforeCompletion(false);
   if (hideWindow.value) {
-    enableFloatWindow(true);
+    await enableFloatWindow(true);
   }
   running.value = 2;
   window[CORE_NAMESPACES].startScriptSignal?.abort();
