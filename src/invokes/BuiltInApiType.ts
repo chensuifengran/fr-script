@@ -6,7 +6,8 @@ export type BuiltInApiType = {
   cmd: typeof import("./cmd/exportFn")["cmdFn"];
   connectTo: typeof import("./connectTo/exportFn")["connectToFn"];
   cropPicture: typeof import("./cropPicture/exportFn")["cropPictureFn"];
-  CV: {    imgSimilarity: typeof import("./CV/imgSimilarity/exportFn")["imgSimilarityFn"];
+  CV: {
+    imgSimilarity: typeof import("./CV/imgSimilarity/exportFn")["imgSimilarityFn"];
     matchTemplate: typeof import("./CV/matchTemplate/exportFn")["matchTemplateFn"];
     screenDiffTemplates: typeof import("./CV/screenDiffTemplates/exportFn")["screenDiffTemplatesFn"];
     screenMatchTemplate: typeof import("./CV/screenMatchTemplate/exportFn")["screenMatchTemplateFn"];
@@ -17,17 +18,20 @@ export type BuiltInApiType = {
   getImgRectInfo: typeof import("./getImgRectInfo/exportFn")["getImgRectInfoFn"];
   getScreenRectInfo: typeof import("./getScreenRectInfo/exportFn")["getScreenRectInfoFn"];
   getScreenSize: typeof import("./getScreenSize/exportFn")["getScreenSizeFn"];
-  GlobalShortcut: {    listen: typeof import("./GlobalShortcut/listen/exportFn")["listenFn"];
+  GlobalShortcut: {
+    listen: typeof import("./GlobalShortcut/listen/exportFn")["listenFn"];
     unlisten: typeof import("./GlobalShortcut/unlisten/exportFn")["unlistenFn"];
     waitKeys: typeof import("./GlobalShortcut/waitKeys/exportFn")["waitKeysFn"];
   };
-  Input: {    combined: typeof import("./Input/combined/exportFn")["combinedFn"];
+  Input: {
+    combined: typeof import("./Input/combined/exportFn")["combinedFn"];
     keyDown: typeof import("./Input/keyDown/exportFn")["keyDownFn"];
     keyUp: typeof import("./Input/keyUp/exportFn")["keyUpFn"];
     press: typeof import("./Input/press/exportFn")["pressFn"];
     text: typeof import("./Input/text/exportFn")["textFn"];
   };
-  Mouse: {    click: typeof import("./Mouse/click/exportFn")["clickFn"];
+  Mouse: {
+    click: typeof import("./Mouse/click/exportFn")["clickFn"];
     clicker: typeof import("./Mouse/clicker/exportFn")["clickerFn"];
     drag: typeof import("./Mouse/drag/exportFn")["dragFn"];
     move: typeof import("./Mouse/move/exportFn")["moveFn"];
