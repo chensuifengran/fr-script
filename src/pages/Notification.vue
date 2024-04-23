@@ -1,29 +1,30 @@
 <template>
   <div class="notification-content" data-tauri-drag-region style="cursor: move" v-show="fullWindow">
     <div class="content" data-tauri-drag-region style="cursor: move" :style="{
-      color: colorMap[firstItem.type || 'info'],
+      color: colorMap[scriptInfo.currentMessage.type || 'info'],
     }">
-      <DotLoader class="icon" v-if="firstItem.type === 'loading'" data-tauri-drag-region style="cursor: move" />
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'success'" data-tauri-drag-region
+      <DotLoader class="icon" v-if="scriptInfo.currentMessage.type === 'loading'" data-tauri-drag-region
+        style="cursor: move" />
+      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'success'" data-tauri-drag-region
         style="cursor: move">
         <IEpSuccessFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'warning'" data-tauri-drag-region
+      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'warning'" data-tauri-drag-region
         style="cursor: move">
         <IEpWarningFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'info'" data-tauri-drag-region
+      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'info'" data-tauri-drag-region
         style="cursor: move">
         <IEpInfoFilled data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="firstItem.type === 'danger'" data-tauri-drag-region
+      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'danger'" data-tauri-drag-region
         style="cursor: move">
         <IEpWarnTriangleFilled data-tauri-drag-region />
       </el-icon>
-      <el-tag class="icon" size="small" type="primary" v-if="firstItem.type === 'loading'" data-tauri-drag-region
-        style="cursor: move">{{ useTime }}</el-tag>
+      <el-tag class="icon" size="small" type="primary" v-if="scriptInfo.currentMessage.type === 'loading'"
+        data-tauri-drag-region style="cursor: move">{{ useTime }}</el-tag>
       <el-text class="message" data-tauri-drag-region style="cursor: move">{{
-        firstItem.message
+        scriptInfo.currentMessage.message
       }}</el-text>
     </div>
     <div class="btns">
@@ -67,19 +68,16 @@ const scriptInfo = reactive<{
     type?: "info" | "success" | "warning" | "danger" | "loading";
     message: string;
     time: string;
-  }[];
+  };
 }>({
   name: "运行中",
-  currentMessage: [
-    {
-      type: "info",
-      message: "",
-      time: "",
-    },
-  ],
+  currentMessage: {
+    type: "info",
+    message: "",
+    time: "",
+  },
 });
 let leaveWindow = false;
-const firstItem = computed(() => scriptInfo.currentMessage[0] || {});
 const home = () => {
   WebviewWindow.getByLabel("main")?.show();
   appWindow.hide();
@@ -183,8 +181,6 @@ const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosit
   }
   return pos;
 }
-
-
 const mouseInWindow = async (windowSize: PhysicalSize, windowPos: PhysicalPosition) => {
   const { x, y } = await invokeBaseApi.getMousePos();
   if (x >= windowPos.x && x <= windowPos.x + windowSize.width && y >= windowPos.y && y <= windowPos.y + windowSize.height) {
@@ -208,7 +204,6 @@ const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winS
       name: "borderRadius",
       message: "0 0 10px 10px",
     });
-
     await mirrorWindow?.setSize(new LogicalSize(winSize.width, shrinkWidthOrHeight));
     await mirrorWindow?.setPosition(new PhysicalPosition(winPos.x, 0));
   } else if (mirrorPos === 'left') {
@@ -243,7 +238,7 @@ onMounted(async () => {
     };
     if (type === "message") {
       currentInterval && clearInterval(currentInterval);
-      scriptInfo.currentMessage.unshift(payload);
+      scriptInfo.currentMessage = payload;
       if (payload.type === "loading") {
         loadingTime.value = 1;
         currentInterval = setInterval(() => {
@@ -253,11 +248,23 @@ onMounted(async () => {
     } else if (type === "init") {
       scriptInfo.name = payload.name;
       leaveWindow = false;
-      scriptInfo.currentMessage = [];
+      scriptInfo.currentMessage = {
+        type: "info",
+        message: "",
+        time: "",
+      };
     } else if (type === "clear-message") {
-      scriptInfo.currentMessage = [];
+      scriptInfo.currentMessage = {
+        type: "info",
+        message: "",
+        time: "",
+      };
     } else if (type === "done") {
-      scriptInfo.currentMessage = [];
+      scriptInfo.currentMessage = {
+        type: "info",
+        message: "",
+        time: "",
+      };
       appWindow.hide();
       leaveWindow = true;
     } else if (type === 'custom-message') {
