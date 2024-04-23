@@ -129,7 +129,7 @@ const findEditor = (domId: string) => {
 };
 const getEditorValue = (domId: string) => {
   return editors.find((item) => item.domId === domId)?.value;
-}
+};
 
 export const useEditor = () => {
   // @ts-ignore
@@ -198,7 +198,7 @@ export const useEditor = () => {
     let editorTheme = "vs";
     const settingEditorTheme = appGSStore.editor.theme.value;
     if (settingEditorTheme === "跟随全局主题") {
-      const isDark = useDark({});
+      const { isDark } = useAppTheme();
       editorTheme = isDark.value ? "vs-dark" : "vs";
     } else {
       editorTheme = settingEditorTheme === "明亮" ? "vs" : "vs-dark";

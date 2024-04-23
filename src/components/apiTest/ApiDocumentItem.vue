@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElNotification } from "element-plus";
-
+const { appAsideBgColor, appBackground } = useAppTheme();
 const props = defineProps({
   model: {
     type: Object as PropType<TestModuleType>,
@@ -133,42 +133,33 @@ const copyExampleCode = () => {
     }
   }
 };
-const appAsideBgColor = inject<globalThis.ComputedRef<string>>("appAsideBgColor");
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+
 </script>
 
 <template>
   <div class="api-doc-item" @click="changeShowDetails">
     <div class="api-header">
       <div class="info">
-        <el-icon class="icon" v-if="!showDetails"><IEpArrowRight /></el-icon>
-        <el-icon class="icon" v-else><IEpArrowDown /></el-icon>
+        <el-icon class="icon" v-if="!showDetails">
+          <IEpArrowRight />
+        </el-icon>
+        <el-icon class="icon" v-else>
+          <IEpArrowDown />
+        </el-icon>
         <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
       </div>
-      <el-tooltip
-        effect="dark"
-        content="测试调用"
-        placement="left"
-        v-if="type === 'invokeApi'"
-      >
-        <el-button
-          size="small"
-          type="primary"
-          circle
-          @click.stop="invokeDynamicDialog(
-            dialog?.targetMethodName!,
-            aliasName || dialog?.targetMethodName,
-            dialog?.content,
-            'test'
-            )"
-        >
+      <el-tooltip effect="dark" content="测试调用" placement="left" v-if="type === 'invokeApi'">
+        <el-button size="small" type="primary" circle @click.stop="invokeDynamicDialog(
+          dialog?.targetMethodName!,
+          aliasName || dialog?.targetMethodName,
+          dialog?.content,
+          'test'
+        )">
           <invoke-icon />
         </el-button>
       </el-tooltip>
       <el-tooltip v-else effect="dark" content="查看文档" placement="left">
-        <el-button size="small" :disabled="!model!.canBeCalled"
-          ><invoke-icon
-        /></el-button>
+        <el-button size="small" :disabled="!model!.canBeCalled"><invoke-icon /></el-button>
       </el-tooltip>
     </div>
     <div class="api-details" v-if="showDetails">
@@ -195,16 +186,12 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
             <el-table-column prop="type" label="类型">
               <template #default="scope">
                 <span v-if="typeof scope.row.type === 'string'">
-                  {{ scope.row.type }}</span
-                >
-                <span v-else
-                  >enum<el-tooltip
-                    effect="dark"
-                    :content="scope.row.type?.join(',') || ''"
-                    placement="top-start"
-                  >
-                    <el-icon><IEpInfoFilled /></el-icon> </el-tooltip
-                ></span>
+                  {{ scope.row.type }}</span>
+                <span v-else>enum<el-tooltip effect="dark" :content="scope.row.type?.join(',') || ''"
+                    placement="top-start">
+                    <el-icon>
+                      <IEpInfoFilled />
+                    </el-icon> </el-tooltip></span>
               </template>
             </el-table-column>
             <el-table-column prop="default" label="默认值" />
@@ -218,29 +205,18 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
           </div>
         </div>
         <div class="api-details-item" v-if="model.document.example" @click.stop="">
-          <span class="example-title"
-            ><el-tooltip
-              effect="dark"
-              content="恢复默认示例代码"
-              placement="top-start"
-              v-if="model.document.example.code.join('') !== firstExampleCode.join('')"
-            >
-              <el-icon class="refreshCode" @click.stop="resetExampleCode"
-                ><IEpRefresh
-              /></el-icon> </el-tooltip
-            >示例：</span
-          >
+          <span class="example-title"><el-tooltip effect="dark" content="恢复默认示例代码" placement="top-start"
+              v-if="model.document.example.code.join('') !== firstExampleCode.join('')">
+              <el-icon class="refreshCode" @click.stop="resetExampleCode">
+                <IEpRefresh />
+              </el-icon> </el-tooltip>示例：</span>
           <span>{{ model.document.example.title }}</span>
           <div class="code">
             <div v-for="c in model.document.example.code" :key="c" v-html="c"></div>
-            <div
-              v-html="model.document.example.code.join('\n')"
-              ref="exampleRef"
-              style="display: none"
-            ></div>
-            <el-button class="copy-code" @click="copyExampleCode" size="small"
-              ><el-icon><IEpCopyDocument /></el-icon>复制</el-button
-            >
+            <div v-html="model.document.example.code.join('\n')" ref="exampleRef" style="display: none"></div>
+            <el-button class="copy-code" @click="copyExampleCode" size="small"><el-icon>
+                <IEpCopyDocument />
+              </el-icon>复制</el-button>
           </div>
         </div>
       </div>
@@ -263,8 +239,10 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   border-radius: 5px;
   box-shadow: v-bind(appAsideBgColor) 0 0 3px;
   cursor: pointer;
+
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
+
     &::before {
       content: "";
       z-index: 100;
@@ -277,6 +255,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       animation: forwards 0.5s heightChange;
     }
   }
+
   .api-header {
     width: 100%;
     height: 40px;
@@ -288,21 +267,25 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     box-sizing: border-box;
     background: v-bind(appAsideBgColor);
     position: relative;
+
     .info {
       display: flex;
       flex-direction: row;
       align-items: center;
+
       .icon {
         // margin-left: 10px;
         color: #537e62;
         cursor: default;
         margin-right: 10px;
+
         &:hover {
           color: #05d74e;
         }
       }
     }
   }
+
   .api-details {
     width: 100%;
     display: flex;
@@ -311,15 +294,19 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     box-sizing: border-box;
     max-height: v-bind(detailsMaxHeight);
     overflow-y: v-bind(overflow);
+
     .api-details-item {
       margin-bottom: 10px;
+
       .example-title {
         display: flex;
         flex-direction: row;
         align-items: center;
+
         .refreshCode {
           margin-left: 10px;
           cursor: pointer;
+
           &:hover {
             color: #00e14b;
           }
@@ -327,6 +314,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       }
     }
   }
+
   .code {
     width: 100%;
     padding: 10px 15px;
@@ -344,6 +332,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
         display: block;
       }
     }
+
     .copy-code {
       display: none;
       position: absolute;
@@ -352,11 +341,13 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     }
   }
 }
+
 @keyframes heightChange {
   from {
     height: 0;
     top: 50%;
   }
+
   to {
     height: 100%;
     top: 0;

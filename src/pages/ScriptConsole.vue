@@ -7,10 +7,7 @@
 </template>
 
 <script setup lang="ts">
-const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const { appAsideBgColor, appBackground } = useAppTheme();
 const { isEditing } = useScriptInfo();
 const background = computed(() => {
   if (isEditing.value) {

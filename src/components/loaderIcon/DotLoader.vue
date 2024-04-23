@@ -2,16 +2,8 @@
   <div class="loader"></div>
 </template>
 <script lang="ts" setup>
-const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const oppositeBgColor = computed(() => {
-  if (appAsideBgColor?.value) {
-    return appAsideBgColor.value === "#272727" ? "#f6f6f6" : "#272727";
-  } else {
-    return "#f6f6f6";
-  }
-});
+const { oppositeBgColor } = useAppTheme();
+
 </script>
 
 <style lang="scss" scoped>

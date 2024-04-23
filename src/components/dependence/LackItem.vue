@@ -2,17 +2,13 @@
   <div class="lack-dep-item">
     <div v-if="item.currentVersion">
       {{ item.name }}
-      <el-tag type="info" size="small"
-        >{{ item.currentVersion }}->{{ item.version }}</el-tag
-      >
+      <el-tag type="info" size="small">{{ item.currentVersion }}->{{ item.version }}</el-tag>
     </div>
     <div v-else>
       {{ item.name }} <el-tag type="info" size="small">{{ item.version }}</el-tag>
     </div>
     <div>
-      <el-button size="small" @click="goDownload(2)" v-if="showAliBtn"
-        >阿里云盘下载</el-button
-      >
+      <el-button size="small" @click="goDownload(2)" v-if="showAliBtn">阿里云盘下载</el-button>
       <el-button size="small" @click="goDownload(1)">移动云盘下载</el-button>
     </div>
   </div>
@@ -32,10 +28,7 @@ const props = defineProps({
     default: "",
   },
 });
-const itemBackground = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const { appAsideBgColor: itemBackground, appBackground } = useAppTheme();
 const showAliBtn = computed(() => {
   return !!props.item.download_url.find((item) => item.origin === "阿里云盘");
 });
@@ -109,6 +102,7 @@ const goDownload = async (type: number) => {
   border-radius: 5px;
   margin-bottom: 5px;
   background: v-bind(itemBackground);
+
   &:hover {
     background: v-bind(appBackground);
   }

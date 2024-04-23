@@ -155,7 +155,7 @@ const closeHandle = async () => {
   await appWindow.close();
 };
 
-const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
+const { isDark } = useAppTheme();
 const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
   return isDark.value ? "#272727" : "#f6f6f6";

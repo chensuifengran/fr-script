@@ -5,20 +5,15 @@
     </div>
     <div class="header-r">
       <div data-tauri-drag-region style="cursor: move" class="move"></div>
-      <el-input
-        @input="changeSearchValue(searchValue)"
-        class="input"
-        v-model="searchValue"
-        clearable
-        placeholder="可输入API的关键字对API进行筛选"
-      >
+      <el-input @input="changeSearchValue(searchValue)" class="input" v-model="searchValue" clearable
+        placeholder="可输入API的关键字对API进行筛选">
       </el-input>
-      <el-button class="circle-btn" type="info" circle @click="openOutput"
-        ><el-icon><IEpNotification /></el-icon
-      ></el-button>
-      <el-button class="circle-btn" type="info" circle @click="showApiTestButton"
-        ><el-icon><IEpSemiSelect /></el-icon
-      ></el-button>
+      <el-button class="circle-btn" type="info" circle @click="openOutput"><el-icon>
+          <IEpNotification />
+        </el-icon></el-button>
+      <el-button class="circle-btn" type="info" circle @click="showApiTestButton"><el-icon>
+          <IEpSemiSelect />
+        </el-icon></el-button>
     </div>
   </div>
 </template>
@@ -46,8 +41,7 @@ const showApiTestButton = () => {
   }
 };
 const { isMainWindow } = useAppLayout();
-const appBackground = inject("appBackground");
-const appAsideBgColor = inject("appAsideBgColor");
+const { appAsideBgColor, appBackground } = useAppTheme();
 let clickCount = 0;
 let timer: any;
 const titleClickHandler = () => {
@@ -77,6 +71,7 @@ const titleClickHandler = () => {
   align-items: center;
   height: 100%;
   max-width: 80%;
+
   .move {
     flex: 1;
     height: 100%;
@@ -85,6 +80,7 @@ const titleClickHandler = () => {
   .input {
     width: 300px;
   }
+
   .circle-btn {
     margin: 0;
     margin-right: 5px;
@@ -92,9 +88,11 @@ const titleClickHandler = () => {
     background-color: v-bind(appBackground);
     border: 1px solid v-bind(appAsideBgColor);
     color: var(--el-color-primary);
+
     &:first-of-type {
       margin-left: 5px;
     }
+
     &:hover {
       background-color: v-bind(appAsideBgColor);
       border: 1px solid v-bind(appBackground);

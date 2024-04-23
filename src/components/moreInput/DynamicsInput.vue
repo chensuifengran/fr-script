@@ -1,123 +1,67 @@
 <template>
-  <div
-    class="dynamics-input"
-    v-if="
-      (type === 'invokeApi' ? dynamicDialog.title === name : false) &&
-      displayConditionIsOk
-    "
-    v-show="
-      (!onlyTest || (onlyTest && dynamicDialog.callType === 'test')) &&
+  <div class="dynamics-input" v-if="
+    (type === 'invokeApi' ? dynamicDialog.title === name : false) &&
+    displayConditionIsOk
+  " v-show="(!onlyTest || (onlyTest && dynamicDialog.callType === 'test')) &&
       !(noTest && dynamicDialog.callType === 'test')
-    "
-  >
-    <span
-      class="label"
-      v-if="argItem?.label && !notShowType.includes(argItem.componentType)"
-    >
+      ">
+    <span class="label" v-if="argItem?.label && !notShowType.includes(argItem.componentType)">
       {{ argItem.label }}
     </span>
     <template v-if="argItem && argItem.componentType === 'select'">
-      <el-select
-        class="input"
-        v-model="model"
-        filterable
-        :multiple="argItem.multiple"
-        :clearable="argItem.multiple"
-        :allow-create="!argItem.notAllowCreate"
-        default-first-option
-        :placeholder="argItem.placeholder || '请选择'"
-      >
-        <el-option
-          v-for="item in argItem.options"
-          :key="item"
-          :label="parseOption(item).label"
-          :value="parseOption(item).value"
-        ></el-option>
+      <el-select class="input" v-model="model" filterable :multiple="argItem.multiple" :clearable="argItem.multiple"
+        :allow-create="!argItem.notAllowCreate" default-first-option :placeholder="argItem.placeholder || '请选择'">
+        <el-option v-for="item in argItem.options" :key="item" :label="parseOption(item).label"
+          :value="parseOption(item).value"></el-option>
       </el-select>
     </template>
-    <template
-      v-else-if="
-        argItem &&
-        argItem.componentType === 'FileInput' &&
-        (typeof model === 'string' || Array.isArray(model))
-      "
-    >
-      <FileInput
-        v-model="model"
-        :label="argItem.label"
-        :verify="argItem.verifyPath"
-        :multiple="argItem.multiple"
-        :string-separator="argItem.stringSeparator"
-      />
+    <template v-else-if="
+      argItem &&
+      argItem.componentType === 'FileInput' &&
+      (typeof model === 'string' || Array.isArray(model))
+    ">
+      <FileInput v-model="model" :label="argItem.label" :verify="argItem.verifyPath" :multiple="argItem.multiple"
+        :string-separator="argItem.stringSeparator" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'RectInput' && typeof model === 'object'
-      "
-    >
+    <template v-else-if="
+      argItem && argItem.componentType === 'RectInput' && typeof model === 'object'
+    ">
       <RectInput v-model="model" :target-src="targetSrc" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'slider' && typeof model === 'number'
-      "
-    >
-      <SliderInput
-        v-model="model"
-        :max="argItem.range?.max"
-        :min="argItem.range?.min"
-        :step="argItem.range?.step"
-        :label="argItem.label"
-        size="small"
-      />
+    <template v-else-if="
+      argItem && argItem.componentType === 'slider' && typeof model === 'number'
+    ">
+      <SliderInput v-model="model" :max="argItem.range?.max" :min="argItem.range?.min" :step="argItem.range?.step"
+        :label="argItem.label" size="small" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'switch' && typeof model === 'boolean'
-      "
-    >
-      <el-switch
-        v-model="model"
-        :active-text="argItem.activeText || '是'"
-        :inactive-text="argItem.inactiveText || '否'"
-        size="small"
-      />
+    <template v-else-if="
+      argItem && argItem.componentType === 'switch' && typeof model === 'boolean'
+    ">
+      <el-switch v-model="model" :active-text="argItem.activeText || '是'" :inactive-text="argItem.inactiveText || '否'"
+        size="small" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'DirInput' && typeof model === 'string'
-      "
-    >
-      <DirInput
-        v-model="model"
-        :label="argItem.label"
-        :suffix="argItem.suffix || ''"
-        :verify="argItem.verifyPath"
-      />
+    <template v-else-if="
+      argItem && argItem.componentType === 'DirInput' && typeof model === 'string'
+    ">
+      <DirInput v-model="model" :label="argItem.label" :suffix="argItem.suffix || ''" :verify="argItem.verifyPath" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'numberInput' && typeof model === 'number'
-      "
-    >
+    <template v-else-if="
+      argItem && argItem.componentType === 'numberInput' && typeof model === 'number'
+    ">
       <el-input-number class="input" v-model="model" :value-on-clear="0" size="small" />
     </template>
-    <template
-      v-else-if="
-        argItem && argItem.componentType === 'input' && typeof model === 'string'
-      "
-    >
+    <template v-else-if="
+      argItem && argItem.componentType === 'input' && typeof model === 'string'
+    ">
       <el-input v-model="model" size="small">
         <template #prepend> {{ argItem.label }} </template>
       </el-input>
     </template>
-    <template
-      v-else-if="
-        argItem &&
-        argItem.componentType === 'numberRangeInput' &&
-        typeof model === 'object'
-      "
-    >
+    <template v-else-if="
+      argItem &&
+      argItem.componentType === 'numberRangeInput' &&
+      typeof model === 'object'
+    ">
       <RangeInput v-model="model" />
     </template>
   </div>
@@ -309,7 +253,7 @@ watch(model, (val, oldValue) => {
     }
   }
 });
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const { appBackground } = useAppTheme();
 </script>
 
 <style lang="scss" scoped>

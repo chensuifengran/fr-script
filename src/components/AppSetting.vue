@@ -14,7 +14,7 @@ const loadingText = ref("");
 const libDownloadDialog = ref(false);
 const appGSStore = useAppGlobalSettings();
 const { app, envSetting, ocr, view, editor } = storeToRefs(appGSStore);
-const isDark = inject<globalThis.WritableComputedRef<boolean>>("isDark")!;
+const { isDark } = useAppTheme();
 const darkState = ref(false);
 getVersion().then((res) => {
   version.value = res;
@@ -208,53 +208,29 @@ const { goAppUpdate } = useAppVersionInfo();
     <h3 class="setting-title">App</h3>
     <div class="setting-item">
       <span>版本</span>
-      <span
-        ><el-tag :type="haveUpdate ? 'info' : 'primary'" class="mr-5" size="small">{{
-          version
-        }}</el-tag
-        ><el-tag class="mr-5" size="small" v-if="haveUpdate"
-          >最新版本：{{ appGSStore.app.latestVersion }}</el-tag
-        ><el-button link type="primary" @click="goAppUpdate(haveUpdate)"
-          >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
-        ></span
-      >
+      <span><el-tag :type="haveUpdate ? 'info' : 'primary'" class="mr-5" size="small">{{
+        version
+      }}</el-tag><el-tag class="mr-5" size="small" v-if="haveUpdate">最新版本：{{ appGSStore.app.latestVersion
+          }}</el-tag><el-button link type="primary" @click="goAppUpdate(haveUpdate)">{{ haveUpdate ? "前往" : "检查"
+          }}更新</el-button></span>
     </div>
     <div class="setting-item">
       <span>依赖状态</span>
-      <span
-        ><el-tag :type="getDepStateType(app.dependenceState)" class="mr-5" size="small">{{
-          app.dependenceState
-        }}</el-tag
-        ><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small"
-          >可更新</el-tag
-        ><el-button
-          link
-          type="primary"
-          @click="goInstallDeps(app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload')"
-          >依赖管理</el-button
-        ></span
-      >
+      <span><el-tag :type="getDepStateType(app.dependenceState)" class="mr-5" size="small">{{
+        app.dependenceState
+      }}</el-tag><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small">可更新</el-tag><el-button
+          link type="primary"
+          @click="goInstallDeps(app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload')">依赖管理</el-button></span>
     </div>
     <div class="setting-item">
       <span>全局主题</span>
-      <el-switch
-        v-model="darkState"
-        :active-icon="Moon"
-        :inactive-icon="Sunny"
-        @change="themeChangeHandler"
-      />
+      <el-switch v-model="darkState" :active-icon="Moon" :inactive-icon="Sunny" @change="themeChangeHandler" />
     </div>
     <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">
       <span>运行方式</span>
-      <el-select
-        v-model="ocr.value"
-        placeholder="OCR运行方式"
-        size="small"
-        class="w120"
-        @change="switchOcrRunType"
-        :disabled="app.dependenceState !== '完整版'"
-      >
+      <el-select v-model="ocr.value" placeholder="OCR运行方式" size="small" class="w120" @change="switchOcrRunType"
+        :disabled="app.dependenceState !== '完整版'">
         <el-option v-for="item in ocr.options" :key="item" :label="item" :value="item" />
       </el-select>
     </div>
@@ -265,31 +241,19 @@ const { goAppUpdate } = useAppVersionInfo();
     <h3 class="setting-title">环境设置</h3>
     <div class="setting-item">
       <span>工作目录</span>
-      <span
-        ><el-tag type="info" class="mr-5" size="small">{{ envSetting.workDir }}</el-tag
-        ><el-button link type="primary" @click="chooseWorkDir">选择</el-button></span
-      >
+      <span><el-tag type="info" class="mr-5" size="small">{{ envSetting.workDir }}</el-tag><el-button link
+          type="primary" @click="chooseWorkDir">选择</el-button></span>
     </div>
     <div class="setting-item">
       <span>截图保存路径</span>
-      <span
-        ><el-tag type="info" class="mr-5" size="small">{{
-          envSetting.screenshotSavePath
-        }}</el-tag
-        ><el-button link type="primary" @click="chooseScreenshotSavePath"
-          >选择</el-button
-        ></span
-      >
+      <span><el-tag type="info" class="mr-5" size="small">{{
+        envSetting.screenshotSavePath
+      }}</el-tag><el-button link type="primary" @click="chooseScreenshotSavePath">选择</el-button></span>
     </div>
     <h3 class="setting-title">显示</h3>
     <div class="setting-item">
       <span>在标题栏显示APP更新按钮</span>
-      <el-select
-        v-model="view.showUpdateInTitleBar"
-        placeholder="在标题栏显示APP更新按钮"
-        size="small"
-        class="w120"
-      >
+      <el-select v-model="view.showUpdateInTitleBar" placeholder="在标题栏显示APP更新按钮" size="small" class="w120">
         <el-option label="显示" :value="true" />
         <el-option label="不显示" :value="false" />
       </el-select>
@@ -297,18 +261,8 @@ const { goAppUpdate } = useAppVersionInfo();
     <h3 class="setting-title">编辑器</h3>
     <div class="setting-item">
       <span>主题</span>
-      <el-select
-        v-model="editor.theme.value"
-        placeholder="编辑器主题"
-        size="small"
-        class="w120"
-      >
-        <el-option
-          v-for="item in editor.theme.options"
-          :key="item"
-          :label="item"
-          :value="item"
-        />
+      <el-select v-model="editor.theme.value" placeholder="编辑器主题" size="small" class="w120">
+        <el-option v-for="item in editor.theme.options" :key="item" :label="item" :value="item" />
       </el-select>
     </div>
     <div class="setting-item">
@@ -321,9 +275,11 @@ const { goAppUpdate } = useAppVersionInfo();
 .mr-5 {
   margin-right: 5px;
 }
+
 .w120 {
   width: 120px;
 }
+
 .setting-div {
   width: 100%;
   height: 100%;
@@ -331,10 +287,12 @@ const { goAppUpdate } = useAppVersionInfo();
   padding: 5px 10px;
   box-sizing: border-box;
   overflow-y: scroll;
+
   .dialog-content {
     display: flex;
     flex-direction: column;
     padding: 10px;
+
     .btn-content {
       display: flex;
       flex-direction: row;
@@ -342,9 +300,11 @@ const { goAppUpdate } = useAppVersionInfo();
       margin-top: 20px;
     }
   }
+
   .setting-title {
     margin: 5px 0;
   }
+
   .setting-item {
     display: flex;
     width: 100%;
@@ -357,6 +317,7 @@ const { goAppUpdate } = useAppVersionInfo();
     box-sizing: border-box;
     align-items: center;
     transition: all 0.3s;
+
     &:hover {
       background: var(--el-color-primary-light-9);
     }
@@ -367,13 +328,16 @@ const { goAppUpdate } = useAppVersionInfo();
 .setting-item .el-switch__label * {
   font-size: large;
 }
+
 .el-notification__group {
   flex: 1;
+
   .notification-message-div {
     width: 100%;
     line-height: 20px;
     height: 40px;
     position: relative;
+
     .notification-message-button {
       position: absolute;
       right: -20px;

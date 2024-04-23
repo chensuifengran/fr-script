@@ -18,14 +18,7 @@
 
 <script setup lang="ts">
 
-const declareMod = inject<{
-  title: string;
-  visible: boolean;
-  name: string;
-  version: string;
-  description: string;
-  targetFn: Function | null;
-}>("declareMod")!;
+const { declareMod } = useScriptInfo();
 </script>
 
 <style lang="scss" scoped></style>

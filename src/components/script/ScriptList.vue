@@ -74,6 +74,7 @@ const {
   contentTransform,
   asideBarPos,
 } = useScriptInfo();
+const { appBackground } = useAppTheme();
 const loadCount = ref(0);
 
 const load = () => {
@@ -341,7 +342,7 @@ const searchList = computed(() => {
     );
   }
 });
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+
 </script>
 
 <style lang="scss" scoped>

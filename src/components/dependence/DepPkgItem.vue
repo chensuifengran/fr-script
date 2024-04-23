@@ -31,10 +31,7 @@ const props = defineProps({
     default: "",
   },
 });
-const itemBackground = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const {appAsideBgColor:itemBackground, appBackground} = useAppTheme();
 const showAliBtn = computed(() => {
   return !!props.item.download_url.find((item) => item.origin === "阿里云盘");
 });

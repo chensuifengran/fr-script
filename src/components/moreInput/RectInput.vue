@@ -10,20 +10,12 @@
     </div>
     <div class="content">
       <div class="line">
-        <el-input size="small" v-model.number="info.x"
-          ><template #prepend>x</template></el-input
-        >
-        <el-input size="small" v-model.number="info.y"
-          ><template #prepend>y</template></el-input
-        >
+        <el-input size="small" v-model.number="info.x"><template #prepend>x</template></el-input>
+        <el-input size="small" v-model.number="info.y"><template #prepend>y</template></el-input>
       </div>
       <div class="line">
-        <el-input size="small" v-model.number="info.width"
-          ><template #prepend>width(宽)</template></el-input
-        >
-        <el-input size="small" v-model.number="info.height"
-          ><template #prepend>height(高)</template></el-input
-        >
+        <el-input size="small" v-model.number="info.width"><template #prepend>width(宽)</template></el-input>
+        <el-input size="small" v-model.number="info.height"><template #prepend>height(高)</template></el-input>
       </div>
     </div>
   </div>
@@ -31,14 +23,14 @@
 
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api";
-
+const { oppositeBgColor } = useAppTheme();
 const info = defineModel<
   | {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
   | Record<string, any>
 >({
   required: false,
@@ -109,7 +101,7 @@ const useParam = async () => {
       info.value.width = parseInt(arr[2]);
       info.value.height = parseInt(arr[3]);
     }
-  } catch (error) {}
+  } catch (error) { }
 };
 const selectRect = async () => {
   try {
@@ -135,16 +127,7 @@ const selectRect = async () => {
     console.error(error);
   }
 };
-const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const oppositeBgColor = computed(() => {
-  if (appAsideBgColor?.value) {
-    return appAsideBgColor.value === "#272727" ? "#f6f6f633" : "#27272733";
-  } else {
-    return "#f6f6f633";
-  }
-});
+
 </script>
 
 <style lang="scss" scoped>
@@ -154,14 +137,17 @@ const oppositeBgColor = computed(() => {
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 0 10px 0 v-bind(oppositeBgColor);
+
   .title {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
   }
+
   .content {
     margin-top: 5px;
+
     .line {
       display: flex;
       flex-direction: row;

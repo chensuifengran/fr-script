@@ -5,12 +5,12 @@ import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
 import { appWindow } from "@tauri-apps/api/window";
 const { registerAllInvokeApi } = useCore();
-const { isMainWindow } = useAppLayout();
+const { isMainWindow, menuKey } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
-const menuKey = ref(1);
+const { borderRadius, appOpacity, borderColor, appTransform, appAsideBgColor, appBackground } = useAppTheme();
 const { isEditing } = useScriptInfo();
 const contentHeight = computed(() => {
   if (isEditing.value) {
@@ -26,7 +26,6 @@ const contentTop = computed(() => {
     return "40px";
   }
 });
-provide("menuKey", menuKey);
 const { info, syncWindowInnerWidth } = useAutoTitleBar();
 const { contentTransform, asideBarPos } = useScriptInfo();
 const handleSelect = (index: string, menuClick = false) => {
@@ -55,7 +54,6 @@ const handleSelect = (index: string, menuClick = false) => {
     }
   }, 200);
 };
-const hasFloatWindow = ref(false);
 const aside_width = computed(() => {
   if (app.value.state.aside.collapsed) {
     return "40px";
@@ -95,16 +93,8 @@ onMounted(async () => {
   }
   registerAllInvokeApi();
 });
-const isDark = useDark({});
-provide("isDark", isDark);
-const appAsideBgColor = computed(() => {
-  return isDark.value ? "#272727" : "#f6f6f6";
-});
-provide("appAsideBgColor", appAsideBgColor);
-const appBackground = computed(() => {
-  return isDark.value ? "#000" : "#fff";
-});
-provide("appBackground", appBackground);
+
+
 const collapsedAside = () => {
   app.value.state.aside.collapsed = !app.value.state.aside.collapsed;
   handleSelect(app.value.state.aside.currentItem);
@@ -115,14 +105,13 @@ const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
   libUtil.batchUpdateDep();
 });
-const { borderRadius, appOpacity, borderColor, appTransform } = useAppTheme();
 </script>
 <template>
   <div class="app">
     <FillApiParamDialog />
     <template v-if="isMainWindow">
       <AutoTitleBar />
-      <div class="common-layout" v-show="!hasFloatWindow">
+      <div class="common-layout">
         <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
           <template #header="{ titleId, titleClass }">
             <h4 :id="titleId" :class="titleClass">

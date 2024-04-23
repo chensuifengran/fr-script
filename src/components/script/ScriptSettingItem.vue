@@ -4,7 +4,9 @@
       <div class="al-center">
         <span>{{ props.label }}</span>
         <el-tooltip v-if="props.alert" :content="props.alert" placement="right">
-          <el-icon><IEpQuestionFilled /></el-icon>
+          <el-icon>
+            <IEpQuestionFilled />
+          </el-icon>
         </el-tooltip>
       </div>
       <slot class="slot-item"></slot>
@@ -12,6 +14,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+const { appAsideBgColor } = useAppTheme();
 const props = defineProps({
   label: {
     type: String,
@@ -26,7 +29,7 @@ const props = defineProps({
     default: "220px",
   },
 });
-const appAsideBgColor = inject("appAsideBgColor");
+
 </script>
 
 <style lang="scss" scoped>
@@ -40,6 +43,7 @@ const appAsideBgColor = inject("appAsideBgColor");
   border-radius: 5px;
   background-color: v-bind(appAsideBgColor);
   margin-top: 5px;
+
   .al-center {
     display: flex;
     flex-direction: row;

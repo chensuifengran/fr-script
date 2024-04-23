@@ -10,7 +10,7 @@ const AsyncAppSetting = defineAsyncComponent({
   loader: async () => import("../components/AppSetting.vue"), // 正常返回
   loadingComponent: Loading, // SomeComponent未加载完成时 显示loading组件
 });
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
+const { appBackground } = useAppTheme();
 </script>
 
 <style lang="scss" scoped>

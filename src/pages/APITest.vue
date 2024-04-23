@@ -1,87 +1,42 @@
 <template>
   <div class="remd">
-    <ATHeader
-      class="alone-page-header"
-      v-if="!isMainWindow"
-      :openOutput="() => (info.apiTest.openOutput = true)"
-      :changeSearchValue="(value) => (info.apiTest.searchValue = value)"
-    />
-    <div
-      class="page-content"
-      ref="pageContentRef"
-      v-infinite-scroll="load"
-      :infinite-scroll-distance="40"
-      :infinite-scroll-immediate="false"
-    >
-      <transition
-        enter-active-class="animate__animated animate__fadeInDown"
-        leave-active-class="animate__animated animate__fadeOutUp"
-      >
-        <div
-          class="api-test-bar"
-          data-tauri-drag-region
-          style="cursor: move"
-          v-if="showApiTestSearch && isMainWindow"
-        >
-          <el-input
-            class="search-ipt"
-            v-model="info.apiTest.searchValue"
-            clearable
-            placeholder="可输入API的关键字对API进行筛选"
-          >
+    <ATHeader class="alone-page-header" v-if="!isMainWindow" :openOutput="() => (info.apiTest.openOutput = true)"
+      :changeSearchValue="(value) => (info.apiTest.searchValue = value)" />
+    <div class="page-content" ref="pageContentRef" v-infinite-scroll="load" :infinite-scroll-distance="40"
+      :infinite-scroll-immediate="false">
+      <transition enter-active-class="animate__animated animate__fadeInDown"
+        leave-active-class="animate__animated animate__fadeOutUp">
+        <div class="api-test-bar" data-tauri-drag-region style="cursor: move" v-if="showApiTestSearch && isMainWindow">
+          <el-input class="search-ipt" v-model="info.apiTest.searchValue" clearable placeholder="可输入API的关键字对API进行筛选">
           </el-input>
-          <el-button class="output-btn" @click="info.apiTest.openOutput = true"
-            ><el-icon><IEpNotification /></el-icon
-          ></el-button>
+          <el-button class="output-btn" @click="info.apiTest.openOutput = true"><el-icon>
+              <IEpNotification />
+            </el-icon></el-button>
         </div>
       </transition>
-      <ApiDocumentItem
-        v-for="m in allDocumentItems"
-        :key="m?.dialog?.targetMethodName || m?.dialog?.title"
-        :model="m!"
-        :type="m?.itemType"
-      />
-      <el-empty
-        v-if="!allDocumentItems.length"
-        description="没有找到相应的API"
-      ></el-empty>
+      <ApiDocumentItem v-for="m in allDocumentItems" :key="m?.dialog?.targetMethodName || m?.dialog?.title" :model="m!"
+        :type="m?.itemType" />
+      <el-empty v-if="!allDocumentItems.length" description="没有找到相应的API"></el-empty>
       <div class="end" v-if="isEnd">
         ------到底了，共{{ allDocumentItems.length }}个API------
       </div>
-      <div class="loading-box" v-show="mainLoading"><Loading />加载中...</div>
+      <div class="loading-box" v-show="mainLoading">
+        <Loading />加载中...
+      </div>
     </div>
-    <el-drawer
-      v-model="info.apiTest.openOutput"
-      title=""
-      direction="btt"
-      :size="app.modulesSetting.drawerSize"
-      class="drawer-output"
-    >
+    <el-drawer v-model="info.apiTest.openOutput" title="" direction="btt" :size="app.modulesSetting.drawerSize"
+      class="drawer-output">
       <template #header="{ titleId, titleClass }">
         <h4 :id="titleId" :class="titleClass">API测试-输出结果</h4>
-        <el-select
-          v-model="app.modulesSetting.drawerSize"
-          placeholder="大小"
-          size="small"
-          class="options select"
-        >
-          <el-option
-            v-for="n in 8"
-            :key="n"
-            :label="20 + n * 10 + '%'"
-            :value="20 + n * 10 + '%'"
-          />
+        <el-select v-model="app.modulesSetting.drawerSize" placeholder="大小" size="small" class="options select">
+          <el-option v-for="n in 8" :key="n" :label="20 + n * 10 + '%'" :value="20 + n * 10 + '%'" />
         </el-select>
-        <el-switch
-          class="options"
-          v-model="app.modulesSetting.autoOpenOutput"
-          inline-prompt
-          style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc"
-          active-text="自动显示"
-          inactive-text="手动显示"
-        />
+        <el-switch class="options" v-model="app.modulesSetting.autoOpenOutput" inline-prompt
+          style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc" active-text="自动显示" inactive-text="手动显示" />
         <el-button class="options" size="small" @click="clearOutput">
-          <el-icon><IEpDeleteFilled /></el-icon>清空输出
+          <el-icon>
+            <IEpDeleteFilled />
+          </el-icon>清空输出
         </el-button>
       </template>
       <el-scrollbar v-if="output.length" class="output">
@@ -90,11 +45,7 @@
         </div>
       </el-scrollbar>
       <div v-else class="empty-show">
-        <el-empty
-          description="暂无输出"
-          :image-size="emptyImgSize"
-          style="margin-top: -40px"
-        ></el-empty>
+        <el-empty description="暂无输出" :image-size="emptyImgSize" style="margin-top: -40px"></el-empty>
       </div>
     </el-drawer>
   </div>
@@ -110,6 +61,7 @@ const { app } = storeToRefs(appGSStore);
 const mainLoading = ref(true);
 const isEnd = ref(false);
 const { isMainWindow } = useAppLayout();
+const { appBackground } = useAppTheme();
 const pagePadding = ref("10px");
 const antiShakeValue = ref("");
 const output = ref<string[]>([]);
@@ -205,7 +157,6 @@ onMounted(() => {
   setTestModuleCtx({ showDetails });
 });
 
-const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackground");
 </script>
 
 <style lang="scss" scoped>
@@ -215,8 +166,10 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   justify-content: center;
   flex: 1;
 }
+
 .output {
   width: 100%;
+
   .output-text {
     user-select: text;
   }
@@ -225,9 +178,11 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
 .options {
   margin-right: 5px;
 }
+
 .select {
   width: 100px;
 }
+
 .remd {
   width: 100%;
   height: 100%;
@@ -239,6 +194,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
   border-radius: 10px 10px 10px 0;
   background: v-bind(appBackground);
   position: relative;
+
   .alone-page-header {
     height: 45px;
     display: flex;
@@ -256,13 +212,16 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
     overflow-x: hidden;
     padding: 5px;
     position: relative;
+
     .api-test-bar {
       display: flex;
       flex-direction: row;
+
       .output-btn {
         margin-left: 5px;
       }
     }
+
     .loading-box {
       position: absolute;
       left: 0;
@@ -275,6 +234,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
       align-items: center;
       justify-content: center;
     }
+
     .end {
       text-align: center;
       color: #ccc;
@@ -287,6 +247,7 @@ const appBackground = inject<globalThis.ComputedRef<"#000" | "#fff">>("appBackgr
 .el-button-group {
   margin: 5px;
 }
+
 .drawer-output {
   .el-drawer__body {
     display: flex;

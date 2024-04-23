@@ -42,20 +42,10 @@ import {
   WebviewWindow,
   appWindow,
 } from "@tauri-apps/api/window";
-const { borderRadius, appOpacity, appTransform } = useAppTheme();
+const { borderRadius, appOpacity, appTransform, oppositeBgColor } = useAppTheme();
 const { createWindow } = useWebviewWindow();
 let adsorptionPredictionWindow: WebviewWindow | undefined;
 const loadingTime = ref(1);
-const appAsideBgColor = inject<globalThis.ComputedRef<"#272727" | "#f6f6f6">>(
-  "appAsideBgColor"
-);
-const oppositeBgColor = computed(() => {
-  if (appAsideBgColor?.value) {
-    return appAsideBgColor.value === "#272727" ? "#f6f6f6" : "#272727";
-  } else {
-    return "#f6f6f6";
-  }
-});
 const useTime = computed(() => {
   const hours = Math.floor(loadingTime.value / 3600);
   const minutes = Math.floor((loadingTime.value % 3600) / 60);
@@ -95,8 +85,6 @@ const home = () => {
   appWindow.hide();
   leaveWindow = true;
 };
-
-
 //吸附距离
 const DISTENCE = 50;
 //收缩后宽度或高度
