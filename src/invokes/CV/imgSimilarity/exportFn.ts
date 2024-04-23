@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 export const imgSimilarityFn = async (
   pathA: string,
   pathB: string,
@@ -10,17 +9,17 @@ export const imgSimilarityFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return -2;
   }
   try {
-    const res = await invoke<number>("get_similarity_value", {
+    const res = await invokeBaseApi.imgSimilarity(
       pathA,
       pathB,
       x,
       y,
       width,
       height,
-    });
+    );
     return res;
   } catch (e) {
     console.error(e);

@@ -1,16 +1,13 @@
-import { invoke } from "@tauri-apps/api";
-
 export const wheelFn = async (delta: number, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   try {
-    const res = await invoke("mouse_wheel", {
-      delta,
-    });
+    const res = await invokeBaseApi.wheel(delta);
     return res;
   } catch (error) {
     console.error("wheelFnError:", error);
+    return false;
   }
 };

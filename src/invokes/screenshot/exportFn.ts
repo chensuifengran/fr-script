@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api";
-
 export const screenshotFn = async (
   x = -1,
   y = -1,
@@ -10,27 +8,17 @@ export const screenshotFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   const appGSStore = useAppGlobalSettings();
   savePath = savePath.length
     ? savePath
     : appGSStore.envSetting.screenshotSavePath;
   try {
-    const res = await invoke<string>("screenshot", {
-      x,
-      y,
-      w: width,
-      h: height,
-      path: savePath,
-    });
-    const json = JSON.parse(res);
-    if (json.code !== 200) {
-      console.error("screenshotError: ", json);
-      return false;
-    }
-    return true;
+    const res = await invokeBaseApi.screenshot(savePath, x, y, width, height);
+    return res;
   } catch (e) {
     console.error("screenshotError: ", e);
+    return false;
   }
 };

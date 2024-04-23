@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/tauri";
-
 export const dragFn = async (
   x: number,
   y: number,
@@ -10,17 +8,11 @@ export const dragFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   try {
-    await invoke("mouse_drag", {
-      x,
-      y,
-      toX,
-      toY,
-      duration,
-    });
-    return true;
+    const res = await invokeBaseApi.drag(x, y, toX, toY, duration);
+    return res;
   } catch (e) {
     console.error("dragFnError:", e);
     return false;

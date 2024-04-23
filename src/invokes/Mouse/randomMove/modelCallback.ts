@@ -25,7 +25,7 @@ export const modelCallback = async (
     options.yRandomRange,
   ]);
   console.timeEnd("randomMove");
-  testModuleCtx.showDetails(res);
+  testModuleCtx.showDetails(JSON.stringify(res));
   const selfModule = getInvokeApiMethods().find(
     (m) => m.name === "randomMove" && m.scope === "Mouse"
   )?.testModule;

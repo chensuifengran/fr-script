@@ -1,17 +1,19 @@
-import { invoke } from "@tauri-apps/api";
-
 export const getImageSizeFn = async (path: string, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return {
+      width: -2,
+      height: -2,
+    };
   }
   try {
-    const res = await invoke<string>("get_img_size", {
-      path,
-    });
-    return JSON.parse(res);
+    const res = await invokeBaseApi.getImgSize(path);
+    return res;
   } catch (e) {
     console.error(e);
-    return null;
+    return {
+      width: -1,
+      height: -1,
+    };
   }
 };

@@ -1,22 +1,34 @@
-import { invoke } from "@tauri-apps/api";
 import { exists } from "@tauri-apps/api/fs";
 export const getImgRectInfoFn = async (imgPath: string, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return {
+      startX: -2,
+      startY: -2,
+      width: -2,
+      height: -2,
+    };
   }
   try {
     const isExists = await exists(imgPath);
     if (!isExists) {
-      console.error(`文件不存在: ${imgPath}`);
+      console.error(`getImgRectInfoFn 文件不存在: ${imgPath}`);
       return null;
     }
-    const res = await invoke<string>("get_img_rect_info", {
-      imgPath,
-    });
-    return JSON.parse(res);
+    const res = await invokeBaseApi.getImgRectInfo(imgPath);
+    return res as {
+      startX: number;
+      startY: number;
+      width: number;
+      height: number;
+    };
   } catch (e) {
     console.error(e);
-    return null;
+    return {
+      startX: -1,
+      startY: -1,
+      width: -1,
+      height: -1,
+    };
   }
 };

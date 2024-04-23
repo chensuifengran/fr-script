@@ -1,9 +1,9 @@
 export const declaration = `
-function move(
+function drag(
     x: number,
-    y:number,
+    y: number,
     toX: number,
     toY: number,
-    duration?: number
-):Promise<void>;
+    duration?: number,
+):Promise<boolean>;
 `

@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api";
-
 export const clickFn = async (
   x: number,
   y: number,
@@ -8,31 +6,13 @@ export const clickFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
-  x = Math.round(x);
-  y = Math.round(y);
   try {
-    if (button === "left") {
-      await invoke("mouse_move_click", {
-        x,
-        y,
-        button: 0,
-      });
-    } else if(button === 'middle') {
-      await invoke("mouse_move_click", {
-        x,
-        y,
-        button: 1,
-      });
-    }else{
-      await invoke("mouse_move_click", {
-        x,
-        y,
-        button: 2,
-      });
-    }
+    await invokeBaseApi.click(x, y, button);
+    return true;
   } catch (error) {
     console.error("clickFnError:", error);
+    return false;
   }
 };

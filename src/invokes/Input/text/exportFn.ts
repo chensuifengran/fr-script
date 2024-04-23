@@ -1,20 +1,13 @@
-import { invoke } from "@tauri-apps/api";
-
 export const textFn = async (text: string, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   try {
-    const result = await invoke<string>("input_text", {
-      text,
-    });
-    const json = JSON.parse(result) as {
-      code: number;
-      message: string;
-    };
-    return json;
+    const result = await invokeBaseApi.inputText(text);
+    return result;
   } catch (error) {
     console.error("textFnError:", error);
+    return false
   }
 };

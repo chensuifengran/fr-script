@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/tauri";
-
 export const moveFn = async (
   x: number,
   y: number,
@@ -8,21 +6,11 @@ export const moveFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   try {
-    if (isRelative) {
-      await invoke("mouse_move_relative", {
-        x,
-        y,
-      });
-    } else {
-      await invoke("mouse_move_to", {
-        x,
-        y,
-      });
-    }
-    return true;
+    const res = await invokeBaseApi.move(x, y, isRelative);
+    return res;
   } catch (e) {
     console.error("moveFnError:", e);
     return false;

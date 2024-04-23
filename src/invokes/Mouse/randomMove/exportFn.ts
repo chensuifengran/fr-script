@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/tauri";
-
 export const randomMoveFn = async (
   x: number,
   y: number,
@@ -9,25 +7,27 @@ export const randomMoveFn = async (
   ],
   taskId?: string
 ) => {
-  const { notAllowedFnId }  = useScriptRuntime();
+  const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
-  x =
-    x +
-    Math.floor(
-      Math.random() * (randomRange[0][1] - randomRange[0][0]) +
-        randomRange[0][0]
-    );
-  y =
-    y +
-    Math.floor(
-      Math.random() * (randomRange[1][1] - randomRange[1][0]) +
-        randomRange[1][0]
-    );
-
-  return await invoke<string>("mouse_move_to", {
-    x,
-    y,
-  });
+  try {
+    x =
+      x +
+      Math.floor(
+        Math.random() * (randomRange[0][1] - randomRange[0][0]) +
+          randomRange[0][0]
+      );
+    y =
+      y +
+      Math.floor(
+        Math.random() * (randomRange[1][1] - randomRange[1][0]) +
+          randomRange[1][0]
+      );
+    const res = await invokeBaseApi.move(x, y);
+    return res;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
 };

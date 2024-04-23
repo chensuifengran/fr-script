@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.3",
   "type": "module",
-  "env": "development",
+  "env": "production",
   "scripts": {
     "dev": "node .\\script\\switchEnv && vite",
     "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",

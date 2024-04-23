@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 import { OcrUtil } from "./OcrUtil";
 export type OCRResult = {
   position: [
@@ -23,33 +22,18 @@ export const ocrFn = async (
     return;
   }
   try {
-    let ocrRes;
-    if (imgPath) {
-      ocrRes = await invoke<string>("ocr", {
-        x,
-        y,
-        width,
-        height,
-        imgPath,
-      });
-    } else {
-      ocrRes = await invoke<string>("screen_ocr", {
-        x,
-        y,
-        width,
-        height,
-      });
+    const resObject = await invokeBaseApi.ocr(x, y, width, height, imgPath);
+    if (!resObject) {
+      return;
     }
-    const resObject = JSON.parse(ocrRes) as {
-      code: number;
-      result: OCRResult[];
-    };
     if (resObject.code === 1) {
       const reCall = () => {
-        if(imgPath){
-          console.warn("由于是指定图片识别，如果图片不更新，将导致识别结果每次都一样!");
+        if (imgPath) {
+          console.warn(
+            "由于是指定图片识别，如果图片不更新，将导致识别结果每次都一样!"
+          );
         }
-        return ocrFn(x, y, width, height, imgPath, taskId)
+        return ocrFn(x, y, width, height, imgPath, taskId);
       };
       return new OcrUtil(x, y, resObject.result, reCall);
     }

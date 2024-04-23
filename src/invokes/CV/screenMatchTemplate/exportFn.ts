@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 import { MatchUtil } from "../matchTemplate/MatchUtil";
 
 export const screenMatchTemplateFn = async (
@@ -17,7 +16,7 @@ export const screenMatchTemplateFn = async (
     return;
   }
   try {
-    const res = await invoke<string>("screen_match_template", {
+    const { x: _x, y: _y } = await invokeBaseApi.screenMatchTemplate(
       x,
       y,
       width,
@@ -25,12 +24,8 @@ export const screenMatchTemplateFn = async (
       tempPath,
       exactValue,
       scale,
-      drive: drive === "auto" ? undefined : drive,
-    });
-    const {x:_x, y:_y} = JSON.parse(res) as {
-      x: number;
-      y: number;
-    };
+      drive
+    );
     return new MatchUtil(_x, _y);
   } catch (error) {
     console.error("screenMatchTemplateFnError:", error);

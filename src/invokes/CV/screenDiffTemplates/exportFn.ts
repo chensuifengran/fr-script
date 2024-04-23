@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api";
-
 export const screenDiffTemplatesFn = async (
   x: number,
   y: number,
@@ -15,29 +13,14 @@ export const screenDiffTemplatesFn = async (
     return;
   }
   try {
-    const res = await invoke<string>("screen_diff_template", {
-      x,
+    const res = await invokeBaseApi.screenDiffTemplates(      x,
       y,
       width,
       height,
       tempPaths,
       targetIndex,
-      drive: drive==='auto' ? undefined : drive,
-    });
-    const result = JSON.parse(res) as {
-      message: string;
-      data:{
-        x:number;
-        y:number;
-        width:number;
-        height:number;
-        centerX:number;
-        centerY:number;
-        targetOffsetX:number;
-        targetOffsetY:number;
-      }[]
-    };
-    return result.data;
+      drive);
+    return res;
   } catch (error) {
     console.error("screenDiffTemplatesFnError:", error);
   }

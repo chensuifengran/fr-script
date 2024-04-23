@@ -1,20 +1,13 @@
-import { invoke } from "@tauri-apps/api";
-
 export const keyUpFn = async (key:Key, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return false;
   }
   try {
-    const result = await invoke<string>("key_up", {
-      key,
-    });
-    const json = JSON.parse(result) as {
-      code: number;
-      message: string;
-    };
-    return json;
+    const result = await invokeBaseApi.keyUp(key);
+    return result;
   } catch (error) {
     console.error("keyUpFnError:", error);
+    return false;
   }
 };

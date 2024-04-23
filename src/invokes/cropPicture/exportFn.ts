@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/tauri";
-
 export const cropPictureFn = async (
   path: string,
   x: number,
@@ -11,24 +9,19 @@ export const cropPictureFn = async (
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return;
+    return -2;
   }
-  try{
-    const res = await invoke<string>("crop_picture", {
+  try {
+    const res = await invokeBaseApi.cropPicture(
       path,
       x,
       y,
       width,
       height,
-      outPath,
-    });
-    const json = JSON.parse(res);
-    if(json.code === 200){
-      return 1;
-    }else{
-      return 0;
-    }
-  }catch(e){
+      outPath
+    );
+    return res;
+  } catch (e) {
     console.error(e);
     return -1;
   }

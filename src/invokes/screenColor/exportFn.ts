@@ -1,6 +1,4 @@
-import { invoke } from "@tauri-apps/api";
 import { ColorUtil } from "./ColorUtil";
-
 export const screenColorFn = async (
   x: number = -1,
   y: number = -1,
@@ -11,17 +9,9 @@ export const screenColorFn = async (
     return;
   }
   try {
-    let res;
-    if (x !== -1 && y !== -1) {
-      res = await invoke<string>("screen_color", {
-        x,
-        y,
-      });
-    } else {
-      res = await invoke<string>("screen_color");
-    }
-
-    const json = JSON.parse(res);
+    const _x = x === -1 ? undefined : x;
+    const _y = y === -1 ? undefined : y;
+    const json = await invokeBaseApi.screenColor(_x, _y);
     if (json.message === "success") {
       return new ColorUtil(json.data as [number, number, number], () =>
         screenColorFn(x, y, taskId)

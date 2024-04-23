@@ -1,14 +1,13 @@
-import { invoke } from "@tauri-apps/api";
-
+const VOID_CB = async () => false;
 export const clickerFn = async (
   duration: number,
   sleep: number = 50,
-  button: 'left' | 'right' | 'middle' = 'left',
+  button: "left" | "right" | "middle" = "left",
   taskId?: string
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return async ()=>{};
+    return VOID_CB;
   }
   try {
     if (duration < 0) {
@@ -17,23 +16,24 @@ export const clickerFn = async (
     if (sleep < 0) {
       sleep = 0;
     }
-    const allowButton = ['left', 'middle', 'right'];
+    const allowButton = ["left", "middle", "right"];
     const buttonIndex = allowButton.indexOf(button);
-    if(buttonIndex === -1){
-      ElMessage.error('暂不支持的鼠标按键类型' + button);
-      return async ()=>{};
+    if (buttonIndex === -1) {
+      ElMessage.error("暂不支持的鼠标按键类型" + button);
+      return VOID_CB;
     }
-    await invoke("start_clicker", {
-      duration,
-      sleep,
-      button: buttonIndex,
-    });
-    return async () => {
-      await invoke("stop_clicker");
-    };
+    const res = await invokeBaseApi.startClicker(duration, sleep, buttonIndex);
+    if (res) {
+      return async () => {
+        const res = await invokeBaseApi.stopClicker();
+        return res;
+      };
+    } else {
+      return VOID_CB;
+    }
   } catch (error) {
     console.error("clickFnError:", error);
-    ElMessage.error('clickFnError:' + error);
+    ElMessage.error("clickFnError:" + error);
   }
-  return async ()=>{};
+  return VOID_CB;
 };

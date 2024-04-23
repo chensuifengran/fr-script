@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 import { MatchUtil } from "./MatchUtil";
 
 export const matchTemplateFn = async (
@@ -13,16 +12,12 @@ export const matchTemplateFn = async (
     return;
   }
   try {
-    const res = await invoke<string>("match_template", {
+    const { x, y } = await invokeBaseApi.matchTemplate(
       imgPath,
       tempPath,
       exactValue,
-      scale,
-    });
-    const {x, y} = JSON.parse(res) as {
-      x: number;
-      y: number;
-    };
+      scale
+    );
     return new MatchUtil(x, y);
   } catch (error) {
     console.error("matchTemplateFnError:", error);
