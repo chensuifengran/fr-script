@@ -1,5 +1,5 @@
 <template>
-  <div class="dep-drewer">
+  <div class="dep-manager">
     <el-tabs v-model="activeDrewerName" class="tabs" @tab-change="handleTabChange">
       <el-tab-pane label="缺失依赖下载" name="lackDepDownload" v-loading="contentLoading">
         <el-tabs
@@ -92,7 +92,7 @@ const handleTabChange = async (name: string | number) => {
 </script>
 
 <style lang="scss" scoped>
-.dep-drewer,
+.dep-manager,
 .tabs {
   width: 100%;
   height: 100%;

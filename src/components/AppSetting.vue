@@ -4,9 +4,10 @@ import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
+import { UnlistenFn, listen } from "@tauri-apps/api/event";
 const { getDepStateType } = libUtil;
-const { goInstallDeps } = useDepInfo();
+const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
 const version = ref("获取版本失败");
 const loading = ref(false);
@@ -193,6 +194,36 @@ const themeChangeHandler = () => {
   }
 };
 const { goAppUpdate } = useAppVersionInfo();
+const { notify } = eventUtil;
+let focusUnListenFn: UnlistenFn;
+let receiveUnListenFn: UnlistenFn;
+onMounted(async () => {
+  await libUtil.syncDependentVersion();
+  const currentWindowLabel = appWindow.label;
+  if (currentWindowLabel === 'main') {
+    focusUnListenFn = await listen('tauri://focus', () => {
+      const depManagerWindow = WebviewWindow.getByLabel('depManager');
+      if (depManagerWindow) {
+        notify.send({
+          name: 'sentDataToMain'
+        });
+      }
+    });
+    receiveUnListenFn = await notify.listen((event) => {
+      if (event.windowLabel === 'depManager') {
+        const { payload } = event.payload;
+        if (payload.name === "syncMainData") {
+          const data = payload.payload;
+          syncData(data);
+        }
+      }
+    });
+  }
+});
+onUnmounted(() => {
+  focusUnListenFn && focusUnListenFn();
+  receiveUnListenFn && receiveUnListenFn();
+});
 </script>
 <template>
   <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
@@ -210,7 +241,7 @@ const { goAppUpdate } = useAppVersionInfo();
       <span>版本</span>
       <span><el-tag :type="haveUpdate ? 'info' : 'primary'" class="mr-5" size="small">{{
         version
-      }}</el-tag><el-tag class="mr-5" size="small" v-if="haveUpdate">最新版本：{{ appGSStore.app.latestVersion
+          }}</el-tag><el-tag class="mr-5" size="small" v-if="haveUpdate">最新版本：{{ appGSStore.app.latestVersion
           }}</el-tag><el-button link type="primary" @click="goAppUpdate(haveUpdate)">{{ haveUpdate ? "前往" : "检查"
           }}更新</el-button></span>
     </div>
@@ -218,7 +249,7 @@ const { goAppUpdate } = useAppVersionInfo();
       <span>依赖状态</span>
       <span><el-tag :type="getDepStateType(app.dependenceState)" class="mr-5" size="small">{{
         app.dependenceState
-      }}</el-tag><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small">可更新</el-tag><el-button
+          }}</el-tag><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small">可更新</el-tag><el-button
           link type="primary"
           @click="goInstallDeps(app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload')">依赖管理</el-button></span>
     </div>
@@ -248,7 +279,7 @@ const { goAppUpdate } = useAppVersionInfo();
       <span>截图保存路径</span>
       <span><el-tag type="info" class="mr-5" size="small">{{
         envSetting.screenshotSavePath
-      }}</el-tag><el-button link type="primary" @click="chooseScreenshotSavePath">选择</el-button></span>
+          }}</el-tag><el-button link type="primary" @click="chooseScreenshotSavePath">选择</el-button></span>
     </div>
     <h3 class="setting-title">显示</h3>
     <div class="setting-item">

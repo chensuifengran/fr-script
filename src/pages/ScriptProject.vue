@@ -1,21 +1,35 @@
 <template>
   <div class="script-project">
-    <el-empty description="开发中..." />
-    <!-- <ScriptProjectList v-show="targetProjectIndex === -1" />
-    <AsyncProjectEditor v-show="targetProjectIndex !== -1" /> -->
+    <div class="draggable" draggable="true">拖动我</div>
+    <div class="dropzone">放置区域</div>
   </div>
 </template>
 
 <script setup lang="ts">
-// import Loading from "@renderer/components/Loading.vue";
+onMounted(async () => {
+  // const draggables = document.querySelectorAll('.draggable');
+  // const dropzones = document.querySelectorAll('.dropzone');
 
-// const AsyncProjectEditor = defineAsyncComponent({
-//   loader: async () => import("@renderer/components/lowCode/ProjectEditor.vue"),
-//   loadingComponent: Loading,
-// });
+  // draggables.forEach(draggable => {
+  //   draggable.addEventListener('dragstart', function (event) {
+  //     event.dataTransfer.setData('text/plain', event.target.innerText);
+  //   });
+  // });
 
-// const targetProjectIndex = ref(-1);
-// provide("targetProjectIndex", targetProjectIndex);
+  // dropzones.forEach(dropzone => {
+  //   dropzone.addEventListener('dragover', function (event) {
+  //     event.preventDefault(); // 允许放置
+  //     event.dataTransfer.dropEffect = 'move'; // 设置可视效果为移动
+  //   });
+
+  //   dropzone.addEventListener('drop', function (event) {
+  //     event.preventDefault(); // 阻止默认行为
+  //     const text = event.dataTransfer.getData('text/plain');
+  //     dropzone.appendChild(document.createTextNode(text));
+  //   });
+  // });
+  
+});
 </script>
 
 <style lang="scss" scoped>
@@ -25,5 +39,29 @@
   position: relative;
   padding: 20px;
   box-sizing: border-box;
+
+  .draggable {
+    width: 150px;
+    height: 150px;
+    background-color: #f00;
+    color: #fff;
+    text-align: center;
+    line-height: 150px;
+    border: 2px dashed #000;
+    cursor: move;
+    margin: 10px;
+  }
+
+  .dropzone {
+    width: 150px;
+    height: 150px;
+    background-color: #0f0;
+    border: 2px dashed #000;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
 }
 </style>

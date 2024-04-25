@@ -89,7 +89,7 @@ onMounted(async () => {
     });
     isMainWindow.value = false;
   } else {
-    init();
+    await init();
   }
   registerAllInvokeApi();
 });
@@ -99,8 +99,8 @@ const collapsedAside = () => {
   app.value.state.aside.collapsed = !app.value.state.aside.collapsed;
   handleSelect(app.value.state.aside.currentItem);
 };
-const { showDepDrewer } = useDepInfo();
-const { getDepStateType } = libUtil;
+// const { showDepDrewer } = useDepInfo();
+// const { getDepStateType } = libUtil;
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
   libUtil.batchUpdateDep();
@@ -112,7 +112,7 @@ onBeforeMount(() => {
     <template v-if="isMainWindow">
       <AutoTitleBar />
       <div class="common-layout">
-        <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
+        <!-- <el-drawer v-model="showDepDrewer" direction="btt" size="80%" :show-close="true">
           <template #header="{ titleId, titleClass }">
             <h4 :id="titleId" :class="titleClass">
               依赖管理<el-tag :type="getDepStateType(app.dependenceState)" size="small" class="title-tag">{{
@@ -120,7 +120,7 @@ onBeforeMount(() => {
             </h4>
           </template>
           <DepDrewer />
-        </el-drawer>
+        </el-drawer> -->
         <el-container>
           <el-aside class="aside">
             <el-tooltip effect="dark" :content="app.state.aside.collapsed ? '展开' : '折叠'" placement="right">

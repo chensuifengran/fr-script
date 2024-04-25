@@ -46,7 +46,8 @@
         "transparent": true,
         "width": 980,
         "height": 600,
-        "minWidth": 700
+        "minWidth": 700,
+        "fileDropEnabled": false
       }
     ]
   }

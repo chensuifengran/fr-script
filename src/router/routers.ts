@@ -113,6 +113,14 @@ const routes = [
       title: "通知",
     },
   },
+  {
+    path: "/depManager",
+    name: "depManager",
+    component: () => import(`../pages/DepManagerPage.vue`),
+    meta: {
+      title: "依赖管理器",
+    },
+  }
 ];
 export const topRoutes = [routes[1], routes[2], routes[3]];
 export const bottomRoutes = [routes[4], routes[5]];

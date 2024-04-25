@@ -42,6 +42,7 @@ export const useWebviewWindow = () => {
       }
     } catch (error) {
       console.error("useWebviewWindow error", error);
+      return null;
     }
   };
   return {
