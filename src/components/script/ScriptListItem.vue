@@ -54,7 +54,17 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  showHover: {
+    type: Boolean,
+    default: true
+  }
 });
+const hoverBeforeWidth = computed(() => {
+  return props.showHover ? "4px" : "0px"
+})
+const showAnimation = computed(() => {
+  return props.showHover ? "all 0.5s" : "none"
+})
 const emit = defineEmits<{
   (event: "editorScriptFile", index: number): void;
   (event: "openFile", index: number): void;
@@ -116,9 +126,9 @@ const itemHeight = computed(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.5s;
   margin-top: 3px;
   border-radius: 5px;
+  transition: v-bind(showAnimation);
 
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
@@ -225,7 +235,7 @@ const itemHeight = computed(() => {
       position: absolute;
       top: 0;
       left: 0;
-      width: 4px;
+      width: v-bind(hoverBeforeWidth);
       height: 0;
       background-color: var(--el-color-primary-light-3);
       animation: forwards 0.5s heightChange;

@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-const { dynamicDialog, getBuiltInApiTestModules } = useCore();
+const { dynamicDialog, builtInApiTestModules } = useCore();
 const listStore = useListStore();
 const invokeApiTestModules = computed(() => {
-  const oriModules = getBuiltInApiTestModules();
+  const oriModules = builtInApiTestModules.value;
   oriModules.forEach((m) => {
     m?.dialog.args?.forEach((a) => {
       if (a.options) {

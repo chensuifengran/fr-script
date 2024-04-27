@@ -29,12 +29,7 @@
       <div class="header">
         <span style="font-size: 18px">脚本列表</span>
         <div class="header-right">
-          <el-input
-            class="input"
-            v-model="search"
-            clearable
-            placeholder="搜索脚本名称或备注"
-          />
+          <el-input class="input" v-model="search" clearable placeholder="搜索脚本名称或备注" />
           <el-button-group>
             <el-button @click="imoprtScript">导入</el-button>
             <el-button type="primary" @click="onAddItem">新建</el-button>
@@ -43,18 +38,15 @@
       </div>
     </el-affix>
 
-    <div class="list" v-infinite-scroll="load" :infinite-scroll-distance="40">
+    <div class="list">
       <el-empty v-if="scriptList.length === 0" description="暂无脚本" />
-      <ScriptListItem
-        v-for="item in lazyList"
-        :key="item.id"
-        :id="item.id"
-        @editorScriptFile="editorScriptFile"
-        @openFile="openFile"
-        @setScript="setScript"
-        @runScript="runScript"
-        @deleteScript="deleteScript"
-      />
+      <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort" :animation="200"
+        @start="onStart" @update="onEnd" @end="onEnd">
+        <ScriptListItem v-for="item in showList" :key="item.id" :id="item.id" @editorScriptFile="editorScriptFile"
+          :show-hover="showItemHover" @openFile="openFile" @setScript="setScript" @runScript="runScript"
+          @deleteScript="deleteScript" />
+      </VueDraggable>
+
     </div>
   </div>
 </template>
@@ -63,7 +55,9 @@
 import { invoke } from "@tauri-apps/api";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
-let deleteConfirm: () => void = () => {};
+import { UseDraggableReturn, VueDraggable } from 'vue-draggable-plus'
+const el = ref<UseDraggableReturn>();
+let deleteConfirm: () => void = () => { };
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const {
@@ -74,25 +68,20 @@ const {
   contentTransform,
   asideBarPos,
 } = useScriptInfo();
+const showItemHover = ref(true);
 const { appBackground } = useAppTheme();
-const loadCount = ref(0);
-
-const load = () => {
-  if (loadCount.value < searchList.value.length) {
-    loadCount.value = Math.min(loadCount.value + 3, searchList.value.length);
-  }
-};
-
-const lazyList = computed(() => {
-  return searchList.value.slice(0, loadCount.value);
-});
-
 const sameScriptMod = reactive({
   visible: false,
   content: "",
-  newImport: () => {},
-  updateImport: () => {},
+  newImport: () => { },
+  updateImport: () => { },
 });
+const onStart = () => {
+  showItemHover.value = false;
+};
+const onEnd = () => {
+  showItemHover.value = true;
+}
 const deleteScriptDialog = ref(false);
 const deleteScript = (index: number) => {
   deleteConfirm = () => {
@@ -290,7 +279,6 @@ const imoprtScript = async () => {
             type: "success",
             position: "bottom-right",
           });
-          loadCount.value++;
         }
       } else {
         //该文件并无声明
@@ -330,22 +318,34 @@ const setScript = (index: number) => {
 };
 
 const search = ref("");
+const disableSort = computed(() => {
+  return search.value !== ""
+})
 
-const searchList = computed(() => {
-  if (search.value === "") {
-    return scriptList.value;
-  } else {
-    return scriptList.value.filter(
-      (i) =>
-        i.name.toLowerCase().includes(search.value.toLowerCase()) ||
-        i.description.toLowerCase().includes(search.value.toLowerCase())
-    );
+const showList = computed({
+  get: () => {
+    if (search.value === "") {
+      return scriptList.value;
+    } else {
+      return scriptList.value.filter(
+        (i) =>
+          i.name.toLowerCase().includes(search.value.toLowerCase()) ||
+          i.description.toLowerCase().includes(search.value.toLowerCase())
+      );
+    }
+  },
+  set: (v) => {
+    scriptList.value = v;
   }
 });
 
 </script>
 
 <style lang="scss" scoped>
+.ghost {
+  opacity: 0.9;
+}
+
 .script-list-div {
   display: flex;
   flex-direction: column;
@@ -357,6 +357,7 @@ const searchList = computed(() => {
   border-radius: 10px;
   padding: 10px;
   padding-top: 0;
+
   .header {
     display: flex;
     flex-direction: row;
@@ -367,23 +368,33 @@ const searchList = computed(() => {
     box-sizing: border-box;
     border-radius: 10px;
     background-color: v-bind(appBackground);
+
     .header-right {
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
       align-items: center;
+
       .input {
         width: 200px;
         margin-right: 10px;
       }
     }
   }
+
   .list {
     width: 100%;
     position: relative;
     padding: 2px 3px;
     box-sizing: border-box;
     border-radius: 5px;
+
+    .draggable-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: all 0.5s;
+    }
   }
 }
 </style>

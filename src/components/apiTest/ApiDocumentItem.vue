@@ -9,7 +9,18 @@ const props = defineProps({
     type: String as PropType<"invokeApi" | "util">,
     default: "invokeApi",
   },
+  showHover:{
+    type: Boolean,
+    default: true
+  }
 });
+
+const hoverBeforeWidth = computed(()=>{
+  return props.showHover ? "4px" : "0px"
+})
+const showAnimation = computed(()=>{
+  return props.showHover ? "all 0.5s" : "none"
+})
 const listStore = useListStore();
 const dialog = computed(() => {
   const d = props.model?.dialog;
@@ -234,12 +245,11 @@ const copyExampleCode = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.5s;
   margin-top: 5px;
   border-radius: 5px;
   box-shadow: v-bind(appAsideBgColor) 0 0 3px;
   cursor: pointer;
-
+  transition: v-bind(showAnimation);
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
 
@@ -249,7 +259,7 @@ const copyExampleCode = () => {
       position: absolute;
       top: 0;
       left: 0;
-      width: 4px;
+      width: v-bind(hoverBeforeWidth);
       height: 0;
       background-color: var(--el-color-primary-light-3);
       animation: forwards 0.5s heightChange;

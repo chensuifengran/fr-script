@@ -24,26 +24,80 @@ const setTestModuleCtx = (ct: {
   testModuleCtx.showDetails = ct.showDetails;
 };
 
-const getBuiltInApiTestModules = () => {
-  return builtInApi.map((i) => i.testModule);
+const builtInApiTestModules = computed({
+  set: () => {},
+  get: () => {
+    return builtInApi.map((i) => i.testModule);
+  },
+});
+const moveBuiltInApiIndex = (oldIndex: number, newIndex: number) => {
+  const target = builtInApi[oldIndex];
+  builtInApi.splice(oldIndex, 1);
+  builtInApi.splice(newIndex, 0, target);
+  if (builtInApi[newIndex + 1] && target.testModule) {
+    const nextWeight = builtInApi[newIndex + 1].testModule?.weight;
+    target.testModule.weight = nextWeight || 0;
+  } else if (!builtInApi[newIndex + 1]) {
+    //移到最后
+    target.testModule!.weight = 0;
+  }
+  const sortMap: Record<string, number> = {};
+  builtInApi.forEach((i, index) => {
+    sortMap[i.name] = index;
+  });
+  localStorage.setItem(
+    CORE_NAMESPACES + "API_SORT_MAP",
+    JSON.stringify(sortMap)
+  );
 };
 const initBuiltInApi = (
   methods: InvokeApiMethodType[] | InvokeApiMethodType
 ) => {
+  const sortMap = JSON.parse(
+    localStorage.getItem(CORE_NAMESPACES + "API_SORT_MAP") || "{}"
+  );
   if (methods instanceof Array) {
-    methods.forEach((invokeApiMethod) => {
-      const targetMethod = builtInApi.find(
-        (i) => i.name === invokeApiMethod.name
+    if (Object.keys(sortMap).length > 0) {
+      const newBuiltInApi = new Array(methods.length).fill(null);
+      const newApi: InvokeApiMethodType[] = [];
+      methods.forEach((invokeApiMethod) => {
+        const targetMethod = builtInApi.find(
+          (i) => i.name === invokeApiMethod.name
+        );
+        if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(invokeApiMethod.name)) {
+          throw new Error(`methods中的name不符合js变量命名规范`);
+        }
+        if (targetMethod) {
+          console.warn("已存在同名方法，跳过注册");
+          return;
+        }
+        const sortIndex = sortMap[invokeApiMethod.name];
+        if (sortIndex !== undefined) {
+          newBuiltInApi[sortIndex] = invokeApiMethod;
+        } else {
+          newApi.push(invokeApiMethod);
+        }
+      });
+      builtInApi.splice(
+        0,
+        0,
+        ...[...newBuiltInApi.filter((item) => item !== null), ...newApi]
       );
-      if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(invokeApiMethod.name)) {
-        throw new Error(`methods中的name不符合js变量命名规范`);
-      }
-      if (targetMethod) {
-        console.warn("已存在同名方法，跳过注册");
-        return;
-      }
-      builtInApi.push(invokeApiMethod);
-    });
+    } else {
+      methods.forEach((invokeApiMethod) => {
+        const targetMethod = builtInApi.find(
+          (i) => i.name === invokeApiMethod.name
+        );
+        if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(invokeApiMethod.name)) {
+          throw new Error(`methods中的name不符合js变量命名规范`);
+        }
+        if (targetMethod) {
+          console.warn("已存在同名方法，跳过注册");
+          return;
+        }
+        builtInApi.push(invokeApiMethod);
+      });
+    }
   } else {
     const targetMethod = builtInApi.find((i) => i.name === methods.name);
     if (!/^[a-zA-Z_$][a-zA-Z_$0-9]*$/.test(methods.name)) {
@@ -54,6 +108,15 @@ const initBuiltInApi = (
       return;
     }
     builtInApi.push(methods);
+  }
+  if (Object.keys(sortMap).length === 0) {
+    builtInApi.sort((a, b) => {
+      return b!.testModule!.weight! - a!.testModule!.weight!;
+    });
+  }else{
+    builtInApi.forEach((item, index)=>{
+      item.testModule!.weight = builtInApi.length - index;
+    })
   }
 };
 const invokeDynamicDialog = (
@@ -113,12 +176,18 @@ const exportAllFn = (): BuiltInApiType => {
         if (i.helperClass) {
           i.helperClass.forEach((helperClass) => {
             const className = helperClass.name;
-            if(className === alias){
-              console.error('helperClass的name不能和alias相同', JSON.stringify(i));
+            if (className === alias) {
+              console.error(
+                "helperClass的name不能和alias相同",
+                JSON.stringify(i)
+              );
               throw new Error(`helperClass的name不能和alias相同`);
             }
-            if(allFn[scope][className]){
-              console.warn('helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！', JSON.stringify(i));
+            if (allFn[scope][className]) {
+              console.warn(
+                "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
+                JSON.stringify(i)
+              );
               return;
             }
             allFn[scope][className] = helperClass;
@@ -130,12 +199,18 @@ const exportAllFn = (): BuiltInApiType => {
       if (i.helperClass) {
         i.helperClass.forEach((helperClass) => {
           const className = helperClass.name;
-          if(className === alias){
-            console.error('helperClass的name不能和alias相同', JSON.stringify(i));
+          if (className === alias) {
+            console.error(
+              "helperClass的name不能和alias相同",
+              JSON.stringify(i)
+            );
             throw new Error(`helperClass的name不能和alias相同`);
           }
-          if(allFn[className]){
-            console.warn('helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！', JSON.stringify(i));
+          if (allFn[className]) {
+            console.warn(
+              "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
+              JSON.stringify(i)
+            );
             return;
           }
           allFn[className] = helperClass;
@@ -146,15 +221,21 @@ const exportAllFn = (): BuiltInApiType => {
         const scope = i.scope;
         allFn[scope] = allFn[i.scope] || {};
         allFn[scope][i.name] = fn;
-        if(i.helperClass){
+        if (i.helperClass) {
           i.helperClass.forEach((helperClass) => {
             const className = helperClass.name;
-            if(className === i.name){
-              console.error('helperClass的name不能和alias相同', JSON.stringify(i));
+            if (className === i.name) {
+              console.error(
+                "helperClass的name不能和alias相同",
+                JSON.stringify(i)
+              );
               throw new Error(`helperClass的name不能和alias相同`);
             }
-            if(allFn[scope][className]){
-              console.warn('helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！', JSON.stringify(i));
+            if (allFn[scope][className]) {
+              console.warn(
+                "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
+                JSON.stringify(i)
+              );
               return;
             }
             allFn[scope][className] = helperClass;
@@ -163,15 +244,21 @@ const exportAllFn = (): BuiltInApiType => {
         return;
       }
       allFn[i.name] = fn;
-      if(i.helperClass){
+      if (i.helperClass) {
         i.helperClass.forEach((helperClass) => {
           const className = helperClass.name;
-          if(className === i.name){
-            console.error('helperClass的name不能和alias相同', JSON.stringify(i));
+          if (className === i.name) {
+            console.error(
+              "helperClass的name不能和alias相同",
+              JSON.stringify(i)
+            );
             throw new Error(`helperClass的name不能和alias相同`);
           }
-          if(allFn[className]){
-            console.warn('helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！', JSON.stringify(i));
+          if (allFn[className]) {
+            console.warn(
+              "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
+              JSON.stringify(i)
+            );
             return;
           }
           allFn[className] = helperClass;
@@ -237,11 +324,12 @@ export const useCore = () => {
   return {
     genBuiltInApi,
     dynamicDialog,
-    getBuiltInApiTestModules,
+    builtInApiTestModules,
     setTestModuleCtx,
     invokeDynamicDialog,
     exportAllFn,
     registerAllInvokeApi,
+    moveBuiltInApiIndex,
   };
 };
 export const getInvokeApiMethods = () => {

@@ -14,8 +14,12 @@
             </el-icon></el-button>
         </div>
       </transition>
-      <ApiDocumentItem v-for="m in allDocumentItems" :key="m?.dialog?.targetMethodName || m?.dialog?.title" :model="m!"
-        :type="m?.itemType" />
+      <VueDraggable ref="el" v-model="allDocumentItems" :animation="200" ghostClass="ghost" class="draggable-content"
+        :disabled="disableSort" @update="onUpdate" @start="onStart">
+        <ApiDocumentItem v-for="m in allDocumentItems" :key="m?.dialog?.targetMethodName || m?.dialog?.title"
+          :model="m!" :type="m?.itemType" :show-hover="showItemHover"/>
+      </VueDraggable>
+
       <el-empty v-if="!allDocumentItems.length" description="没有找到相应的API"></el-empty>
       <div class="end" v-if="isEnd">
         ------到底了，共{{ allDocumentItems.length }}个API------
@@ -51,10 +55,12 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { SortableEvent, VueDraggable } from "vue-draggable-plus";
 import Loading from "../components/Loading.vue";
 import { storeToRefs } from "pinia";
+const showItemHover = ref(true);
 const pageContentRef = ref<HTMLElement>();
-const { getBuiltInApiTestModules, setTestModuleCtx } = useCore();
+const { builtInApiTestModules, moveBuiltInApiIndex, setTestModuleCtx } = useCore();
 const { info, windowInnerWidth } = useAutoTitleBar();
 const appGSStore = useAppGlobalSettings();
 const { app } = storeToRefs(appGSStore);
@@ -64,6 +70,22 @@ const { isMainWindow } = useAppLayout();
 const { appBackground } = useAppTheme();
 const pagePadding = ref("10px");
 const antiShakeValue = ref("");
+const disableSort = computed(() => {
+  return antiShakeValue.value !== ''
+})
+const onStart = () => {
+  showItemHover.value = false;
+};
+const onEnd = ()=>{
+  showItemHover.value = true;
+}
+const onUpdate = (e: SortableEvent) => {
+  const { oldIndex, newIndex } = e;
+  if (oldIndex !== undefined && newIndex !== undefined) {
+    moveBuiltInApiIndex(oldIndex, newIndex);
+  }
+  onEnd();
+}
 const output = ref<string[]>([]);
 const clearOutput = () => {
   output.value = [];
@@ -108,37 +130,40 @@ const load = async () => {
     isEnd.value = true;
   }
 };
-const allDocumentItems = computed<TestModuleType[]>(() => {
-  const allList = [
-    ...getBuiltInApiTestModules()
-      .filter((d) => {
-        if (antiShakeValue.value) {
-          return (
-            d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
-            d!.dialog.title?.includes(antiShakeValue.value) ||
-            d!.dialog.content?.includes(antiShakeValue.value) ||
-            d!.document!.howToUse?.includes(antiShakeValue.value) ||
-            d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
-          );
-        }
-        return true;
-      })
-      .map((d) => {
-        return { ...d, itemType: "invokeApi" } as TestModuleType;
-      }),
-  ].sort((a, b) => {
-    return b!.weight! - a!.weight!;
-  });
-  tatalCount = allList.length;
-
-  return allList.slice(0, loadCount.value);
+const allDocumentItems = computed<TestModuleType[]>({
+  get: () => {
+    const allList = [
+      ...builtInApiTestModules.value
+        .filter((d) => {
+          if (antiShakeValue.value) {
+            return (
+              d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
+              d!.dialog.title?.includes(antiShakeValue.value) ||
+              d!.dialog.content?.includes(antiShakeValue.value) ||
+              d!.document!.howToUse?.includes(antiShakeValue.value) ||
+              d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
+            );
+          }
+          return true;
+        })
+        .map((d) => {
+          return { ...d, itemType: "invokeApi" } as TestModuleType;
+        }),
+    ].sort((a, b) => {
+      return b!.weight! - a!.weight!;
+    });
+    tatalCount = allList.length;
+    return allList.slice(0, loadCount.value);
+  },
+  set: (v) => {
+    loadCount.value = v.length;
+  },
 });
 onBeforeMount(() => {
   if (!isMainWindow.value) {
     pagePadding.value = "0";
   }
 });
-
 const showDetails = (text: string | undefined, preStr = "") => {
   if (app.value.modulesSetting.autoOpenOutput) {
     info.apiTest.openOutput = true;
@@ -182,7 +207,9 @@ onMounted(() => {
 .select {
   width: 100px;
 }
-
+.ghost {
+  opacity: 0.9;
+}
 .remd {
   width: 100%;
   height: 100%;
