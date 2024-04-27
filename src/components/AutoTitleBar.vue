@@ -47,23 +47,23 @@
           </div>
         </el-tooltip>
 
-        <div class="titlebar-button" @click="toggleMostTop">
+        <div class="titlebar-button" @click="!isEditing && toggleMostTop()">
           <AffixIcon :style="{
             color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
           }" />
         </div>
-        <div class="titlebar-button" @click="minHandle">
+        <div class="titlebar-button" @click="!isEditing && minHandle()">
           <el-icon>
             <IEpMinus />
           </el-icon>
         </div>
-        <div class="titlebar-button" @click="maxHandle">
+        <div class="titlebar-button" @click="!isEditing && maxHandle()">
           <el-icon>
             <IEpFullScreen v-show="!isFullScreen" />
             <IEpCopyDocument v-show="isFullScreen" />
           </el-icon>
         </div>
-        <div class="titlebar-button danger" @click="showQuitDialog = true">
+        <div class="titlebar-button danger" @click="!isEditing && (showQuitDialog = true)">
           <el-icon>
             <IEpClose />
           </el-icon>
@@ -73,23 +73,23 @@
     <div class="titlebar" data-tauri-drag-region v-else-if="isEditing" style="cursor: move">
       <EditorHeader>
         <div class="btn-content">
-          <div class="titlebar-button" @click="toggleMostTop">
+          <div class="titlebar-button" @click="isEditing && toggleMostTop()">
             <AffixIcon :style="{
               color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
             }" />
           </div>
-          <div class="titlebar-button" @click="minHandle">
+          <div class="titlebar-button" @click="isEditing && minHandle()">
             <el-icon>
               <IEpMinus />
             </el-icon>
           </div>
-          <div class="titlebar-button" @click="maxHandle">
+          <div class="titlebar-button" @click="isEditing && maxHandle()">
             <el-icon>
               <IEpFullScreen v-show="!isFullScreen" />
               <IEpCopyDocument v-show="isFullScreen" />
             </el-icon>
           </div>
-          <div class="titlebar-button danger" @click="showQuitDialog = true">
+          <div class="titlebar-button danger" @click="isEditing && (showQuitDialog = true)">
             <el-icon>
               <IEpClose />
             </el-icon>
