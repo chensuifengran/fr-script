@@ -18,6 +18,7 @@ export const useWebviewWindow = () => {
         width: 800,
         height: 600,
         minWidth: 800,
+        fileDropEnabled: false
       };
       if (!globalTarget) {
         if (!options) {
