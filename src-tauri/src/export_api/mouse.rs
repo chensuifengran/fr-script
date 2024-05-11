@@ -84,7 +84,13 @@ pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
     match CLICKER.lock() {
         Ok(mut clicker) => clicker.start(Duration::from_secs(duration), sleep, button.clone()),
         Err(e) => {
-            log::error!("[command]start_clicker :{:?} [{}, {}, {:?}]", e, duration, sleep, button);
+            log::error!(
+                "[command]start_clicker :{:?} [{}, {}, {:?}]",
+                e,
+                duration,
+                sleep,
+                button
+            );
         }
     }
 }
@@ -144,7 +150,13 @@ pub async fn mouse_release(button: i32) -> Result<String, ()> {
 }
 
 #[tauri::command]
-pub async fn mouse_drag(x: i32, y: i32, to_x: i32, to_y: i32, duration: Option<i32>) -> Result<String, ()> {
+pub async fn mouse_drag(
+    x: i32,
+    y: i32,
+    to_x: i32,
+    to_y: i32,
+    duration: Option<i32>,
+) -> Result<String, ()> {
     //duration为从x,y到to_x,to_y的时间，单位为ms
     let mut enigo: Enigo = Enigo::new();
     if x < 0 || y < 0 {
