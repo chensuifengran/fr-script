@@ -14,7 +14,6 @@ declare module 'vue' {
     AutoTitleBar: typeof import('./components/AutoTitleBar.vue')['default']
     CodeEditor: typeof import('./components/script/CodeEditor.vue')['default']
     CodeIcon: typeof import('./components/svgIcon/CodeIcon.vue')['default']
-    DepDrewer: typeof import('./components/dependence/DepDrewer.vue')['default']
     DepManager: typeof import('./components/dependence/DepManager.vue')['default']
     DepPkgDownload: typeof import('./components/dependence/DepPkgDownload.vue')['default']
     DepPkgItem: typeof import('./components/dependence/DepPkgItem.vue')['default']
