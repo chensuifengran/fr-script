@@ -45,7 +45,7 @@ import {
 } from "@tauri-apps/api/window";
 const { borderRadius, appOpacity, appTransform, oppositeBgColor } = useAppTheme();
 const { createWindow } = useWebviewWindow();
-let adsorptionPredictionWindow: WebviewWindow | undefined;
+let adsorptionPredictionWindow: WebviewWindow | null;
 const loadingTime = ref(1);
 const useTime = computed(() => {
   const hours = Math.floor(loadingTime.value / 3600);
