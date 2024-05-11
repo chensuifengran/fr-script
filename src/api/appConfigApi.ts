@@ -7,7 +7,12 @@ const getAppInfo = async () => {
   });
   const data = JSON.parse(res);
   if (data?.message) {
-    return JSON.parse(data.message) as AppVersionConfig;
+    try {
+      const res = JSON.parse(data.message);
+      return res as AppVersionConfig;
+    } catch (error) {
+      console.warn('获取远程版本信息失败！',error);
+    }
   }
 };
 
@@ -17,9 +22,15 @@ const getDepInfo = async () => {
   });
   const data = JSON.parse(res);
   if (data?.message) {
-    return JSON.parse(data.message);
+    try{
+      const res = JSON.parse(data.message);
+      return res;
+    }catch(e){
+      console.warn('获取远程依赖信息失败！',e);
+      return [];
+    }
   }
-  return {};
+  return [];
 };
 
 const syncLocalVersion = async () => {
