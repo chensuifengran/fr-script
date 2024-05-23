@@ -1,5 +1,5 @@
 use crate::{
-    types::{generate_result, mouse_types::Coordinate},
+    types::{generate_result, mouse_types},
     CLICKER,
 };
 use enigo::*;
@@ -23,20 +23,22 @@ impl Clicker {
         }
     }
 
-    pub fn start(&mut self, duration: Duration, sleep: u64, button: MouseButton) {
+    pub fn start(&mut self, duration: Duration, sleep: u64, button: Button) {
         self.stop();
         let running = self.running.clone();
         running.store(true, Ordering::SeqCst);
-        let mut enigo = Enigo::new();
-        self.handle = Some(thread::spawn(move || {
-            let start_time = std::time::Instant::now();
-            while running.load(Ordering::SeqCst)
-                && std::time::Instant::now() - start_time < duration
-            {
-                enigo.mouse_click(button);
-                thread::sleep(Duration::from_millis(sleep));
-            }
-        }));
+        let enigo = Enigo::new(&Settings::default());
+        if let Ok(mut enigo) = enigo {
+            self.handle = Some(thread::spawn(move || {
+                let start_time = std::time::Instant::now();
+                while running.load(Ordering::SeqCst)
+                    && std::time::Instant::now() - start_time < duration
+                {
+                    let _ = enigo.button(button, Direction::Click);
+                    thread::sleep(Duration::from_millis(sleep));
+                }
+            }));
+        }
     }
 
     pub fn stop(&mut self) {
@@ -71,14 +73,14 @@ pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
     let button = match button {
         Some(button) => {
             if button == 0 {
-                MouseButton::Left
+                Button::Left
             } else if button == 1 {
-                MouseButton::Middle
+                Button::Middle
             } else {
-                MouseButton::Right
+                Button::Right
             }
         }
-        None => MouseButton::Left,
+        None => Button::Left,
     };
     let sleep = sleep.unwrap_or(50);
     match CLICKER.lock() {
@@ -96,57 +98,208 @@ pub fn start_clicker(duration: u64, sleep: Option<u64>, button: Option<i32>) {
 }
 
 #[tauri::command]
-pub async fn mouse_move_to(x: i32, y: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    enigo.mouse_move_to(x, y);
-    Ok(generate_result(String::from("mouse_move_to ok"), 200))
-}
-
-#[tauri::command]
-pub async fn mouse_move_relative(x: i32, y: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    enigo.mouse_move_relative(x, y);
-    Ok(generate_result(String::from("mouse_move_to ok"), 200))
-}
-
-#[tauri::command]
-pub async fn mouse_move_click(x: i32, y: i32, button: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    enigo.mouse_move_to(x, y);
-    if button == 0 {
-        enigo.mouse_click(MouseButton::Left);
-    } else if button == 1 {
-        enigo.mouse_click(MouseButton::Middle);
-    } else {
-        enigo.mouse_click(MouseButton::Right);
+pub async fn move_mouse(x: i32, y: i32, relative: Option<bool>) -> Result<String, String> {
+    let move_type = match relative {
+        Some(true) => Coordinate::Rel,
+        _ => Coordinate::Abs,
+    };
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let res = enigo.move_mouse(x, y, move_type);
+        return match res {
+            Ok(_) => Ok(generate_result(String::from("move_mouse ok"), 200)),
+            Err(e) => {
+                log::error!(
+                    "[command]move_mouse error: {:?}, args: {}, {}, {:?}",
+                    e,
+                    x,
+                    y,
+                    relative
+                );
+                Err(generate_result(e.to_string(), 501))
+            }
+        };
     }
-    Ok(generate_result(String::from("mouse_move_click ok"), 200))
+    log::error!("[command]move_mouse error: new enigo failed");
+    Err(generate_result(
+        "[command]move_mouse error: new enigo failed".to_string(),
+        502,
+    ))
 }
 
 #[tauri::command]
-pub async fn mouse_press(button: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    if button == 0 {
-        enigo.mouse_down(MouseButton::Left);
-    } else if button == 1 {
-        enigo.mouse_down(MouseButton::Middle);
-    } else {
-        enigo.mouse_down(MouseButton::Right);
+pub async fn mouse_move_click(x: i32, y: i32, button: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        move_mouse(x, y, None).await?;
+        let mut is_ok = true;
+        if button == 0 {
+            let res = enigo.button(Button::Left, Direction::Click);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_click error: {:?}", res)
+            }
+        } else if button == 1 {
+            let res = enigo.button(Button::Middle, Direction::Click);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_click error: {:?}", res)
+            }
+        } else {
+            // enigo.button(Button::Right, Direction::Click);
+            let res = enigo.button(Button::Right, Direction::Click);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_click error: {:?}", res)
+            }
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_move_click ok"), 200))
+        } else {
+            Err(generate_result(String::from("mouse_move_click error"), 501))
+        };
     }
-    Ok(generate_result(String::from("mouse_press ok"), 200))
+    log::error!("[command]mouse_move_click: new enigo failed");
+    Err(String::from("[command]mouse_move_click: new enigo failed"))
 }
 
 #[tauri::command]
-pub async fn mouse_release(button: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    if button == 0 {
-        enigo.mouse_up(MouseButton::Left);
-    } else if button == 1 {
-        enigo.mouse_up(MouseButton::Middle);
-    } else {
-        enigo.mouse_up(MouseButton::Right);
+pub async fn mouse_move_up(x: i32, y: i32, button: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let mut is_ok = true;
+        move_mouse(x, y, None).await?;
+        if button == 0 {
+            let res = enigo.button(Button::Left, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_up error: {:?}", res)
+            }
+        } else if button == 1 {
+            let res = enigo.button(Button::Middle, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_up error: {:?}", res)
+            }
+        } else {
+            let res = enigo.button(Button::Right, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_up error: {:?}", res)
+            }
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_move_down ok"), 200))
+        } else {
+            Err(generate_result(String::from("mouse_move_up error"), 501))
+        };
     }
-    Ok(generate_result(String::from("mouse_release ok"), 200))
+    log::error!("[command]mouse_move_up: new enigo failed");
+    Err(String::from("[command]mouse_move_up: new enigo failed"))
+}
+#[tauri::command]
+pub async fn mouse_move_down(x: i32, y: i32, button: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        move_mouse(x, y, None).await?;
+        let mut is_ok = true;
+        if button == 0 {
+            // enigo.button(Button::Left, Direction::Press);
+            let res = enigo.button(Button::Left, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_down error: {:?}", res)
+            }
+        } else if button == 1 {
+            // enigo.button(Button::Middle, Direction::Press);
+            let res = enigo.button(Button::Middle, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_down error: {:?}", res)
+            }
+        } else {
+            let res = enigo.button(Button::Right, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_move_down error: {:?}", res)
+            }
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_move_down ok"), 200))
+        } else {
+            Err(generate_result(String::from("mouse_move_down error"), 501))
+        };
+    }
+    log::error!("[command]mouse_move_down: new enigo failed");
+    Err(String::from("[command]mouse_move_down: new enigo failed"))
+}
+
+#[tauri::command]
+pub async fn mouse_press(button: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let mut is_ok = true;
+        if button == 0 {
+            let res = enigo.button(Button::Left, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_press error: {:?}", res)
+            }
+        } else if button == 1 {
+            let res = enigo.button(Button::Middle, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_press error: {:?}", res)
+            }
+        } else {
+            let res = enigo.button(Button::Right, Direction::Press);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_press error: {:?}", res)
+            }
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_press ok"), 200))
+        } else {
+            Err(generate_result(String::from("mouse_press error"), 501))
+        };
+    }
+    log::error!("[command]mouse_press: new enigo failed");
+    Err(String::from("[command]mouse_press: new enigo failed"))
+}
+
+#[tauri::command]
+pub async fn mouse_release(button: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let mut is_ok = false;
+        if button == 0 {
+            let res = enigo.button(Button::Left, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_release error: {:?}", res);
+            }
+        } else if button == 1 {
+            let res = enigo.button(Button::Middle, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_release error: {:?}", res);
+            }
+        } else {
+            let res = enigo.button(Button::Right, Direction::Release);
+            if res.is_err() {
+                is_ok = false;
+                log::error!("[command]mouse_release error: {:?}", res);
+            }
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_release ok"), 200))
+        } else {
+            Err(String::from("[command]mouse_release: new enigo failed"))
+        };
+    }
+    log::error!("[command]mouse_release: new enigo failed");
+    Err(String::from("[command]mouse_release: new enigo failed"))
 }
 
 #[tauri::command]
@@ -156,43 +309,87 @@ pub async fn mouse_drag(
     to_x: i32,
     to_y: i32,
     duration: Option<i32>,
-) -> Result<String, ()> {
+) -> Result<String, String> {
     //duration为从x,y到to_x,to_y的时间，单位为ms
-    let mut enigo: Enigo = Enigo::new();
-    if x < 0 || y < 0 {
-        let (cur_x, cur_y) = enigo.mouse_location();
-        enigo.mouse_move_to(cur_x, cur_y);
-    } else {
-        enigo.mouse_move_to(x, y);
-    }
-    enigo.mouse_down(MouseButton::Left);
-    if let Some(duration) = duration {
-        let dx = (to_x - x) as f32;
-        let dy = (to_y - y) as f32;
-        let step = 10;
-        let step_x = dx / step as f32;
-        let step_y = dy / step as f32;
-        for _ in 0..step {
-            enigo.mouse_move_relative(step_x as i32, step_y as i32);
-            thread::sleep(Duration::from_millis(duration as u64 / step as u64));
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let mut is_ok = true;
+        if x < 0 || y < 0 {
+            let r = enigo.location();
+            if let Ok((cx, cy)) = r {
+                let res = enigo.move_mouse(cx, cy, Coordinate::Abs);
+                if res.is_err() {
+                    is_ok = false;
+                }
+            }
+        } else {
+            let res = enigo.move_mouse(x, y, Coordinate::Abs);
+            if res.is_err() {
+                is_ok = false;
+            }
         }
+        let res = enigo.button(Button::Left, Direction::Press);
+        if res.is_err() {
+            is_ok = false;
+        }
+        if let Some(duration) = duration {
+            let dx = (to_x - x) as f32;
+            let dy = (to_y - y) as f32;
+            let step = 10;
+            let step_x = dx / step as f32;
+            let step_y = dy / step as f32;
+            for _ in 0..step {
+                let res = enigo.move_mouse(step_x as i32, step_y as i32, Coordinate::Rel);
+                if res.is_err() {
+                    is_ok = false;
+                }
+                thread::sleep(Duration::from_millis(duration as u64 / step as u64));
+            }
+        }
+        let res = enigo.move_mouse(to_x, to_y, Coordinate::Abs);
+        let res2 = enigo.button(Button::Left, Direction::Release);
+        if res.is_err() || res2.is_err() {
+            is_ok = false;
+        }
+        return if is_ok {
+            Ok(generate_result(String::from("mouse_drag ok"), 200))
+        } else {
+            Err(String::from(
+                "[command]mouse_drag: move_mouse or button failed",
+            ))
+        };
     }
-    enigo.mouse_move_to(to_x, to_y);
-    enigo.mouse_up(MouseButton::Left);
-    Ok(generate_result(String::from("mouse_drag ok"), 200))
+    log::error!("[command]mouse_drag: new enigo failed");
+    Err(String::from("[command]mouse_drag: new enigo failed"))
 }
 
 #[tauri::command]
-pub async fn mouse_wheel(delta: i32) -> Result<String, ()> {
-    let mut enigo: Enigo = Enigo::new();
-    enigo.mouse_scroll_y(delta);
-    Ok(generate_result(String::from("mouse_wheel ok"), 200))
+pub async fn mouse_wheel(delta: i32) -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(mut enigo) = enigo {
+        let res = enigo.scroll(delta, Axis::Vertical);
+        return if res.is_ok() {
+            Ok(generate_result(String::from("mouse_wheel ok"), 200))
+        } else {
+            Err(String::from("[command]mouse_wheel: scroll failed"))
+        };
+    }
+    log::error!("[command]mouse_wheel: new enigo failed");
+    Err(String::from("[command]mouse_wheel: new enigo failed"))
 }
 
 #[tauri::command]
-pub async fn mouse_get_pos() -> Result<String, ()> {
-    let enigo: Enigo = Enigo::new();
-    let (x, y) = enigo.mouse_location();
-    let coordinate = Coordinate::new(x, y);
-    Ok(generate_result(coordinate, 200))
+pub async fn mouse_get_pos() -> Result<String, String> {
+    let enigo = Enigo::new(&Settings::default());
+    if let Ok(enigo) = enigo {
+        let r = enigo.location();
+        if let Ok((x, y)) = r {
+            let coordinate = mouse_types::Coordinate::new(x, y);
+            return Ok(generate_result(coordinate, 200));
+        }
+        log::error!("[command]mouse_get_pos: get location failed");
+        return Err(String::from("[command]mouse_get_pos: get location failed"));
+    }
+    log::error!("[command]mouse_get_pos: new enigo failed");
+    Err(String::from("[command]mouse_get_pos: new enigo failed"))
 }
