@@ -3,7 +3,8 @@ import { storeToRefs } from "pinia";
 
 const getAppInfo = async () => {
   const res: string = await invoke("request_get", {
-    url: "https://isyc.gitee.io/version-info.json",
+    // url: "https://isyc.gitee.io/version-info.json",
+    url:"http://47.106.34.210:8028/static/isYC/fr-script-info/version-info.json"
   });
   const data = JSON.parse(res);
   if (data?.message) {
@@ -18,7 +19,8 @@ const getAppInfo = async () => {
 
 const getDepInfo = async () => {
   const res: string = await invoke("request_get", {
-    url: "https://isyc.gitee.io/dep.json",
+    // url: "https://isyc.gitee.io/dep.json",
+    url:"http://47.106.34.210:8028/static/isYC/fr-script-info/dep.json"
   });
   const data = JSON.parse(res);
   if (data?.message) {
