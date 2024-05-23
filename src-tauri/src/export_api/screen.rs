@@ -1,4 +1,4 @@
-use crate::{c_api::util::Util, types::generate_result, UTIL_INSTANCE};
+use crate::{libs::util::Util, types::generate_result, UTIL_INSTANCE};
 use enigo::*;
 use std::sync::Arc;
 
@@ -91,7 +91,14 @@ pub async fn screenshot(path: &str, x: i32, y: i32, w: i32, h: i32) -> Result<St
     };
     let msg: String = match res {
         -1 => {
-            log::error!("[command]screenshot:截图失败 [{}, {}, {}, {}, {}]", path, x, y, w, h);
+            log::error!(
+                "[command]screenshot:截图失败 [{}, {}, {}, {}, {}]",
+                path,
+                x,
+                y,
+                w,
+                h
+            );
             "截图失败".to_string()
         }
         -2 => {
@@ -261,16 +268,24 @@ pub async fn screen_diff_templates(
 #[tauri::command]
 pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> {
     if x.is_none() || y.is_none() {
-        let enigo: Enigo = Enigo::new();
-        let (x, y) = enigo.mouse_location();
-        let util: Arc<Util> = UTIL_INSTANCE.clone();
-        let color = util
-            .get_screen_color(x, y)
-            .unwrap_or(format!("{}", ERROR_COLOR));
-        if color == format!("{}", ERROR_COLOR) {
-            log::error!("[command]screen_color:获取屏幕颜色失败 [{}, {}]", x, y);
+        let enigo = Enigo::new(&Settings::default());
+        if let Ok(enigo) = enigo {
+            let r = enigo.location();
+            if let Ok((x, y)) = r {
+                let util: Arc<Util> = UTIL_INSTANCE.clone();
+                let color = util
+                    .get_screen_color(x, y)
+                    .unwrap_or(format!("{}", ERROR_COLOR));
+                if color == format!("{}", ERROR_COLOR) {
+                    log::error!("[command]screen_color:获取屏幕颜色失败 [{}, {}]", x, y);
+                }
+                return Ok(color);
+            }
+            log::error!("[command]screen_color: get location failed");
+            return Err(());
         }
-        Ok(color)
+        log::error!("[command]screen_color: new Enigo failed");
+        Err(())
     } else {
         let x = x.unwrap();
         let y = y.unwrap();

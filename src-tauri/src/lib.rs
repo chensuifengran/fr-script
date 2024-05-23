@@ -1,8 +1,8 @@
 use std::sync::Arc;
-use crate::{c_api::{ppocr::PPOCR, util::Util}, export_api::mouse::Clicker};
+use crate::{export_api::mouse::Clicker, libs::{ppocr::PPOCR, util::Util}};
 pub mod export_api;
 pub mod types;
-pub mod c_api;
+pub mod libs;
 pub mod global;
 pub mod event;
 use std::sync::Mutex;

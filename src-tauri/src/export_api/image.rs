@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::constant::{ERROR_COORDINATE, ERROR_OCR_RESULT, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT};
 use crate::UTIL_INSTANCE;
-use crate::{c_api::util::Util, types::generate_result, PPOCR_INSTANCE};
+use crate::{libs::util::Util, types::generate_result, PPOCR_INSTANCE};
 
 /// 裁剪图片
 ///
