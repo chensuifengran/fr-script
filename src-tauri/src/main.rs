@@ -18,8 +18,7 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            mouse::mouse_move_to,
-            mouse::mouse_move_relative,
+            mouse::move_mouse,
             mouse::mouse_move_click,
             mouse::mouse_press,
             mouse::mouse_release,
@@ -28,6 +27,8 @@ fn main() {
             mouse::start_clicker,
             mouse::stop_clicker,
             mouse::mouse_drag,
+            mouse::mouse_move_up,
+            mouse::mouse_move_down,
             input::input_text,
             input::press_key,
             input::press_keys,
@@ -50,6 +51,8 @@ fn main() {
             image::screen_ocr,
             image::screen_ocr_contains,
             tools::get_dependence_version,
+            tools::capture_operation,
+            tools::qiut_capture_operation,
             file::get_install_dir,
             file::get_file_info,
             file::copy_dep_file,

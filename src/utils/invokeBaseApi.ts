@@ -353,6 +353,46 @@ const click = async (
     return false;
   }
 };
+const mouseUp = async (
+  x: number,
+  y: number,
+  button: "left" | "middle" | "right" = "left"
+) => {
+  x = Math.round(x);
+  y = Math.round(y);
+  const btn = button === "left" ? 0 : button === "middle" ? 1 : 2;
+  try {
+    await await invoke("mouse_move_up", {
+      x,
+      y,
+      button: btn,
+    });
+    return true;
+  } catch (e) {
+    console.error("invokeBaseApi.mouseUp error: ", e);
+    return false;
+  }
+};
+const mouseDown = async (
+  x: number,
+  y: number,
+  button: "left" | "middle" | "right" = "left"
+) => {
+  x = Math.round(x);
+  y = Math.round(y);
+  const btn = button === "left" ? 0 : button === "middle" ? 1 : 2;
+  try {
+    await await invoke("mouse_move_down", {
+      x,
+      y,
+      button: btn,
+    });
+    return true;
+  } catch (e) {
+    console.error("invokeBaseApi.mouseDown error: ", e);
+    return false;
+  }
+};
 const startClicker = async (
   duration: number,
   sleep: number = 50,
@@ -403,9 +443,10 @@ const drag = async (
 
 const move = async (x: number, y: number, isRelative = false) => {
   try {
-    await invoke(isRelative ? "mouse_move_relative" : "mouse_move_to", {
+    await invoke("move_mouse", {
       x,
       y,
+      relative: isRelative,
     });
     return true;
   } catch (error) {
@@ -433,7 +474,7 @@ const ocr = async (
   imgPath?: string
 ) => {
   try {
-    const ocrRes = await invoke<string>(imgPath ? "ocr" : 'screen_ocr', {
+    const ocrRes = await invoke<string>(imgPath ? "ocr" : "screen_ocr", {
       x,
       y,
       width,
@@ -451,33 +492,26 @@ const ocr = async (
   }
 };
 
-const screenColor = async(
-  x:number = 0,
-  y:number = 0
-)=>{
+const screenColor = async (x: number = 0, y: number = 0) => {
   try {
-    const res = await invoke<string>("screen_color",{
+    const res = await invoke<string>("screen_color", {
       x,
-      y
+      y,
     });
     const json = JSON.parse(res) as {
-      message: string,
-      data: [number, number, number]
-    }
+      message: string;
+      data: [number, number, number];
+    };
     return json;
   } catch (error) {
     console.error("invokeBaseApi.screenColor error: ", error);
     return {
       message: "invokeBaseApi.screenColor error: " + error,
-      data: [-1, -1, -1]
-    }
+      data: [-1, -1, -1],
+    };
   }
-}
-const imgColor = async (
-  path: string,
-  x: number,
-  y: number
-) => {
+};
+const imgColor = async (path: string, x: number, y: number) => {
   try {
     const res = await invoke<string>("img_color", {
       path,
@@ -485,16 +519,16 @@ const imgColor = async (
       y,
     });
     const json = JSON.parse(res) as {
-      message: string,
-      data: [number, number, number]
-    }
+      message: string;
+      data: [number, number, number];
+    };
     return json;
   } catch (error) {
     console.error("invokeBaseApi.img_color error: ", error);
     return {
       message: "invokeBaseApi.img_color error: " + error,
-      data: [-1, -1, -1]
-    }
+      data: [-1, -1, -1],
+    };
   }
 };
 const screenshot = async (
@@ -502,9 +536,9 @@ const screenshot = async (
   x = -1,
   y = -1,
   width = -1,
-  height = -1,
-)=>{
-  if(path === ''){
+  height = -1
+) => {
+  if (path === "") {
     return false;
   }
   try {
@@ -525,8 +559,31 @@ const screenshot = async (
     console.error("invokeBaseApi.screenshot error: ", error);
     return false;
   }
+};
+
+const captureOperation = async (): Promise<string> => {
+  try {
+    const res = await invoke<string[]>("capture_operation");
+    return res.join("\n");
+  } catch (error) {
+    console.error("invokeBaseApi.captureOperation error: ", error);
+    return "";
+  }
+};
+
+const stopCaptureOperation = async () => {
+  try {
+    await invoke("qiut_capture_operation");
+    return true;
+  } catch (error) {
+    console.error("invokeBaseApi.stopCaptureOperation error: ", error);
+    return false;
+  }
 }
+
 export const invokeBaseApi = {
+  captureOperation,
+  stopCaptureOperation,
   getScreenSize,
   getMousePos,
   cropPicture,
@@ -543,6 +600,8 @@ export const invokeBaseApi = {
   pressKey,
   inputText,
   click,
+  mouseDown,
+  mouseUp,
   startClicker,
   stopClicker,
   drag,
@@ -551,5 +610,5 @@ export const invokeBaseApi = {
   ocr,
   screenColor,
   screenshot,
-  imgColor
+  imgColor,
 };
