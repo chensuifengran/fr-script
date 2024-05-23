@@ -8,6 +8,7 @@ import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
 import { hotUpdatePlugin } from "./src/vitePlugins/hotUpdate";
+import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 export default defineConfig({
   plugins: [
     hotUpdatePlugin(),
@@ -22,15 +23,18 @@ export default defineConfig({
     AutoImport({
       resolvers: [
         ElementPlusResolver(),
+
         // 自动导入图标组件
         IconsResolver({
           prefix: "Icon",
         }),
+
+        VueHooksPlusResolver(),
       ],
       imports: [
         "vue",
         "vue-router",
-        "@vueuse/core",
+        "@vueuse/core"
         // 添加其他需要自动导入的模块
       ],
       dts: "./src/auto-imports.d.ts",
