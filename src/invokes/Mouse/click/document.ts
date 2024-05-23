@@ -18,7 +18,7 @@ export const apiDocument = <ApiDocumentType>{
     {
       name: "button",
       required: false,
-      instructions: "点击的鼠标键",
+      instructions: "点击的鼠标键，默认值为左键",
       type: ["left", "right", "middle"],
       default: "left",
     },
