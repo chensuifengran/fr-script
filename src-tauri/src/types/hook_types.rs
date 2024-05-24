@@ -38,7 +38,7 @@ pub struct HookEvent {
 pub struct MergeKeyOptions{
     //合并重复按键
     pub merge_repeat: bool,
-    //需要合并的重复按键最大间隔，超过该值则不进行合并
+    //需要合并的重复按键按下时间最大间隔，超过该值则不进行合并
     pub repeat_max_interval_ms: u128,
     //合并按键按下和释放
     pub merge_press_release: bool,
