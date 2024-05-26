@@ -1,7 +1,7 @@
 <template>
   <el-timeline class="logger-timeline" v-infinite-scroll="load" :infinite-scroll-immediate="false">
-    <el-timeline-item v-for="log in buildInData" :key="log.timestamp" :icon="log.icon" :type="log.type"
-      :color="log.color" :size="log.size" :hollow="log.hollow" :timestamp="log.time">
+    <el-timeline-item v-for="log in buildInData" :key="log.id" :icon="log.icon" :type="log.type" :color="log.color"
+      :size="log.size" :hollow="log.hollow" :timestamp="log.time">
       {{ log.content }}
     </el-timeline-item>
   </el-timeline>
@@ -44,7 +44,8 @@ const buildInData = computed(() => {
         hollow: props.reverseShow ? index === 0 : index === res.length - 1,
         timestamp: item.timestamp,
         time: item.time,
-        content: item.log
+        content: item.log,
+        id: item.id
       }
     } else if (item.type === 'warning') {
       return {
@@ -55,7 +56,8 @@ const buildInData = computed(() => {
         hollow: props.reverseShow ? index === 0 : index === res.length - 1,
         timestamp: item.timestamp,
         time: item.time,
-        content: item.log
+        content: item.log,
+        id: item.id
       }
     } else if (item.type === 'success') {
       return {
@@ -66,7 +68,8 @@ const buildInData = computed(() => {
         hollow: props.reverseShow ? index === 0 : index === res.length - 1,
         timestamp: item.timestamp,
         time: item.time,
-        content: item.log
+        content: item.log,
+        id: item.id
       }
     } else if (item.type === 'loading') {
       if (props.reverseShow) {
@@ -78,7 +81,8 @@ const buildInData = computed(() => {
             hollow: false,
             timestamp: item.timestamp,
             time: item.time,
-            content: item.log
+            content: item.log,
+            id: item.id
           }
         } else {
           return {
@@ -88,7 +92,8 @@ const buildInData = computed(() => {
             hollow: false,
             timestamp: item.timestamp,
             time: item.time,
-            content: item.log
+            content: item.log,
+            id: item.id
           }
         }
       } else {
@@ -100,7 +105,8 @@ const buildInData = computed(() => {
             hollow: false,
             timestamp: item.timestamp,
             time: item.time,
-            content: item.log
+            content: item.log,
+            id: item.id
           }
         } else {
           return {
@@ -110,7 +116,8 @@ const buildInData = computed(() => {
             hollow: false,
             timestamp: item.timestamp,
             time: item.time,
-            content: item.log
+            content: item.log,
+            id: item.id
           }
         }
       }
@@ -122,7 +129,8 @@ const buildInData = computed(() => {
         hollow: props.reverseShow ? index === 0 : index === res.length - 1,
         timestamp: item.timestamp,
         time: item.time,
-        content: item.log
+        content: item.log,
+        id: item.id
       }
     }
   }).slice(0, Math.min(showMaxCount.value, props.data.length));

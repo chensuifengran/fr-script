@@ -1,6 +1,8 @@
 import { storeToRefs } from "pinia";
 import { WebviewWindow } from "@tauri-apps/api/window";
+import { nanoid } from "nanoid";
 export type LogOutputType = {
+  id: string;
   time: string;
   log: string;
   type: "success" | "danger" | "info" | "warning" | "loading";
@@ -893,6 +895,7 @@ const log = (
     })
     .join(":");
   logOutput.push({
+    id: nanoid(),
     time: timeStr,
     log: msg,
     type: type ? type : "info",
