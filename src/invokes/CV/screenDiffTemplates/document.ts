@@ -1,6 +1,6 @@
 export const apiDocument = <ApiDocumentType>{
   howToUse: `
-      将屏幕指定范围进行截图中多模板图片位置差异对比
+      将屏幕指定范围进行截图与多模板图片进行位置差异对比
       `,
   params: [
     {
