@@ -6,7 +6,7 @@ import "./assets/scss/highlight-vs.scss";
 import router from "./router/index";
 import 'animate.css'
 import 'element-plus/theme-chalk/el-message-box.css'//手动引入el-message-box样式，解决el-message-box样式丢失问题
-
+import 'virtual:uno.css'
 
 const pinia = createPinia();
 const app = createApp(App);

@@ -7,28 +7,21 @@ import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
+import UnoCSS from 'unocss/vite'
 import { hotUpdatePlugin } from "./src/vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 export default defineConfig({
   plugins: [
+    UnoCSS(),
     hotUpdatePlugin(),
-    vue({
-      script: {
-        defineModel: true,
-      },
-    }),
-    // legacy({
-    //   targets: ['defaults', 'not IE 11'],
-    // }),
+    vue(),
     AutoImport({
       resolvers: [
         ElementPlusResolver(),
-
         // 自动导入图标组件
         IconsResolver({
           prefix: "Icon",
         }),
-
         VueHooksPlusResolver(),
       ],
       imports: [
