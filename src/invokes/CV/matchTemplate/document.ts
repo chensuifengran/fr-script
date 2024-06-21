@@ -44,9 +44,10 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`const matchUtil = await
-          \tCV.matchTemplate('E:\\\\image.png', 'E:\\\\template.png', 0, 1);
-          `),
+    code: codeHighLight(
+      `const matchUtil = 
+    await CV.matchTemplate('E:\\\\image.png', 'E:\\\\template.png', 0, 1);`
+    ),
   },
   searchKeys: ["模板", "图片", "位置", "中心坐标", "opencv", "cv", "匹配"],
   codeSnippet:

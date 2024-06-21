@@ -44,11 +44,11 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//全屏截图且使用默认保存路径
-        const res = await screenshot();
-        //自定义截图区域且使用默认保存路径
-        const res = await screenshot(x,y,width,height);
-        //自定义截图区域且使用自定义保存路径
-        const res = await screenshot(x,y,width,height,"E:\\\\image.png");
+const res = await screenshot();
+//自定义截图区域且使用默认保存路径
+const res = await screenshot(x,y,width,height);
+//自定义截图区域且使用自定义保存路径
+const res = await screenshot(x,y,width,height,"E:\\\\image.png");
         `),
   },
   searchKeys: ["截图", "屏幕"],

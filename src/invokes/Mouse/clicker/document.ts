@@ -30,12 +30,12 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//鼠标移动到(100,100)
-      await Mouse.move(100,100);
-      //调用点击器，连续点击鼠标右键5s，点击间隔10ms
-      const stop = await Mouse.clicker(5,10, 'right');
-      //3s后停止点击
-      await sleep(3000);
-      await stop();
+await Mouse.move(100,100);
+//调用点击器，连续点击鼠标右键5s，点击间隔10ms
+const stop = await Mouse.clicker(5,10, 'right');
+//3s后停止点击
+await sleep(3000);
+await stop();
       `),
   },
   searchKeys: ["鼠标", "mouse", "左键", "连续", "点击"],

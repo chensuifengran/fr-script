@@ -69,12 +69,12 @@ export const apiDocument = <ApiDocumentType>{
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(
       `//使用自动选择临时截图存放盘符
-      const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1);
-      //更换临时截图存放盘符为E盘（请确保盘符可用，C盘需要以管理员身份运行）
-      const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1, 'E');`
+const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1);
+//更换临时截图存放盘符为E盘（请确保盘符可用，C盘需要以管理员身份运行）
+const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1, 'E');`
     ),
   },
-  searchKeys: ["模板", "图片", "位置", "中心坐标", "opencv", 'cv', '截图'],
+  searchKeys: ["模板", "图片", "位置", "中心坐标", "opencv", "cv", "截图"],
   codeSnippet:
     "const res = await CV.screenMatchTemplate(${1:x}, ${2:y}, ${3:width}, ${4:height}, '${5:tempPath}', ${6:exactValue}, ${7:scale});",
 };

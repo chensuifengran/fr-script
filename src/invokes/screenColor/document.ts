@@ -22,8 +22,8 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//获取屏幕鼠标所在位置像素点的rgb值
-        const colorUtil = await screenColor();
-        const [r,g,b] = colorUtil?.getRgb() || [0,0,0];
+const colorUtil = await screenColor();
+const [r,g,b] = colorUtil?.getRgb() || [0,0,0];
         `),
   },
   searchKeys: ["颜色", "color", "坐标", "鼠标"],

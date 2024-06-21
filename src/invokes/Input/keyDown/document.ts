@@ -1,5 +1,6 @@
 export const apiDocument = <ApiDocumentType>{
-  howToUse: "主动按下指定按键，按下后不会自动抬起，需要手动调用keyDown方法抬起按键",
+  howToUse:
+    "主动按下指定按键，按下后不会自动抬起，需要手动调用keyDown方法抬起按键",
   params: [
     {
       name: "key",
@@ -10,15 +11,17 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<{
-      code: number;
-      message: string;
-    }>`),
+    type: codeHighLight(
+      `Promise<{
+  code: number;
+  message: string;
+}>`
+    ),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//主动抬起A键
-      await Input.keyDown("A");
+await Input.keyDown("A");
       `),
   },
   searchKeys: ["按下", "输入", "key", "按键"],

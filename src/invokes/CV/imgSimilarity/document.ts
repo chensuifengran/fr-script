@@ -51,8 +51,8 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//识别E:\\\\image.png从起点(0,0)截取宽100高100的区域与E:\\\\template.png进行相似度匹配
-      const similarityValue = 
-      \tawait CV.imgSimilarity('E:\\\\image.png', 'E:\\\\template.png', 0,0,100,100);`),
+const similarityValue = 
+  await CV.imgSimilarity('E:\\\\image.png', 'E:\\\\template.png', 0,0,100,100);`),
   },
   searchKeys: ["图片", "相似度", "匹配", "模板","opencv","cv"],
   codeSnippet:

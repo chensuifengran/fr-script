@@ -29,11 +29,11 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: codeHighLight(`//鼠标移动到(100,100)并按下(左键)
-      await Mouse.down(100,100);
-      //鼠标移动到(100,100)并按下(右键)
-      await Mouse.down(100,100,"right");
-      //鼠标移动到(100,100)并按下(中键)
-      await Mouse.down(100,100,"middle");
+await Mouse.down(100,100);
+//鼠标移动到(100,100)并按下(右键)
+await Mouse.down(100,100,"right");
+//鼠标移动到(100,100)并按下(中键)
+await Mouse.down(100,100,"middle");
       `),
   },
   searchKeys: ["鼠标", "mouse", "左键", "中键", "右键", "按下", "移动"],
