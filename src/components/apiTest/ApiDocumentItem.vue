@@ -149,13 +149,13 @@ const copyExampleCode = () => {
 
 <template>
   <div class="api-doc-item" @click="changeShowDetails">
-    <div class="api-header">
+    <div class="api-header drag-handle">
       <div class="info">
         <el-icon class="icon" v-if="!showDetails">
-          <IEpArrowRight />
+          <span i-solar-alt-arrow-right-line-duotone></span>
         </el-icon>
         <el-icon class="icon" v-else>
-          <IEpArrowDown />
+          <span i-solar-alt-arrow-down-line-duotone></span>
         </el-icon>
         <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
       </div>
@@ -166,11 +166,11 @@ const copyExampleCode = () => {
           dialog?.content,
           'test'
         )">
-          <invoke-icon />
+          <el-icon size="large"><span i-mdi-bug-play></span></el-icon>
         </el-button>
       </el-tooltip>
       <el-tooltip v-else effect="dark" content="查看文档" placement="left">
-        <el-button size="small" :disabled="!model!.canBeCalled"><invoke-icon /></el-button>
+        <el-button size="small" :disabled="!model!.canBeCalled"><el-icon size="large"><span i-mdi-file-eye-outline></span></el-icon></el-button>
       </el-tooltip>
     </div>
     <div class="api-details" v-if="showDetails">
@@ -201,7 +201,7 @@ const copyExampleCode = () => {
                 <span v-else>enum<el-tooltip effect="dark" :content="scope.row.type?.join(',') || ''"
                     placement="top-start">
                     <el-icon>
-                      <IEpInfoFilled />
+                      <span i-mdi-information-variant></span>
                     </el-icon> </el-tooltip></span>
               </template>
             </el-table-column>
@@ -219,14 +219,14 @@ const copyExampleCode = () => {
           <span class="example-title"><el-tooltip effect="dark" content="恢复默认示例代码" placement="top-start"
               v-if="model.document.example.code.join('') !== firstExampleCode.join('')">
               <el-icon class="refreshCode" @click.stop="resetExampleCode">
-                <IEpRefresh />
+                <span i-mdi-file-sync-outline></span>
               </el-icon> </el-tooltip>示例：</span>
           <span>{{ model.document.example.title }}</span>
           <div class="code">
             <div v-for="c in model.document.example.code" :key="c" v-html="c"></div>
             <div v-html="model.document.example.code.join('\n')" ref="exampleRef" style="display: none"></div>
             <el-button class="copy-code" @click="copyExampleCode" size="small"><el-icon>
-                <IEpCopyDocument />
+                <span i-mdi-content-copy></span>
               </el-icon>复制</el-button>
           </div>
         </div>
