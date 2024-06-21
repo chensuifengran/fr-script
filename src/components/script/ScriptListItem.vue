@@ -2,18 +2,18 @@
   <div class="script-item" @click="showDetails = !showDetails">
     <div class="content">
       <div class="info">
-        <el-icon class="icon" v-if="!showDetails">
-          <IEpArrowRight />
+        <el-icon class="icon" v-if="!showDetails" size="large">
+          <div i-solar-alt-arrow-right-line-duotone></div>
         </el-icon>
-        <el-icon class="icon" v-else>
-          <IEpArrowDown />
+        <el-icon class="icon" v-else size="large">
+          <div i-solar-alt-arrow-down-line-duotone></div>
         </el-icon>
         <span>{{ script.name }}</span><el-tag size="small" type="info">{{ script.version }}</el-tag>
       </div>
       <div class="menu">
-        <el-tooltip class="box-item" effect="dark" content="删除脚本" placement="bottom">
+        <el-tooltip class="box-item" effect="dark" content="从列表移除" placement="bottom">
           <el-icon class="icon" @click.stop="deleteScript">
-            <IEpDeleteFilled />
+            <span i-mdi-playlist-remove></span>
           </el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="编辑脚本" placement="bottom">
@@ -21,16 +21,16 @@
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="打开脚本" placement="bottom">
           <el-icon class="icon" @click.stop="openFIleDialog">
-            <IEpFolder />
+            <span i-mdi-folder-eye-outline></span>
           </el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="脚本设置" placement="bottom">
           <el-icon class="icon" @click.stop="goSetScript">
-            <IEpSetting />
+            <span i-solar-settings-linear></span>
           </el-icon>
         </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="运行脚本" placement="bottom">
-          <run-icon class="icon" @click.stop="runScript" />
+          <el-icon class="icon" @click.stop="runScript"><span i-mdi-play-circle-outline></span></el-icon>
         </el-tooltip>
       </div>
     </div>

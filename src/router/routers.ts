@@ -2,9 +2,9 @@ import {
   Setting,
   InfoFilled,
 } from "@element-plus/icons-vue";
-import ScriptIcon from "../components/svgIcon/ScriptIcon.vue";
-import InvokeIcon from "../components/svgIcon/InvokeIcon.vue";
-import ProjectIcon from "../components/svgIcon/ProjectIcon.vue";
+import ScriptIcon from "../components/Icons/ScriptIcon.vue";
+import InvokeIcon from "../components/Icons/InvokeIcon.vue";
+import ProjectIcon from "../components/Icons/ProjectIcon.vue";
 const routes = [
   {
     path: "/",

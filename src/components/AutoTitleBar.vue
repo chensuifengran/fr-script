@@ -24,7 +24,7 @@
             <el-input class="search-ipt" v-model="info.apiTest.searchValue" clearable placeholder="可输入API的关键字对API进行筛选">
             </el-input>
             <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle><el-icon>
-                <IEpNotification />
+                <span i-mdi-square-rounded-badge-outline></span>
               </el-icon></el-button>
           </div>
         </transition>
@@ -34,7 +34,7 @@
           v-if="appGSStore.app.dependenceState === '不可用'">
           <div class="titlebar-button warning-btn" @click="goInstallDeps()">
             <el-icon>
-              <IEpWarning />
+              <span i-mdi-warning-filled></span>
             </el-icon>
           </div>
         </el-tooltip>
@@ -42,30 +42,32 @@
           v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar">
           <div class="titlebar-button setup-btn" @click="openDownloadDialog">
             <el-icon>
-              <IEpDownload />
+              <span i-mdi-cloud-download-outline></span>
             </el-icon>
           </div>
         </el-tooltip>
 
         <div class="titlebar-button" @click="!isEditing && toggleMostTop()">
-          <AffixIcon :style="{
-            color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
-          }" />
+          <el-icon>
+            <span i-solar-pin-bold-duotone :style="{
+              color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
+            }"></span>
+          </el-icon>
         </div>
         <div class="titlebar-button" @click="!isEditing && minHandle()">
           <el-icon>
-            <IEpMinus />
+            <span i-mdi-minus></span>
           </el-icon>
         </div>
         <div class="titlebar-button" @click="!isEditing && maxHandle()">
           <el-icon>
-            <IEpFullScreen v-show="!isFullScreen" />
-            <IEpCopyDocument v-show="isFullScreen" />
+            <span v-if="!isFullScreen" i-mdi-fullscreen></span>
+            <span v-else i-mdi-fullscreen-exit></span>
           </el-icon>
         </div>
         <div class="titlebar-button danger" @click="!isEditing && (showQuitDialog = true)">
           <el-icon>
-            <IEpClose />
+            <span i-mdi-window-close></span>
           </el-icon>
         </div>
       </div>
@@ -74,24 +76,24 @@
       <EditorHeader>
         <div class="btn-content">
           <div class="titlebar-button" @click="isEditing && toggleMostTop()">
-            <AffixIcon :style="{
+            <span i-solar-pin-bold-duotone :style="{
               color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
             }" />
           </div>
           <div class="titlebar-button" @click="isEditing && minHandle()">
             <el-icon>
-              <IEpMinus />
+              <span i-mdi-minus></span>
             </el-icon>
           </div>
           <div class="titlebar-button" @click="isEditing && maxHandle()">
             <el-icon>
-              <IEpFullScreen v-show="!isFullScreen" />
-              <IEpCopyDocument v-show="isFullScreen" />
+              <span v-if="!isFullScreen" i-mdi-fullscreen></span>
+              <span v-else i-mdi-fullscreen-exit></span>
             </el-icon>
           </div>
           <div class="titlebar-button danger" @click="isEditing && (showQuitDialog = true)">
             <el-icon>
-              <IEpClose />
+              <span i-mdi-window-close></span>
             </el-icon>
           </div>
         </div>

@@ -9,7 +9,7 @@
           </el-tooltip>
           <el-tooltip effect="dark" content="脚本设置" placement="bottom">
             <el-icon class="icon" @click.stop="goSetScript">
-              <IEpSetting />
+              <span i-solar-settings-linear></span>
             </el-icon>
           </el-tooltip>
           <el-checkbox class="mgl-10" v-model="hideWindow" label="运行时隐藏窗口" />

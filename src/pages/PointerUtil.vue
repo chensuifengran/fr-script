@@ -6,12 +6,12 @@
       <div class="btns">
         <el-tooltip effect="dark" content="清空记录" placement="bottom">
           <el-button class="btn" size="small" @click="clean" circle><el-icon>
-              <IEpFailed />
+              <span i-mdi-invoice-text-remove-outline></span>
             </el-icon></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="关闭" placement="bottom">
           <el-button class="btn" size="small" @click="closePointerUtil" circle><el-icon>
-              <IEpClose />
+              <span i-mdi-close></span>
             </el-icon></el-button>
         </el-tooltip>
       </div>
@@ -19,7 +19,7 @@
     <div class="content">
       <div class="mini-tip">
         <el-text size="small" type="primary">复制成功</el-text><el-icon size="small">
-          <IEpSelect />
+          <span i-mdi-clipboard-check-outline></span>
         </el-icon>
       </div>
       <div class="info">
@@ -33,7 +33,7 @@
             backgroundColor: `rgb(${record.rgbColor.join(',')})`,
           }"></div>
           <el-button size="small" class="copy-btn" @click="copyRgb(record.rgbColor)" link><el-icon>
-              <IEpCopyDocument />
+              <span i-mdi-content-copy></span>
             </el-icon></el-button>
         </div>
         <div class="empty" v-if="!records.length">

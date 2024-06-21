@@ -9,10 +9,10 @@
         placeholder="可输入API的关键字对API进行筛选">
       </el-input>
       <el-button class="circle-btn" type="info" circle @click="openOutput"><el-icon>
-          <IEpNotification />
+          <span i-solar-notification-unread-linear></span>
         </el-icon></el-button>
       <el-button class="circle-btn" type="info" circle @click="showApiTestButton"><el-icon>
-          <IEpSemiSelect />
+        <span i-mdi-minus></span>
         </el-icon></el-button>
     </div>
   </div>

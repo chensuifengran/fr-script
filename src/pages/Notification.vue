@@ -7,19 +7,19 @@
         style="cursor: move" />
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'success'" data-tauri-drag-region
         style="cursor: move">
-        <IEpSuccessFilled data-tauri-drag-region />
+        <span i-mdi-check data-tauri-drag-region></span>
       </el-icon>
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'warning'" data-tauri-drag-region
         style="cursor: move">
-        <IEpWarningFilled data-tauri-drag-region />
+        <span i-mdi-alert-outline data-tauri-drag-region></span>
       </el-icon>
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'info'" data-tauri-drag-region
         style="cursor: move">
-        <IEpInfoFilled data-tauri-drag-region />
+        <span i-mdi-information-outline data-tauri-drag-region></span>
       </el-icon>
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'danger'" data-tauri-drag-region
         style="cursor: move">
-        <IEpWarnTriangleFilled data-tauri-drag-region />
+        <span i-mdi-close-circle></span>
       </el-icon>
       <el-tag class="icon" size="small" type="primary" v-if="scriptInfo.currentMessage.type === 'loading'"
         data-tauri-drag-region style="cursor: move">{{ useTime }}</el-tag>
@@ -29,7 +29,7 @@
     </div>
     <div class="btns">
       <el-button class="btn" size="small" @click="home" circle><el-icon>
-          <IEpHouse />
+          <span i-mdi-home-export-outline></span>
         </el-icon></el-button>
     </div>
   </div>

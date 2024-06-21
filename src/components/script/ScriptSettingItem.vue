@@ -5,7 +5,7 @@
         <span>{{ props.label }}</span>
         <el-tooltip v-if="props.alert" :content="props.alert" placement="right">
           <el-icon>
-            <IEpQuestionFilled />
+            <span i-mdi-help-circle-outline></span>
           </el-icon>
         </el-tooltip>
       </div>

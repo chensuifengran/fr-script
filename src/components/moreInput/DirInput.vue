@@ -34,7 +34,9 @@
       </template>
     </el-autocomplete>
     <div v-show="!pathExits" class="tip">
-      <el-icon color="red"><IEpCircleCloseFilled /></el-icon
+      <el-icon color="red">
+        <span i-mdi-close></span>
+        </el-icon
       ><el-tag type="danger"
         >该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag
       >

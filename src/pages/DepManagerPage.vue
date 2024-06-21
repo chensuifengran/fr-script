@@ -3,7 +3,7 @@
     <div class="title-bar" data-tauri-drag-region style="cursor: move">
       <div class="title" data-tauri-drag-region style="cursor: move">依赖管理</div>
       <el-button class="close" @click="_close" link size="large"><el-icon>
-          <IEpClose />
+          <span i-mdi-close></span>
         </el-icon></el-button>
     </div>
     <AsyncDepManager class="dep-manager-content" />

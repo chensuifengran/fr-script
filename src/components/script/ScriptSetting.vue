@@ -25,7 +25,7 @@
             content="运行脚本"
             placement="bottom"
           >
-            <run-icon class="icon" @click.stop="runScript" />
+            <el-icon class="icon" @click.stop="runScript"><span i-mdi-play-circle-outline></span></el-icon>
           </el-tooltip>
         </div>
       </template>
@@ -59,7 +59,7 @@
         >
           <template #append>
             <el-button size="small" circle class="question-button">
-              <el-icon :size="20" @click="drawer = true"><IEpQuestionFilled /></el-icon>
+              <el-icon :size="20" @click="drawer = true"><span i-mdi-help-circle-outline></span></el-icon>
             </el-button>
           </template>
         </el-input>
