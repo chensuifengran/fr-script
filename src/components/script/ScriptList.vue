@@ -40,7 +40,7 @@
 
     <div class="list">
       <el-empty v-if="scriptList.length === 0" description="暂无脚本" />
-      <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort" :animation="200"
+      <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort" :animation="200" handle=".drag-handle"
         @start="onStart" @update="onEnd" @end="onEnd">
         <ScriptListItem v-for="item in showList" :key="item.id" :id="item.id" @editorScriptFile="editorScriptFile"
           :show-hover="showItemHover" @openFile="openFile" @setScript="setScript" @runScript="runScript"

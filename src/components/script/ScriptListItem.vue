@@ -1,6 +1,6 @@
 <template>
   <div class="script-item" @click="showDetails = !showDetails">
-    <div class="content">
+    <div class="content drag-handle">
       <div class="info">
         <el-icon class="icon" v-if="!showDetails" size="large">
           <div i-solar-alt-arrow-right-line-duotone></div>
