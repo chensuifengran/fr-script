@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import DotLoader from "../components/loaderIcon/DotLoader.vue";
+import DotLoader from "../components/Icons/DotLoader.vue";
 
 const appVersionInfo = ref<{
   version: string;
