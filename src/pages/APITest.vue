@@ -10,11 +10,11 @@
           <el-input class="search-ipt" v-model="info.apiTest.searchValue" clearable placeholder="可输入API的关键字对API进行筛选">
           </el-input>
           <el-button class="output-btn" @click="info.apiTest.openOutput = true"><el-icon>
-              <IEpNotification />
+              <span i-solar-notification-unread-linear></span>
             </el-icon></el-button>
         </div>
       </transition>
-      <VueDraggable ref="el" v-model="allDocumentItems" :animation="200" ghostClass="ghost" class="draggable-content"
+      <VueDraggable ref="el" v-model="allDocumentItems" :animation="200" ghostClass="ghost" class="draggable-content" handle=".drag-handle"
         :disabled="disableSort" @update="onUpdate" @start="onStart">
         <ApiDocumentItem v-for="m in allDocumentItems" :key="m?.dialog?.targetMethodName || m?.dialog?.title"
           :model="m!" :type="m?.itemType" :show-hover="showItemHover"/>
@@ -39,7 +39,7 @@
           style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc" active-text="自动显示" inactive-text="手动显示" />
         <el-button class="options" size="small" @click="clearOutput">
           <el-icon>
-            <IEpDeleteFilled />
+            <span i-mdi-playlist-remove></span>
           </el-icon>清空输出
         </el-button>
       </template>
