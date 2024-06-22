@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { MoreFilled, SuccessFilled, WarnTriangleFilled, WarningFilled } from '@element-plus/icons-vue';
 import { LogOutputType } from '../../hooks/useScriptApi';
-import DotLoader from '../loaderIcon/DotLoader.vue';
+import DotLoader from '../Icons/DotLoader.vue';
 const props = defineProps({
   data: {
     type: Array as PropType<LogOutputType[]>,
