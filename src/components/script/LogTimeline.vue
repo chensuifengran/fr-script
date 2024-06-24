@@ -7,9 +7,13 @@
   </el-timeline>
 </template>
 <script lang="ts" setup>
-import { MoreFilled, SuccessFilled, WarnTriangleFilled, WarningFilled } from '@element-plus/icons-vue';
 import { LogOutputType } from '../../hooks/useScriptApi';
 import DotLoader from '../Icons/DotLoader.vue';
+import MenuDots from '../Icons/MenuDots.vue';
+import CheekIcon from '../Icons/CheekIcon.vue';
+import AlertOutline from '../Icons/AlertOutline.vue';
+import AlertCircle from '../Icons/AlertCircle.vue';
+import InfoIcon from '../Icons/InfoIcon.vue';
 const props = defineProps({
   data: {
     type: Array as PropType<LogOutputType[]>,
@@ -37,7 +41,7 @@ const buildInData = computed(() => {
   return res.map((item, index) => {
     if (item.type === 'danger') {
       return {
-        icon: WarnTriangleFilled,
+        icon: AlertCircle,
         type: 'danger' as 'danger',
         color: '#f56c6c',
         size: 'large' as 'large',
@@ -49,7 +53,7 @@ const buildInData = computed(() => {
       }
     } else if (item.type === 'warning') {
       return {
-        icon: WarningFilled,
+        icon: AlertOutline,
         type: 'warning' as 'warning',
         color: '#e6a23c',
         size: 'large' as 'large',
@@ -61,7 +65,7 @@ const buildInData = computed(() => {
       }
     } else if (item.type === 'success') {
       return {
-        icon: SuccessFilled,
+        icon: CheekIcon,
         type: 'success' as 'success',
         color: '#67c23a',
         size: 'large' as 'large',
@@ -86,7 +90,7 @@ const buildInData = computed(() => {
           }
         } else {
           return {
-            icon: MoreFilled,
+            icon: MenuDots,
             type: 'info' as 'info',
             size: 'large' as 'large',
             hollow: false,
@@ -110,7 +114,7 @@ const buildInData = computed(() => {
           }
         } else {
           return {
-            icon: MoreFilled,
+            icon: MenuDots,
             type: 'info' as 'info',
             size: 'large' as 'large',
             hollow: false,
@@ -123,6 +127,7 @@ const buildInData = computed(() => {
       }
     } else {
       return {
+        icon: InfoIcon,
         type: 'info' as 'info',
         color: '#909399',
         size: 'large' as 'large',
@@ -142,5 +147,8 @@ const buildInData = computed(() => {
   width: 100%;
   height: 100%;
   position: relative;
+}
+::v-deep(.el-timeline-item .el-timeline-item__icon){
+  font-size: inherit;
 }
 </style>
