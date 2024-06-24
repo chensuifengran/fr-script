@@ -7,19 +7,18 @@
         style="cursor: move" />
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'success'" data-tauri-drag-region
         style="cursor: move">
-        <span i-mdi-check data-tauri-drag-region></span>
+        <CheekIcon data-tauri-drag-region/>
       </el-icon>
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'warning'" data-tauri-drag-region
         style="cursor: move">
-        <span i-mdi-alert-outline data-tauri-drag-region></span>
-      </el-icon>
-      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'info'" data-tauri-drag-region
-        style="cursor: move">
-        <span i-mdi-information-outline data-tauri-drag-region></span>
+        <AlertOutline data-tauri-drag-region/>
       </el-icon>
       <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'danger'" data-tauri-drag-region
         style="cursor: move">
-        <span i-mdi-close-circle></span>
+        <AlertCircle data-tauri-drag-region/>
+      </el-icon>
+      <el-icon class="icon" size="small" v-else data-tauri-drag-region style="cursor: move">
+        <InfoIcon data-tauri-drag-region/>
       </el-icon>
       <el-tag class="icon" size="small" type="primary" v-if="scriptInfo.currentMessage.type === 'loading'"
         data-tauri-drag-region style="cursor: move">{{ useTime }}</el-tag>
@@ -355,7 +354,7 @@ onBeforeUnmount(() => {
   }
 
   .message {
-    margin-left: 5px;
+    margin-left: 3px;
     font-size: 12px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -387,8 +386,8 @@ onBeforeUnmount(() => {
 }
 
 .icon {
-  margin-right: 10px;
-  margin-left: 10px;
+  margin-right: 3px;
+  margin-left: 3px;
   font-size: 12px;
 }
 </style>
