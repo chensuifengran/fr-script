@@ -8,6 +8,7 @@ const { registerAllInvokeApi } = useCore();
 const { isMainWindow, menuKey } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
+const shortcutsStore = useGlobalShortcutsStore();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
 const { borderRadius, appOpacity, borderColor, appTransform, appAsideBgColor, appBackground } = useAppTheme();
@@ -62,6 +63,7 @@ const aside_width = computed(() => {
   }
 });
 onMounted(async () => {
+  shortcutsStore.init();
   const init = async (listenResize = true) => {
     listenResize &&
       window.addEventListener("resize", () => {
