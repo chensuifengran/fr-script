@@ -172,32 +172,30 @@ pub unsafe extern "system" fn keyboard_hook_proc(
                     });
                 }
             },
-            WM_KEYUP => {
-                match key_name {
-                    Some(name) => {
-                        event_list.push(HookEvent {
-                            event_type: HookEventType::KeyUp,
-                            pos: None,
-                            wheel_direction: None,
-                            button: Some(String::from(name)),
-                            time: timestamp_ms,
-                            duration: None,
-                            target_pos: None,
-                        });
-                    }
-                    None => {
-                        event_list.push(HookEvent {
-                            event_type: HookEventType::KeyUp,
-                            pos: None,
-                            wheel_direction: None,
-                            button: None,
-                            time: timestamp_ms,
-                            duration: None,
-                            target_pos: None,
-                        });
-                    }
+            WM_KEYUP => match key_name {
+                Some(name) => {
+                    event_list.push(HookEvent {
+                        event_type: HookEventType::KeyUp,
+                        pos: None,
+                        wheel_direction: None,
+                        button: Some(String::from(name)),
+                        time: timestamp_ms,
+                        duration: None,
+                        target_pos: None,
+                    });
                 }
-            }
+                None => {
+                    event_list.push(HookEvent {
+                        event_type: HookEventType::KeyUp,
+                        pos: None,
+                        wheel_direction: None,
+                        button: None,
+                        time: timestamp_ms,
+                        duration: None,
+                        target_pos: None,
+                    });
+                }
+            },
             _ => (),
         }
     }
@@ -327,6 +325,7 @@ pub struct CaptureHook {
     keyboard_id: Option<*mut windef::HHOOK__>,
     mouse_id: Option<*mut windef::HHOOK__>,
     gen_options: Option<CaptureOptions>,
+    generate_comment: bool,
 }
 impl CaptureHook {
     pub fn quit() {
@@ -336,12 +335,16 @@ impl CaptureHook {
                 .store(true, std::sync::atomic::Ordering::SeqCst)
         }
     }
-    pub fn new(gen_options: Option<CaptureOptions>) -> Self {
+    pub fn new(gen_options: Option<CaptureOptions>, generate_comment: Option<bool>) -> Self {
         init_key_map();
         let s = Self {
             keyboard_id: None,
             mouse_id: None,
             gen_options,
+            generate_comment: match generate_comment {
+                Some(v) => v,
+                None => false,
+            },
         };
         s
     }
@@ -508,6 +511,9 @@ impl CaptureHook {
             } else {
                 let sleep_ms = event.time - last_time;
                 if sleep_ms > 0 {
+                    if self.generate_comment {
+                        res.push(format!("//休眠{}ms", sleep_ms));
+                    }
                     res.push(format!("await sleep({});", sleep_ms));
                 }
                 last_time = event.time;
@@ -540,18 +546,54 @@ impl CaptureHook {
                         Some(duration) => duration,
                         None => 0,
                     };
+                    if self.generate_comment {
+                        res.push(format!(
+                            "//{}ms之内，从({},{})拖动到({},{})",
+                            duration, pos.0, pos.1, target_pos.0, target_pos.1
+                        ))
+                    }
                     res.push(format!(
                         "await Mouse.drag({}, {}, {}, {}, {});",
                         pos.0, pos.1, target_pos.0, target_pos.1, duration
                     ))
                 }
                 HookEventType::MouseDown => {
+                    if self.generate_comment {
+                        let btn_name = if button.clone() == "right" {
+                            "右"
+                        } else if button.clone() == "middle" {
+                            "中"
+                        } else {
+                            "左"
+                        };
+                        res.push(format!("//鼠标移动到({},{})后按下{}键", x, y, btn_name));
+                    }
                     res.push(format!("await Mouse.down({}, {}{});", x, y, button));
                 }
                 HookEventType::MouseUp => {
+                    let btn_name = if button.clone() == "right" {
+                        "右"
+                    } else if button.clone() == "middle" {
+                        "中"
+                    } else {
+                        "左"
+                    };
+                    if self.generate_comment {
+                        res.push(format!("//鼠标移动到({},{})后释放{}键", x, y, btn_name));
+                    }
                     res.push(format!("await Mouse.up({}, {}{});", x, y, button))
                 }
                 HookEventType::MouseClick => {
+                    let btn_name = if button.clone() == "right" {
+                        "右"
+                    } else if button.clone() == "middle" {
+                        "中"
+                    } else {
+                        "左"
+                    };
+                    if self.generate_comment {
+                        res.push(format!("//鼠标移动到({},{})后轻击{}键", x, y, btn_name));
+                    }
                     res.push(format!("await Mouse.click({}, {}{});", x, y, button))
                 }
                 HookEventType::MouseWhell => {
@@ -564,6 +606,14 @@ impl CaptureHook {
                             panic!("Invalid wheel direction");
                         }
                     };
+                    if self.generate_comment {
+                        let ud = if delta < 0 { "上" } else { "下" };
+                        let revers_ud = if delta < 0 { "下" } else { "上" };
+                        res.push(format!(
+                            "//鼠标滚轮往{}滚动{}长度单位(内容往{}滚动)",
+                            ud, delta, revers_ud
+                        ));
+                    }
                     res.push(format!("await Mouse.wheel({});", delta));
                 }
                 HookEventType::KeyDown => {
@@ -573,6 +623,9 @@ impl CaptureHook {
                             panic!("Invalid button");
                         }
                     };
+                    if self.generate_comment {
+                        res.push(format!("//按下键盘按键: {}", button));
+                    }
                     res.push(format!("await Input.keyDown(\"{}\");", button));
                 }
                 HookEventType::KeyUp => {
@@ -582,6 +635,9 @@ impl CaptureHook {
                             panic!("Invalid button");
                         }
                     };
+                    if self.generate_comment {
+                        res.push(format!("//释放键盘按键: {}", button));
+                    }
                     res.push(format!("await Input.keyUp(\"{}\");", button))
                 }
                 HookEventType::KeyPress => {
@@ -591,6 +647,9 @@ impl CaptureHook {
                             panic!("Invalid button");
                         }
                     };
+                    if self.generate_comment {
+                        res.push(format!("//按下并释放键盘按键: {}", button));
+                    }
                     res.push(format!("await Input.press(\"{}\");", button))
                 }
             }

@@ -561,9 +561,12 @@ const screenshot = async (
   }
 };
 
-const captureOperation = async (): Promise<string> => {
+const captureOperation = async (captureOptions?: CaptureOptions, generateComment:boolean = false): Promise<string> => {
   try {
-    const res = await invoke<string[]>("capture_operation");
+    const res = await invoke<string[]>("capture_operation", {
+      captureOptions,
+      generateComment
+    });
     return res.join("\n");
   } catch (error) {
     console.error("invokeBaseApi.captureOperation error: ", error);
@@ -578,6 +581,25 @@ const stopCaptureOperation = async () => {
   } catch (error) {
     console.error("invokeBaseApi.stopCaptureOperation error: ", error);
     return false;
+  }
+}
+
+const getSparkInfo = async ()=>{
+  try{
+    const res = await invoke<string>('get_spark_info');
+    const info = res.split('-') as [string, string, string];
+    return {
+      APP_ID: info[0],
+      API_SECRET: info[1],
+      API_KEY: info[2]
+    }
+  }catch(e){
+    console.error('invokeBaseApi.getSparkInfo error: ', e);
+    return {
+      APP_ID: '',
+      API_SECRET: '',
+      API_KEY: ''
+    }
   }
 }
 
@@ -611,4 +633,5 @@ export const invokeBaseApi = {
   screenColor,
   screenshot,
   imgColor,
+  getSparkInfo
 };

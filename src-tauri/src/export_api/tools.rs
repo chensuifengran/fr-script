@@ -76,8 +76,11 @@ pub async fn get_dependence_version() -> Result<String, ()> {
 }
 
 #[tauri::command]
-pub async fn capture_operation(capture_options: Option<CaptureOptions>) -> Result<Vec<String>, ()> {
-    let mut capture_hook: CaptureHook = CaptureHook::new(capture_options);
+pub async fn capture_operation(
+    capture_options: Option<CaptureOptions>,
+    generate_comment: Option<bool>,
+) -> Result<Vec<String>, ()> {
+    let mut capture_hook: CaptureHook = CaptureHook::new(capture_options, generate_comment);
     Ok(capture_hook.capture())
 }
 
@@ -92,7 +95,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_capture_operation() {
-        let res = capture_operation(Some(CaptureOptions::default())).await;
+        let res = capture_operation(Some(CaptureOptions::default()), Some(true)).await;
         if let Ok(v) = res {
             println!("{}", v.join("\n"));
         } else {
