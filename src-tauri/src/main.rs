@@ -63,6 +63,7 @@ fn main() {
             file::read_dir,
             init::init,
             request::request_get,
+            request::get_spark_info,
             sys::open_in_default_browser,
             sys::error_report,
             cmd::run_cmd
