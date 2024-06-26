@@ -16,6 +16,7 @@ declare module 'vue' {
     CheekIcon: typeof import('./components/Icons/CheekIcon.vue')['default']
     CodeEditor: typeof import('./components/script/CodeEditor.vue')['default']
     CodeIcon: typeof import('./components/Icons/CodeIcon.vue')['default']
+    CodeSnippetIcon: typeof import('./components/Icons/CodeSnippetIcon.vue')['default']
     CodeView: typeof import('./components/script/CodeView.vue')['default']
     copy: typeof import('./components/Icons/AlertCircle copy.vue')['default']
     DepManager: typeof import('./components/dependence/DepManager.vue')['default']
@@ -94,6 +95,7 @@ declare module 'vue' {
     ScriptRunConsole: typeof import('./components/script/ScriptRunConsole.vue')['default']
     ScriptSetting: typeof import('./components/script/ScriptSetting.vue')['default']
     ScriptSettingItem: typeof import('./components/script/ScriptSettingItem.vue')['default']
+    SettingsIcon: typeof import('./components/Icons/SettingsIcon.vue')['default']
     SliderInput: typeof import('./components/moreInput/SliderInput.vue')['default']
     Test: typeof import('./components/Test.vue')['default']
   }
