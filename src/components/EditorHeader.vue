@@ -113,12 +113,11 @@ const openFile = async () => {
   const path = fileInfo.savePath;
   try {
     await ElMessageBox.confirm(
-      "文件夹：打开脚本所在目录文件夹\nvscode：尝试使用vscode打开脚本文件",
+      `打开脚本所在目录 或者 尝试使用vscode打开脚本文件`,
       "请选择打开方式",
       {
         confirmButtonText: "vscode",
         cancelButtonText: "文件夹",
-        type: "info",
         distinguishCancelAndClose: true,
       }
     );
