@@ -9,16 +9,16 @@ const props = defineProps({
     type: String as PropType<"invokeApi" | "util">,
     default: "invokeApi",
   },
-  showHover:{
+  showHover: {
     type: Boolean,
     default: true
   }
 });
 
-const hoverBeforeWidth = computed(()=>{
+const hoverBeforeWidth = computed(() => {
   return props.showHover ? "4px" : "0px"
 })
-const showAnimation = computed(()=>{
+const showAnimation = computed(() => {
   return props.showHover ? "all 0.5s" : "none"
 })
 const listStore = useListStore();
@@ -123,28 +123,6 @@ watchEffect(async () => {
   props.model?.document?.example?.code.join("");
   await autoDetailHeight();
 });
-
-const exampleRef = ref<HTMLDivElement>();
-const copyExampleCode = () => {
-  if (exampleRef.value) {
-    //删除exampleRef.value.innerText "与(和"与)之间的空格
-    const replaceStr = exampleRef.value.innerText.replace(/\s+(?=[^()]*\))/g, "");
-    if (execCopy(replaceStr)) {
-      ElNotification({
-        title: "复制成功",
-        type: "success",
-        position: "bottom-right",
-      });
-    } else {
-      ElNotification({
-        title: "复制失败",
-        type: "error",
-        position: "bottom-right",
-      });
-    }
-  }
-};
-
 </script>
 
 <template>
@@ -170,7 +148,8 @@ const copyExampleCode = () => {
         </el-button>
       </el-tooltip>
       <el-tooltip v-else effect="dark" content="查看文档" placement="left">
-        <el-button size="small" :disabled="!model!.canBeCalled"><el-icon size="large"><span i-mdi-file-eye-outline></span></el-icon></el-button>
+        <el-button size="small" :disabled="!model!.canBeCalled"><el-icon size="large"><span
+              i-mdi-file-eye-outline></span></el-icon></el-button>
       </el-tooltip>
     </div>
     <div class="api-details" v-if="showDetails">
@@ -211,9 +190,8 @@ const copyExampleCode = () => {
         <div class="api-details-item" v-if="model.document.returnValue">
           <span>返回值：</span>
           <span>{{ model.document.returnValue?.instructions }}</span>
-          <div class="code" v-if="model.document.returnValue.type" @click.stop="">
-            <div v-for="t in model.document.returnValue.type" :key="t" v-html="t"></div>
-          </div>
+          <code-view v-if="model.document.returnValue.type" :highlight-code="model.document.returnValue.type"
+            :show-copy="false" @click.stop="" />
         </div>
         <div class="api-details-item" v-if="model.document.example" @click.stop="">
           <span class="example-title"><el-tooltip effect="dark" content="恢复默认示例代码" placement="top-start"
@@ -222,13 +200,7 @@ const copyExampleCode = () => {
                 <span i-mdi-file-sync-outline></span>
               </el-icon> </el-tooltip>示例：</span>
           <span>{{ model.document.example.title }}</span>
-          <div class="code">
-            <div v-for="c in model.document.example.code" :key="c" v-html="c"></div>
-            <div v-html="model.document.example.code.join('\n')" ref="exampleRef" style="display: none"></div>
-            <el-button class="copy-code" @click="copyExampleCode" size="small"><el-icon>
-                <span i-mdi-content-copy></span>
-              </el-icon>复制</el-button>
-          </div>
+          <code-view :highlight-code="model.document.example.code" @click.stop="" />
         </div>
       </div>
       <el-empty description="该API暂无使用文档" v-else />
@@ -250,6 +222,7 @@ const copyExampleCode = () => {
   box-shadow: v-bind(appAsideBgColor) 0 0 3px;
   cursor: pointer;
   transition: v-bind(showAnimation);
+
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
 
@@ -295,7 +268,6 @@ const copyExampleCode = () => {
       }
     }
   }
-
   .api-details {
     width: 100%;
     display: flex;
@@ -304,10 +276,8 @@ const copyExampleCode = () => {
     box-sizing: border-box;
     max-height: v-bind(detailsMaxHeight);
     overflow-y: v-bind(overflow);
-
     .api-details-item {
       margin-bottom: 10px;
-
       .example-title {
         display: flex;
         flex-direction: row;
@@ -322,32 +292,6 @@ const copyExampleCode = () => {
           }
         }
       }
-    }
-  }
-
-  .code {
-    width: 100%;
-    padding: 10px 15px;
-    border-radius: 4px;
-    background: v-bind(appAsideBgColor);
-    box-sizing: border-box;
-    //文字可选的鼠标样式
-    cursor: text;
-    user-select: text;
-    position: relative;
-    // color: #ccc;
-
-    &:hover {
-      .copy-code {
-        display: block;
-      }
-    }
-
-    .copy-code {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 0;
     }
   }
 }
