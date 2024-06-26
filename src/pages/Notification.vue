@@ -17,9 +17,7 @@
         style="cursor: move">
         <AlertCircle data-tauri-drag-region/>
       </el-icon>
-      <el-icon class="icon" size="small" v-else data-tauri-drag-region style="cursor: move">
-        <InfoIcon data-tauri-drag-region/>
-      </el-icon>
+      <InfoIcon data-tauri-drag-region class="icon" size="small" v-else style="cursor: move"/>
       <el-tag class="icon" size="small" type="primary" v-if="scriptInfo.currentMessage.type === 'loading'"
         data-tauri-drag-region style="cursor: move">{{ useTime }}</el-tag>
       <el-text class="message" data-tauri-drag-region style="cursor: move">{{

@@ -1,10 +1,9 @@
-import {
-  Setting,
-  InfoFilled,
-} from "@element-plus/icons-vue";
 import ScriptIcon from "../components/Icons/ScriptIcon.vue";
 import InvokeIcon from "../components/Icons/InvokeIcon.vue";
 import ProjectIcon from "../components/Icons/ProjectIcon.vue";
+import SettingsIcon from "../components/Icons/SettingsIcon.vue";
+import InfoIcon from "../components/Icons/InfoIcon.vue";
+import CodeSnippetIcon from "../components/Icons/CodeSnippetIcon.vue";
 const routes = [
   {
     path: "/",
@@ -67,7 +66,7 @@ const routes = [
     component: () => import(`../pages/SettingPage.vue`),
     meta: {
       title: "设置",
-      icon: Setting,
+      icon: SettingsIcon,
     },
   },
   {
@@ -76,7 +75,7 @@ const routes = [
     component: () => import(`../pages/About.vue`),
     meta: {
       title: "关于",
-      icon: InfoFilled,
+      icon: InfoIcon,
     },
   },
 
@@ -128,9 +127,18 @@ const routes = [
     meta: {
       title: "依赖管理器",
     },
-  }
+  },
+  {
+    path: "/codeSnippetList",
+    name: "codeSnippetList",
+    component: () => import(`../pages/CodeSnippetList.vue`),
+    meta: {
+      title: "片段",
+      icon: CodeSnippetIcon,
+    },
+  },
 ];
-export const topRoutes = [routes[1], routes[2], routes[3]];
+export const topRoutes = [routes[1], routes[2], routes[12], routes[3]];
 export const bottomRoutes = [routes[4], routes[5]];
 export const hideRoutes = [routes[6]];
 
