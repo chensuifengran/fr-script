@@ -1,67 +1,74 @@
 <template>
-  <div class="script-project">
-    <div class="draggable" draggable="true">拖动我</div>
-    <div class="dropzone">放置区域</div>
+  <div class="flex">
+    <VueDraggable
+      v-model="list1"
+      :animation="150"
+      ghostClass="ghost"
+      :group="{ name: 'people', pull: 'clone', put: false }"
+      :clone="clone"
+      :sort="false"
+      class="flex flex-col gap-2 p-4 w-300px bg-gray-500/5 rounded"
+    >
+      <div
+        v-for="item in list1"
+        :key="item.id"
+        class="cursor-move h-50px bg-gray-500/5 rounded p-3"
+      >
+        {{ item.name }}
+      </div>
+    </VueDraggable>
+    <VueDraggable
+      v-model="list2"
+      :animation="150"
+      group="people"
+      ghostClass="ghost"
+      class="flex flex-col gap-2 p-4 w-300px max-h-350px m-auto bg-gray-500/5 rounded overflow-auto"
+    >
+      <div
+        v-for="item in list2"
+        :key="item.id"
+        class="cursor-move h-50px bg-gray-500/5 rounded p-3"
+      >
+        {{ item.name }}
+      </div>
+    </VueDraggable>
   </div>
 </template>
 
 <script setup lang="ts">
-onMounted(async () => {
-  // const draggables = document.querySelectorAll('.draggable');
-  // const dropzones = document.querySelectorAll('.dropzone');
+import { ref } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
 
-  // draggables.forEach(draggable => {
-  //   draggable.addEventListener('dragstart', function (event) {
-  //     event.dataTransfer.setData('text/plain', event.target.innerText);
-  //   });
-  // });
-
-  // dropzones.forEach(dropzone => {
-  //   dropzone.addEventListener('dragover', function (event) {
-  //     event.preventDefault(); // 允许放置
-  //     event.dataTransfer.dropEffect = 'move'; // 设置可视效果为移动
-  //   });
-
-  //   dropzone.addEventListener('drop', function (event) {
-  //     event.preventDefault(); // 阻止默认行为
-  //     const text = event.dataTransfer.getData('text/plain');
-  //     dropzone.appendChild(document.createTextNode(text));
-  //   });
-  // });
-  
-});
-</script>
-
-<style lang="scss" scoped>
-.script-project {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  padding: 20px;
-  box-sizing: border-box;
-
-  .draggable {
-    width: 150px;
-    height: 150px;
-    background-color: #f00;
-    color: #fff;
-    text-align: center;
-    line-height: 150px;
-    border: 2px dashed #000;
-    cursor: move;
-    margin: 10px;
+const list1 = ref([
+  {
+    name: 'Joao',
+    id: '1'
+  },
+  {
+    name: 'Jean',
+    id: '2'
+  },
+  {
+    name: 'Johanna',
+    id: '3'
+  },
+  {
+    name: 'Juan',
+    id: '4'
   }
+])
+const list2 = ref(
+  list1.value.map(item => ({
+    name: `${item.name}-2`,
+    id: `${item.id}-2`
+  }))
+)
 
-  .dropzone {
-    width: 150px;
-    height: 150px;
-    background-color: #0f0;
-    border: 2px dashed #000;
-    margin: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
+function clone(element: Record<'name' | 'id', string>) {
+  const len = list2.value.length
+  return {
+    name: `${element.name}-clone-${len}`,
+    id: `${element.id}-clone-${len}`
   }
 }
-</style>
+</script>

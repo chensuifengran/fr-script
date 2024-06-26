@@ -39,5 +39,4 @@ export const pathUtils = {
   join,
   resolve,
   getInstallDir,
-
 };

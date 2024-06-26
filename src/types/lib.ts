@@ -22,16 +22,18 @@ export type DepPkgItemType = {
   version: string;
   desc: string;
   decompression: boolean;
-  child_files:string[];
-}
+  child_files: string[];
+};
 
 export type CheckDepItemType = {
   name: string;
-  exists?: {
-    fileName: string;
-    fileSize: number;
-    fileType: "file" | "dir";
-  } | boolean;
+  exists?:
+    | {
+        fileName: string;
+        fileSize: number;
+        fileType: "file" | "dir";
+      }
+    | boolean;
   downloadUrl: {
     origin: string;
     url: string;
@@ -39,19 +41,19 @@ export type CheckDepItemType = {
   }[];
   children: LibNameItemType[];
   version: string;
-  child_files:string[];
-}
+  child_files: string[];
+};
 
 export type LibNameItemType = CheckDepItemType & {
   child_files?: string[];
   root_path?: string;
-}
+};
 
 export type VersionItemType = {
   name: string;
   version: string;
   children?: VersionItemType[];
-}
+};
 
 export type NeedUpdateDepType = {
   name: string;
@@ -62,4 +64,5 @@ export type NeedUpdateDepType = {
     url: string;
     pwd: string;
   }[];
-}
+};
+
