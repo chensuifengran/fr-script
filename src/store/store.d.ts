@@ -1,3 +1,21 @@
+type GlobalShortcutsStore = {
+  allShortcuts: {
+    shortcuts: string;
+    onlyDescription: string;
+  }[];
+};
+type GlobalShortcutsStoreActions = {
+  updateShortcuts(onlyDescription: string, newShortcuts: string): void;
+  getShortcuts(onlyDescription: string): string;
+  exportData(): string;
+  importData(cacheData: string): void;
+  init(): void;
+};
+type ListStoreActions = {
+  exportData(): Promise<string>;
+  importData(data: string): Promise<void>;
+  init(): Promise<void>;
+};
 type GlobalSettings = {
   isInited: boolean;
   app: {
@@ -123,6 +141,51 @@ type RendererList = {
   multipleGroupSelectList: MultiplSelectionItem[];
   tableList: TableListItem[];
 };
+type RendererFieldTypes =
+  | "input"
+  | "select"
+  | "select-group"
+  | "multiple-select-group"
+  | "check"
+  | "switch";
+
+type GroupSelectOption = {
+  groupLabel: string;
+  options: {
+    value: string;
+    label: string;
+  }[];
+}[];
+type SelectOptionTypes = GroupSelectOption | string[];
+type SelectLimitType = number | undefined;
+type SelectFieldValueType<
+  T extends SelectOptionTypes,
+  K extends SelectLimitType = undefined
+> = {
+  options: T;
+  value: string;
+  limit: K;
+};
+
+type FieldValueType<
+  T extends SelectOptionTypes,
+  K extends SelectLimitType = undefined
+> = string | boolean | SelectFieldValueType<T, K>;
+type FormRendererField<
+  T extends SelectOptionTypes,
+  K extends SelectLimitType = undefined,
+  P extends FieldValueType<T, K>
+> = {
+  id: string;
+  label: string;
+  type: RendererFieldTypes;
+  value: P;
+};
+type RendererGroups = {
+  groupLabel?: string;
+  enable: boolean;
+  field: FormRendererField;
+}[];
 
 type BuildFormItem =
   | {
@@ -227,7 +290,13 @@ type BuildFormItem =
       enable?: boolean;
     };
 type BuildFormList = BuildFormItem[];
-
+type CodeSnippet = {
+  id: string;
+  name: string;
+  filePath: string;
+  description: string;
+  prefix: string;
+};
 type ListState = {
   scriptList: ScriptItemType[];
   projectList: ProjectItemType[];
@@ -235,4 +304,5 @@ type ListState = {
   previewRendererList: RendererList[];
   previewBuildFormList: BuildFormList;
   deviceList: string[];
+  codeSnippets: CodeSnippet[];
 };
