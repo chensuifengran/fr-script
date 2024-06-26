@@ -41,7 +41,7 @@ monaco.languages.registerCompletionItemProvider("typescript", {
     };
   },
 });
-
+const openOperationRecordDrawer = ref(false)
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
 //禁用语言
@@ -260,7 +260,7 @@ export const useEditor = () => {
       editorValue.value = editor.getValue();
     });
   };
-
+  
   return {
     editorInit,
     disposeEditor,
@@ -272,5 +272,6 @@ export const useEditor = () => {
     setText,
     formatCode,
     editorValue: readonly(editorValue),
+    openOperationRecordDrawer
   };
 };

@@ -114,6 +114,14 @@ const routes = [
     },
   },
   {
+    path: "/ORW",
+    name: "ORW",
+    component: () => import(`../pages/OperationRecordWindow.vue`),
+    meta: {
+      title: "操作录制悬浮窗口",
+    },
+  },
+  {
     path: "/depManager",
     name: "depManager",
     component: () => import(`../pages/DepManagerPage.vue`),

@@ -1,5 +1,6 @@
 <template>
   <div class="script-editor-dev">
+    <OperationRecordPanel/>
     <!-- 添加文件声明的弹窗 -->
     <el-dialog v-model="declareMod.visible" title="插入脚本声明">
       <div>脚本名称</div>
@@ -34,11 +35,7 @@
     <!-- 运行未保存脚本弹窗 -->
     <el-dialog v-model="autoSaveDialog.visible" title="运行脚本">
       <div>检测到当前脚本已做更改，若不保存则运行最后一次保存的内容</div>
-      <el-checkbox
-        v-model="appGSStore.editor.runAutoSave"
-        label="不再提醒,下次运行自动保存,可在设置页关闭自动保存"
-        size="large"
-      />
+      <el-checkbox v-model="appGSStore.editor.runAutoSave" label="不再提醒,下次运行自动保存,可在设置页关闭自动保存" size="large" />
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="autoSaveDialog.close_cb">直接运行</el-button>
@@ -52,15 +49,9 @@
       <div>编辑器加载中...</div>
     </div>
     <div class="auto-api-tip scrollbar" @wheel.stop="wheelHandle" ref="scrollbarRef">
-      <el-tag
-        style="margin-right: 3px"
-        size="small"
-        type="success"
-        v-show="fnInfo?.haveAuxiliary"
-        >Ctrl+Tab ：快速填写/修改参数</el-tag
-      >
-      <el-tag size="small" type="info" v-show="fnInfo?.name && fnInfo?.content"
-        >{{ fnInfo?.name }}:{{ fnInfo?.content }}
+      <el-tag style="margin-right: 3px" size="small" type="success" v-show="fnInfo?.haveAuxiliary">Ctrl+Tab
+        ：快速填写/修改参数</el-tag>
+      <el-tag size="small" type="info" v-show="fnInfo?.name && fnInfo?.content">{{ fnInfo?.name }}:{{ fnInfo?.content }}
       </el-tag>
     </div>
   </div>
@@ -128,8 +119,8 @@ const wheelHandle = (event: any) => {
 };
 const autoSaveDialog = reactive({
   visible: false,
-  cb: <() => void>(() => {}),
-  close_cb: <() => void>(() => {}),
+  cb: <() => void>(() => { }),
+  close_cb: <() => void>(() => { }),
 });
 const saveScriptFile = async () => {
   if (!fileInfo.declare) {
@@ -397,7 +388,7 @@ onMounted(async () => {
   window.addEventListener("resize", resizeHandle);
   editorInit(EDITOR_DOM_ID);
   await getFile();
-  document.getElementById("codeEditBox")?.addEventListener("keydown", keydownHandle);
+  document.getElementById(EDITOR_DOM_ID)?.addEventListener("keydown", keydownHandle);
   registerEditorEvent("mounted", (editor: any) => {
     editor.onDidChangeCursorPosition(cursorHandle);
     setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE);
@@ -414,7 +405,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   unRegisterEditorEvent("mounted");
   window.removeEventListener("resize", resizeHandle);
-  document.getElementById("codeEditBox")?.removeEventListener("keydown", keydownHandle);
+  document.getElementById(EDITOR_DOM_ID)?.removeEventListener("keydown", keydownHandle);
   disposeEditor();
   isEditing.value = false;
   windowFocusHandle && windowFocusHandle();
@@ -472,6 +463,7 @@ watchEffect(() => {
   position: relative;
   display: flex;
   flex-direction: column;
+
   .loading {
     flex: 1;
     display: flex;
@@ -479,6 +471,7 @@ watchEffect(() => {
     align-items: center;
     flex-direction: column;
   }
+
   .scrollbar {
     width: 100%;
     height: 25px;
@@ -487,18 +480,22 @@ watchEffect(() => {
     flex-direction: row;
     align-items: center;
     overflow: scroll;
+
     &:hover {
       &::-webkit-scrollbar-thumb {
         background-color: #1b9945;
       }
+
       &::-webkit-scrollbar {
         height: 4px;
       }
     }
+
     &::-webkit-scrollbar {
       width: 0;
       height: 0;
     }
+
     &::-webkit-scrollbar-thumb,
     &::-webkit-scrollbar-track {
       background-color: #a2ddc2;
@@ -510,16 +507,19 @@ watchEffect(() => {
       height: 30px;
     }
   }
+
   .auto-api-tip {
     padding: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
     font-size: 12px;
+
     span {
       flex-shrink: 0;
     }
   }
+
   #codeEditBox {
     height: calc(100% - 25px);
   }
