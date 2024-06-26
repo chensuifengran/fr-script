@@ -19,6 +19,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { UnlistenFn } from "@tauri-apps/api/event";
 import {
   LogicalSize,
   WebviewWindow,
@@ -33,23 +34,45 @@ const useTime = computed(() => {
   const seconds = Math.floor(loadingTime.value % 60);
   return `${hours ? `${hours}:` : ""}${minutes ? `${minutes}:` : ""}${seconds}`;
 });
-const stopRecording = async () => {
-  await invokeBaseApi.stopCaptureOperation();
-  WebviewWindow.getByLabel("main")?.show();
-  appWindow.close();
-};
+
 let currentInterval: NodeJS.Timeout;
-onMounted(async () => {
+let unlistenNotify: UnlistenFn;
+const init = () => {
   appWindow.setSize(new LogicalSize(180, 40));
   borderRadius.value = "20px";
+  appWindow.show();
+  loadingTime.value = 1;
   currentInterval = setInterval(() => {
     loadingTime.value += 1;
   }, 1000);
-});
+}
+onMounted(async () => {
+  appWindow.hide();
+  unlistenNotify = await eventUtil.notify.listen<{
+    type: string;
+    payload: any;
+  }>((data) => {
+    const { type, payload } = data.payload;
+    if (type === 'custom-message') {
+      const { name } = payload;
+      if (name === 'init') {
+        init();
+      } else if (name === 'stop') {
+        currentInterval && clearInterval(currentInterval);
+      }
+    }
+  })
+})
 onBeforeUnmount(() => {
   currentInterval && clearInterval(currentInterval);
+  unlistenNotify && unlistenNotify();
 });
-
+const stopRecording = async () => {
+  await invokeBaseApi.stopCaptureOperation();
+  WebviewWindow.getByLabel("main")?.show();
+  currentInterval && clearInterval(currentInterval);
+  appWindow.hide();
+};
 </script>
 <style lang="scss" scoped>
 .OR-content {
@@ -94,6 +117,7 @@ onBeforeUnmount(() => {
     width: 30px;
     flex-direction: row;
     align-items: center;
+
     .btn {
       margin: 0;
       margin-right: 5px;

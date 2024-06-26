@@ -52,7 +52,7 @@
     </div>
   </el-drawer>
   <el-dialog v-model="saveDialog" title="保存操作记录">
-    <el-text>将操作记录作为代码片段保存到代码片段仓库</el-text>
+    <el-text>将操作记录作为代码片段保存到代码片段仓库,或者仅复制代码片段</el-text>
     <el-form :model="saveConfig" ref="ruleFormRef" :rules="rules">
       <el-form-item label="代码片段名称" prop="name">
         <el-input v-model="saveConfig.name" />
@@ -66,7 +66,8 @@
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="saveDialog = false" type="danger">取消</el-button>
+        <el-button @click="saveDialog = false">取消</el-button>
+        <el-button type="primary" @click="copyCode">仅复制</el-button>
         <el-button type="primary" @click="saveCodeSnippets">保存</el-button>
       </div>
     </template>
@@ -111,11 +112,20 @@ const rules = reactive<FormRules<SaveConfigForm>>({
 })
 
 const listStore = useListStore();
+const copyCode = () => {
+  try {
+    execCopy(saveConfig.code);
+    ElMessage.success("操作代码片段复制成功");
+  } catch (error) {
+    ElMessage.error("操作代码片段复制失败");
+    console.error(error);
+  } finally {
+    saveDialog.value = false;
+  }
+}
 const saveCodeSnippets = async () => {
   if (!ruleFormRef.value) return
-  if (!await ruleFormRef.value.validate((v) => {
-    console.log(v);
-  })) {
+  if (!await ruleFormRef.value.validate()) {
     return
   }
   const filePath = `${await pathUtils.getInstallDir()}\\\\code-snippets\\\\${saveConfig.name}.snippet`;
@@ -158,6 +168,7 @@ const defaultFormValue = {
 };
 const form = ref<CaptureSettingForm>(defaultFormValue);
 const [settingForm, setSettingForm] = useLocalStorageState<CaptureSettingForm>('operation-capture-setting-form');
+
 onMounted(() => {
   if (settingForm.value) {
     form.value = JSON.parse(JSON.stringify(settingForm.value))
@@ -169,21 +180,24 @@ watch(form, () => {
 const resetForm = () => {
   form.value = JSON.parse(JSON.stringify(defaultFormValue));
 }
-const { createWindow } = useWebviewWindow();
+
 const capturing = ref(false)
 const startCapture = async () => {
   capturing.value = true;
   try {
     if (form.value.hiddenWindowBeforeRunning) {
       appWindow.hide();
-      createWindow("ORW", "/ORW", {
-        height: 40,
-        width: 180,
-        alwaysOnTop: true,
+      await eventUtil.notify.sendCustom({
+        name: 'init',
+        message: ''
       });
     }
     const res = await invokeBaseApi.captureOperation(
       JSON.parse(JSON.stringify(form.value)), form.value.generateComment);
+    await eventUtil.notify.sendCustom({
+      name: 'stop',
+      message: ''
+    });
     saveConfig.name = '操作记录';
     saveConfig.code = res;
     saveDialog.value = true;

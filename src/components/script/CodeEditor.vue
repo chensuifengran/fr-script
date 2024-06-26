@@ -382,7 +382,13 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   setText(EDITOR_DOM_ID, fileInfo.originData);
   type === "focus" && ElMessage.info("已载入最新内容");
 };
+const { createWindow } = useWebviewWindow();
 onMounted(async () => {
+  createWindow("ORW", "/ORW", {
+    height: 40,
+    width: 180,
+    alwaysOnTop: true,
+  });
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
