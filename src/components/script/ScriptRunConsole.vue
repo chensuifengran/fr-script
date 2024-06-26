@@ -83,7 +83,7 @@ const reInit = (): boolean => {
   }
   return false;
 };
-
+const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 
@@ -235,15 +235,15 @@ const GlobalShortcutActions: Record<string, () => Promise<void> | void> = {
 };
 const GlobalShortcuts = [
   {
-    key: "Ctrl+Shift+A",
+    onlyDescription: "运行脚本",
     action: "invokeStartHandle",
   },
   {
-    key: "Ctrl+Shift+D",
+    onlyDescription: "重新初始化脚本",
     action: "initScript",
   },
   {
-    key: "Ctrl+Shift+S",
+    onlyDescription: "强制停止脚本",
     action: "stop",
   },
 ];
@@ -253,12 +253,14 @@ const registerGlobalShortcuts = (targetIndex: number) => {
   timer = setTimeout(async () => {
     clearTimeout(timer);
     const targetShortcuts = GlobalShortcuts[targetIndex];
+    const shortcuts = shortcutsStore.getShortcuts(targetShortcuts.onlyDescription);
     if (targetShortcuts) {
       for (let i = 0; i < GlobalShortcuts.length; i++) {
-        await unregister(GlobalShortcuts[i].key);
+        const shortcuts = shortcutsStore.getShortcuts(GlobalShortcuts[i].onlyDescription);
+        await unregister(shortcuts);
       }
-      if (!(await isRegistered(targetShortcuts.key))) {
-        register(targetShortcuts.key, () => {
+      if (!(await isRegistered(shortcuts))) {
+        register(shortcuts, () => {
           if (GlobalShortcutActions[targetShortcuts.action]) {
             GlobalShortcutActions[targetShortcuts.action]();
           }
@@ -287,7 +289,8 @@ onMounted(async () => {
     targetWindow?.hide();
   });
   registerGlobalShortcuts(running.value);
-  register("Alt+Ctrl+S", () => {
+  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  register(showMainWindowShortcuts, () => {
     appWindow.show();
   });
   unlistenNotify = await notify.listen((data) => {
@@ -306,9 +309,11 @@ onUnmounted(() => {
   }
   //取消注册所有快捷键
   GlobalShortcuts.forEach((s) => {
-    unregister(s.key);
+    const shortcuts = shortcutsStore.getShortcuts(s.onlyDescription);
+    unregister(shortcuts);
   });
-  unregister("Alt+Ctrl+S");
+  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  unregister(showMainWindowShortcuts);
   unlistenNotify();
 });
 </script>

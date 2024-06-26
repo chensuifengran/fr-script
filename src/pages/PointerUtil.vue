@@ -38,7 +38,7 @@
         </div>
         <div class="empty" v-if="!records.length">
           <el-text size="small">暂无内容，按下</el-text>
-          <el-tag type="primary" size="small">{{ keys }}</el-tag>
+          <el-tag type="primary" size="small">{{globalShortcutStore.getShortcuts("记录鼠标位置及颜色") }}</el-tag>
           <el-text size="small">记录鼠标点对应的颜色</el-text>
         </div>
       </el-scrollbar>
@@ -50,6 +50,7 @@ import { invoke } from "@tauri-apps/api";
 import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
 import { appWindow } from "@tauri-apps/api/window";
 const { appAsideBgColor, appBackground } = useAppTheme();
+const globalShortcutStore = useGlobalShortcutsStore();
 const copyRgb = (rgb: [number, number, number]) => {
   showTip();
   return execCopy(rgb.join(","));
@@ -68,15 +69,15 @@ const closePointerUtil = () => {
 };
 
 let utilInterval: any;
-const keys = "Alt+Shift+C";
 const clean = () => {
   records.splice(0, records.length);
 };
 onMounted(async () => {
-  if (await isRegistered(keys)) {
-    await unregister(keys);
+  const s = globalShortcutStore.getShortcuts("记录鼠标位置及颜色");
+  if (await isRegistered(s)) {
+    await unregister(s);
   }
-  register(keys, () => {
+  register(s, () => {
     records.unshift({
       pos: pos.value,
       rgbColor: rgbColor.value,
@@ -103,7 +104,8 @@ onMounted(async () => {
 });
 onBeforeUnmount(async () => {
   clearInterval(utilInterval);
-  await unregister(keys);
+  const s = globalShortcutStore.getShortcuts("记录鼠标位置及颜色");
+  await unregister(s);
 });
 const tipTransform = ref("translateX(-100%)");
 const showTip = () => {
