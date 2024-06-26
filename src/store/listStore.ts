@@ -1,16 +1,17 @@
 import { defineStore } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 // 第一个参数是应用程序中 store 的唯一 id
-export const useListStore = defineStore("listStore", {
+export const useListStore = defineStore<string,ListState,{},ListStoreActions>("listStore", {
   // 其它配置项
   state: () => {
-    return <ListState>{
+    return {
       rendererList:[],
       scriptList:[],
       projectList:[],
       previewBuildFormList:[],
       previewRendererList:[],
       deviceList:[],
+      codeSnippets:[]
     };
   },
   getters: {},
