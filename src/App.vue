@@ -111,6 +111,7 @@ onBeforeMount(() => {
 <template>
   <div class="app">
     <FillApiParamDialog />
+    <code-snippet-save-dialog />
     <template v-if="isMainWindow">
       <AutoTitleBar />
       <div class="common-layout">
@@ -185,6 +186,9 @@ onBeforeMount(() => {
 </template>
 
 <style scoped lang="scss">
+:deep(.el-dialog__footer) {
+  padding-top: 5px;
+}
 .app {
   width: 100%;
   height: 100%;
