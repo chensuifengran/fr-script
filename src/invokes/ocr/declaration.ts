@@ -31,7 +31,8 @@ declare class OcrUtil {
   };
   constructor(originX: number, originY: number, result: OCRResult[], reCall:() => Promise<OcrUtil | undefined>);
   public includes(texts: string[]): boolean;
-  public findText(text: string, offset?: [number, number]): FindResult | null;
+  public searchText(text: string, offset?: [number, number]) => FindResult[];
+  public findText(text: string, offset?: [number, number]) => FindResult | undefined;
   public waitText(text: string,adb?: boolean, sleepMs?: number, maxWaitCount?: number): Promise<boolean>;
 };
 declare function ocr(

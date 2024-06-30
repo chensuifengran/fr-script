@@ -4,7 +4,6 @@ import { adbScreenshotFn } from "../adbScreenshot/exportFn";
 import { touchFn } from "../touch/exportFn";
 import { OCRResult } from "./exportFn";
 
-
 export class FindResult {
   centerPos: [number, number];
   text: string;
@@ -53,7 +52,7 @@ export class OcrUtil {
     };
     this.reCall = reCall;
   }
-  includes=(texts: string[]) => {
+  includes = (texts: string[]) => {
     return !!this.result.find((i) => {
       for (const text of texts) {
         if (i.text === text || i.text.includes(text)) {
@@ -61,8 +60,8 @@ export class OcrUtil {
         }
       }
     });
-  }
-  findText = (text: string, offset?: [number, number])=> {
+  };
+  findText = (text: string, offset?: [number, number]) => {
     const target = this.result.find(
       (i) => i.text === text || i.text.includes(text)
     );
@@ -77,20 +76,36 @@ export class OcrUtil {
         offset
       );
     }
-    return null;
-  }
-  waitText = async(
+  };
+  searchText = (text: string, offset?: [number, number]) => {
+    const targets = this.result.filter(
+      (i) => i.text === text || i.text.includes(text)
+    );
+    return targets.map(
+      (target) =>
+        new FindResult(
+          target.position.map((item) => [
+            item[0] + this.ori.x,
+            item[1] + this.ori.y,
+          ]) as OCRResult["position"],
+          target.text,
+          target.score,
+          offset
+        )
+    );
+  };
+  waitText = async (
     text: string,
     adb = false,
     sleepMs: number = 1000,
     maxWaitCount: number = 10
-  ) =>{
-    if(this.findText(text)){
+  ) => {
+    if (this.findText(text)) {
       return true;
     }
     let result = false;
     while (maxWaitCount--) {
-      if(adb){
+      if (adb) {
         await adbScreenshotFn();
       }
       const reCallRes = await this.reCall();
@@ -101,5 +116,5 @@ export class OcrUtil {
       await timeUtil.sleep(sleepMs);
     }
     return result;
-  }
+  };
 }
