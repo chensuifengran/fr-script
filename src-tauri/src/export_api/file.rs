@@ -181,3 +181,12 @@ pub async fn read_dir(path: String) -> Result<String, String> {
     }
     Ok(format!("[{}]", file_list.join(",")))
 }
+
+#[tauri::command]
+pub async fn delete_file(path: String) -> Result<String, String> {
+    let path = path.replace("/", "\\");
+    match fs::remove_file(path) {
+        Ok(_) => Ok("文件删除成功".to_string()),
+        Err(err) => Err(err.to_string()),
+    }
+}

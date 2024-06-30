@@ -109,10 +109,21 @@ const saveFile = async (targetPath: string) => {
 };
 const readDir = async (path: string) => {
   return JSON.parse(await invoke("read_dir", { path })) as {
-    fileName:string;
+    fileName: string;
     fileType: "file" | "dir";
   }[];
-}
+};
+const deleteFile = async (path: string) => {
+  try {
+    await invoke("delete_file", {
+      path,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
 export const fsUtils = {
   getFileInfo,
   decompress,
@@ -122,5 +133,6 @@ export const fsUtils = {
   saveFile,
   readFile,
   writeFile,
-  readDir
+  readDir,
+  deleteFile
 };
