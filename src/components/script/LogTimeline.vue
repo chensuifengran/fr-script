@@ -148,7 +148,7 @@ const buildInData = computed(() => {
   height: 100%;
   position: relative;
 }
-::v-deep(.el-timeline-item .el-timeline-item__icon){
+:deep(.el-timeline-item .el-timeline-item__icon){
   font-size: inherit;
 }
 </style>
