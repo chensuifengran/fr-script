@@ -155,7 +155,7 @@ type Key =
   // 控制键
   | "Backspace" // 退格键
   | "Tab" // 制表键
-  | "Enter" // 回车键
+  | "Return" // 回车键
   | "Shift" // Shift键
   | "Control" // Ctrl键
   | "Alt" // Alt键
