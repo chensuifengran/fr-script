@@ -1,5 +1,3 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
   parameterBackfill: async (...args: string[]) => {
@@ -9,7 +7,9 @@ export const auxiliary = <AuxiliaryType>{
     );
     const dialog = selfModule!.testModule!.dialog;
     dialog.args!.forEach((i, index) => {
-      i.value = params[index] || "A";
+      if (index === 0) {
+        i.value = params[index] || "A";
+      }
     });
   },
   //参数处理方法

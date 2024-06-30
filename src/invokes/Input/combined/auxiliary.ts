@@ -8,8 +8,10 @@ export const auxiliary = <AuxiliaryType>{
       (i) => i.name === "combined" && i.scope === "Input"
     );
     const dialog = selfModule!.testModule!.dialog;
-    dialog.args!.forEach((i) => {
-      i.value = params.map((i) => i.replace("[", "").replace("]", ""));
+    dialog.args!.forEach((i,index) => {
+      if(index === 0){
+        i.value = params.map((i) => i.replace("[", "").replace("]", ""));
+      }
     });
   },
   //参数处理方法

@@ -9,7 +9,9 @@ export const auxiliary = <AuxiliaryType>{
     );
     const dialog = selfModule!.testModule!.dialog;
     dialog.args!.forEach((i, index) => {
-      i.value = params[index] || "";
+      if (index === 0) {
+        i.value = params[index] || "";
+      }
     });
   },
   //参数处理方法
