@@ -1054,6 +1054,8 @@ export const useBuiltInApi = () => {
   return {
     FormUtil,
     WORK_DIR,
+    copyText,
+    readClipboardFirstText,
     SCREEN_SHOT_PATH,
     SCREEN_SHOT_DIR,
     __httpValue: "http://",

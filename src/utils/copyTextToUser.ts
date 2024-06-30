@@ -1,3 +1,5 @@
+import { readText, writeText } from "@tauri-apps/api/clipboard";
+
 export const execCopy = (text: string) => {
   if(text === undefined || text === null || text === ""){
     return;
@@ -38,3 +40,11 @@ export const copyRectParam = (
   }
   execCopy(param);
 };
+
+export const copyText = (text: string)=>{
+  return writeText(text);
+}
+
+export const readClipboardFirstText = ()=>{
+  return readText();
+}

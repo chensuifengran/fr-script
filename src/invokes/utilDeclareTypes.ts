@@ -224,6 +224,19 @@ export const UTIL_DECLARE_STRING = `
   declare const rendererList: RendererList[];
   declare function getScriptId(): string;
   declare function changeScriptRunState(state: boolean | "stop", taskId?: string) : void;
+  
+  /**
+   * 复制文本到剪贴板。
+   * @param {string} text 要复制的文本。
+  */
+  declare function copyText(text: string): Promise<void>;
+
+  /**
+   * 从剪贴板读取文本。
+   * @returns {Promise<string>}
+  */
+  declare function readClipboardFirstText(): Promise<string>;
+  
   /**
    * 显示一条消息在运行窗口/通知窗口。
    *
