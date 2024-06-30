@@ -59,7 +59,7 @@ export const KeyOptions = [
   "F12键:F12",
   "←Backspace退格键:Backspace",
   "Tab制表键:Tab",
-  "Enter回车键:Enter",
+  "Return回车键:Return",
   "↑Shift键(左):LShift",
   "↑Shift键(右):RShift",
   "Ctrl键:Control",
