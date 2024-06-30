@@ -51,105 +51,16 @@
       </div>
     </div>
   </el-drawer>
-  <el-dialog v-model="saveDialog" title="保存操作记录">
-    <el-text>将操作记录作为代码片段保存到代码片段仓库,或者仅复制代码片段</el-text>
-    <el-form :model="saveConfig" ref="ruleFormRef" :rules="rules">
-      <el-form-item label="代码片段名称" prop="name">
-        <el-input v-model="saveConfig.name" />
-      </el-form-item>
-      <el-form-item label="代码片段描述" prop="description">
-        <el-input v-model="saveConfig.description" autosize type="textarea" />
-      </el-form-item>
-      <el-form-item label="代码片段前缀" prop="prefix">
-        <el-input v-model="saveConfig.prefix" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="saveDialog = false">取消</el-button>
-        <el-button type="primary" @click="copyCode">仅复制</el-button>
-        <el-button type="primary" @click="saveCodeSnippets">保存</el-button>
-      </div>
-    </template>
-  </el-dialog>
+
 </template>
 <script lang="ts" setup>
-import { exists } from '@tauri-apps/api/fs';
 import { appWindow } from '@tauri-apps/api/window';
-import { FormInstance, FormRules } from 'element-plus';
-import { nanoid } from 'nanoid';
 import { useLocalStorageState } from 'vue-hooks-plus';
-const saveDialog = ref(false);
-const saveConfig = reactive<SaveConfigForm>({
-  name: "",
-  description: "",
-  prefix: "",
-  code: ""
-});
-const ruleFormRef = ref<FormInstance>();
-const nameValidator = (_rule: any, value: any, callback: any) => {
-  if (value.trim() === '') {
-    callback(new Error('请输入代码片段名称'))
-  } else {
-    (async () => {
-      const savePath = `${await pathUtils.getInstallDir()}\\\\code-snippets\\\\${saveConfig.name}.snippet`;
-      if (await exists(savePath)) {
-        callback(new Error('名称和已有代码片段重复，换个试试吧'))
-      }
-      callback()
-    })();
-  }
-}
-const rules = reactive<FormRules<SaveConfigForm>>({
-  name: [
-    { required: true, message: '代码片段前缀不能为空', trigger: 'blur' },
-    { validator: nameValidator, trigger: 'blur' },
-  ],
-  prefix: [
-    { required: true, message: '代码片段前缀不能为空', trigger: 'blur' },
-    { min: 1, max: 20, message: '代码片段前缀长度在 1 到 20 个字符', trigger: 'blur' }
-  ]
-})
 
-const listStore = useListStore();
-const copyCode = () => {
-  try {
-    execCopy(saveConfig.code);
-    ElMessage.success("操作代码片段复制成功");
-  } catch (error) {
-    ElMessage.error("操作代码片段复制失败");
-    console.error(error);
-  } finally {
-    saveDialog.value = false;
-  }
-}
-const saveCodeSnippets = async () => {
-  if (!ruleFormRef.value) return
-  if (!await ruleFormRef.value.validate()) {
-    return
-  }
-  const filePath = `${await pathUtils.getInstallDir()}\\\\code-snippets\\\\${saveConfig.name}.snippet`;
-  try {
-    await fsUtils.writeFile(filePath, saveConfig.code);
-    listStore.codeSnippets.unshift({
-      id: nanoid(),
-      name: saveConfig.name,
-      description: saveConfig.description,
-      prefix: saveConfig.prefix,
-      filePath
-    });
-    ElMessage.success("操作代码片段保存成功");
-  } catch (error) {
-    ElMessage.error("操作代码片段保存失败");
-    console.error(error);
-  } finally {
-    saveDialog.value = false;
-    saveConfig.code = "";
-    saveConfig.name = "";
-    saveConfig.description = "";
-    saveConfig.prefix = "";
-  }
-}
+const {
+  saveDialog,
+  saveConfig
+} = useCodeSnippetSave();
 const { openOperationRecordDrawer } = useEditor();
 const defaultFormValue = {
   merge_mouse_options: {
