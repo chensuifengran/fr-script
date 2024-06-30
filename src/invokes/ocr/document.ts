@@ -38,7 +38,63 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<OcrUtil | undefined>"),
+    type: codeHighLight(`
+//返回值：
+Promise<OcrUtil | undefined>
+//OcrUtil类声明：
+declare class OcrUtil {
+  result: OCRResult[];
+  private reCall: () => Promise<OcrUtil | undefined>;
+  private ori: {
+    x: number;
+    y: number;
+  };
+  constructor(
+    originX: number, 
+    originY: number, 
+    result: OCRResult[], 
+    reCall:() => Promise<OcrUtil | undefined>
+  );
+  public includes(texts: string[]): boolean;
+  public searchText(
+    text: string, 
+    offset?: [number, number]
+  ) => FindResult[];
+  public findText(
+    text: string, 
+    offset?: [number, number]
+  ) => FindResult | undefined;
+  public waitText(
+    text: string,
+    adb?: boolean, 
+    sleepMs?: number, 
+    maxWaitCount?: number
+  ): Promise<boolean>;
+}
+declare type OCRResult = {
+  position: [
+      [number, number],
+      [number, number],
+      [number, number],
+      [number, number]
+  ];
+  text: string;
+  score: number;
+};
+declare class FindResult {
+  centerPos: [number, number];
+  text: string;
+  score: number;
+  constructor(
+    position: OCRResult["position"],
+    text: string,
+    score: number,
+    offset?: [number, number]
+  );
+  public click(): Promise<void>;
+  public touch(): Promise<string>;
+};
+`),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
