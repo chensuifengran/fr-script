@@ -192,8 +192,9 @@ export const useEditor = () => {
    *
    * @param domId 编辑器容器的id
    * @param genEditorTsDeclaration 是否生成编辑器辅助声明文件
+   * @param showMiniMap 是否显示缩略图
    */
-  const editorInit = async (domId: string, genEditorTsDeclaration = true) => {
+  const editorInit = async (domId: string, genEditorTsDeclaration = true, showMiniMap = true) => {
     const appGSStore = useAppGlobalSettings();
     let editorTheme = "vs";
     const settingEditorTheme = appGSStore.editor.theme.value;
@@ -241,7 +242,7 @@ export const useEditor = () => {
       selectOnLineNumbers: true, // 显示行号
       tabSize: 2, // tab缩进大小
       minimap: {
-        enabled: true,
+        enabled: showMiniMap,
       },
       readOnly: false, // 只读
       fontSize: 16, // 字体大小
