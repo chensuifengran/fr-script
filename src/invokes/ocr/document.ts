@@ -59,11 +59,11 @@ declare class OcrUtil {
   public searchText(
     text: string, 
     offset?: [number, number]
-  ) => FindResult[];
+  ) : FindResult[];
   public findText(
     text: string, 
     offset?: [number, number]
-  ) => FindResult | undefined;
+  ) : FindResult | undefined;
   public waitText(
     text: string,
     adb?: boolean, 
