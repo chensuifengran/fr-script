@@ -1,6 +1,8 @@
 <template>
-  <div class="code">
-    <div v-for="c in _code" :key="c" v-html="c"></div>
+  <div class="code" overflow-x-hidden>
+    <div class="code-content" overflow-y-scroll>
+      <div v-for="c in _code" :key="c" v-html="c" text-nowrap cursor-text></div>
+    </div>
     <div v-html="_code.join('\n')" ref="rawCodeRef" style="display: none"></div>
     <el-button class="copy-code" @click="copy" size="small" v-if="showCopy"><el-icon>
         <span i-mdi-content-copy></span>
@@ -52,9 +54,10 @@ const { appAsideBgColor } = useAppTheme();
   border-radius: 4px;
   background: v-bind(appAsideBgColor);
   box-sizing: border-box;
-  cursor: text;
-  user-select: text;
   position: relative;
+  .code-content{
+    user-select: text;
+  }
 
   &:hover {
     .copy-code {

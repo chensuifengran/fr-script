@@ -1,6 +1,8 @@
 <template>
-  <div class="code">
-    <div v-for="c in highlightCode" :key="c" v-html="c"></div>
+  <div class="code" overflow-x-hidden>
+    <div class="code-content" overflow-y-scroll>
+      <div v-for="c in highlightCode" :key="c" v-html="c" text-nowrap cursor-text></div>
+    </div>
     <el-button class="copy-code" @click="copyCode(_rawCode)" size="small" v-if="showCopy"><el-icon>
         <span i-mdi-content-copy></span>
       </el-icon>复制</el-button>
@@ -15,15 +17,15 @@ const props = defineProps({
     type: [String, Array] as PropType<string | string[]>,
     required: true,
   },
-  showCopy:{
+  showCopy: {
     type: Boolean,
     default: true
   }
 });
-const _rawCode = computed(()=>{
+const _rawCode = computed(() => {
   return Array.isArray(props.rawCode) ? props.rawCode.join('') : props.rawCode;
 });
-const highlightCode = computed(()=>{
+const highlightCode = computed(() => {
   return codeHighLight(_rawCode.value);
 })
 const copyCode = (text: string) => {
@@ -52,15 +54,16 @@ const { appAsideBgColor } = useAppTheme();
   border-radius: 4px;
   background: v-bind(appAsideBgColor);
   box-sizing: border-box;
-  //文字可选的鼠标样式
-  cursor: text;
-  user-select: text;
   position: relative;
+  .code-content{
+    user-select: text;
+  }
   &:hover {
     .copy-code {
       display: block;
     }
   }
+
   .copy-code {
     display: none;
     position: absolute;
