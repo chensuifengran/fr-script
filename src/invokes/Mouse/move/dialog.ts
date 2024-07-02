@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "模拟鼠标移动",
   targetMethodName: "move",
-  content: "模拟鼠标移动到指定坐标",
+  content: "模拟鼠标移动到指定坐标,位置受Mouse.setMouseOption设置的选项影响",
   args: [
     {
       name: "x",

@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "鼠标按键按下",
   targetMethodName: "down",
-  content: "鼠标移动到指定位置进行[左键/右键/中键]的按下（不会自动抬起）",
+  content: "鼠标移动到指定位置进行[左键/右键/中键]的按下（不会自动抬起）,位置受Mouse.setMouseOption设置的选项影响",
   args: [
     {
       name: "x",

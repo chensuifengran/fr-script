@@ -1,3 +1,5 @@
+import { computePosition } from "../OptionUtil";
+
 export const moveFn = async (
   x: number,
   y: number,
@@ -9,7 +11,8 @@ export const moveFn = async (
     return false;
   }
   try {
-    const res = await invokeBaseApi.move(x, y, isRelative);
+    const targetPos = await computePosition(x, y);
+    const res = await invokeBaseApi.move(targetPos.x, targetPos.y, isRelative);
     return res;
   } catch (e) {
     console.error("moveFnError:", e);

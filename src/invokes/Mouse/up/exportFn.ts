@@ -1,3 +1,5 @@
+import { computePosition } from "../OptionUtil";
+
 export const upFn = async (
   x: number,
   y: number,
@@ -9,8 +11,9 @@ export const upFn = async (
     return false;
   }
   try {
-    await invokeBaseApi.mouseUp(x, y, button);
-    return true;
+    const targetPos = await computePosition(x, y);
+    const res = await invokeBaseApi.mouseUp(targetPos.x, targetPos.y, button);
+    return res;
   } catch (error) {
     console.error("upFnError:", error);
     return false;

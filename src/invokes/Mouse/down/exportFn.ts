@@ -1,3 +1,5 @@
+import { computePosition } from "../OptionUtil";
+
 export const downFn = async (
   x: number,
   y: number,
@@ -9,8 +11,9 @@ export const downFn = async (
     return false;
   }
   try {
-    await invokeBaseApi.mouseDown(x, y, button);
-    return true;
+    const targetPos = await computePosition(x, y);
+    const res = await invokeBaseApi.mouseDown(targetPos.x, targetPos.y, button);
+    return res;
   } catch (error) {
     console.error("clickFnError:", error);
     return false;

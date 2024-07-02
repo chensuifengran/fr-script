@@ -12,18 +12,17 @@ export const randomMoveFn = async (
     return false;
   }
   try {
-    x =
-      x +
-      Math.floor(
-        Math.random() * (randomRange[0][1] - randomRange[0][0]) +
-          randomRange[0][0]
-      );
-    y =
-      y +
-      Math.floor(
-        Math.random() * (randomRange[1][1] - randomRange[1][0]) +
-          randomRange[1][0]
-      );
+    const [lX, hX] = randomRange[0]; //x轴最小偏移和最大偏移，可能为负数
+    const [lY, hY] = randomRange[1]; //y轴最小偏移和最大偏移，可能为负数
+    let targetPos = {
+      x,y
+    };
+    if(!(lX === 0 && hX === 0)){
+      targetPos.x += Math.round(lX + Math.random() * (hX - lX));
+    }
+    if(!(lY === 0 && hY === 0)){
+      targetPos.y += Math.round(lY + Math.random() * (hY - lY));
+    }
     const res = await invokeBaseApi.move(x, y);
     return res;
   } catch (e) {

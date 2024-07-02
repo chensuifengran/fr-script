@@ -1,7 +1,8 @@
 export const dialogOptions = {
   title: "鼠标按键抬起",
   targetMethodName: "up",
-  content: "鼠标移动到指定位置进行[左键/右键/中键]抬起，一般用于鼠标按键按下API调用之后主动抬起",
+  content:
+    "鼠标移动到指定位置进行[左键/右键/中键]抬起，一般用于鼠标按键按下API调用之后主动抬起,位置受Mouse.setMouseOption设置的选项影响",
   args: [
     {
       name: "x",
@@ -18,10 +19,10 @@ export const dialogOptions = {
     {
       name: "button",
       componentType: "select",
-      value: 'left',
+      value: "left",
       notAllowCreate: true,
       label: "鼠标按键",
-      options: ["left", "right", "middle"], 
+      options: ["left", "right", "middle"],
     },
     {
       name: "delay",

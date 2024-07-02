@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "拖动鼠标到指定位置",
   targetMethodName: "drag",
-  content: "拖动鼠标到指定位置[x或y的值任意<0时为表示使用当前鼠标位置作为起点]",
+  content: "拖动鼠标到指定位置[x或y的值任意<0时为表示使用当前鼠标位置作为起点],位置受Mouse.setMouseOption设置的选项影响",
   args: [
     {
       name: "x",
@@ -19,13 +19,13 @@ export const dialogOptions = {
       name: "toX",
       componentType: "numberInput",
       value: 0,
-      label: "目标x坐标",
+      label: "目标x坐标(>=0)",
     },
     {
       name: "toY",
       componentType: "numberInput",
       value: 0,
-      label: "目标y坐标",
+      label: "目标y坐标(>=0)",
     },
     {
       name: "duration",

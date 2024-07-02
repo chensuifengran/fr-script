@@ -1,3 +1,5 @@
+import { computePosition } from "../OptionUtil";
+
 export const clickFn = async (
   x: number,
   y: number,
@@ -9,8 +11,9 @@ export const clickFn = async (
     return false;
   }
   try {
-    await invokeBaseApi.click(x, y, button);
-    return true;
+    const targetPos = await computePosition(x, y);
+    const res = await invokeBaseApi.click(targetPos.x, targetPos.y, button);
+    return res;
   } catch (error) {
     console.error("clickFnError:", error);
     return false;

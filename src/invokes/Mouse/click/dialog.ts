@@ -1,7 +1,7 @@
 export const dialogOptions = {
   title: "鼠标点击",
   targetMethodName: "click",
-  content: "鼠标移动到指定位置进行[左键/右键/中键]点击",
+  content: "鼠标移动到指定位置进行[左键/右键/中键]点击,位置受Mouse.setMouseOption设置的选项影响",
   args: [
     {
       name: "x",
