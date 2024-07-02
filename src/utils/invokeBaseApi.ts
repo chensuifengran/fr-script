@@ -561,11 +561,14 @@ const screenshot = async (
   }
 };
 
-const captureOperation = async (captureOptions?: CaptureOptions, generateComment:boolean = false): Promise<string> => {
+const captureOperation = async (
+  captureOptions?: CaptureOptions,
+  generateComment: boolean = false
+): Promise<string> => {
   try {
     const res = await invoke<string[]>("capture_operation", {
       captureOptions,
-      generateComment
+      generateComment,
     });
     return res.join("\n");
   } catch (error) {
@@ -582,26 +585,27 @@ const stopCaptureOperation = async () => {
     console.error("invokeBaseApi.stopCaptureOperation error: ", error);
     return false;
   }
-}
+};
 
-const getSparkInfo = async ()=>{
-  try{
-    const res = await invoke<string>('get_spark_info');
-    const info = res.split('-') as [string, string, string];
+const getSparkInfo = async () => {
+  try {
+    const res = await invoke<string>("get_spark_info");
+    const info = res.split("-") as [string, string, string];
     return {
       APP_ID: info[0],
       API_SECRET: info[1],
-      API_KEY: info[2]
-    }
-  }catch(e){
-    console.error('invokeBaseApi.getSparkInfo error: ', e);
+      API_KEY: info[2],
+    };
+  } catch (e) {
+    console.error("invokeBaseApi.getSparkInfo error: ", e);
     return {
-      APP_ID: '',
-      API_SECRET: '',
-      API_KEY: ''
-    }
+      APP_ID: "",
+      API_SECRET: "",
+      API_KEY: "",
+    };
   }
-}
+};
+
 
 export const invokeBaseApi = {
   captureOperation,
@@ -633,5 +637,5 @@ export const invokeBaseApi = {
   screenColor,
   screenshot,
   imgColor,
-  getSparkInfo
+  getSparkInfo,
 };
