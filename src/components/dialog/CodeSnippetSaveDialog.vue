@@ -15,7 +15,7 @@
     <template #footer>
       <div>
         <el-button @click="saveDialog = false">取消</el-button>
-        <el-button type="primary" @click="copyCode">复制</el-button>
+        <el-button type="primary" @click="copyCode" v-if="showCopyBtn">复制</el-button>
         <el-button type="primary" @click="saveCodeSnippets">保存</el-button>
       </div>
     </template>
@@ -28,7 +28,8 @@ const {
   ruleFormRef,
   rules,
   copyCode,
-  saveCodeSnippets
+  saveCodeSnippets,
+  showCopyBtn
 } = useCodeSnippetSave();
 </script>
 
