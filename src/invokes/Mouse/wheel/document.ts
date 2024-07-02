@@ -10,7 +10,7 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<void>"),
+    type: codeHighLight("Promise<boolean>"),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',

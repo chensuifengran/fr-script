@@ -1,5 +1,5 @@
 export const apiDocument = <ApiDocumentType>{
-  howToUse: "拖动鼠标到指定位置[x或y的值任意<0时为表示使用当前鼠标位置作为起点]",
+  howToUse: "拖动鼠标到指定位置[x或y的值任意<0时为表示使用当前鼠标位置作为起点],位置受Mouse.setMouseOption设置的选项影响",
   params: [
     {
       name: "x",
@@ -18,14 +18,14 @@ export const apiDocument = <ApiDocumentType>{
     {
       name: "toX",
       required: true,
-      instructions: "目标x坐标",
+      instructions: "目标x坐标(>=0)",
       type: "number",
       default: "",
     },
     {
       name: "toY",
       required: true,
-      instructions: "目标y坐标",
+      instructions: "目标y坐标(>=0)",
       type: "number",
       default: "",
     },
@@ -38,7 +38,7 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<void>"),
+    type: codeHighLight("Promise<boolean>"),
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
