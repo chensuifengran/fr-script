@@ -19,6 +19,11 @@
         <el-tooltip class="box-item" effect="dark" content="编辑代码片段" placement="bottom">
           <code-icon class="icon" @click.stop="editFile" />
         </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="修改代码片段信息" placement="bottom">
+          <el-icon class="icon" @click.stop="editInfo">
+            <span i-mdi-playlist-edit></span>
+          </el-icon>
+        </el-tooltip>
         <el-tooltip class="box-item" effect="dark" content="打开代码片段" placement="bottom">
           <el-icon class="icon" @click.stop="openFIleDialog">
             <span i-mdi-folder-eye-outline></span>
@@ -63,6 +68,7 @@ const emit = defineEmits<{
   (event: "editFile", index: number): void;
   (event: "openFile", index: number): void;
   (event: "delCodeSnippets", index: number): void;
+  (event: "editInfo", index: number): void;
 }>();
 
 const codeSnippet = computed(() => {
@@ -83,7 +89,11 @@ const editFile = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("editFile", scriptIndex.value);
 };
+const editInfo = ()=>{
+  if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
+    emit("editInfo", scriptIndex.value);
 
+}
 const openFIleDialog = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("openFile", scriptIndex.value);
