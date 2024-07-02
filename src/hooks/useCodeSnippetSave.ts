@@ -1,8 +1,8 @@
 import { FormInstance, FormRules } from 'element-plus';
-import { exists } from '@tauri-apps/api/fs';
 import { nanoid } from 'nanoid';
 
 const saveDialog = ref(false);
+const showCopyBtn = ref(true);
 const saveConfig = reactive<SaveConfigForm>({
   name: "",
   description: "",
@@ -15,8 +15,8 @@ const nameValidator = (_rule: any, value: any, callback: any) => {
     callback(new Error('请输入代码片段名称'))
   } else {
     (async () => {
-      const savePath = `${await pathUtils.getInstallDir()}\\code-snippets\\${saveConfig.name}.snippet.ts`;
-      if (await exists(savePath)) {
+      const exist = useListStore().codeSnippets.find(item=> item.name === value);
+      if (exist) {
         callback(new Error('名称和已有代码片段重复，换个试试吧'))
       }
       callback()
@@ -50,11 +50,12 @@ const saveCodeSnippets = async () => {
   if (!await ruleFormRef.value.validate()) {
     return
   }
-  const filePath = `${await pathUtils.getInstallDir()}\\code-snippets\\${saveConfig.name}.snippet.ts`;
+  const id = nanoid();
+  const filePath = `${await pathUtils.getInstallDir()}\\code-snippets\\${saveConfig.name +'-'+ id}.snippet.ts`;
   try {
     await fsUtils.writeFile(filePath, saveConfig.code);
-    listStore.codeSnippets.unshift({
-      id: nanoid(),
+    listStore.codeSnippets.push({
+      id,
       name: saveConfig.name,
       description: saveConfig.description,
       prefix: saveConfig.prefix,
@@ -79,6 +80,7 @@ export const useCodeSnippetSave = ()=>{
     ruleFormRef,
     rules,
     copyCode,
-    saveCodeSnippets
+    saveCodeSnippets,
+    showCopyBtn
   }
 }
