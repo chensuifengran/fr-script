@@ -49,6 +49,7 @@ declare global {
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
+  const editorActions: typeof import('./utils/editorActions')['editorActions']
   const editorTsDeclaration: typeof import('./invokes/apiDeclaration')['editorTsDeclaration']
   const effectScope: typeof import('vue')['effectScope']
   const eventUtil: typeof import('./utils/eventUtil')['eventUtil']
