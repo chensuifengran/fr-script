@@ -1,6 +1,27 @@
 <template>
   <div class="script-editor-dev">
-    <OperationRecordPanel/>
+    <OperationRecordPanel />
+    <!-- 插入代码片段弹窗 -->
+    <el-dialog v-model="showInsertCodeDialog" title="插入代码片段" width="60%">
+      <el-autocomplete v-model="searchSnippet" value-key="name" :fetch-suggestions="querySearch"
+        placeholder="搜索代码片段:名称、备注、前缀">
+        <template #suffix>
+          <el-icon>
+            <span i-mdi-text-search></span>
+          </el-icon>
+        </template>
+        <template #default="{ item }">
+          <div flex flex-row flex-items-center> <el-tag type="primary" size="small" mr-1>{{ item.prefix }}</el-tag><el-text>{{ item.name }}</el-text></div>
+          <el-text>{{ item.description }}</el-text>
+        </template>
+      </el-autocomplete>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showInsertCodeDialog = false">取消</el-button>
+          <el-button type="primary" @click="insertCodeSnippet"> 确定 </el-button>
+        </span>
+      </template>
+    </el-dialog>
     <!-- 添加文件声明的弹窗 -->
     <el-dialog v-model="declareMod.visible" title="插入脚本声明">
       <div>脚本名称</div>
@@ -60,6 +81,7 @@
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
+import * as monaco from "monaco-editor";
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
@@ -84,6 +106,16 @@ const {
   declareMod,
   saveMod,
 } = useScriptInfo();
+const searchSnippet = ref('');
+const insertCodeSnippet = async ()=>{
+  const target = listStore.codeSnippets.find(i => i.name === searchSnippet.value);
+  if(target){
+    const snippetContent = await fsUtils.readFile(target.filePath);
+    insertText(EDITOR_DOM_ID, snippetContent.trim());
+    ElMessage.success("代码片段插入成功");
+  }
+  showInsertCodeDialog.value = false;
+}
 const { invokeDynamicDialog } = useCore();
 const fnInfo = AutoTipUtils.getFnInfo();
 const { apiAutoTip } = AutoTipUtils;
@@ -247,35 +279,37 @@ const keydownHandle = (e: KeyboardEvent) => {
       clearTimeout(t);
     }, 200);
     e.preventDefault();
-  } else if (key === "Tab" && e.ctrlKey) {
-    if (fnInfo.value) {
-      if (!fnInfo.value.haveAuxiliary) {
-        ElNotification({
-          title: "提示",
-          message: "当前函数无需填写参数或不支持快速填写参数。",
-          type: "info",
-          position: "bottom-right",
-        });
-        return;
-      }
-      const replaceParams = (targetArgs: string) => {
-        insertText(EDITOR_DOM_ID, targetArgs, false, fnInfo.value!.paramsRange);
-      };
-      if (fnInfo.value.fnType === "invokeApi") {
-        invokeDynamicDialog(
-          fnInfo.value.name,
-          fnInfo.value.name,
-          fnInfo.value.content || "",
-          "changeArgs",
-          replaceParams,
-          fnInfo.value.params
-        );
-      } else if (fnInfo.value.fnType === "util") {
-        //TODO util方法的快捷参数填写弹窗
-      }
-    }
   }
 };
+const showInsertCodeDialog = ref(false);
+const auxiliaryActionCallback = () => {
+  if (fnInfo.value) {
+    if (!fnInfo.value.haveAuxiliary) {
+      ElNotification({
+        title: "提示",
+        message: "当前函数无需填写参数或不支持快速填写参数。",
+        type: "info",
+        position: "bottom-right",
+      });
+      return;
+    }
+    const replaceParams = (targetArgs: string) => {
+      insertText(EDITOR_DOM_ID, targetArgs, false, fnInfo.value!.paramsRange);
+    };
+    if (fnInfo.value.fnType === "invokeApi") {
+      invokeDynamicDialog(
+        fnInfo.value.name,
+        fnInfo.value.name,
+        fnInfo.value.content || "",
+        "changeArgs",
+        replaceParams,
+        fnInfo.value.params
+      );
+    } else if (fnInfo.value.fnType === "util") {
+      //TODO util方法的快捷参数填写弹窗
+    }
+  }
+}
 let checkDeclareTimer: any = null;
 const checkDeclare = () => {
   if (router.currentRoute.value.name !== "scriptEditor") return;
@@ -383,6 +417,16 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   type === "focus" && ElMessage.info("已载入最新内容");
 };
 const { createWindow } = useWebviewWindow();
+const querySearch = (queryString: string, cb: (results: CodeSnippet[]) => void) => {
+  const results = queryString
+    ? listStore.codeSnippets.filter((i) => {
+      return i.name.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
+        i.description.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
+        i.prefix.toLowerCase().includes(searchSnippet.value.toLowerCase())
+    })
+    : listStore.codeSnippets
+  cb(results)
+}
 onMounted(async () => {
   createWindow("ORW", "/ORW", {
     height: 40,
@@ -395,7 +439,9 @@ onMounted(async () => {
   editorInit(EDITOR_DOM_ID);
   await getFile();
   document.getElementById(EDITOR_DOM_ID)?.addEventListener("keydown", keydownHandle);
-  registerEditorEvent("mounted", (editor: any) => {
+  registerEditorEvent("mounted", (editor: monaco.editor.IStandaloneCodeEditor) => {
+    editorActions.auxiliaryActionRegister(editor, auxiliaryActionCallback);
+    editorActions.insertSnippetCodeActionRegister(editor, () => { showInsertCodeDialog.value = true });
     editor.onDidChangeCursorPosition(cursorHandle);
     setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE);
     const t = setTimeout(() => {
