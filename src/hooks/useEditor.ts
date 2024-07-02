@@ -41,7 +41,7 @@ monaco.languages.registerCompletionItemProvider("typescript", {
     };
   },
 });
-const openOperationRecordDrawer = ref(false)
+const openOperationRecordDrawer = ref(false);
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
 //禁用语言
@@ -165,7 +165,10 @@ export const useEditor = () => {
   let onEditorMounted: ((
     editor: monaco.editor.IStandaloneCodeEditor
   ) => void)[] = [];
-  const registerEditorEvent = (name: string, cb: (event: any) => void) => {
+  const registerEditorEvent = (
+    name: string,
+    cb: (editor: monaco.editor.IStandaloneCodeEditor) => void
+  ) => {
     if (name === "mounted") {
       onEditorMounted.push(cb);
     }
@@ -194,7 +197,11 @@ export const useEditor = () => {
    * @param genEditorTsDeclaration 是否生成编辑器辅助声明文件
    * @param showMiniMap 是否显示缩略图
    */
-  const editorInit = async (domId: string, genEditorTsDeclaration = true, showMiniMap = true) => {
+  const editorInit = async (
+    domId: string,
+    genEditorTsDeclaration = true,
+    showMiniMap = true
+  ) => {
     const appGSStore = useAppGlobalSettings();
     let editorTheme = "vs";
     const settingEditorTheme = appGSStore.editor.theme.value;
@@ -261,7 +268,7 @@ export const useEditor = () => {
       editorValue.value = editor.getValue();
     });
   };
-  
+
   return {
     editorInit,
     disposeEditor,
@@ -273,6 +280,6 @@ export const useEditor = () => {
     setText,
     formatCode,
     editorValue: readonly(editorValue),
-    openOperationRecordDrawer
+    openOperationRecordDrawer,
   };
 };
