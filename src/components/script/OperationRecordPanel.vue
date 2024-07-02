@@ -59,7 +59,8 @@ import { useLocalStorageState } from 'vue-hooks-plus';
 
 const {
   saveDialog,
-  saveConfig
+  saveConfig,
+  showCopyBtn
 } = useCodeSnippetSave();
 const { openOperationRecordDrawer } = useEditor();
 const defaultFormValue = {
@@ -112,6 +113,7 @@ const startCapture = async () => {
     saveConfig.name = '操作记录';
     saveConfig.code = res;
     saveDialog.value = true;
+    showCopyBtn.value = true;
   } catch (error) {
     console.error(error);
   } finally {
