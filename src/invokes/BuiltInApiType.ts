@@ -42,6 +42,7 @@ export type BuiltInApiType = {
     move: typeof import("./Mouse/move/exportFn")["moveFn"];
     pos: typeof import("./Mouse/pos/exportFn")["posFn"];
     randomMove: typeof import("./Mouse/randomMove/exportFn")["randomMoveFn"];
+    setMouseOption: typeof import("./Mouse/setMouseOption/exportFn")["setMouseOptionFn"];
     up: typeof import("./Mouse/up/exportFn")["upFn"];
     wheel: typeof import("./Mouse/wheel/exportFn")["wheelFn"];
   };

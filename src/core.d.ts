@@ -50,6 +50,7 @@ declare global {
         move: typeof import("./invokes/Mouse/move/exportFn")["moveFn"];
         pos: typeof import("./invokes/Mouse/pos/exportFn")["posFn"];
         randomMove: typeof import("./invokes/Mouse/randomMove/exportFn")["randomMoveFn"];
+        setMouseOption: typeof import("./invokes/Mouse/setMouseOption/exportFn")["setMouseOptionFn"];
         up: typeof import("./invokes/Mouse/up/exportFn")["upFn"];
         wheel: typeof import("./invokes/Mouse/wheel/exportFn")["wheelFn"];
       };
