@@ -15,6 +15,21 @@
           </span>
         </template>
       </el-dialog>
+      <!-- 编辑代码片段信息弹窗 -->
+      <el-dialog v-model="editInfoDialog" title="编辑代码片段信息">
+        <div>代码片段名称:</div>
+        <el-input v-model="editInfoDialogForm.name" />
+        <div>代码片段描述:</div>
+        <el-input v-model="editInfoDialogForm.description" />
+        <div>代码片段前缀:</div>
+        <el-input v-model="editInfoDialogForm.prefix" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="editInfoDialog = false">取消</el-button>
+            <el-button type="primary" @click="editInfoDialogCb">保存</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <el-affix target=".code-snippet-list-div" :offset="40">
         <div class="header">
           <span style="font-size: 18px">代码片段列表</span>
@@ -32,8 +47,8 @@
           left-0 />
         <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort"
           :animation="200" handle=".drag-handle" @start="onStart" @update="onEnd" @end="onEnd">
-          <CodeSnippetListItem v-for="item in showList" :key="item.id" :id="item.id" @editFile="editFile"
-            :show-hover="showItemHover" @openFile="openFile" @delCodeSnippets="delCodeSnippets" />
+          <CodeSnippetListItem v-for="item in showList" :key="item.id" :id="item.id" @edit-file="editFile" @edit-info="editInfo"
+            :show-hover="showItemHover" @open-file="openFile" @del-code-snippets="delCodeSnippets" />
         </VueDraggable>
       </div>
     </div>
@@ -55,7 +70,7 @@ const el = ref<UseDraggableReturn>();
 let deleteConfirm: () => void = () => { };
 const listStore = useListStore();
 const { codeSnippets } = storeToRefs(listStore);
-const { saveDialog, saveConfig } = useCodeSnippetSave();
+const { saveDialog, saveConfig, showCopyBtn } = useCodeSnippetSave();
 const showItemHover = ref(true);
 const {
   editorInit,
@@ -106,6 +121,33 @@ const editFile = async (index: number) => {
   const code = await fsUtils.readFile(target.filePath);
   setText(EDITOR_DOM_ID, 'export {};\n' + code.trim());
 };
+const editInfoDialog = ref(false);
+const editInfoDialogForm = reactive({
+  name: "",
+  description: "",
+  prefix: ""
+});
+let editInfoDialogCb = ()=>{};
+const editInfo = async (index: number)=>{
+  const target = codeSnippets.value[index];
+  editInfoDialogForm.name = target.name;
+  editInfoDialogForm.description = target.description;
+  editInfoDialogForm.prefix = target.prefix;
+  editInfoDialogCb = ()=>{
+    const existLikeName = codeSnippets.value.find(i => i.name === editInfoDialogForm.name);
+    if(existLikeName){
+      ElMessage.warning('已存在相同名称的代码片段，换个名字试试吧');
+      return
+    }
+    const target = codeSnippets.value[index];
+    target.name = editInfoDialogForm.name;
+    target.description = editInfoDialogForm.description;
+    target.prefix = editInfoDialogForm.prefix;
+    editInfoDialog.value = false;
+    ElMessage.success('修改成功');
+  }
+  editInfoDialog.value = true;
+}
 const handleClose: DialogBeforeCloseFn = async (done) => {
   const newValue = editorValue.value.replace(matchExportRegex, "");
   const target = codeSnippets.value.find(i => i.id === targetId.value);
@@ -158,6 +200,7 @@ const onAddItem = () => {
   saveConfig.description = "";
   saveConfig.prefix = "";
   saveDialog.value = true;
+  showCopyBtn.value = false;
 };
 
 const imoprtScript = async () => {
