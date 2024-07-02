@@ -772,10 +772,11 @@ const getCustomizeForm = async () => {
 };
 const abortSignalInScript = ref<AbortController | undefined>();
 const getWillRunScript = (runId: string, script: string) => {
+  const buildApiScript = genBuiltInApi(runId);
   const scriptTemplate = `
     try{
       with(window['${CORE_NAMESPACES}']){
-        ${genBuiltInApi(runId) + "\n"}
+        ${buildApiScript + "\n"}
         changeScriptRunState(true);
         replaceRendererList([]);
         pushElementToCheckList({

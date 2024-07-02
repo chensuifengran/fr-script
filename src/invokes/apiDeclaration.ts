@@ -1,5 +1,8 @@
 import { KeyOptions } from "./Input/KeyOptions";
-
+/**
+ * 提供给编辑器的类型声明, 用于代码提示
+ * @returns {string}
+ */
 export const editorTsDeclaration = () => {
   const index = import.meta.glob<Record<string, any>>("./**/index.ts", {
     eager: true,
@@ -42,14 +45,14 @@ export const editorTsDeclaration = () => {
     if (key === "root") {
       allDeclarationString += scopes[key].join("\n");
     } else {
-      allDeclarationString += `declare namespace ${key} {\n${scopes[key].join(
-        "\n"
-      )}\n}\n`;
+      allDeclarationString += `declare namespace ${key} {\n${scopes[
+        key
+      ].join("\n")}\n}\n`;
     }
   });
-  const INPUT_KEY_TYPE = `declare type Key = ${KeyOptions.map((i) => `"${i.split(":")[1]}"`).join(
-    "|"
-  )};`;
+  const INPUT_KEY_TYPE = `declare type Key = ${KeyOptions.map(
+    (i) => `"${i.split(":")[1]}"`
+  ).join("|")};`;
   return `
   ${INPUT_KEY_TYPE}
   ${UTIL_DECLARE_STRING}
