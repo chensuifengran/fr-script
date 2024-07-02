@@ -141,7 +141,7 @@ const apiAutoTip = () => {
   const { findEditor } = useEditor();
   // 获取编辑器实例
   const editor = findEditor("codeEditBox");
-  if(!editor){
+  if (!editor) {
     return;
   }
   // 获取当前选择的文本范围或光标的当前位置
@@ -450,6 +450,23 @@ const createDependencyProposals = async (range: {
         };
       }
     });
+  const listStore = useListStore();
+  const codeSnippetList = await Promise.all([
+    ...listStore.codeSnippets.map(async (item) => {
+      const label = item.prefix;
+      const detail = item.description || "";
+      const insertText = await fsUtils.readFile(item.filePath);
+      return {
+        label,
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        detail: item.name + ':' +detail,
+        insertText: insertText?.trim() || "",
+        insertTextRules:
+          monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        range,
+      };
+    }),
+  ]);
   const allSnippet = allModules.filter((i) => i !== null) as {
     label: string;
     kind: monaco.languages.CompletionItemKind;
@@ -463,7 +480,7 @@ const createDependencyProposals = async (range: {
       endColumn: number;
     };
   }[];
-  return allSnippet;
+  return [...allSnippet, ...codeSnippetList];
 };
 export const AutoTipUtils = {
   strIndexOfApi,
