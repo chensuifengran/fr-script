@@ -7,6 +7,7 @@ export type BuiltInApiType = {
   connectTo: typeof import("./connectTo/exportFn")["connectToFn"];
   cropPicture: typeof import("./cropPicture/exportFn")["cropPictureFn"];
   CV: {
+    __NS_DATA__: Record<string, any>;
     imgSimilarity: typeof import("./CV/imgSimilarity/exportFn")["imgSimilarityFn"];
     matchTemplate: typeof import("./CV/matchTemplate/exportFn")["matchTemplateFn"];
     screenDiffTemplates: typeof import("./CV/screenDiffTemplates/exportFn")["screenDiffTemplatesFn"];
@@ -19,11 +20,13 @@ export type BuiltInApiType = {
   getScreenRectInfo: typeof import("./getScreenRectInfo/exportFn")["getScreenRectInfoFn"];
   getScreenSize: typeof import("./getScreenSize/exportFn")["getScreenSizeFn"];
   GlobalShortcut: {
+    __NS_DATA__: Record<string, any>;
     listen: typeof import("./GlobalShortcut/listen/exportFn")["listenFn"];
     unlisten: typeof import("./GlobalShortcut/unlisten/exportFn")["unlistenFn"];
     waitKeys: typeof import("./GlobalShortcut/waitKeys/exportFn")["waitKeysFn"];
   };
   Input: {
+    __NS_DATA__: Record<string, any>;
     combined: typeof import("./Input/combined/exportFn")["combinedFn"];
     keyDown: typeof import("./Input/keyDown/exportFn")["keyDownFn"];
     keyUp: typeof import("./Input/keyUp/exportFn")["keyUpFn"];
@@ -31,6 +34,7 @@ export type BuiltInApiType = {
     text: typeof import("./Input/text/exportFn")["textFn"];
   };
   Mouse: {
+    __NS_DATA__: Record<string, any>;
     click: typeof import("./Mouse/click/exportFn")["clickFn"];
     clicker: typeof import("./Mouse/clicker/exportFn")["clickerFn"];
     down: typeof import("./Mouse/down/exportFn")["downFn"];

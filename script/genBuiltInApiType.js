@@ -13,6 +13,7 @@ let content = "";
 let declareContent = "";
 const genType = process.argv[2] || "api";
 try {
+  console.log("🚀","开始生成内置API的类型文件");
   console.time("generate use time");
   const dirs = readdirSync(invokesPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -33,17 +34,23 @@ try {
         .map((dirent) => dirent.name);
       if (genType === "declare") {
         declareContent += `\n      ${dir}: {`;
+        //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+        declareContent += `\n        __NS_DATA__: Record<string, any>;`;
         subDirs.forEach((subDir) => {
           declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
         declareContent += "\n      };";
       } else {
         content += `  ${dir}: {\n`;
+        //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+        content += `    __NS_DATA__: Record<string, any>;\n`;
         subDirs.forEach((subDir) => {
           content += `    ${subDir}: typeof import("./${dir}/${subDir}/exportFn")["${subDir}Fn"];\n`;
         });
         content += "  };\n";
         declareContent += `\n      ${dir}: {`;
+        //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+        declareContent += `\n        __NS_DATA__: Record<string, any>;`;
         subDirs.forEach((subDir) => {
           declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
@@ -74,14 +81,14 @@ declare global {
   `;
     const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
-    console.log("✨", "generate core.d.ts file in", declareGlobalPath);
+    console.log("✨", "The core.d.ts file is generated in the: ", declareGlobalPath);
   } else {
     const builtInApiType =
       "export type BuiltInApiType = {\n" + content + "};\n";
     writeFileSync(resolve(invokesPath, "BuiltInApiType.ts"), builtInApiType);
     console.log(
       "✨",
-      "generate BuiltInApiType.ts file in",
+      "The BuiltInApiType.ts file is generated in the:",
       invokesPath + "\\BuiltInApiType.ts"
     );
     const useCorePath = resolve(__dirname, "../src/hooks/useCore.ts");
@@ -106,7 +113,7 @@ declare global {
   `;
     const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
-    console.log("✨", "generate core.d.ts file in", declareGlobalPath);
+    console.log("✨", "The core.d.ts file is generated in the: ", declareGlobalPath);
   }
   console.timeEnd("generate use time");
 } catch (error) {

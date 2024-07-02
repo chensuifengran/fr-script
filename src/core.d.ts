@@ -15,6 +15,7 @@ declare global {
       connectTo: typeof import("./invokes/connectTo/exportFn")["connectToFn"];
       cropPicture: typeof import("./invokes/cropPicture/exportFn")["cropPictureFn"];
       CV: {
+        __NS_DATA__: Record<string, any>;
         imgSimilarity: typeof import("./invokes/CV/imgSimilarity/exportFn")["imgSimilarityFn"];
         matchTemplate: typeof import("./invokes/CV/matchTemplate/exportFn")["matchTemplateFn"];
         screenDiffTemplates: typeof import("./invokes/CV/screenDiffTemplates/exportFn")["screenDiffTemplatesFn"];
@@ -27,11 +28,13 @@ declare global {
       getScreenRectInfo: typeof import("./invokes/getScreenRectInfo/exportFn")["getScreenRectInfoFn"];
       getScreenSize: typeof import("./invokes/getScreenSize/exportFn")["getScreenSizeFn"];
       GlobalShortcut: {
+        __NS_DATA__: Record<string, any>;
         listen: typeof import("./invokes/GlobalShortcut/listen/exportFn")["listenFn"];
         unlisten: typeof import("./invokes/GlobalShortcut/unlisten/exportFn")["unlistenFn"];
         waitKeys: typeof import("./invokes/GlobalShortcut/waitKeys/exportFn")["waitKeysFn"];
       };
       Input: {
+        __NS_DATA__: Record<string, any>;
         combined: typeof import("./invokes/Input/combined/exportFn")["combinedFn"];
         keyDown: typeof import("./invokes/Input/keyDown/exportFn")["keyDownFn"];
         keyUp: typeof import("./invokes/Input/keyUp/exportFn")["keyUpFn"];
@@ -39,6 +42,7 @@ declare global {
         text: typeof import("./invokes/Input/text/exportFn")["textFn"];
       };
       Mouse: {
+        __NS_DATA__: Record<string, any>;
         click: typeof import("./invokes/Mouse/click/exportFn")["clickFn"];
         clicker: typeof import("./invokes/Mouse/clicker/exportFn")["clickerFn"];
         down: typeof import("./invokes/Mouse/down/exportFn")["downFn"];

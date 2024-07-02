@@ -113,10 +113,10 @@ const initBuiltInApi = (
     builtInApi.sort((a, b) => {
       return b!.testModule!.weight! - a!.testModule!.weight!;
     });
-  }else{
-    builtInApi.forEach((item, index)=>{
+  } else {
+    builtInApi.forEach((item, index) => {
       item.testModule!.weight = builtInApi.length - index;
-    })
+    });
   }
 };
 const invokeDynamicDialog = (
@@ -172,6 +172,8 @@ const exportAllFn = (): BuiltInApiType => {
       if (i.scope) {
         const scope = i.scope;
         allFn[scope] = allFn[i.scope] || {};
+        //用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+        allFn[scope]["__NS_DATA__"] = {};
         allFn[scope][alias] = fn;
         if (i.helperClass) {
           i.helperClass.forEach((helperClass) => {
@@ -220,6 +222,8 @@ const exportAllFn = (): BuiltInApiType => {
       if (i.scope) {
         const scope = i.scope;
         allFn[scope] = allFn[i.scope] || {};
+        //用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+        allFn[scope]["__NS_DATA__"] = {};
         allFn[scope][i.name] = fn;
         if (i.helperClass) {
           i.helperClass.forEach((helperClass) => {
