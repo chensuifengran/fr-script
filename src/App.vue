@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
 import { appWindow } from "@tauri-apps/api/window";
+import { register, unregister } from "@tauri-apps/api/globalShortcut";
 const { registerAllInvokeApi } = useCore();
 const { isMainWindow, menuKey } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
@@ -63,6 +64,8 @@ const aside_width = computed(() => {
   }
 });
 onMounted(async () => {
+  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  register(showMainWindowShortcuts, () => appWindow.show());
   shortcutsStore.init();
   const init = async (listenResize = true) => {
     listenResize &&
@@ -95,6 +98,10 @@ onMounted(async () => {
   }
   registerAllInvokeApi();
 });
+onUnmounted(()=>{
+  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  unregister(showMainWindowShortcuts);
+})
 
 
 const collapsedAside = () => {

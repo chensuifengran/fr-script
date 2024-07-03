@@ -289,10 +289,6 @@ onMounted(async () => {
     targetWindow?.hide();
   });
   registerGlobalShortcuts(running.value);
-  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
-  register(showMainWindowShortcuts, () => {
-    appWindow.show();
-  });
   unlistenNotify = await notify.listen((data) => {
     const { type } = data.payload as { type: string; payload: any };
     if (type === "end") {
@@ -312,8 +308,6 @@ onUnmounted(() => {
     const shortcuts = shortcutsStore.getShortcuts(s.onlyDescription);
     unregister(shortcuts);
   });
-  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
-  unregister(showMainWindowShortcuts);
   unlistenNotify();
 });
 </script>
