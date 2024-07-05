@@ -113,10 +113,9 @@ const goEditor = () => {
 };
 const builtInApi = useBuiltInApi();
 const run = (script: string, runId: string) => {
-  const res = script.replace(STRING_URL_REGEX,(matchText,)=>{
-    return matchText.replace('//',"__%%__");
-  })
-  script = script.replace(res, "").replace(STRING_URL_REGEX, (matchText) => {
+  script = script.replace(STRING_URL_REGEX, (matchText) => {
+    return matchText.replace('//', "__%%__");
+  }).replace(ANNOTATION_REGEX, "").replace(STRING_URL_REGEX, (matchText) => {
     return matchText.replace("__%%__", "//");
   });
   runningFnId.value = runId;
