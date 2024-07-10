@@ -3,7 +3,7 @@ import { adbStateFn } from "./exportFn";
 export const modelCallback = async (
   _options: undefined,
   testModuleCtx: {
-    showDetails: (text: string | undefined, preStr?: string) => void;
+    showDetails: ShowDetailsFn;
   }
 ) => {
   const res = await adbStateFn();

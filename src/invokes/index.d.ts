@@ -1,3 +1,5 @@
+type ShowDetailsFn = (text: string | undefined, preStr?: string) => void;
+
 type MouseOption = {
   randomOffset?: [
     //随机偏移量
@@ -82,7 +84,6 @@ type TestModuleDialogType = {
 };
 type TestModuleType = {
   canBeCalled?: boolean;
-  itemType?: "invokeApi" | "util";
   weight: number;
   dialog: TestModuleDialogType;
   callback: (...args: any[]) => Promise<void> | void;

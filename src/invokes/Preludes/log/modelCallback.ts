@@ -7,7 +7,7 @@ export const modelCallback = async (
     replaceCurFnArgs?: (targetArgs: string) => void;
   },
   testModuleCtx: {
-    showDetails: showDetailsFn;
+    showDetails: ShowDetailsFn;
   }
 ) => {
   if (options.replaceCurFnArgs) {

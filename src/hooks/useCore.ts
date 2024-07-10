@@ -11,7 +11,7 @@ const dynamicDialog = reactive({
 //testModule callback上下文
 const testModuleCtx = <
   {
-    showDetails: (text: string | undefined, preStr?: string) => void;
+    showDetails: ShowDetailsFn;
   }
 >{
   showDetails: () => {},
@@ -19,7 +19,7 @@ const testModuleCtx = <
 const builtInApi = reactive<InvokeApiMethodType[]>([]);
 //设置testModuleCtx
 const setTestModuleCtx = (ct: {
-  showDetails: (text: string | undefined, preStr?: string) => void;
+  showDetails: ShowDetailsFn;
 }) => {
   testModuleCtx.showDetails = ct.showDetails;
 };

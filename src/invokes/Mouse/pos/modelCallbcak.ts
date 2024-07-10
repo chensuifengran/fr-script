@@ -3,7 +3,7 @@ import { posFn } from "./exportFn";
 export const modelCallback = async (
   _options: undefined,
   testModuleCtx: {
-    showDetails: (text: string | undefined, preStr?: string) => void;
+    showDetails: ShowDetailsFn;
   }
 ) => {
   console.time("Mouse.pos耗时");

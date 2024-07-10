@@ -5,7 +5,7 @@ export const modelCallback = async (
   _options: undefined,
   //DllTest组件的上下文
   testModuleCtx: {
-    showDetails: (text: string | undefined, preStr?: string) => void;
+    showDetails: ShowDetailsFn;
   }
 ) => {
 

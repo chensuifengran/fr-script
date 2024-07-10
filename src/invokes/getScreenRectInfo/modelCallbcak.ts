@@ -2,7 +2,7 @@ import { getScreenRectInfoFn } from "./exportFn";
 export const modelCallback = async (
   options: { delayTime: number },
   testModuleCtx: {
-    showDetails: (text: string | undefined, preStr?: string) => void;
+    showDetails: ShowDetailsFn;
   }
 ) => {
   console.time("getScreenRectInfo耗时");
