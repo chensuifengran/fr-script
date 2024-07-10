@@ -67,12 +67,14 @@ import { connectToFn } from "../../invokes/connectTo/exportFn";
 import { cmdFn } from "../../invokes/cmd/exportFn";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
+import { useLog } from "../../hooks/useLog";
 const { notify } = eventUtil;
 const AsyncRendererForm = defineAsyncComponent(
   () => import("@/components/script/RendererForm.vue")
 );
 
-const { running, name, version, hideWindow, savePath, logOutput } = useScriptView();
+const { running, name, version, hideWindow, savePath } = useScriptView();
+const {logOutput} = useLog();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
 
@@ -115,9 +117,7 @@ const builtInApi = useBuiltInApi();
 const run = (script: string, runId: string) => {
   script = script.replace(STRING_URL_REGEX, (matchText) => {
     return matchText.replace('//', "__%%__");
-  }).replace(ANNOTATION_REGEX, "").replace(STRING_URL_REGEX, (matchText) => {
-    return matchText.replace("__%%__", "//");
-  });
+  }).replace(ANNOTATION_REGEX, "").replaceAll("__%%__", "//");
   runningFnId.value = runId;
   window[CORE_NAMESPACES] = {
     ...builtInApi,
@@ -175,7 +175,7 @@ const stop = () => {
   setEndBeforeCompletion(true);
   notAllowedFnId.value.push(runningFnId.value);
   builtInApi.changeScriptRunState("stop");
-  builtInApi.log("脚本已强制结束", "warning");
+  builtInApi.Preludes.log("脚本已强制结束", "warning");
   builtInApi.setTaskEndStatus("warning", "脚本已强制结束");
   builtInApi.abortSignalInScript && builtInApi.abortSignalInScript.abort();
   console.log("脚本已停止，随着出现的报错为正常情况，不影响使用");
@@ -207,7 +207,7 @@ const initScript = async (reinit: boolean = false) => {
     }
     if (
       appGSStore.ocr.value === "GPU" &&
-      scriptStr.replace(ANNOTATION_REGEX, "").includes("ocr")
+      scriptStr.replace(ANNOTATION_REGEX, "").includes("ocr(")
     ) {
       await ocrFn(0, 0, 1, 1);
     }

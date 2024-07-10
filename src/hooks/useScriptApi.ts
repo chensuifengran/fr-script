@@ -1,14 +1,7 @@
 import { storeToRefs } from "pinia";
 import { WebviewWindow } from "@tauri-apps/api/window";
-import { nanoid } from "nanoid";
-export type LogOutputType = {
-  id: string;
-  time: string;
-  log: string;
-  type: "success" | "danger" | "info" | "warning" | "loading";
-  timestamp: number;
-};
-const { exportAllFn, genBuiltInApi } = useCore();
+import { useLog } from "./useLog";
+
 const buildTableForm = () => {
   return new TableForm();
 };
@@ -772,6 +765,7 @@ const getCustomizeForm = async () => {
 };
 const abortSignalInScript = ref<AbortController | undefined>();
 const getWillRunScript = (runId: string, script: string) => {
+  const { genBuiltInApi } = useCore();
   const buildApiScript = genBuiltInApi(runId);
   const scriptTemplate = `
     try{
@@ -810,15 +804,15 @@ const getWillRunScript = (runId: string, script: string) => {
 };
 const setIntervals: NodeJS.Timeout[] = [];
 const _setInterval = (callback: () => void, ms?: number | undefined) => {
-  const timeout = setInterval(()=>{
-    try{
-      const {isStop} = window[CORE_NAMESPACES];
-      if(isStop){
+  const timeout = setInterval(() => {
+    try {
+      const { isStop } = window[CORE_NAMESPACES];
+      if (isStop) {
         _clearInterval(timeout);
         return;
       }
       callback();
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }, ms);
@@ -840,7 +834,7 @@ const removeIntervals = () => {
     console.log("已清除所有定时器");
   }, 300);
 };
-const getFileInfo = (
+export const getFileInfo = (
   type: "id" | "savePath" | "name" | "version" | "description"
 ) => {
   const listStore = useListStore();
@@ -872,48 +866,6 @@ const setEndBeforeCompletion = (status: boolean) => {
 };
 
 const hideWindow = ref(true);
-const logOutput = reactive<
-  LogOutputType[]
->([]);
-const clearLogOutput = () => {
-  logOutput.splice(0, logOutput.length);
-  notify.clear();
-};
-
-const log = (
-  msg: string,
-  type?: "success" | "danger" | "info" | "warning" | "loading"
-) => {
-  //@ts-ignore
-  if (window[CORE_NAMESPACES].isStop) {
-    return;
-  }
-  const date = new Date(Date.now());
-  //获取时分秒，时分秒不足两位补0
-  const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
-    .map((i) => {
-      return i < 10 ? "0" + i : i;
-    })
-    .join(":");
-  logOutput.push({
-    id: nanoid(),
-    time: timeStr,
-    log: msg,
-    type: type ? type : "info",
-    timestamp: Date.now()
-  });
-  notify.send({
-    type,
-    message: msg,
-    time: timeStr,
-  });
-  if (type === "danger") {
-    logUtil.scriptConsoleErrorReport(msg, name.value + version.value);
-  }
-  const consoleLogDiv = document.getElementById("consoleLogDiv");
-  consoleLogDiv &&
-    (consoleLogDiv.scrollTop = consoleLogDiv?.scrollHeight + 9999);
-};
 
 const name = computed(() => {
   return getFileInfo("name");
@@ -924,7 +876,13 @@ const version = computed(() => {
 const savePath = computed(() => {
   return getFileInfo("savePath");
 });
-const notDelApi = ["changeScriptRunState", "isStop", "removeIntervals", "log", 'setInterval'];
+const notDelApi = [
+  "changeScriptRunState",
+  "isStop",
+  "removeIntervals",
+  "log",
+  "setInterval",
+];
 const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   const { runningFnId } = useScriptRuntime();
   if (taskId && taskId !== runningFnId.value) {
@@ -948,8 +906,8 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       notify.done();
     }
   } else if (state) {
-    clearLogOutput();
-    log("脚本就绪，等待开始运行", "loading");
+    useLog().clearLogOutput();
+    useBuiltInApi().Preludes.log("脚本就绪，等待开始运行", "loading");
     running.value = 0;
     endBeforeCompletion = false;
   } else {
@@ -957,7 +915,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       return;
     }
     running.value = 1;
-    log("脚本执行完成", "success");
+    useBuiltInApi().Preludes.log("脚本执行完成", "success");
     setTaskEndStatus("success", "脚本执行完成");
     if (window[CORE_NAMESPACES]) {
       Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
@@ -999,7 +957,6 @@ export const useScriptView = () => {
     version,
     hideWindow,
     savePath,
-    logOutput,
   };
 };
 
@@ -1015,6 +972,7 @@ class FormUtil {
  * 用于提供给编辑器进行代码提示。
  */
 export const useBuiltInApi = () => {
+  const { exportAllFn } = useCore();
   const { openId } = useScriptInfo();
   const { rendererList } = useListStore();
   const appGSStore = useAppGlobalSettings();
@@ -1074,7 +1032,6 @@ export const useBuiltInApi = () => {
     setTaskEndStatus,
     buildTableForm,
     getCustomizeForm,
-    sleep: timeUtil.sleep,
     abortSignalInScript: abortSignalInScript.value,
     startScriptSignal: new AbortController(),
     setInterval: _setInterval,
@@ -1083,8 +1040,6 @@ export const useBuiltInApi = () => {
     rendererList,
     getScriptId,
     changeScriptRunState,
-    log,
-    clearLogOutput,
     ...exportAllFn(),
     replaceRendererList,
     pushElementToCheckList,
