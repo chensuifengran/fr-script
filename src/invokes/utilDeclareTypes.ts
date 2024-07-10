@@ -207,17 +207,6 @@ export const UTIL_DECLARE_STRING = `
    * @returns {Promise<FormUtil>}
   */
   declare function getCustomizeForm(): Promise<FormUtil>;
-  /**
-   * 等待一段时间。
-   *
-   * @param {number} ms 要暂停的时间，单位为毫秒, 默认值为1000。
-   * 
-   * @example await sleep();
-   * 
-   * @returns Promise<void>
-   *
-   */
-  declare function sleep(ms?: number):Promise<void>;
   declare const abortSignalInScript: AbortController;
   declare const startScriptSignal: AbortController;
   declare function removeIntervals(): void;
@@ -237,14 +226,6 @@ export const UTIL_DECLARE_STRING = `
   */
   declare function readClipboardFirstText(): Promise<string>;
   
-  /**
-   * 显示一条消息在运行窗口/通知窗口。
-   *
-   * @param {string} msg 要显示的消息。
-   * @param {("success" | "danger" | "info" | "warning" | "loading")} [type] 消息的类型，默认为 "info"。
-   * @returns void
-   */
-  declare function log(msg: string, type?: "success" | "danger" | "info" | "warning" | "loading"): void;
   declare function clearLogOutput() : {
     time: string;
     log: string;

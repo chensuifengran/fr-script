@@ -7,7 +7,7 @@ export const SCRIPT_TEMPLATE = `//引用类型推断文件，以便在vscode中�
  * @name:newScript
  * @description:脚本描述
  */
-
+const { log, sleep } = Preludes;
 //脚本运行入口函数
 const main = async () => {
 
