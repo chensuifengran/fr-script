@@ -1,10 +1,10 @@
 <template>
   <div class="dynamics-input" v-if="
-    (type === 'invokeApi' ? dynamicDialog.title === name : false) &&
+    dynamicDialog.title === name &&
     displayConditionIsOk
   " v-show="(!onlyTest || (onlyTest && dynamicDialog.callType === 'test')) &&
-      !(noTest && dynamicDialog.callType === 'test')
-      ">
+    !(noTest && dynamicDialog.callType === 'test')
+    ">
     <span class="label" v-if="argItem?.label && !notShowType.includes(argItem.componentType)">
       {{ argItem.label }}
     </span>
@@ -107,29 +107,18 @@ const props = defineProps({
     type: [String, Number, Boolean, Object, Array<string>],
     required: true,
   },
-  type: {
-    type: String as PropType<"invokeApi" | "util">,
-    default: "invokeApi",
-  },
 });
 const name = computed(() => {
-  if (props.type === "invokeApi") {
-    return (
-      getInvokeApiMethods().find((i) => i.name === props.name)?.exportFn?.alias ||
-      props.name
-    );
-  } else {
-    // return (
-    //   getUtilMethods().find((item) => item.name === props.name)?.exportFn?.alias ||
-    //   props.name
-    // );
-  }
+  return (
+    getInvokeApiMethods().find((i) => i.name === props.name)?.exportFn?.alias ||
+    props.name
+  )
 });
 
 const argItem = computed(() => {
   const invokeApiTarget = getInvokeApiMethods().find((item) => item.name === props.name)
     ?.testModule;
-  if (props.type === "invokeApi" && invokeApiTarget) {
+  if (invokeApiTarget) {
     const dialog = invokeApiTarget.dialog;
     dialog.args?.forEach((arg) => {
       if (arg.options) {
@@ -228,12 +217,9 @@ watch(model, (val, oldValue) => {
     }
   }
   let target: InvokeApiMethodType | undefined;
-  if (props.type === "invokeApi") {
-    const invokeApiTestMethods = getInvokeApiMethods();
-    const t = invokeApiTestMethods.find((i) => i.name === props.name);
-    t && (target = t);
-  }
-
+  const invokeApiTestMethods = getInvokeApiMethods();
+  const t = invokeApiTestMethods.find((i) => i.name === props.name);
+  t && (target = t);
   if (target) {
     const dialog = target.testModule?.dialog;
     if (dialog) {

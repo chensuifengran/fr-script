@@ -5,10 +5,6 @@ const props = defineProps({
   model: {
     type: Object as PropType<TestModuleType>,
   },
-  type: {
-    type: String as PropType<"invokeApi" | "util">,
-    default: "invokeApi",
-  },
   showHover: {
     type: Boolean,
     default: true
@@ -83,14 +79,8 @@ onMounted(() => {
 });
 const resetExampleCode = () => {
   if (firstExampleCode.length) {
-    let target: InvokeApiMethodType | undefined;
-
     const targetMethodName = dialog.value?.targetMethodName;
-    if (props.type === "invokeApi") {
-      target = getInvokeApiMethods().find((i) => i.name === targetMethodName);
-    } else if (props.type === "util") {
-    }
-
+    const target = getInvokeApiMethods().find((i) => i.name === targetMethodName);
     if (target) {
       const codes = target.testModule?.document?.example?.code;
       if (codes) {
@@ -137,7 +127,7 @@ watchEffect(async () => {
         </el-icon>
         <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
       </div>
-      <el-tooltip effect="dark" content="测试调用" placement="left" v-if="type === 'invokeApi'">
+      <el-tooltip effect="dark" content="测试调用" placement="left">
         <el-button size="small" type="primary" circle @click.stop="invokeDynamicDialog(
           dialog?.targetMethodName!,
           aliasName || dialog?.targetMethodName,
@@ -146,10 +136,6 @@ watchEffect(async () => {
         )">
           <el-icon size="large"><span i-mdi-bug-play></span></el-icon>
         </el-button>
-      </el-tooltip>
-      <el-tooltip v-else effect="dark" content="查看文档" placement="left">
-        <el-button size="small" :disabled="!model!.canBeCalled"><el-icon size="large"><span
-              i-mdi-file-eye-outline></span></el-icon></el-button>
       </el-tooltip>
     </div>
     <div class="api-details" v-if="showDetails">
@@ -268,6 +254,7 @@ watchEffect(async () => {
       }
     }
   }
+
   .api-details {
     width: 100%;
     display: flex;
@@ -276,8 +263,10 @@ watchEffect(async () => {
     box-sizing: border-box;
     max-height: v-bind(detailsMaxHeight);
     overflow-y: v-bind(overflow);
+
     .api-details-item {
       margin-bottom: 10px;
+
       .example-title {
         display: flex;
         flex-direction: row;

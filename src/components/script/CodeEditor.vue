@@ -296,8 +296,7 @@ const auxiliaryActionCallback = () => {
     const replaceParams = (targetArgs: string) => {
       insertText(EDITOR_DOM_ID, targetArgs, false, fnInfo.value!.paramsRange);
     };
-    if (fnInfo.value.fnType === "invokeApi") {
-      invokeDynamicDialog(
+    invokeDynamicDialog(
         fnInfo.value.name,
         fnInfo.value.name,
         fnInfo.value.content || "",
@@ -305,9 +304,6 @@ const auxiliaryActionCallback = () => {
         replaceParams,
         fnInfo.value.params
       );
-    } else if (fnInfo.value.fnType === "util") {
-      //TODO util方法的快捷参数填写弹窗
-    }
   }
 }
 let checkDeclareTimer: any = null;

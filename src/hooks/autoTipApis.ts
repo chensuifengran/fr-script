@@ -1,7 +1,6 @@
 import * as monaco from "monaco-editor";
 import { useEditor } from "./useEditor";
 type FnInfo = {
-  fnType?: "invokeApi" | "util";
   name: string;
   scope?: string;
   params: any[];
@@ -356,7 +355,6 @@ const apiAutoTip = () => {
         scope: i.scope,
         ...i.testModule,
         alias: i.exportFn?.alias,
-        itemType: "invokeApi",
         haveAuxiliary: i.auxiliary !== undefined,
       };
     })
@@ -380,7 +378,6 @@ const apiAutoTip = () => {
     return;
   }
   if (fnInfo.value) {
-    fnInfo.value.fnType = target.itemType as "invokeApi";
     fnInfo.value.content = target.document?.howToUse;
     fnInfo.value.haveAuxiliary = target.haveAuxiliary;
   }

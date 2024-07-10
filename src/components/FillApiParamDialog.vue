@@ -16,7 +16,6 @@
           :value="a.value"
           :only-test="a.onlyTest ? true : false"
           :no-test="a.noTest ? true : false"
-          type="invokeApi"
         />
       </div>
     </template>
