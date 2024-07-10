@@ -14,10 +14,10 @@
             </el-icon></el-button>
         </div>
       </transition>
-      <VueDraggable ref="el" v-model="allDocumentItems" :animation="200" ghostClass="ghost" class="draggable-content" handle=".drag-handle"
-        :disabled="disableSort" @update="onUpdate" @start="onStart">
+      <VueDraggable ref="el" v-model="allDocumentItems" :animation="200" ghostClass="ghost" class="draggable-content"
+        handle=".drag-handle" :disabled="disableSort" @update="onUpdate" @start="onStart">
         <ApiDocumentItem v-for="m in allDocumentItems" :key="m?.dialog?.targetMethodName || m?.dialog?.title"
-          :model="m!" :type="m?.itemType" :show-hover="showItemHover"/>
+          :model="m!" :show-hover="showItemHover" />
       </VueDraggable>
 
       <el-empty v-if="!allDocumentItems.length" description="没有找到相应的API"></el-empty>
@@ -76,7 +76,7 @@ const disableSort = computed(() => {
 const onStart = () => {
   showItemHover.value = false;
 };
-const onEnd = ()=>{
+const onEnd = () => {
   showItemHover.value = true;
 }
 const onUpdate = (e: SortableEvent) => {
@@ -145,10 +145,7 @@ const allDocumentItems = computed<TestModuleType[]>({
             );
           }
           return true;
-        })
-        .map((d) => {
-          return { ...d, itemType: "invokeApi" } as TestModuleType;
-        }),
+        }) as TestModuleType[],
     ].sort((a, b) => {
       return b!.weight! - a!.weight!;
     });
@@ -207,9 +204,11 @@ onMounted(() => {
 .select {
   width: 100px;
 }
+
 .ghost {
   opacity: 0.9;
 }
+
 .remd {
   width: 100%;
   height: 100%;
