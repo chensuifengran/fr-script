@@ -89,7 +89,7 @@ const editFile = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("editFile", scriptIndex.value);
 };
-const editInfo = ()=>{
+const editInfo = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("editInfo", scriptIndex.value);
 
@@ -121,12 +121,11 @@ const itemHeight = computed(() => {
   margin-top: 3px;
   border-radius: 5px;
   transition: v-bind(showAnimation);
+  cursor: pointer;
 
   &:hover {
     box-shadow: #a0e0bd 0 0 3px;
   }
-
-  cursor: pointer;
 
   .details {
     width: 100%;

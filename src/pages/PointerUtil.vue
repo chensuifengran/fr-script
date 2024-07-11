@@ -38,7 +38,7 @@
         </div>
         <div class="empty" v-if="!records.length">
           <el-text size="small">暂无内容，按下</el-text>
-          <el-tag type="primary" size="small">{{globalShortcutStore.getShortcuts("记录鼠标位置及颜色") }}</el-tag>
+          <el-tag type="primary" size="small">{{ globalShortcutStore.getShortcuts("记录鼠标位置及颜色") }}</el-tag>
           <el-text size="small">记录鼠标点对应的颜色</el-text>
         </div>
       </el-scrollbar>
@@ -123,6 +123,14 @@ const showTip = () => {
   box-sizing: border-box;
 
   .content {
+
+
+    height: calc(100% - 35px);
+    width: 100%;
+    position: relative;
+    padding: 0 10px;
+    box-sizing: border-box;
+
     .mini-tip {
       display: flex;
       position: absolute;
@@ -137,12 +145,6 @@ const showTip = () => {
       transform: v-bind(tipTransform);
       transition: all 0.5s;
     }
-
-    height: calc(100% - 35px);
-    width: 100%;
-    position: relative;
-    padding: 0 10px;
-    box-sizing: border-box;
 
     .info {
       display: flex;
