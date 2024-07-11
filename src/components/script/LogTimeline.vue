@@ -7,7 +7,7 @@
   </el-timeline>
 </template>
 <script lang="ts" setup>
-import { LogOutputType } from '../../hooks/useScriptApi';
+import { type LogOutputType } from '../../hooks/useLog';
 import DotLoader from '../Icons/DotLoader.vue';
 import MenuDots from '../Icons/MenuDots.vue';
 import CheekIcon from '../Icons/CheekIcon.vue';
