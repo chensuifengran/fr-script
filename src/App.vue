@@ -65,6 +65,7 @@ const aside_width = computed(() => {
 });
 onMounted(async () => {
   const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  await unregister(showMainWindowShortcuts);
   register(showMainWindowShortcuts, () => appWindow.show());
   shortcutsStore.init();
   const init = async (listenResize = true) => {
