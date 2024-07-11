@@ -55,6 +55,11 @@ declare global {
         wheel: typeof import("./invokes/Mouse/wheel/exportFn")["wheelFn"];
       };
       ocr: typeof import("./invokes/ocr/exportFn")["ocrFn"];
+      Preludes: {
+        __NS_DATA__: Record<string, any>;
+        log: typeof import("./invokes/Preludes/log/exportFn")["logFn"];
+        sleep: typeof import("./invokes/Preludes/sleep/exportFn")["sleepFn"];
+      };
       screenColor: typeof import("./invokes/screenColor/exportFn")["screenColorFn"];
       screenshot: typeof import("./invokes/screenshot/exportFn")["screenshotFn"];
       screenshotColor: typeof import("./invokes/screenshotColor/exportFn")["screenshotColorFn"];
