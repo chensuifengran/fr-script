@@ -8,6 +8,6 @@
   },
   "include": ["vite.config.ts"],
   "files": [
-    "src/vitePlugins/hotUpdate.ts"
+    "vitePlugins/hotUpdate.ts"
   ]
 }

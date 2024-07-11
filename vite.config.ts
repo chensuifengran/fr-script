@@ -8,7 +8,7 @@ import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
 import UnoCSS from 'unocss/vite'
-import { hotUpdatePlugin } from "./src/vitePlugins/hotUpdate";
+import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 export default defineConfig({
   plugins: [
