@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { BuiltInApiType } from "../invokes/BuiltInApiType";
 export const CORE_NAMESPACES = "__FR_BUILT_IN_API__";
 //弹窗
@@ -18,9 +19,7 @@ const testModuleCtx = <
 };
 const builtInApi = reactive<InvokeApiMethodType[]>([]);
 //设置testModuleCtx
-const setTestModuleCtx = (ct: {
-  showDetails: ShowDetailsFn;
-}) => {
+const setTestModuleCtx = (ct: { showDetails: ShowDetailsFn }) => {
   testModuleCtx.showDetails = ct.showDetails;
 };
 
@@ -299,7 +298,11 @@ const genBuiltInApi = (runId: string) => {
     })
     .join("\n");
 };
-const getApiModules = async () => {
+export const getApiModules = async (
+  skipDisabledApi: boolean = true,
+  genId: boolean = false,
+  genFullPath: boolean = false
+): Promise<InvokeApiMethodType[]> => {
   const apiModules = import.meta.glob("../invokes/**/index.ts", {
     eager: true,
   });
@@ -308,11 +311,27 @@ const getApiModules = async () => {
   for (let i = 0; i < _apis.length; i++) {
     const [key, value] = _apis[i];
     const apiNamePath = await pathUtils.join(key, "../");
+
     const apiName = await pathUtils.basename(apiNamePath);
     const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
     if (!module) {
       console.error(`找不到${apiName}Api或${apiName}模块`);
       continue;
+    }
+    if (skipDisabledApi && module?.disabled) {
+      console.warn(
+        `内置API：${module.scope ? module.scope + "." : ""}${module.name}已禁用`
+      );
+      continue;
+    }
+    if (genId) {
+      module["id"] = nanoid();
+    }
+    if (genFullPath) {
+      module["fullPath"] = await pathUtils.resolve(
+        await pathUtils.getInstallDir(),
+        "../../../src/a/" + key
+      );
     }
     apis.push(module);
   }
@@ -334,6 +353,7 @@ export const useCore = () => {
     exportAllFn,
     registerAllInvokeApi,
     moveBuiltInApiIndex,
+    getApiModules,
   };
 };
 export const getInvokeApiMethods = () => {

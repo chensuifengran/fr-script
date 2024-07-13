@@ -109,6 +109,8 @@ type InvokeApiMethodType = {
   declaration?: string;
   //辅助类
   helperClass?: Function[];
+  //禁用该内置API
+  disabled?: boolean;
 };
 type Key =
   // 数字键

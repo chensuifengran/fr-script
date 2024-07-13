@@ -4,24 +4,35 @@
  */
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { readdirSync } from "fs";
+import { writeFileSync, readFileSync, readdirSync } from "fs";
+import chalk from "chalk";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const invokesPath = resolve(__dirname, "../src/invokes");
-import { writeFileSync, readFileSync } from "fs";
 let content = "";
 let declareContent = "";
 const genType = process.argv[2] || "api";
 try {
-  console.log("🚀","开始生成内置API的类型文件");
-  console.time("generate use time");
+  console.log("🚀", "开始生成内置API的类型文件");
+  console.time(chalk.green("generate use time"));
   const dirs = readdirSync(invokesPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
   dirs.forEach((dir) => {
     const dirPath = resolve(invokesPath, dir);
     const files = readdirSync(dirPath);
+
     if (files.includes("index.ts")) {
+      const indexFilePath = resolve(dirPath, "index.ts");
+      const fileContent = readFileSync(indexFilePath, "utf-8");
+      if (/\sdisabled:\s?(true|([1-9][0-9]*)),?/.test(fileContent)) {
+        console.warn(
+          "⚠️ ",
+          chalk.blue(indexFilePath),
+          chalk.yellow(":本API已被禁用，跳过类型文件生成")
+        );
+        return;
+      }
       if (genType === "declare") {
         declareContent += `\n      ${dir}: typeof import("./invokes/${dir}/exportFn")["${dir}Fn"];`;
       } else {
@@ -37,14 +48,36 @@ try {
         //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
         declareContent += `\n        __NS_DATA__: Record<string, any>;`;
         subDirs.forEach((subDir) => {
+          const indexFilePath = resolve(resolve(dirPath, subDir), "index.ts");
+          const fileContent = readFileSync(indexFilePath, "utf-8");
+          if (/\sdisabled:\s?(true|([1-9][0-9]*)),?/.test(fileContent)) {
+            console.warn(
+              "⚠️ ",
+              chalk.blue(indexFilePath),
+              chalk.yellow(":本API已被禁用，跳过类型文件生成")
+            );
+            return;
+          }
           declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
         declareContent += "\n      };";
       } else {
+        const disabledPath = [];
         content += `  ${dir}: {\n`;
         //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
         content += `    __NS_DATA__: Record<string, any>;\n`;
         subDirs.forEach((subDir) => {
+          const indexFilePath = resolve(resolve(dirPath, subDir), "index.ts");
+          const fileContent = readFileSync(indexFilePath, "utf-8");
+          if (/\sdisabled:\s?(true|([1-9][0-9]*)),?/.test(fileContent)) {
+            console.warn(
+              "⚠️ ",
+              chalk.blue(indexFilePath),
+              chalk.yellow(":本API已被禁用，跳过类型文件生成")
+            );
+            disabledPath.push(indexFilePath);
+            return;
+          }
           content += `    ${subDir}: typeof import("./${dir}/${subDir}/exportFn")["${subDir}Fn"];\n`;
         });
         content += "  };\n";
@@ -52,6 +85,10 @@ try {
         //添加一个属性，用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
         declareContent += `\n        __NS_DATA__: Record<string, any>;`;
         subDirs.forEach((subDir) => {
+          const indexFilePath = resolve(resolve(dirPath, subDir), "index.ts");
+          if (disabledPath.includes(indexFilePath)) {
+            return;
+          }
           declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
         declareContent += "\n      };";
@@ -81,15 +118,21 @@ declare global {
   `;
     const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
-    console.log("✨", "The core.d.ts file is generated in the: ", declareGlobalPath);
+    console.log(
+      "✨",
+      "The core.d.ts file is generated in the: ",
+      declareGlobalPath
+    );
   } else {
     const builtInApiType =
       "export type BuiltInApiType = {\n" + content + "};\n";
     writeFileSync(resolve(invokesPath, "BuiltInApiType.ts"), builtInApiType);
     console.log(
       "✨",
-      "The BuiltInApiType.ts file is generated in the:",
-      invokesPath + "\\BuiltInApiType.ts"
+      "The",
+      chalk.green("BuiltInApiType.ts"),
+      "file is generated in the:",
+      chalk.blue(invokesPath + "\\BuiltInApiType.ts")
     );
     const useCorePath = resolve(__dirname, "../src/hooks/useCore.ts");
     const coreString = readFileSync(useCorePath, "utf-8");
@@ -113,9 +156,15 @@ declare global {
   `;
     const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
-    console.log("✨", "The core.d.ts file is generated in the: ", declareGlobalPath);
+    console.log(
+      "✨",
+      "The",
+      chalk.green("core.d.ts"),
+      "file is generated in the: ",
+      chalk.blue(declareGlobalPath)
+    );
   }
-  console.timeEnd("generate use time");
+  console.timeEnd(chalk.green("generate use time"));
 } catch (error) {
   console.error("声明文件生成失败！", error);
 }
