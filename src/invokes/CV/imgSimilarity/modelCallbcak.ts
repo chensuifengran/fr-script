@@ -5,8 +5,8 @@ import { auxiliary } from "./auxiliary";
 
 export const modelCallback = async (
   options: {
-    imgPath: string;
-    tempPath: string;
+    pathA: string;
+    pathB: string;
     rect: {
       x: number;
       y: number;
@@ -26,8 +26,8 @@ export const modelCallback = async (
   }
   console.time("imgSimilarity耗时");
   const similarityValue = await imgSimilarityFn(
-    options.imgPath,
-    options.tempPath,
+    options.pathA,
+    options.pathB,
     options.rect.x,
     options.rect.y,
     options.rect.width,
@@ -39,8 +39,8 @@ export const modelCallback = async (
   )?.testModule;
   selfFnModule!.document!.example!.code = codeHighLight(
     `const similarityValue = await CV.imgSimilarity(
-        \t"${options.imgPath.replace(/\\/g, "\\\\")}",
-        \t"${options.tempPath.replace(/\\/g, "\\\\")}",
+        \t"${options.pathA.replace(/\\/g, "\\\\")}",
+        \t"${options.pathB.replace(/\\/g, "\\\\")}",
         \t${options.rect.x},${options.rect.y},${options.rect.width},${
       options.rect.height
     }
