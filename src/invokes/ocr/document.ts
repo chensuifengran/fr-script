@@ -38,7 +38,7 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`
+    type: `
 //返回值：
 Promise<OcrUtil | undefined>
 //OcrUtil类声明：
@@ -94,13 +94,11 @@ declare class FindResult {
   public click(): Promise<void>;
   public touch(): Promise<string>;
 };
-`),
+`,
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(
-      `const ocrUtil = await ocr(0, 0, 100, 100);`
-    ),
+    code: `const ocrUtil = await ocr(0, 0, 100, 100);`,
   },
   searchKeys: ["OCR", "ocr", "图片", "指定范围"],
   codeSnippet:

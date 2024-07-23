@@ -25,17 +25,17 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<boolean>"),
+    type: "Promise<boolean>",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//鼠标移动到(100,100)并抬起(左键)
+    code: `//鼠标移动到(100,100)并抬起(左键)
 await Mouse.up(100,100);
 //鼠标移动到(100,100)并抬起(右键)
 await Mouse.up(100,100,"right");
 //鼠标移动到(100,100)并抬起(中键)
 await Mouse.up(100,100,"middle");
-      `),
+      `,
   },
   searchKeys: ["鼠标", "mouse", "左键", "中键", "右键", "抬起", "移动"],
   codeSnippet: "await Mouse.up(${1:x}, ${2:y});",

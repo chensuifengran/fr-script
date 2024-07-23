@@ -17,10 +17,10 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`void`),
+    type: `void`,
   },
   example: {
-    code: codeHighLight(`//info类型日志：
+    code: `//info类型日志：
 log("我是日志");
 //success类型日志：
 log("我是日志", "success");
@@ -29,7 +29,7 @@ log("我是日志", "danger");
 //warning类型日志：
 log("我是日志", "warning");
 //loading类型日志：
-log("我是日志", "loading");`),
+log("我是日志", "loading");`,
   },
   searchKeys: ["log", "日志", "Preludes"],
   codeSnippet: "log('${1:日志内容}'${2:, 'loading'});",

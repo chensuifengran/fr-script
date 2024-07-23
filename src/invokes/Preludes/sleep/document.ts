@@ -10,14 +10,14 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<void>`),
+    type: `Promise<void>`,
   },
   example: {
-    code: codeHighLight(`//休眠1000ms
+    code: `//休眠1000ms
 await sleep();
 //休眠2000ms
-await sleep(2000);`),
+await sleep(2000);`,
   },
-  searchKeys: ["sleep", "休眠", "停止","等待", "暂停", "延时"],
+  searchKeys: ["sleep", "休眠", "停止", "等待", "暂停", "延时"],
   codeSnippet: "sleep(${1:time_ms});",
 };

@@ -45,14 +45,12 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<number>"),
+    type: "Promise<number>",
     instructions: "返回1为截取成功。",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(
-      `const res = await cropPicture('path',x,y,width,height,'outPath');`
-    ),
+    code: `const res = await cropPicture('path',x,y,width,height,'outPath');`,
   },
   searchKeys: ["截取", "裁剪", "图片"],
   codeSnippet:

@@ -11,15 +11,12 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(
-      "Promise<{ startX:number; startY:number; width:number; height:number; }>"
-    ),
+    type: "Promise<{ startX:number; startY:number; width:number; height:number; }>",
   },
   example: {
-    code: codeHighLight(
-      `const { startX, startY, width, height } = await getScreenRectInfo();`
-    ),
+    code: `const { startX, startY, width, height } = await getScreenRectInfo();`,
   },
   searchKeys: ["屏幕", "矩形", "范围", "位置"],
-  codeSnippet:'const { startX, startY, width, height } = await getScreenRectInfo(${1:delayTime});'
+  codeSnippet:
+    "const { startX, startY, width, height } = await getScreenRectInfo(${1:delayTime});",
 };

@@ -38,13 +38,14 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<string>`),
+    type: `Promise<string>`,
     instructions: "滑动结果",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`const res = await slideTo(100, 100, 200, 200, 1000);`),
+    code: `const res = await slideTo(100, 100, 200, 200, 1000);`,
   },
-  searchKeys: ["ADB",'adb', "滑动"],
-  codeSnippet: "await slideTo(${1:fromX}, ${2:fromY}, ${3:toX}, ${4:toY}, ${5:slideTime});",
+  searchKeys: ["ADB", "adb", "滑动"],
+  codeSnippet:
+    "await slideTo(${1:fromX}, ${2:fromY}, ${3:toX}, ${4:toY}, ${5:slideTime});",
 };

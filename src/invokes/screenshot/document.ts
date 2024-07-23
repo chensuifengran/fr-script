@@ -38,19 +38,20 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<number>"),
+    type: "Promise<number>",
     instructions: "返回1为截图成功。",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//全屏截图且使用默认保存路径
+    code: `//全屏截图且使用默认保存路径
 const res = await screenshot();
 //自定义截图区域且使用默认保存路径
 const res = await screenshot(x,y,width,height);
 //自定义截图区域且使用自定义保存路径
 const res = await screenshot(x,y,width,height,"E:\\\\image.png");
-        `),
+        `,
   },
   searchKeys: ["截图", "屏幕"],
-  codeSnippet:'const res = await screenshot(${1:x}, ${2:y}, ${3:width}, ${4:height});'
+  codeSnippet:
+    "const res = await screenshot(${1:x}, ${2:y}, ${3:width}, ${4:height});",
 };

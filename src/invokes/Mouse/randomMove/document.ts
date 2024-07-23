@@ -24,14 +24,13 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<boolean>`),
+    type: `Promise<boolean>`,
     instructions: "移动结果",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`await randomMove(100,100);`),
+    code: `await randomMove(100,100);`,
   },
-  searchKeys: ["mouse", "random", "move", "移动","随机"],
-  codeSnippet:
-    "await Mouse.randomMove(${1:x}, ${2:y}, ${3:[[0,0],[0,0]]});",
+  searchKeys: ["mouse", "random", "move", "移动", "随机"],
+  codeSnippet: "await Mouse.randomMove(${1:x}, ${2:y}, ${3:[[0,0],[0,0]]});",
 };

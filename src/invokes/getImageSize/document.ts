@@ -10,14 +10,12 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<{ width:number; height:number; }>"),
+    type: "Promise<{ width:number; height:number; }>",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(
-      'const { width, height } = await getImageSize("E:\\\\image.png");'
-    ),
+    code: 'const { width, height } = await getImageSize("E:\\\\image.png");',
   },
   searchKeys: ["图片", "宽高", "获取"],
-  codeSnippet:'const { width, height } = await getImageSize("${1:imgPath}");'
+  codeSnippet: 'const { width, height } = await getImageSize("${1:imgPath}");',
 };

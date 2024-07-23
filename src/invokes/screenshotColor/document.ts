@@ -19,19 +19,19 @@ export const apiDocument = <ApiDocumentType>{
       name: "mod",
       required: false,
       instructions: "值为adb时将在调用前执行adb截图操作",
-      type: ["normal", "adb"],
-      default: "normal",
+      type: ["'normal'", "'adb'"],
+      default: "'normal'",
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<ColorUtil | undefined>"),
+    type: "Promise<ColorUtil | undefined>",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//获取屏幕指定位置像素点的rgb值
+    code: `//获取屏幕指定位置像素点的rgb值
 const colorUtil = await screenshotColor(100, 100);
 const [r,g,b] = colorUtil?.getRgb() || [0,0,0];
-        `),
+        `,
   },
   searchKeys: ["颜色", "color", "坐标", "adb", "屏幕"],
   codeSnippet: "const colorUtil = await screenshotColor(${1:x}, ${2:y});",

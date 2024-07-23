@@ -17,13 +17,13 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<string>`),
+    type: `Promise<string>`,
     instructions: "ADB设备轻触指定位置结果",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`const res = await touch(100, 100);`),
+    code: `const res = await touch(100, 100);`,
   },
-  searchKeys: ["ADB",'adb', "点击指定位置","轻触","click",'touch'],
+  searchKeys: ["ADB", "adb", "点击指定位置", "轻触", "click", "touch"],
   codeSnippet: "await touch(${1:targetX}, ${2:targetY});",
 };

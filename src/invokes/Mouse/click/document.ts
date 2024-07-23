@@ -1,5 +1,6 @@
 export const apiDocument = <ApiDocumentType>{
-  howToUse: "鼠标移动到指定位置进行[左键/中键/右键]点击,位置受Mouse.setMouseOption设置的选项影响",
+  howToUse:
+    "鼠标移动到指定位置进行[左键/中键/右键]点击,位置受Mouse.setMouseOption设置的选项影响",
   params: [
     {
       name: "x",
@@ -24,17 +25,17 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight("Promise<boolean>"),
+    type: "Promise<boolean>",
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//鼠标移动到(100,100)并点击(左键)
+    code: `//鼠标移动到(100,100)并点击(左键)
 await Mouse.click(100,100);
 //鼠标移动到(100,100)并点击(右键)
 await Mouse.click(100,100,"right");
 //鼠标移动到(100,100)并点击(中键)
 await Mouse.click(100,100,"middle");
-      `),
+      `,
   },
   searchKeys: ["鼠标", "mouse", "左键", "中键", "右键", "点击", "移动"],
   codeSnippet: "await Mouse.click(${1:x}, ${2:y});",

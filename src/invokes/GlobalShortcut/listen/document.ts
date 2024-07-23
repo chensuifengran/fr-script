@@ -18,18 +18,16 @@ export const apiDocument = <ApiDocumentType>{
   ],
   returnValue: {
     instructions: "返回一个函数，调用该函数可以取消监听",
-    type: codeHighLight(`Promise<(() => Promise<void>) | undefined>`),
+    type: `Promise<(() => Promise<void>) | undefined>`,
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(
-      `//等待 Alt+S 或 Alt+R 被按下
+    code: `//等待 Alt+S 或 Alt+R 被按下
 const unlisten = await GlobalShortcut.listen(["Alt+S","Alt+R"],(key)=>{console.log(key);});//监听快捷键
 //取消监听
 if(unlisten){
   await unlisten();
-}`
-    ),
+}`,
   },
   searchKeys: ["unlisten", "listen", "触发", "快捷键"],
   codeSnippet:

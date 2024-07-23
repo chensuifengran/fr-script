@@ -10,13 +10,13 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`Promise<string | undefined>`),
+    type: `Promise<string | undefined>`,
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//等待 Alt+S 或 Alt+R 被按下
+    code: `//等待 Alt+S 或 Alt+R 被按下
 const key = await GlobalShortcut.waitKeys(["Alt+S","Alt+R"]);
-//按下Alt+S之后key为"Alt+S"，按下Alt+R之后key为"Alt+R"`),
+//按下Alt+S之后key为"Alt+S"，按下Alt+R之后key为"Alt+R"`,
   },
   searchKeys: ["wait", "等待", "按下", "触发"],
   codeSnippet: "const key = await GlobalShortcut.waitKeys(['${1:key}']);",

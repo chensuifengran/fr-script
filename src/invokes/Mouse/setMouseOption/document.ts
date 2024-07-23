@@ -10,11 +10,10 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(`void`),
+    type: `void`,
   },
   example: {
-    code: codeHighLight(
-      `//设置鼠标随机偏移、设置基准屏幕像素 设置完成之后，鼠标点击、拖动等API会受到这些选项的影响
+    code: `//设置鼠标随机偏移、设置基准屏幕像素 设置完成之后，鼠标点击、拖动等API会受到这些选项的影响
 Mouse.setMouseOption({
   randomOffset: [
     [-2, 2], //x坐标偏移量[最小值,最大值]
@@ -22,8 +21,7 @@ Mouse.setMouseOption({
   ],
   baseSize: [1920, 1080] //基准屏幕像素
 });
-`
-    ),
+`,
   },
   searchKeys: [
     "config",

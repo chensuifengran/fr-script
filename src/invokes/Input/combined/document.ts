@@ -10,16 +10,15 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(
-`Promise<{
+    type: `Promise<{
   code: number;
   message: string;
-}>`),
+}>`,
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//按下A键后松开
-await Input.combined("A");`),
+    code: `//按下A键后松开
+await Input.combined("A");`,
   },
   searchKeys: ["combined", "key", "组合键", "按键"],
   codeSnippet: "await Input.combined(['${1:key}', '${2:key}']);",

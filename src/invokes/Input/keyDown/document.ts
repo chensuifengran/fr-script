@@ -11,18 +11,16 @@ export const apiDocument = <ApiDocumentType>{
     },
   ],
   returnValue: {
-    type: codeHighLight(
-      `Promise<{
+    type: `Promise<{
   code: number;
   message: string;
-}>`
-    ),
+}>`,
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: codeHighLight(`//主动抬起A键
+    code: `//主动抬起A键
 await Input.keyDown("A");
-      `),
+      `,
   },
   searchKeys: ["按下", "输入", "key", "按键"],
   codeSnippet: "await Input.keyDown('${1:key}');",
