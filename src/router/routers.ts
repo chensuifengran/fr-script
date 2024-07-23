@@ -4,12 +4,13 @@ import ProjectIcon from "../components/Icons/ProjectIcon.vue";
 import SettingsIcon from "../components/Icons/SettingsIcon.vue";
 import InfoIcon from "../components/Icons/InfoIcon.vue";
 import CodeSnippetIcon from "../components/Icons/CodeSnippetIcon.vue";
-const routes = [
+import { type RouteRecordRaw } from "vue-router";
+import DevIcon from "../components/Icons/DevIcon.vue";
+const routes = <RouteRecordRaw[]>[
   {
     path: "/",
     redirect: "/script/list",
   },
-
   {
     path: "/script",
     name: "script",
@@ -17,6 +18,7 @@ const routes = [
     meta: {
       title: "脚本",
       icon: ScriptIcon,
+      position: "top",
     },
     children: [
       {
@@ -48,6 +50,17 @@ const routes = [
     meta: {
       title: "调试",
       icon: InvokeIcon,
+      position: "top",
+    },
+  },
+  {
+    path: "/codeSnippetList",
+    name: "codeSnippetList",
+    component: () => import(`../pages/CodeSnippetList.vue`),
+    meta: {
+      title: "片段",
+      icon: CodeSnippetIcon,
+      position: "top",
     },
   },
   {
@@ -57,6 +70,7 @@ const routes = [
     meta: {
       title: "工程",
       icon: ProjectIcon,
+      position: "top",
     },
   },
 
@@ -67,6 +81,7 @@ const routes = [
     meta: {
       title: "设置",
       icon: SettingsIcon,
+      position: "bottom",
     },
   },
   {
@@ -76,6 +91,7 @@ const routes = [
     meta: {
       title: "关于",
       icon: InfoIcon,
+      position: "bottom",
     },
   },
 
@@ -128,18 +144,22 @@ const routes = [
       title: "依赖管理器",
     },
   },
-  {
-    path: "/codeSnippetList",
-    name: "codeSnippetList",
-    component: () => import(`../pages/CodeSnippetList.vue`),
-    meta: {
-      title: "片段",
-      icon: CodeSnippetIcon,
-    },
-  },
 ];
-export const topRoutes = [routes[1], routes[2], routes[12], routes[3]];
-export const bottomRoutes = [routes[4], routes[5]];
-export const hideRoutes = [routes[6]];
+if (import.meta.env.DEV) {
+  const invokesManagerOption = {
+    path: "/invokesManager",
+    name: "invokesManager",
+    component: () => import(`../pages/InvokesManager.vue`),
+    meta: {
+      title: "API",
+      icon: DevIcon,
+      position: "top",
+    },
+  };
+  routes.push(invokesManagerOption);
+}
+export const topRoutes = routes.filter((r) => r.meta?.position === "top");
+
+export const bottomRoutes = routes.filter((r) => r.meta?.position === "bottom");
 
 export default routes;
