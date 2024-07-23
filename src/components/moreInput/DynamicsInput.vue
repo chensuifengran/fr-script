@@ -11,8 +11,8 @@
     <template v-if="argItem && argItem.componentType === 'select'">
       <el-select class="input" v-model="model" filterable :multiple="argItem.multiple" :clearable="argItem.multiple"
         :allow-create="!argItem.notAllowCreate" default-first-option :placeholder="argItem.placeholder || '请选择'">
-        <el-option v-for="item in argItem.options" :key="item" :label="parseOption(item).label"
-          :value="parseOption(item).value"></el-option>
+        <el-option v-for="item in (argItem as ArgItem<DialogArg.Select>).options" :key="item"
+          :label="parseOption(item).label" :disabled="disabled" :value="parseOption(item).value"></el-option>
       </el-select>
     </template>
     <template v-else-if="
@@ -20,40 +20,41 @@
       argItem.componentType === 'FileInput' &&
       (typeof model === 'string' || Array.isArray(model))
     ">
-      <FileInput v-model="model" :label="argItem.label" :verify="argItem.verifyPath" :multiple="argItem.multiple"
-        :string-separator="argItem.stringSeparator" />
+      <FileInput v-model="model" :disabled="disabled" :label="argItem.label" :verify="argItem.verifyPath"
+        :multiple="argItem.multiple" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'RectInput' && typeof model === 'object'
     ">
-      <RectInput v-model="model" :target-src="targetSrc" />
+      <RectInput v-model="model" :disabled="disabled" :target-src="targetSrc" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'slider' && typeof model === 'number'
     ">
-      <SliderInput v-model="model" :max="argItem.range?.max" :min="argItem.range?.min" :step="argItem.range?.step"
-        :label="argItem.label" size="small" />
+      <SliderInput v-model="model" :disabled="disabled" :max="argItem.range?.max" :min="argItem.range?.min"
+        :step="argItem.range?.step" :label="argItem.label" size="small" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'switch' && typeof model === 'boolean'
     ">
-      <el-switch v-model="model" :active-text="argItem.activeText || '是'" :inactive-text="argItem.inactiveText || '否'"
-        size="small" />
+      <el-switch v-model="model" :disabled="disabled" :active-text="argItem.activeText || '是'"
+        :inactive-text="argItem.inactiveText || '否'" size="small" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'DirInput' && typeof model === 'string'
     ">
-      <DirInput v-model="model" :label="argItem.label" :suffix="argItem.suffix || ''" :verify="argItem.verifyPath" />
+      <DirInput v-model="model" :disabled="disabled" :label="argItem.label" :suffix="argItem.suffix || ''"
+        :verify="argItem.verifyPath" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'numberInput' && typeof model === 'number'
     ">
-      <el-input-number class="input" v-model="model" :value-on-clear="0" size="small" />
+      <el-input-number class="input" v-model="model" :disabled="disabled" :value-on-clear="0" size="small" />
     </template>
     <template v-else-if="
       argItem && argItem.componentType === 'input' && typeof model === 'string'
     ">
-      <el-input v-model="model" size="small">
+      <el-input v-model="model" :disabled="disabled" size="small">
         <template #prepend> {{ argItem.label }} </template>
       </el-input>
     </template>
@@ -62,7 +63,7 @@
       argItem.componentType === 'numberRangeInput' &&
       typeof model === 'object'
     ">
-      <RangeInput v-model="model" />
+      <RangeInput v-model="model" :disabled="disabled" />
     </template>
   </div>
 </template>
@@ -72,7 +73,7 @@ const listStore = useListStore();
 const notShowType = ["input", "FileInput", "DirInput", "slider"];
 const notFlexType = ["input", "FileInput", "DirInput", "RectInput"];
 const parseOption = (item: string | number) => {
-  const separator = argItem.value?.selectOptionSeparator;
+  const separator = (argItem.value as ArgItem<DialogArg.Select>)?.selectOptionSeparator;
   if (typeof item === "number" || !separator) {
     return {
       label: item,
@@ -104,16 +105,15 @@ const props = defineProps({
     default: false,
   },
   value: {
-    type: [String, Number, Boolean, Object, Array<string>],
+    type: [String, Number, Boolean, Object, Array<number>],
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
-const name = computed(() => {
-  return (
-    getInvokeApiMethods().find((i) => i.name === props.name)?.exportFn?.alias ||
-    props.name
-  )
-});
+
 
 const argItem = computed(() => {
   const invokeApiTarget = getInvokeApiMethods().find((item) => item.name === props.name)
@@ -121,8 +121,11 @@ const argItem = computed(() => {
   if (invokeApiTarget) {
     const dialog = invokeApiTarget.dialog;
     dialog.args?.forEach((arg) => {
-      if (arg.options) {
+      //@ts-ignore
+      if (arg?.options) {
+        //@ts-ignore
         if (typeof arg.options === "function") {
+          //@ts-ignore
           arg.options = arg.options(listStore);
         }
       }
@@ -140,6 +143,7 @@ const display = computed(() => {
   }
 });
 const targetSrc = computed(() => {
+  //@ts-ignore
   const targetName = argItem.value?.targetSrc;
   const invokeApiTarget = getInvokeApiMethods().find((item) => item.name === props.name)
     ?.testModule;
@@ -149,31 +153,30 @@ const targetSrc = computed(() => {
       (item) => item.name === targetName
     );
     if (targetArg) {
-      return targetArg.value;
+      return targetArg.value as string;
     }
   }
   return "";
 });
 
 const displayConditionIsOk = computed(() => {
-  const conditionFieldName = argItem.value?.displayCondition;
-  if (conditionFieldName) {
+  const conditionFieldNameArr = argItem.value?.displayCondition;
+  if (conditionFieldNameArr?.length) {
     const testModule = getInvokeApiMethods().find((item) => item.name === props.name)
       ?.testModule;
     if (testModule) {
-      let fieldValue = (testModule.dialog as any)[conditionFieldName];
-      if (fieldValue === undefined) {
-        const dialog = testModule.dialog;
-        fieldValue = dialog.args!.find(
+      const dialog = testModule.dialog;
+      for (let conditionFieldName of conditionFieldNameArr) {
+        const fieldValue = dialog.args!.find(
           (item) => item.name === conditionFieldName
         )?.value;
+        if (fieldValue === undefined || !Boolean(fieldValue)) {
+          return false;
+        }
       }
-      if (fieldValue !== undefined) {
-        return Boolean(fieldValue) || false;
-      }
-    } else {
-      console.error(`未找到${props.name}的测试模块`);
+      return true;
     }
+    console.error(`未找到${props.name}的测试模块`);
     return false;
   } else {
     return true;
@@ -224,8 +227,11 @@ watch(model, (val, oldValue) => {
     const dialog = target.testModule?.dialog;
     if (dialog) {
       dialog.args?.forEach((arg) => {
+        //@ts-ignore
         if (arg.options) {
+          //@ts-ignore
           if (typeof arg.options === "function") {
+            //@ts-ignore
             arg.options = arg.options(listStore);
           }
         }
@@ -235,7 +241,7 @@ watch(model, (val, oldValue) => {
       (item) => item.name === props.argName
     );
     if (arg) {
-      arg.value = val;
+      arg.value = val as any;
     }
   }
 });
