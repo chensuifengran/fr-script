@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::{event::register_event_handler, export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools}};
+use fr_script::{event::register_event_handler, export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools, web_driver}};
 use tauri::Manager;
 fn main() {
     tauri::Builder::default()
@@ -67,7 +67,8 @@ fn main() {
             request::get_spark_info,
             sys::open_in_default_browser,
             sys::error_report,
-            cmd::run_cmd
+            cmd::run_cmd,
+            web_driver::example_web_driver
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

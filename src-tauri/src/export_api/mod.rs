@@ -20,3 +20,5 @@ pub mod sys;
 pub mod file;
 //执行命令相关API
 pub mod cmd;
+//webDriver相关API
+pub mod web_driver;

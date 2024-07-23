@@ -13,6 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
+thirtyfour = "0.32.0"
 reqwest = "0.12.4"
 lazy_static = "1.4.0"
 tauri = { version = "1.6.6", features = [ "api-all"] }
