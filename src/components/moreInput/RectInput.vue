@@ -3,19 +3,19 @@
     <div class="title">
       <el-text>截取{{ targetSrc.trim().length === 0 ? "屏幕" : "图片" }}指定位置</el-text>
       <div class="title-btns">
-        <el-button size="small" @click="useParam">填入参数</el-button>
-        <el-button size="small" @click="copyParam">复制参数</el-button>
-        <el-button size="small" @click="selectRect">截取屏幕矩形</el-button>
+        <el-button :disabled="disabled" size="small" @click="useParam">填入参数</el-button>
+        <el-button :disabled="disabled" size="small" @click="copyParam">复制参数</el-button>
+        <el-button :disabled="disabled" size="small" @click="selectRect">截取屏幕矩形</el-button>
       </div>
     </div>
     <div class="content">
       <div class="line">
-        <el-input size="small" v-model.number="info.x"><template #prepend>x</template></el-input>
-        <el-input size="small" v-model.number="info.y"><template #prepend>y</template></el-input>
+        <el-input :disabled="disabled" size="small" v-model.number="info.x"><template #prepend>x</template></el-input>
+        <el-input :disabled="disabled" size="small" v-model.number="info.y"><template #prepend>y</template></el-input>
       </div>
       <div class="line">
-        <el-input size="small" v-model.number="info.width"><template #prepend>width(宽)</template></el-input>
-        <el-input size="small" v-model.number="info.height"><template #prepend>height(高)</template></el-input>
+        <el-input :disabled="disabled" size="small" v-model.number="info.width"><template #prepend>width(宽)</template></el-input>
+        <el-input :disabled="disabled" size="small" v-model.number="info.height"><template #prepend>height(高)</template></el-input>
       </div>
     </div>
   </div>
@@ -70,6 +70,10 @@ const props = defineProps({
   targetSrc: {
     type: String,
     default: "",
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 const useParam = async () => {

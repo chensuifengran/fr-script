@@ -1,27 +1,13 @@
 <template>
   <div class="range-input">
     <el-tooltip class="box-item" effect="dark" content="最小值" placement="bottom">
-      <el-input-number
-        class="el-ipt"
-        v-model="model![0]"
-        :min="limit ? limit[0] : undefined"
-        :max="lowMax"
-        size="small"
-        :controls="false"
-        @change="handleChange()"
-      />
+      <el-input-number class="el-ipt" v-model="model![0]" :min="limit ? limit[0] : undefined" :max="lowMax" size="small"
+        :controls="false" @change="handleChange()" :disabled="disabled" />
     </el-tooltip>
     ~
     <el-tooltip class="box-item" effect="dark" content="最大值" placement="bottom">
-      <el-input-number
-        class="el-ipt"
-        v-model="model![1]"
-        :min="min"
-        :max="limit ? limit[1] : undefined"
-        size="small"
-        :controls="false"
-        @change="handleChange()"
-      />
+      <el-input-number class="el-ipt" v-model="model![1]" :min="min" :max="limit ? limit[1] : undefined" size="small"
+        :controls="false" @change="handleChange()" :disabled="disabled" />
     </el-tooltip>
   </div>
 </template>
@@ -40,6 +26,10 @@ const props = defineProps({
   mountedValue: {
     type: Object as PropType<[number, number]>,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  }
 });
 const handleChange = () => {
   if (model.value[0] >= model.value[1]) {
