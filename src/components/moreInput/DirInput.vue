@@ -1,45 +1,30 @@
 <template>
   <div>
-    <el-text
-      v-if="label !== '' && label.length > 10"
-      :style="{
-        color: pathExits ? undefined : 'red',
-      }"
-    >
+    <el-text v-if="label !== '' && label.length > 10" :style="{
+      color: pathExits ? undefined : 'red',
+    }">
       {{ label }}
     </el-text>
-    <el-autocomplete
-      v-model="value"
-      :fetch-suggestions="querySearch"
-      size="small"
-      @select="selectHandler"
-    >
-      <template #prepend v-if="label !== '' && label.length <= 10"
-        ><el-text
-          :style="{
-            color: pathExits ? undefined : 'red',
-          }"
-        >
+    <el-autocomplete v-model="value" :fetch-suggestions="querySearch" size="small" @select="selectHandler"
+      :disabled="disabled">
+      <template #prepend v-if="label !== '' && label.length <= 10"><el-text :style="{
+        color: pathExits ? undefined : 'red',
+      }">
           {{ label }}
-        </el-text></template
-      >
+        </el-text></template>
       <template #append>
         <el-button @click="selectFilePath">选择路径</el-button>
       </template>
       <template #default="{ item }">
         <div class="suggestion-item">
-          <el-text>{{ item.value }}</el-text
-          ><el-tag size="small">{{ item.label }}</el-tag>
+          <el-text>{{ item.value }}</el-text><el-tag size="small">{{ item.label }}</el-tag>
         </div>
       </template>
     </el-autocomplete>
     <div v-show="!pathExits" class="tip">
       <el-icon color="red">
         <span i-mdi-close></span>
-        </el-icon
-      ><el-tag type="danger"
-        >该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag
-      >
+      </el-icon><el-tag type="danger">该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag>
     </div>
   </div>
 </template>
@@ -67,6 +52,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  }
 });
 type SuggestionItem = {
   label: string;
@@ -76,8 +65,8 @@ const suggestions = reactive<SuggestionItem[]>([]);
 const querySearch = (queryString: string, cb: (s: SuggestionItem[]) => void) => {
   const results = queryString
     ? suggestions.filter((item) => {
-        return item.value.includes(queryString) || item.label.includes(queryString);
-      })
+      return item.value.includes(queryString) || item.label.includes(queryString);
+    })
     : suggestions;
   cb(results);
 };
@@ -107,7 +96,7 @@ watch(value, async () => {
   pathExits.value = await exists(value.value);
 });
 const selectFilePath = async () => {
-  let filePath = (await fsUtils.selectFile()) as string | undefined;
+  let filePath = (await fsUtils.selectFile(false)) as string | undefined;
   if (props.suffix && props.suffix.length > 0) {
     filePath += props.suffix;
   }
@@ -123,6 +112,7 @@ const selectFilePath = async () => {
   display: flex;
   align-items: center;
 }
+
 .suggestion-item {
   display: flex;
   flex-direction: row;
