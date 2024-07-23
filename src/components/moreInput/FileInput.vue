@@ -1,69 +1,54 @@
 <template>
   <div class="file-input-content">
     <template v-if="typeof value === 'string'">
-      <el-text
-        v-if="label !== '' && label.length > 10"
-        :style="{
-          color: pathExits ? undefined : 'red',
-        }"
-      >
+      <el-text v-if="label !== '' && label.length > 10" :style="{
+        color: pathExits ? undefined : 'red',
+      }">
         {{ label }}
       </el-text>
-      <el-autocomplete
-        v-model="value"
-        :fetch-suggestions="querySearch"
-        size="small"
-        @select="selectHandler"
-      >
-        <template #prepend v-if="label !== '' && label.length <= 10"
-          ><el-text
-            :style="{
-              color: pathExits ? undefined : 'red',
-            }"
-          >
+      <el-autocomplete v-model="value" :fetch-suggestions="querySearch" size="small" @select="selectHandler"
+        :disabled="disabled">
+        <template #prepend v-if="label !== '' && label.length <= 10"><el-text :style="{
+          color: pathExits ? undefined : 'red',
+        }">
             {{ label }}
-          </el-text></template
-        >
+          </el-text></template>
         <template #append>
           <el-button @click="selectFilePath">选择文件</el-button>
         </template>
         <template #default="{ item }">
           <div class="suggestion-item">
-            <el-text>{{ item.value }}</el-text
-            ><el-tag size="small">{{ item.label }}</el-tag>
+            <el-text>{{ item.value }}</el-text><el-tag size="small">{{ item.label }}</el-tag>
           </div>
         </template>
       </el-autocomplete>
       <div v-show="!pathExits" class="tip">
-        <el-icon color="red"><span i-mdi-close></span></el-icon
-        ><el-tag type="danger">该路径无效，请检查路径填写是否有误</el-tag>
+        <el-icon color="red"><span i-mdi-close></span></el-icon><el-tag type="danger">该路径无效，请检查路径填写是否有误</el-tag>
       </div>
     </template>
     <template v-else>
-      <el-text
-        v-if="label !== ''"
-        :style="{
+      <div flex flex-row flex-items-center justify-between>
+        <el-text v-if="label !== ''" :style="{
           color: pathExits ? undefined : 'red',
-        }"
-      >
-        {{ label }}
-      </el-text>
-      <div class="path-content">
-        <el-tag
-          class="tag"
-          v-for="p in value"
-          :key="p"
-          size="small"
-          :type="!unExists.includes(p) ? 'success' : 'danger'"
-          closable
-          :disable-transitions="false"
-          @close="handleClose(p)"
-        >
-          {{ p }}
-        </el-tag>
-        <el-button class="w-100" size="small" @click="selectFilePath">
+        }">
+          {{ label }}
+        </el-text>
+        <div flex flex-items-center flex-row>
+          <el-button type="primary" class="w-100" size="small" @click="selectFilePath">
           +选择文件
         </el-button>
+        <el-button class="w-100" size="small" @click="clearFilePath">
+          x清空已选
+        </el-button>
+        </div>
+      </div>
+      <div class="path-content">
+        <el-tag class="tag" v-for="p in value" :key="p" size="small"
+          :type="!unExists.includes(p) ? 'success' : 'danger'" closable :disable-transitions="false"
+          @close="handleClose(p)">
+          {{ p }}
+        </el-tag>
+
       </div>
     </template>
   </div>
@@ -84,9 +69,9 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  stringSeparator: {
-    type: String,
-    default: "|",
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 type SuggestionItem = {
@@ -97,8 +82,8 @@ const suggestions = reactive<SuggestionItem[]>([]);
 const querySearch = (queryString: string, cb: (s: SuggestionItem[]) => void) => {
   const results = queryString
     ? suggestions.filter((item) => {
-        return item.value.includes(queryString) || item.label.includes(queryString);
-      })
+      return item.value.includes(queryString) || item.label.includes(queryString);
+    })
     : suggestions;
   cb(results);
 };
@@ -135,17 +120,15 @@ const selectFilePath = async () => {
   const filePath = await fsUtils.selectFile(props.multiple);
   if (filePath) {
     if (props.multiple) {
-      //多选filePath的类型是string[]
-      if (value.value instanceof Array) {
-        value.value = [...new Set([...value.value, ...filePath])];
-      } else {
-        value.value = (filePath as string[]).join(props.stringSeparator);
-      }
+      value.value = [...new Set([...value.value, ...filePath])];
     } else {
       value.value = filePath as string;
     }
   }
 };
+const clearFilePath = ()=>{
+  value.value = [];
+}
 watch(value, async () => {
   if (!props.verify) return;
   if (typeof value.value === "string") {
@@ -167,20 +150,25 @@ watch(value, async () => {
   // justify-content: center;
   align-items: center;
 }
+
 .w-100 {
   width: 100px;
 }
+
 .file-input-content {
   display: flex;
   flex-direction: column;
+
   .path-content {
     display: flex;
     flex-flow: wrap;
+
     .tag {
       margin: 3px;
     }
   }
 }
+
 .suggestion-item {
   display: flex;
   flex-direction: row;

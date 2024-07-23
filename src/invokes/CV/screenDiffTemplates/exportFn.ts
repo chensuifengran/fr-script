@@ -3,7 +3,7 @@ export const screenDiffTemplatesFn = async (
   y: number,
   width: number,
   height: number,
-  tempPaths: string,
+  tempPaths: string[],
   targetIndex: number,
   drive: string,
   taskId?: string
@@ -17,7 +17,7 @@ export const screenDiffTemplatesFn = async (
       y,
       width,
       height,
-      tempPaths,
+      tempPaths.join('|'),
       targetIndex,
       drive);
     return res;

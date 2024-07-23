@@ -9,7 +9,7 @@ export const modelCallback = async (
       width: number;
       height: number;
     };
-    tempPaths: string;
+    tempPaths: string[];
     targetIndex: number;
     drive: string;
     replaceCurFnArgs?: (targetArgs: string) => void;
@@ -39,12 +39,10 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "screenDiffTemplates" && i.scope === "CV"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `const res = await CV.screenDiffTemplates(${JSON.stringify(
-      range
-    )}, "${tempPaths.replace(/\\/g, "\\\\")}", ${targetIndex}${
-      drive === "auto" ? "" : `, "${drive}"`
-    } );`
-  );
+  selfModule.document!.example!.code = `const res = await CV.screenDiffTemplates(${JSON.stringify(
+    range
+  )}, ["${tempPaths.join('","').replace(/\\/g, "\\\\")}"], ${targetIndex}${
+    drive === "auto" ? "" : `, "${drive}"`
+  } );`;
   showDetails(JSON.stringify(res), "screenDiffTemplates");
 };

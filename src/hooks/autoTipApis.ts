@@ -52,32 +52,37 @@ const pathStrReset = (pathStr: string) => {
   return pathStr.replaceAll("\\\\", "\\");
 };
 
-const paramsProcess = async (args: string[]) => {
+const paramsProcess = async (
+  args: (string | string[])[]
+): Promise<(string | string[])[]> => {
   const appGSStore = useAppGlobalSettings();
   const { currentScriptDir } = useScriptRuntime();
-
-  const _params: string[] = [];
+  const _params: (string | string[])[] = [];
   for (let index = 0; index < args.length; index++) {
-    let i = args[index].replaceAll('"', "").replaceAll("'", "");
-    const arg = i
-      .replace(/\s/g, "")
-      .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
-      .replace(
-        "SCREEN_SHOT_PATH+",
-        pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-      )
-      .replace(
-        "SCREEN_SHOT_PATH",
-        pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-      )
-      .replace(
-        "SCREEN_SHOT_DIR+",
-        pathStrProcess(
-          await resolve(appGSStore.envSetting.screenshotSavePath, "..")
+    if (Array.isArray(args[index])) {
+      _params.push((await paramsProcess(args[index] as any)) as any);
+    } else {
+      let i = (args[index] as string).replaceAll('"', "").replaceAll("'", "");
+      const arg = i
+        .replace(/\s/g, "")
+        .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
+        .replace(
+          "SCREEN_SHOT_PATH+",
+          pathStrProcess(appGSStore.envSetting.screenshotSavePath)
         )
-      )
-      .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
-    _params.push(arg);
+        .replace(
+          "SCREEN_SHOT_PATH",
+          pathStrProcess(appGSStore.envSetting.screenshotSavePath)
+        )
+        .replace(
+          "SCREEN_SHOT_DIR+",
+          pathStrProcess(
+            await resolve(appGSStore.envSetting.screenshotSavePath, "..")
+          )
+        )
+        .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
+      _params.push(arg);
+    }
   }
   return _params;
 };
@@ -86,46 +91,38 @@ const strIndexOfApi = (str: string) => {
   for (const api of getInvokeApiMethods()) {
     if (api.exportFn) {
       if (api.scope) {
-        const index = str.indexOf(
-          api.exportFn.alias
-            ? api.scope + "." + api.exportFn.alias
-            : api.scope + "." + api.name
-        );
+        const index = str.indexOf(api.scope + "." + api.name);
         if (index !== -1) {
-          const length = api.exportFn.alias
-            ? api.scope.length + api.exportFn.alias.length + 1
-            : api.scope.length + api.name.length + 1;
+          const length = api.scope.length + api.name.length + 1;
           if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
             const newStr = str.slice(index + length);
-            const newStrIndex = newStr.indexOf(api.exportFn.alias || api.name);
+            const newStrIndex = newStr.indexOf(api.name);
             return newStrIndex === -1 ? index : index + length + newStrIndex;
           }
           return index;
         } else {
           //如果没找到，则尝试匹配不带scope的名字
-          const index = str.indexOf(api.exportFn.alias || api.name);
+          const index = str.indexOf(api.name);
           if (index !== -1) {
-            const length = api.exportFn.alias?.length || api.name?.length;
+            const length = api.name?.length;
             if (
               str[index + length] !== "(" ||
               !/\s/.test(str[index + length])
             ) {
               const newStr = str.slice(index + length);
-              const newStrIndex = newStr.indexOf(
-                api.exportFn.alias || api.name
-              );
+              const newStrIndex = newStr.indexOf(api.name);
               return newStrIndex === -1 ? index : index + length + newStrIndex;
             }
             return index;
           }
         }
       } else {
-        const index = str.indexOf(api.exportFn.alias || api.name);
+        const index = str.indexOf(api.name);
         if (index !== -1) {
-          const length = api.exportFn.alias?.length || api.name?.length;
+          const length = api.name?.length;
           if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
             const newStr = str.slice(index + length);
-            const newStrIndex = newStr.indexOf(api.exportFn.alias || api.name);
+            const newStrIndex = newStr.indexOf(api.name);
             return newStrIndex === -1 ? index : index + length + newStrIndex;
           }
           return index;
@@ -135,7 +132,56 @@ const strIndexOfApi = (str: string) => {
   }
   return -1;
 };
-
+const transformListParams = (params: string[]) => {
+  const _params = params.map((i) => {
+    if (i === "[]") {
+      return <string[]>[];
+    } else {
+      return i;
+    }
+  });
+  const resultParams: (string | string[])[] = [];
+  const includeArrItem = _params.filter(
+    (i) => i.indexOf("[") || i.indexOf("]")
+  );
+  const arrayCount = Math.floor(includeArrItem.length / 2);
+  if (arrayCount < 1) {
+    return _params;
+  }
+  const listArr: string[] = [];
+  let currentArrayCount = 0;
+  let d = "left";
+  for (let index = 0; index < _params.length; index++) {
+    const param = _params[index];
+    if (Array.isArray(param)) {
+      resultParams.push(param);
+      continue;
+    }
+    if (currentArrayCount < arrayCount) {
+      if (d === "left") {
+        if (param.includes("[")) {
+          d = "right";
+          listArr.push(param.replace("[", ""));
+        } else {
+          resultParams.push(param);
+        }
+      } else {
+        if (param.includes("]")) {
+          d = "left";
+          listArr.push(param.replace("]", ""));
+          resultParams.push([...listArr]);
+          listArr.splice(0, listArr.length);
+          currentArrayCount++;
+        } else {
+          listArr.push(param);
+        }
+      }
+    } else {
+      resultParams.push(param);
+    }
+  }
+  return resultParams;
+};
 const apiAutoTip = () => {
   const { findEditor } = useEditor();
   // 获取编辑器实例
@@ -172,10 +218,12 @@ const apiAutoTip = () => {
         fnInfo.value = {
           scope: scopeName.length > 1 ? scopeName[0] : "",
           name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-          params: curLineContent
-            .substring(startIndex + 1, endIndex)
-            .replace(/\s/g, "")
-            .split(","),
+          params: transformListParams(
+            curLineContent
+              .substring(startIndex + 1, endIndex)
+              .replace(/\s/g, "")
+              .split(",")
+          ),
           paramsRange: {
             startLineNumber: startLineNumber,
             endLineNumber: startLineNumber,
@@ -219,10 +267,12 @@ const apiAutoTip = () => {
       fnInfo.value = {
         scope: scopeName.length > 1 ? scopeName[0] : "",
         name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: matchContent
-          .substring(startFnIndex + 1, matchContent.length - 1)
-          .replace(/\s/g, "")
-          .split(","),
+        params: transformListParams(
+          matchContent
+            .substring(startFnIndex + 1, matchContent.length - 1)
+            .replace(/\s/g, "")
+            .split(",")
+        ),
         paramsRange: {
           startLineNumber: startLineNumber + pre,
           endLineNumber: startLineNumber,
@@ -266,10 +316,12 @@ const apiAutoTip = () => {
       fnInfo.value = {
         scope: scopeName.length > 1 ? scopeName[0] : "",
         name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: matchContent
-          .substring(startIndex + 1, matchContent.indexOf(")"))
-          .replace(/\s/g, "")
-          .split(","),
+        params: transformListParams(
+          matchContent
+            .substring(startIndex + 1, matchContent.indexOf(")"))
+            .replace(/\s/g, "")
+            .split(",")
+        ),
         paramsRange: {
           startLineNumber: startLineNumber,
           endLineNumber: startLineNumber + next,
@@ -323,7 +375,6 @@ const apiAutoTip = () => {
           matchContent = matchContent + nextLineContent;
         }
       }
-
       const nameIndex = strIndexOfApi(matchContent);
       const targetApiName = matchContent
         .substring(nameIndex, startFnIndex)
@@ -336,10 +387,12 @@ const apiAutoTip = () => {
       fnInfo.value = {
         scope: scopeName.length > 1 ? scopeName[0] : "",
         name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: matchContent
-          .substring(startFnIndex + 1, matchContent.indexOf(")") - 1)
-          .replace(/\s/g, "")
-          .split(","),
+        params: transformListParams(
+          matchContent
+            .substring(startFnIndex + 1, matchContent.indexOf(")") - 1)
+            .replace(/\s/g, "")
+            .split(",")
+        ),
         paramsRange: {
           startLineNumber: startLineNumber + pre,
           endLineNumber: startLineNumber + next,
@@ -354,23 +407,17 @@ const apiAutoTip = () => {
       return {
         scope: i.scope,
         ...i.testModule,
-        alias: i.exportFn?.alias,
         haveAuxiliary: i.auxiliary !== undefined,
       };
     })
     .find((i) => {
       if (i.scope) {
         return (
-          i.alias === fnInfo.value!.name ||
-          i.scope + "." + i.alias === fnInfo.value!.name ||
           i.dialog!.targetMethodName === fnInfo.value!.name ||
           i.scope + "." + i.dialog!.targetMethodName === fnInfo.value!.name
         );
       }
-      return (
-        i?.alias === fnInfo.value!.name ||
-        i?.dialog!.targetMethodName === fnInfo.value!.name
-      );
+      return i?.dialog!.targetMethodName === fnInfo.value!.name;
     });
 
   if (target === undefined) {
@@ -435,7 +482,7 @@ const createDependencyProposals = async (range: {
       if (insertText === undefined) {
         return null;
       } else {
-        const label = (module.exportFn?.alias || module.name) + "()";
+        const label = module.name + "()";
         return {
           label,
           kind: monaco.languages.CompletionItemKind.Function,
@@ -456,7 +503,7 @@ const createDependencyProposals = async (range: {
       return {
         label,
         kind: monaco.languages.CompletionItemKind.Snippet,
-        detail: item.name + ':' +detail,
+        detail: item.name + ":" + detail,
         insertText: insertText?.trim() || "",
         insertTextRules:
           monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,

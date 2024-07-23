@@ -4,7 +4,7 @@ function screenDiffTemplates(
     y:number,
     width: number,
     height: number,
-    tempPaths: string,
+    tempPaths: string[],
     targetIndex?: number,
     drive?:string
 ):Promise<{

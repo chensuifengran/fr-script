@@ -20,9 +20,8 @@ export const dialogOptions = <TestModuleType["dialog"]>{
       name: "tempPaths",
       componentType: "FileInput",
       multiple: true,
-      value: "",
-      stringSeparator: "|",
-      label: "模板图片路径，模板图片路径之间用|分隔",
+      value: [],
+      label: "模板图片路径",
     },
     {
       name: "targetIndex",
