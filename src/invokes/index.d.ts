@@ -17,73 +17,158 @@ type ExportFns = {
   [methodName: string]: ((...args: any[]) => Promise<any>) | any;
 };
 
+type DocumentParamItem = {
+  id?: string;
+  name: string;
+  required: boolean;
+  instructions: string;
+  type: string | string[];
+  default: string;
+  children?: DocumentParamItem[];
+};
+
 type ApiDocumentType = {
   howToUse: string;
-  params?: {
-    name: string;
-    required: boolean;
-    instructions: string;
-    type: string | string[];
-    default: string;
-  }[];
-  returnValue?: {
-    type: string | string[];
-    instructions: string;
+  params?: DocumentParamItem[];
+  returnValue: {
+    type: string;
+    instructions?: string;
   };
-  example?: {
-    title?: string;
-    code: string[];
+  example: {
+    title: string;
+    code: string;
   };
   searchKeys?: string[];
   //编辑器代码片段
   codeSnippet?: string;
 };
-type ArgItem = {
+namespace DialogArg {
+  type Combined<
+    T extends string | number = string,
+    Multiple extends true | false = false
+  > = {
+    multiple?: Multiple;
+    value: Multiple extends true ? T[] : T;
+  };
+
+  type ExtraAttr = {
+    desc?: string /*用于DialogArgEditor组件*/;
+  };
+  type Select<
+    OPTION extends
+      | string[]
+      | number[]
+      | ((store: ListStore) => string[] | number[]) =
+      | string[]
+      | number[]
+      | ((store: ListStore) => string[] | number[]),
+    Multiple extends true | false = false
+  > = {
+    componentType: "select";
+    options: OPTION;
+    selectOptionSeparator?: string;
+    notAllowCreate?: boolean;
+  } & Combined<
+    OPTION extends (store: ListStore) => infer R ? R[number] : OPTION[number],
+    Multiple
+  > &
+    ExtraAttr;
+
+  type FileInput<Multiple extends true | false = false> = {
+    componentType: "FileInput";
+    verifyPath?: boolean;
+    suffix?: string;
+  } & Combined<string, Multiple> &
+    ExtraAttr;
+
+  type Input = {
+    componentType: "input";
+    value: string;
+  } & ExtraAttr;
+
+  type RectInput = {
+    componentType: "RectInput";
+    value: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    targetSrc?: string;
+  } & ExtraAttr;
+  type Slider = {
+    componentType: "slider";
+    value: number;
+    range?: {
+      min: number;
+      max: number;
+      step?: number;
+    };
+  } & ExtraAttr;
+  type Switch = {
+    componentType: "switch";
+    value: boolean;
+    activeText?: string;
+    inactiveText?: string;
+  } & ExtraAttr;
+  type DirInput = {
+    componentType: "DirInput";
+    value: string;
+    suffix?: string;
+    verifyPath?: boolean;
+  } & ExtraAttr;
+  type NumberInput = {
+    componentType: "numberInput";
+    value: number;
+  } & ExtraAttr;
+  type NumberRangeInput = {
+    componentType: "numberRangeInput";
+    value: [number, number];
+    limit?: [number, number];
+  } & ExtraAttr;
+}
+
+type ArgItem<
+  T extends
+    | DialogArg.Select
+    | DialogArg.FileInput<true>
+    | DialogArg.FileInput<false>
+    | DialogArg.Input
+    | DialogArg.RectInput
+    | DialogArg.Slider
+    | DialogArg.Switch
+    | DialogArg.DirInput
+    | DialogArg.NumberInput
+    | DialogArg.NumberRangeInput
+> = {
+  id?: string;
   noTest?: boolean;
   onlyTest?: boolean;
   name: string;
-  componentType:
-    | "select"
-    | "input"
-    | "FileInput"
-    | "RectInput"
-    | "slider"
-    | "switch"
-    | "DirInput"
-    | "numberInput"
-    | "numberRangeInput";
   label: string;
-  options?: string[] | number[] | ((store: ListStore) => string[] | number[]);
-  selectOptionSeparator?: string;
-  notAllowCreate?: boolean;
-  checked?: boolean;
-  value?: any;
-  multiple?: boolean;
-  stringSeparator?: string;
-  //用于RectInput组件读取的图片路径字段
-  targetSrc?: string;
-  //显示条件，可以指定当前testModule的属性值，如果该值为true，则显示
-  displayCondition?: string;
+  displayCondition?: string[];
   placeholder?: string;
-  activeText?: string;
-  inactiveText?: string;
-  verifyPath?: boolean;
-  suffix?: string;
-  range?: {
-    min: number;
-    max: number;
-    step?: number;
-  };
-};
+} & T;
+type DialogDynamicArgItem =
+  | ArgItem<DialogArg.Select>
+  | ArgItem<DialogArg.FileInput<true>>
+  | ArgItem<DialogArg.FileInput<false>>
+  | ArgItem<DialogArg.Input>
+  | ArgItem<DialogArg.RectInput>
+  | ArgItem<DialogArg.Slider>
+  | ArgItem<DialogArg.Switch>
+  | ArgItem<DialogArg.DirInput>
+  | ArgItem<DialogArg.NumberInput>
+  | ArgItem<DialogArg.NumberRangeInput>;
+
 type TestModuleDialogType = {
   notOpen?: boolean;
   title?: string;
   targetMethodName: string;
   content?: string;
-  args?: ArgItem[];
+  args?: DialogDynamicArgItem[];
 };
 type TestModuleType = {
-  canBeCalled?: boolean;
   weight: number;
   dialog: TestModuleDialogType;
   callback: (...args: any[]) => Promise<void> | void;
@@ -99,7 +184,6 @@ type InvokeApiMethodType = {
   scope?: string;
   name: string;
   exportFn?: {
-    alias?: string;
     fn: (...args: any[]) => Promise<any> | any;
   };
   testModule?: TestModuleType;
