@@ -126,9 +126,7 @@ const invokeDynamicDialog = (
   replaceCurFnArgs?: (targetArgs: string) => void,
   currentParams?: string[]
 ) => {
-  const targetMethod = builtInApi.find(
-    (i) => i.name === methodName || i.exportFn?.alias === methodName
-  );
+  const targetMethod = builtInApi.find((i) => i.name === methodName);
   if (title && content) {
     dynamicDialog.title = title;
     dynamicDialog.content = content;
@@ -166,107 +164,52 @@ const exportAllFn = (): BuiltInApiType => {
     if (!i.exportFn) {
       return;
     }
-    const { alias, fn } = i.exportFn;
-    if (alias && !allFn[alias]) {
-      if (i.scope) {
-        const scope = i.scope;
-        allFn[scope] = allFn[i.scope] || {};
-        //用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
-        allFn[scope]["__NS_DATA__"] = {};
-        allFn[scope][alias] = fn;
-        if (i.helperClass) {
-          i.helperClass.forEach((helperClass) => {
-            const className = helperClass.name;
-            if (className === alias) {
-              console.error(
-                "helperClass的name不能和alias相同",
-                JSON.stringify(i)
-              );
-              throw new Error(`helperClass的name不能和alias相同`);
-            }
-            if (allFn[scope][className]) {
-              console.warn(
-                "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
-                JSON.stringify(i)
-              );
-              return;
-            }
-            allFn[scope][className] = helperClass;
-          });
-        }
-        return;
-      }
-      allFn[alias] = fn;
-      if (i.helperClass) {
-        i.helperClass.forEach((helperClass) => {
-          const className = helperClass.name;
-          if (className === alias) {
-            console.error(
-              "helperClass的name不能和alias相同",
-              JSON.stringify(i)
-            );
-            throw new Error(`helperClass的name不能和alias相同`);
-          }
-          if (allFn[className]) {
-            console.warn(
-              "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
-              JSON.stringify(i)
-            );
-            return;
-          }
-          allFn[className] = helperClass;
-        });
-      }
-    } else {
-      if (i.scope) {
-        const scope = i.scope;
-        allFn[scope] = allFn[i.scope] || {};
-        //用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
-        allFn[scope]["__NS_DATA__"] = {};
-        allFn[scope][i.name] = fn;
-        if (i.helperClass) {
-          i.helperClass.forEach((helperClass) => {
-            const className = helperClass.name;
-            if (className === i.name) {
-              console.error(
-                "helperClass的name不能和alias相同",
-                JSON.stringify(i)
-              );
-              throw new Error(`helperClass的name不能和alias相同`);
-            }
-            if (allFn[scope][className]) {
-              console.warn(
-                "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
-                JSON.stringify(i)
-              );
-              return;
-            }
-            allFn[scope][className] = helperClass;
-          });
-        }
-        return;
-      }
-      allFn[i.name] = fn;
+    const { fn } = i.exportFn;
+    if (i.scope) {
+      const scope = i.scope;
+      allFn[scope] = allFn[i.scope] || {};
+      //用于存放当前命名空间的通用数据，此属性不提供给编辑器的类型声明
+      allFn[scope]["__NS_DATA__"] = {};
+      allFn[scope][i.name] = fn;
       if (i.helperClass) {
         i.helperClass.forEach((helperClass) => {
           const className = helperClass.name;
           if (className === i.name) {
             console.error(
-              "helperClass的name不能和alias相同",
+              "helperClass的name不能和api名称相同",
               JSON.stringify(i)
             );
-            throw new Error(`helperClass的name不能和alias相同`);
+            throw new Error(`helperClass的name不能和api名称相同`);
           }
-          if (allFn[className]) {
+          if (allFn[scope][className]) {
             console.warn(
               "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
               JSON.stringify(i)
             );
             return;
           }
-          allFn[className] = helperClass;
+          allFn[scope][className] = helperClass;
         });
       }
+      return;
+    }
+    allFn[i.name] = fn;
+    if (i.helperClass) {
+      i.helperClass.forEach((helperClass) => {
+        const className = helperClass.name;
+        if (className === i.name) {
+          console.error("helperClass的name不能和api名称相同", JSON.stringify(i));
+          throw new Error(`helperClass的name不能和api名称相同`);
+        }
+        if (allFn[className]) {
+          console.warn(
+            "helperClass的name和已存在的方法名或辅助类类名相同,跳过注入！",
+            JSON.stringify(i)
+          );
+          return;
+        }
+        allFn[className] = helperClass;
+      });
     }
   });
   return allFn as BuiltInApiType;
@@ -274,7 +217,7 @@ const exportAllFn = (): BuiltInApiType => {
 const genBuiltInApi = (runId: string) => {
   return builtInApi
     .map((i) => {
-      const name = i.exportFn?.alias || i.name;
+      const name = i.name;
       if (i.testModule?.document?.params) {
         const params = i.testModule.document.params
           .map((i) => i.name)

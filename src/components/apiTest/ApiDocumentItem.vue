@@ -23,23 +23,20 @@ const dialog = computed(() => {
   return {
     ...d,
     args: d?.args?.map((arg) => {
-      let opts = arg.options;
-      if (opts) {
-        if (typeof opts === "function") {
-          opts = opts(listStore);
+      if (arg.componentType === 'select') {
+        if (arg.options) {
+          if (typeof arg.options === "function") {
+            arg.options = arg.options(listStore);
+          }
         }
       }
       return {
         ...arg,
-        options: opts,
       };
     }),
   };
 });
-const aliasName = computed(() => {
-  const targetMethodName = dialog.value?.targetMethodName;
-  return getInvokeApiMethods().find((i) => i.name === targetMethodName)?.exportFn?.alias;
-});
+
 const name = computed(() => {
   return dialog.value?.title || dialog.value?.targetMethodName;
 });
@@ -72,19 +69,19 @@ const changeShowDetails = () => {
   showDetails.value = value;
 };
 
-const firstExampleCode = reactive<string[]>([]);
+const firstExampleCode = ref<string>('');
 onMounted(() => {
   const code = props.model?.document?.example?.code;
-  code && firstExampleCode.push(...code);
+  code && (firstExampleCode.value = code);
 });
 const resetExampleCode = () => {
-  if (firstExampleCode.length) {
+  if (firstExampleCode.value.length) {
     const targetMethodName = dialog.value?.targetMethodName;
     const target = getInvokeApiMethods().find((i) => i.name === targetMethodName);
     if (target) {
       const codes = target.testModule?.document?.example?.code;
       if (codes) {
-        codes.splice(0, codes.length, ...firstExampleCode);
+        target.testModule!.document!.example!.code = firstExampleCode.value;
       }
     } else {
       console.error(`重置示例失败：未找到${targetMethodName}的测试模块`);
@@ -110,7 +107,7 @@ const autoDetailHeight = async () => {
 const detailsMaxHeight = ref("420px");
 watchEffect(async () => {
   //监测示例代码的值变化
-  props.model?.document?.example?.code.join("");
+  props.model?.document?.example?.code;
   await autoDetailHeight();
 });
 </script>
@@ -125,12 +122,12 @@ watchEffect(async () => {
         <el-icon class="icon" v-else>
           <span i-solar-alt-arrow-down-line-duotone></span>
         </el-icon>
-        <span>[{{ aliasName || dialog?.targetMethodName }}]{{ name }}</span>
+        <span>[{{ dialog?.targetMethodName }}]{{ name }}</span>
       </div>
       <el-tooltip effect="dark" content="测试调用" placement="left">
         <el-button size="small" type="primary" circle @click.stop="invokeDynamicDialog(
           dialog?.targetMethodName!,
-          aliasName || dialog?.targetMethodName,
+          dialog?.targetMethodName,
           dialog?.content,
           'test'
         )">
@@ -142,7 +139,7 @@ watchEffect(async () => {
       <div class="content" v-if="model?.document" ref="detailsContentRef">
         <div class="api-details-item">
           <span>方法名：</span>
-          <span>{{ aliasName || dialog?.targetMethodName }}</span>
+          <span>{{ dialog?.targetMethodName }}</span>
         </div>
         <div class="api-details-item" v-if="model.document.howToUse">
           <span>方法描述：</span>
@@ -173,20 +170,20 @@ watchEffect(async () => {
             <el-table-column prop="default" label="默认值" />
           </el-table>
         </div>
-        <div class="api-details-item" v-if="model.document.returnValue">
+        <div class="api-details-item">
           <span>返回值：</span>
-          <span>{{ model.document.returnValue?.instructions }}</span>
-          <code-view v-if="model.document.returnValue.type" :highlight-code="model.document.returnValue.type"
+          <span>{{ model.document.returnValue.instructions || "" }}</span>
+          <raw-code-view v-if="model.document.returnValue.type" :raw-code="model.document.returnValue.type"
             :show-copy="false" @click.stop="" />
         </div>
         <div class="api-details-item" v-if="model.document.example" @click.stop="">
           <span class="example-title"><el-tooltip effect="dark" content="恢复默认示例代码" placement="top-start"
-              v-if="model.document.example.code.join('') !== firstExampleCode.join('')">
+              v-if="model.document.example.code !== firstExampleCode">
               <el-icon class="refreshCode" @click.stop="resetExampleCode">
                 <span i-mdi-file-sync-outline></span>
               </el-icon> </el-tooltip>示例：</span>
           <span>{{ model.document.example.title }}</span>
-          <code-view :highlight-code="model.document.example.code" @click.stop="" />
+          <raw-code-view :raw-code="model.document.example.code" @click.stop="" />
         </div>
       </div>
       <el-empty description="该API暂无使用文档" v-else />
