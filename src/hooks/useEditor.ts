@@ -4,6 +4,7 @@ import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import * as monaco from "monaco-editor";
+export const EDITOR_DOM_ID = "codeEditBox";
 monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
   noSyntaxValidation: false,

@@ -11,7 +11,8 @@
           </el-icon>
         </template>
         <template #default="{ item }">
-          <div flex flex-row flex-items-center> <el-tag type="primary" size="small" mr-1>{{ item.prefix }}</el-tag><el-text>{{ item.name }}</el-text></div>
+          <div flex flex-row flex-items-center> <el-tag type="primary" size="small" mr-1>{{ item.prefix
+              }}</el-tag><el-text>{{ item.name }}</el-text></div>
           <el-text>{{ item.description }}</el-text>
         </template>
       </el-autocomplete>
@@ -96,7 +97,7 @@ const {
   registerEditorEvent,
   unRegisterEditorEvent,
 } = useEditor();
-const EDITOR_DOM_ID = "codeEditBox";
+
 const {
   openId,
   preloadText,
@@ -107,9 +108,9 @@ const {
   saveMod,
 } = useScriptInfo();
 const searchSnippet = ref('');
-const insertCodeSnippet = async ()=>{
+const insertCodeSnippet = async () => {
   const target = listStore.codeSnippets.find(i => i.name === searchSnippet.value);
-  if(target){
+  if (target) {
     const snippetContent = await fsUtils.readFile(target.filePath);
     insertText(EDITOR_DOM_ID, snippetContent.trim());
     ElMessage.success("代码片段插入成功");
@@ -297,13 +298,13 @@ const auxiliaryActionCallback = () => {
       insertText(EDITOR_DOM_ID, targetArgs, false, fnInfo.value!.paramsRange);
     };
     invokeDynamicDialog(
-        fnInfo.value.name,
-        fnInfo.value.name,
-        fnInfo.value.content || "",
-        "changeArgs",
-        replaceParams,
-        fnInfo.value.params
-      );
+      fnInfo.value.name,
+      fnInfo.value.name,
+      fnInfo.value.content || "",
+      "changeArgs",
+      replaceParams,
+      fnInfo.value.params
+    );
   }
 }
 let checkDeclareTimer: any = null;
