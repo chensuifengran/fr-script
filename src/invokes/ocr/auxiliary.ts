@@ -1,12 +1,13 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
   parameterBackfill: async (...args: string[]) => {
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "ocr");
     const dialog = selfModule!.testModule!.dialog;
-    dialog.args!.forEach((i, index) => {
+    if (!dialog.args) {
+      return;
+    }
+    dialog.args.forEach((i, index) => {
       switch (index) {
         case 0:
           i.value = {
@@ -17,7 +18,7 @@ export const auxiliary = <AuxiliaryType>{
           };
           break;
         case 1:
-          i.value = AutoTipUtils.pathStrReset(params[4] || "");
+          i.value = AutoTipUtils.pathStrReset(params[4] as string || "");
           break;
         default:
           break;
@@ -42,9 +43,7 @@ export const auxiliary = <AuxiliaryType>{
     } else {
       const p = AutoTipUtils.replaceConstantPath(options.imgPath);
       options.replaceCurFnArgs(
-        `${options.rect.x}, ${options.rect.y}, ${options.rect.width}, ${
-          options.rect.height
-        }, ${p}`
+        `${options.rect.x}, ${options.rect.y}, ${options.rect.width}, ${options.rect.height}, ${p}`
       );
     }
   },
