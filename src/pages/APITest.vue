@@ -1,7 +1,7 @@
 <template>
   <div class="remd">
     <ATHeader class="alone-page-header" v-if="!isMainWindow" :openOutput="() => (info.apiTest.openOutput = true)"
-      :changeSearchValue="(value) => (info.apiTest.searchValue = value)" />
+      :changeSearchValue="(value: string) => (info.apiTest.searchValue = value)" />
     <div class="page-content" ref="pageContentRef" v-infinite-scroll="load" :infinite-scroll-distance="40"
       :infinite-scroll-immediate="false">
       <transition enter-active-class="animate__animated animate__fadeInDown"
@@ -36,7 +36,7 @@
           <el-option v-for="n in 8" :key="n" :label="20 + n * 10 + '%'" :value="20 + n * 10 + '%'" />
         </el-select>
         <el-switch class="options" v-model="app.modulesSetting.autoOpenOutput" inline-prompt
-          style="--el-switch-on-color: #00843b; --el-switch-off-color: #ccc" active-text="自动显示" inactive-text="手动显示" />
+          style="--el-switch-on-color: var(--el-color-primary); --el-switch-off-color: #ccc" active-text="自动显示" inactive-text="手动显示" />
         <el-button class="options" size="small" @click="clearOutput">
           <el-icon>
             <span i-mdi-playlist-remove></span>
@@ -137,11 +137,11 @@ const allDocumentItems = computed<TestModuleType[]>({
         .filter((d) => {
           if (antiShakeValue.value) {
             return (
-              d!.dialog.targetMethodName?.includes(antiShakeValue.value) ||
-              d!.dialog.title?.includes(antiShakeValue.value) ||
-              d!.dialog.content?.includes(antiShakeValue.value) ||
-              d!.document!.howToUse?.includes(antiShakeValue.value) ||
-              d!.document!.searchKeys?.some((key) => key.includes(antiShakeValue.value))
+              d!.dialog.targetMethodName?.toLocaleLowerCase()?.includes(antiShakeValue.value?.toLocaleLowerCase()) ||
+              d!.dialog.title?.toLocaleLowerCase()?.includes(antiShakeValue.value?.toLocaleLowerCase()) ||
+              d!.dialog.content?.toLocaleLowerCase()?.includes(antiShakeValue.value?.toLocaleLowerCase()) ||
+              d!.document!.howToUse?.toLocaleLowerCase()?.includes(antiShakeValue.value?.toLocaleLowerCase()) ||
+              d!.document!.searchKeys?.some((key) => key?.toLocaleLowerCase().includes(antiShakeValue.value?.toLocaleLowerCase()))
             );
           }
           return true;
