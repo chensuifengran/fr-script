@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { wheelFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     delta: number;
@@ -26,13 +25,11 @@ export const modelCallback = async (
     });
   }
   console.time("wheel耗时");
-  const res:any = await wheelFn(options.delta);
+  const res: any = await wheelFn(options.delta);
   console.timeEnd("wheel耗时");
   testModuleCtx.showDetails(res || "OK", "wheel");
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "wheel" && i.scope === "Mouse"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Mouse.wheel(${options.delta}');`
-  );
+  selfModule.document!.example!.code = `await Mouse.wheel(${options.delta}');`;
 };

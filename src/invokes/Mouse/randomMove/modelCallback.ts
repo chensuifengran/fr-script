@@ -30,8 +30,10 @@ export const modelCallback = async (
     (m) => m.name === "randomMove" && m.scope === "Mouse"
   )?.testModule;
   if (selfModule) {
-    selfModule.document!.example!.code = codeHighLight(
-      `await Mouse.randomMove(${options.x}, ${options.y}, [[${options.xRandomRange[0]}, ${options.xRandomRange[1]}], [${options.yRandomRange[0]}, ${options.yRandomRange[1]}]]);`.replace(', [[0, 0], [0, 0]]','')
-    );
+    selfModule.document!.example!.code =
+      `await Mouse.randomMove(${options.x}, ${options.y}, [[${options.xRandomRange[0]}, ${options.xRandomRange[1]}], [${options.yRandomRange[0]}, ${options.yRandomRange[1]}]]);`.replace(
+        ", [[0, 0], [0, 0]]",
+        ""
+      );
   }
 };

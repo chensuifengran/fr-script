@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { waitKeysFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     keys: string[];
@@ -32,7 +31,7 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "waitKeys" && i.scope === "GlobalShortcut"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Input.waitKeys([${options.keys.map(key=>`"${key}"`).join(", ")}]);`
-  );
+  selfModule.document!.example!.code = `await Input.waitKeys([${options.keys
+    .map((key) => `"${key}"`)
+    .join(", ")}]);`;
 };

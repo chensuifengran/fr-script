@@ -41,12 +41,10 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "screenMatchTemplate" && i.scope === "CV"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `const { x, y } = await 
+  selfModule.document!.example!.code = `const { x, y } = await 
         \tCV.screenMatchTemplate(${JSON.stringify(range)}, "${tempPath.replace(
-      /\\/g,
-      "\\\\"
-    )}", ${exactValue}, ${scale}${drive === "auto" ? "" : `, "${drive}"`});`
-  );
+    /\\/g,
+    "\\\\"
+  )}", ${exactValue}, ${scale}${drive === "auto" ? "" : `, "${drive}"`});`;
   showDetails(JSON.stringify(res), "screenMatchTemplate");
 };

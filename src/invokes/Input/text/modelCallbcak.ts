@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { textFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     text: string;
@@ -32,7 +31,5 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "text" && i.scope === "Input"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Input.text('${options.text}');`
-  );
+  selfModule.document!.example!.code = `await Input.text('${options.text}');`;
 };

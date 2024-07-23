@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { getImgRectInfoFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: { imgPath: string; replaceCurFnArgs?: (targetArgs: string) => void },
   testModuleCtx: {
@@ -24,13 +23,11 @@ export const modelCallback = async (
   const selfFnModule = getInvokeApiMethods().find(
     (i) => i.name === "getImgRectInfo"
   )?.testModule;
-  selfFnModule!.document!.example!.code = codeHighLight(
-    `const { startX, startY, width, height } = 
+  selfFnModule!.document!.example!.code = `const { startX, startY, width, height } = 
             \tawait getImgRectInfo("${options.imgPath.replace(
               /\\/g,
               "\\\\"
-            )}");`
-  );
+            )}");`;
   testModuleCtx.showDetails(
     `当前图片标注矩形的起始点以及宽高：${JSON.stringify(rectInfo)}`,
     "getImgRectInfo"

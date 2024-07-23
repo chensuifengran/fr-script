@@ -2,7 +2,6 @@ import { imgSimilarityFn } from "./exportFn";
 
 import { auxiliary } from "./auxiliary";
 
-
 export const modelCallback = async (
   options: {
     pathA: string;
@@ -37,16 +36,14 @@ export const modelCallback = async (
   const selfFnModule = getInvokeApiMethods().find(
     (i) => i.name === "imgSimilarity" && i.scope === "CV"
   )?.testModule;
-  selfFnModule!.document!.example!.code = codeHighLight(
-    `const similarityValue = await CV.imgSimilarity(
+  selfFnModule!.document!.example!.code = `const similarityValue = await CV.imgSimilarity(
         \t"${options.pathA.replace(/\\/g, "\\\\")}",
         \t"${options.pathB.replace(/\\/g, "\\\\")}",
         \t${options.rect.x},${options.rect.y},${options.rect.width},${
-      options.rect.height
-    }
+    options.rect.height
+  }
         );
-      `
-  );
+      `;
   testModuleCtx.showDetails(
     `当前图片与模板的相似度：${similarityValue}`,
     "imgSimilarity"

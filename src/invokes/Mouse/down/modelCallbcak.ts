@@ -33,9 +33,7 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "down" && i.scope === "Mouse"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Mouse.down(${options.x}, ${options.y}, '${
-      options.button || "left"
-    }');`
-  );
+  selfModule.document!.example!.code = `await Mouse.down(${options.x}, ${
+    options.y
+  }, '${options.button || "left"}');`;
 };

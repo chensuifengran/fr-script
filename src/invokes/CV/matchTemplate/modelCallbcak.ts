@@ -26,12 +26,10 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "matchTemplate" && i.scope === "CV"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `const { x, y } = await 
+  selfModule.document!.example!.code = `const { x, y } = await 
         \tCV.matchTemplate("${imgPath.replace(
           /\\/g,
           "\\\\"
-        )}", "${tempPath.replace(/\\/g, "\\\\")}", ${exactValue}, ${scale});`
-  );
+        )}", "${tempPath.replace(/\\/g, "\\\\")}", ${exactValue}, ${scale});`;
   showDetails(JSON.stringify(res), "matchTemplate");
 };

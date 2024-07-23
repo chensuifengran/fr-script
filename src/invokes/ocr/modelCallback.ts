@@ -17,9 +17,9 @@ export const modelCallback = async (
   }
 ) => {
   if (options.replaceCurFnArgs) {
-    const res = auxiliary.parameterReplace(options);
+    auxiliary.parameterReplace(options);
     AutoTipUtils.apiAutoTip();
-    return res;
+    return;
   }
   const { imgPath, rect } = options;
   console.time("ocr耗时");
@@ -28,16 +28,14 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find((i) => i.name === "ocr")
     ?.testModule!;
   if (options.imgPath === "") {
-    selfModule.document!.example!.code = codeHighLight(
-      `const ocrUtil = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height});`
-    );
+    selfModule.document!.example!.code = `const ocrUtil = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height});`;
   } else {
-    selfModule.document!.example!.code = codeHighLight(
-      `const ocrUtil = await ocr(${rect.x}, ${rect.y}, ${rect.width}, ${
-        rect.height
-      }, "${imgPath.replace(/\\/g, "\\\\")}");`
-    );
+    selfModule.document!.example!.code = `const ocrUtil = await ocr(${
+      rect.x
+    }, ${rect.y}, ${rect.width}, ${rect.height}, "${imgPath.replace(
+      /\\/g,
+      "\\\\"
+    )}");`;
   }
-
   testModuleCtx.showDetails(JSON.stringify(res), "ocr");
 };

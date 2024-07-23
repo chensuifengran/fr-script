@@ -1,7 +1,6 @@
 import { slideToFn } from "./exportFn";
 import { auxiliary } from "./auxiliary";
 
-
 export const modelCallback = async (
   options: {
     fromX: number;
@@ -34,8 +33,6 @@ export const modelCallback = async (
     (m) => m.name === "slideTo"
   )?.testModule;
   if (selfModule) {
-    selfModule.document!.example!.code = codeHighLight(
-      `const res = await slideTo(${options.fromX}, ${options.fromY}, ${options.toX}, ${options.toY}, ${options.slideTime});`
-    );
+    selfModule.document!.example!.code = `const res = await slideTo(${options.fromX}, ${options.fromY}, ${options.toX}, ${options.toY}, ${options.slideTime});`;
   }
 };

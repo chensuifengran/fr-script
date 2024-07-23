@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { keyUpFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     key: Key;
@@ -32,7 +31,5 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "keyUp" && i.scope === "Input"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Input.keyUp('${options.key}');`
-  );
+  selfModule.document!.example!.code = `await Input.keyUp('${options.key}');`;
 };

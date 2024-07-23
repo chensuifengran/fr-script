@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { screenColorFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     x: number;
@@ -28,8 +27,6 @@ export const modelCallback = async (
     (i) => i.name === "screenColor"
   )?.testModule;
 
-  selfModule!.document!.example!.code = codeHighLight(
-    `const colorUtil = await screenColor(${options.x}, ${options.y});`
-  );
+  selfModule!.document!.example!.code = `const colorUtil = await screenColor(${options.x}, ${options.y});`;
   testModuleCtx.showDetails(res && JSON.stringify(res), "screenColor");
 };

@@ -29,28 +29,30 @@ export const modelCallback = async (
       });
     }
     console.time("drag耗时");
-    const res = await dragFn(options.x, options.y, options.toX, options.toY, options.duration);
+    const res = await dragFn(
+      options.x,
+      options.y,
+      options.toX,
+      options.toY,
+      options.duration
+    );
     console.timeEnd("drag耗时");
-    if(res !== undefined){
+    if (res !== undefined) {
       testModuleCtx.showDetails(`鼠标拖动完成`, "Mouse.drag");
-    }else{
+    } else {
       testModuleCtx.showDetails(`鼠标拖动完成`, "Mouse.drag");
     }
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "drag" && i.scope === "Mouse"
     )?.testModule;
-    if(!selfModule){
-      console.error('找不到selfModule');
-      return
+    if (!selfModule) {
+      console.error("找不到selfModule");
+      return;
     }
-    if(options.duration > 0){
-      selfModule.document!.example!.code = codeHighLight(
-        `await Mouse.drag(${options.x}, ${options.y}, ${options.toX}, ${options.toY}, ${options.duration});`
-      );
-    }else{
-      selfModule.document!.example!.code = codeHighLight(
-        `await Mouse.drag(${options.x}, ${options.y}, ${options.toX}, ${options.toY});`
-      );
+    if (options.duration > 0) {
+      selfModule.document!.example!.code = `await Mouse.drag(${options.x}, ${options.y}, ${options.toX}, ${options.toY}, ${options.duration});`;
+    } else {
+      selfModule.document!.example!.code = `await Mouse.drag(${options.x}, ${options.y}, ${options.toX}, ${options.toY});`;
     }
   }
 };

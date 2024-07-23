@@ -1,7 +1,6 @@
 import { disConnectToFn } from "./exportFn";
 import { auxiliary } from "./auxiliary";
 
-
 export const modelCallback = async (
   options: {
     targetDevice: string;
@@ -24,8 +23,6 @@ export const modelCallback = async (
     (m) => m.name === "disConnectTo"
   )?.testModule;
   if (selfModule) {
-    selfModule.document!.example!.code = codeHighLight(
-      `const res = await disConnectTo('${options.targetDevice}');`
-    );
+    selfModule.document!.example!.code = `const res = await disConnectTo('${options.targetDevice}');`;
   }
 };

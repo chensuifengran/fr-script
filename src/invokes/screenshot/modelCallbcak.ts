@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { screenshotFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     path: string;
@@ -48,24 +47,22 @@ export const modelCallback = async (
     (i) => i.name === "screenshot"
   )?.testModule;
   const appGSStore = useAppGlobalSettings();
-  const equalPath = appGSStore.envSetting.screenshotSavePath === options.path || options.path === "";
-  
+  const equalPath =
+    appGSStore.envSetting.screenshotSavePath === options.path ||
+    options.path === "";
+
   if (options.selectRange) {
-    selfModule!.document!.example!.code = codeHighLight(
-      `const res = await screenshot(
+    selfModule!.document!.example!.code = `const res = await screenshot(
             \t${options.range.x},
             \t${options.range.y},
             \t${options.range.width},
             \t${options.range.height}${
-        equalPath ? "" : `, "${options.path.replace(/\\/g, "\\\\")}"`
-      });`
-    );
+      equalPath ? "" : `, "${options.path.replace(/\\/g, "\\\\")}"`
+    });`;
   } else {
-    selfModule!.document!.example!.code = codeHighLight(
-      `const res = await screenshot(${
-        equalPath ? "" : `, "${options.path.replace(/\\/g, "\\\\")}"`
-      });`
-    );
+    selfModule!.document!.example!.code = `const res = await screenshot(${
+      equalPath ? "" : `, "${options.path.replace(/\\/g, "\\\\")}"`
+    });`;
   }
   testModuleCtx.showDetails(`截图完成`, "screenshot");
 };

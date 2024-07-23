@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { combinedFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     keys: Key[];
@@ -32,11 +31,9 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "combined" && i.scope === "Input"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Input.combined([${options.keys
-      .map((key) => {
-        return `'${key}'`;
-      })
-      .join(",")}]);`
-  );
+  selfModule.document!.example!.code = `await Input.combined([${options.keys
+    .map((key) => {
+      return `'${key}'`;
+    })
+    .join(",")}]);`;
 };

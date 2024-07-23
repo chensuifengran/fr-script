@@ -23,9 +23,7 @@ export const modelCallback = async (
     (m) => m.name === "connectTo"
   )?.testModule;
   if (selfModule) {
-    selfModule.document!.example!.code = codeHighLight(
-      `const res = await connectTo('${options.targetDevice}');`
-    );
+    selfModule.document!.example!.code = `const res = await connectTo('${options.targetDevice}');`;
   } else {
     console.error("找不到connectTo的testModule", getInvokeApiMethods());
   }

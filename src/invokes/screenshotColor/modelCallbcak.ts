@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { screenshotColorFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     x: number;
@@ -30,13 +29,9 @@ export const modelCallback = async (
   )?.testModule;
 
   if (options.mod === "adb") {
-    selfModule!.document!.example!.code = codeHighLight(
-      `const colorUtil = await screenshotColor(${options.x}, ${options.y}, 'adb');`
-    );
+    selfModule!.document!.example!.code = `const colorUtil = await screenshotColor(${options.x}, ${options.y}, 'adb');`;
   } else {
-    selfModule!.document!.example!.code = codeHighLight(
-      `const colorUtil = await screenshotColor(${options.x}, ${options.y});`
-    );
+    selfModule!.document!.example!.code = `const colorUtil = await screenshotColor(${options.x}, ${options.y});`;
   }
   testModuleCtx.showDetails(res && JSON.stringify(res), "screenshotColor");
 };

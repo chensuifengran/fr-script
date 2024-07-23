@@ -1,8 +1,6 @@
 import { touchFn } from "./exportFn";
 import { auxiliary } from "./auxiliary";
 
-
-
 export const modelCallback = async (
   options: {
     targetX: number;
@@ -26,8 +24,6 @@ export const modelCallback = async (
     (m) => m.name === "touch"
   )?.testModule;
   if (selfModule) {
-    selfModule.document!.example!.code = codeHighLight(
-      `const res = await touch(${options.targetX}, ${options.targetY});`
-    );
+    selfModule.document!.example!.code = `const res = await touch(${options.targetX}, ${options.targetY});`;
   }
 };

@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { moveFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     x: number;
@@ -30,26 +29,22 @@ export const modelCallback = async (
     console.time("move耗时");
     const res = await moveFn(options.x, options.y, options.isRelative);
     console.timeEnd("move耗时");
-    if(res !== undefined){
+    if (res !== undefined) {
       testModuleCtx.showDetails(`移动鼠标完成`, "Mouse.move");
-    }else{
+    } else {
       testModuleCtx.showDetails(`移动鼠标失败`, "Mouse.move");
     }
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "move" && i.scope === "Mouse"
     )?.testModule;
-    if(!selfModule){
-      console.error('找不到selfModule');
-      return
+    if (!selfModule) {
+      console.error("找不到selfModule");
+      return;
     }
-    if(options.isRelative){
-      selfModule.document!.example!.code = codeHighLight(
-        `await Mouse.move(${options.x}, ${options.y}, true);`
-      );
-    }else{
-      selfModule.document!.example!.code = codeHighLight(
-        `await Mouse.move(${options.x}, ${options.y});`
-      );
+    if (options.isRelative) {
+      selfModule.document!.example!.code = `await Mouse.move(${options.x}, ${options.y}, true);`;
+    } else {
+      selfModule.document!.example!.code = `await Mouse.move(${options.x}, ${options.y});`;
     }
   }
 };

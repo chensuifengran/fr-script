@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { clickerFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     duration: number;
@@ -35,12 +34,8 @@ export const modelCallback = async (
     (i) => i.name === "clicker" && i.scope === "Mouse"
   )?.testModule!;
   if (options.button === "left") {
-    selfModule.document!.example!.code = codeHighLight(
-      `await Mouse.clicker(${options.duration}, ${options.sleep});`
-    );
+    selfModule.document!.example!.code = `await Mouse.clicker(${options.duration}, ${options.sleep});`;
   } else {
-    selfModule.document!.example!.code = codeHighLight(
-      `await Mouse.clicker(${options.duration}, ${options.sleep}, '${options.button}');`
-    );
+    selfModule.document!.example!.code = `await Mouse.clicker(${options.duration}, ${options.sleep}, '${options.button}');`;
   }
 };

@@ -1,7 +1,6 @@
 import { auxiliary } from "./auxiliary";
 import { clickFn } from "./exportFn";
 
-
 export const modelCallback = async (
   options: {
     x: number;
@@ -34,7 +33,7 @@ export const modelCallback = async (
   const selfModule = getInvokeApiMethods().find(
     (i) => i.name === "click" && i.scope === "Mouse"
   )?.testModule!;
-  selfModule.document!.example!.code = codeHighLight(
-    `await Mouse.click(${options.x}, ${options.y}, '${options.button || "left"}');`
-  );
+  selfModule.document!.example!.code = `await Mouse.click(${options.x}, ${
+    options.y
+  }, '${options.button || "left"}');`;
 };

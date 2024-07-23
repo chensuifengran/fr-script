@@ -1,8 +1,6 @@
 import { cmdFn } from "./exportFn";
 import { auxiliary } from "./auxiliary";
 
-
-
 export const modelCallback = async (
   options: {
     command: string;
@@ -26,14 +24,10 @@ export const modelCallback = async (
     (m) => m.name === "cmd"
   )?.testModule;
   if (selfModule) {
-    if(options.onlyExec){
-      selfModule.document!.example!.code = codeHighLight(
-        `const res = await cmd("${options.command}", true);`
-      );
-    }else{
-      selfModule.document!.example!.code = codeHighLight(
-        `const res = await cmd("${options.command}");`
-      );
+    if (options.onlyExec) {
+      selfModule.document!.example!.code = `const res = await cmd("${options.command}", true);`;
+    } else {
+      selfModule.document!.example!.code = `const res = await cmd("${options.command}");`;
     }
   }
 };
