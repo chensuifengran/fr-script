@@ -64,10 +64,13 @@ const aside_width = computed(() => {
   }
 });
 onMounted(async () => {
-  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
-  await unregister(showMainWindowShortcuts);
-  register(showMainWindowShortcuts, () => appWindow.show());
   shortcutsStore.init();
+  if (appWindow.label === 'main') {
+    const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+    await unregister(showMainWindowShortcuts);
+    register(showMainWindowShortcuts, () => appWindow.show());
+  }
+
   const init = async (listenResize = true) => {
     listenResize &&
       window.addEventListener("resize", () => {
@@ -99,9 +102,11 @@ onMounted(async () => {
   }
   registerAllInvokeApi();
 });
-onUnmounted(()=>{
-  const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
-  unregister(showMainWindowShortcuts);
+onUnmounted(() => {
+  if (appWindow.label === 'main') {
+    const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+    unregister(showMainWindowShortcuts);
+  }
 })
 
 
@@ -121,7 +126,6 @@ onBeforeMount(() => {
     <template v-if="isMainWindow">
       <AutoTitleBar />
       <div class="common-layout">
-
         <el-container>
           <el-aside class="aside">
             <el-tooltip effect="dark" :content="app.state.aside.collapsed ? '展开' : '折叠'" placement="right">
@@ -130,9 +134,9 @@ onBeforeMount(() => {
             </el-tooltip>
             <el-menu :collapse="app.state.aside.collapsed" :collapse-transition="false" popper-effect="dark"
               class="el-menu-vertical" :default-active="app.state.aside.currentItem" :key="menuKey"
-              @select="(index) => handleSelect(index, true)">
+              @select="(index: string) => handleSelect(index, true)">
               <div>
-                <el-menu-item v-for="topRoute in topRoutes" :index="topRoute.name"
+                <el-menu-item v-for="topRoute in topRoutes" :index="topRoute.name as string"
                   :key="topRoute.path + '|' + topRoute.meta!.title">
                   <el-icon>
                     <component :is="topRoute.meta!.icon" />
@@ -142,7 +146,7 @@ onBeforeMount(() => {
               </div>
               <div data-tauri-drag-region style="flex: 1; cursor: move"></div>
               <div>
-                <el-menu-item v-for="bottomRoute in bottomRoutes" :index="bottomRoute.name"
+                <el-menu-item v-for="bottomRoute in bottomRoutes" :index="bottomRoute.name as string"
                   :key="bottomRoute.path + '|' + bottomRoute.meta!.title">
                   <el-icon>
                     <component :is="bottomRoute.meta!.icon" />
@@ -187,6 +191,7 @@ onBeforeMount(() => {
 :deep(.el-dialog__footer) {
   padding-top: 5px;
 }
+
 .app {
   width: 100%;
   height: 100%;
