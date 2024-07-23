@@ -21,7 +21,7 @@ export const useGlobalShortcutsStore = defineStore<
           onlyDescription: "强制停止脚本",
         },
         {
-          shortcuts: "Ctrl+Alt+Home",
+          shortcuts: "Ctrl+Alt+Shift+Home",
           onlyDescription: "强制显示主窗口",
         },
         {
