@@ -28,7 +28,7 @@ export const dialogOptions = {
         width: -1,
         height: -1,
       },
-      displayCondition: "selectRange",
+      displayCondition: ["selectRange"],
     },
     {
       name: "delay",
