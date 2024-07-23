@@ -41,5 +41,3 @@ export const ocrFn = async (
     console.error("ocrError: ", error);
   }
 };
-
-export type PpocrFnType = typeof ocrFn;
