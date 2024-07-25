@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+
 const dataGrouping = <T extends Record<string, any>>(
   data: T[],
   groupField: string,
@@ -152,6 +154,27 @@ const getTreeParentById = <T extends Record<string, any>>(
   }
   return parent;
 };
+const genTreeArrNodeId = <
+  T extends Record<string, any>[] = Record<string, any>[]
+>(
+  treeArray: T,
+  idField: string = "id",
+  childrenField: string = "children"
+): T => {
+  const result: T = [] as unknown as T;
+  for (const node of treeArray) {
+    node[idField] = nanoid();
+    if (node[childrenField]) {
+      node[childrenField] = genTreeArrNodeId(
+        node[childrenField],
+        idField,
+        childrenField
+      );
+    }
+    result.push(node);
+  }
+  return result;
+};
 
 export const dataStructureUtils = {
   dataGrouping,
@@ -159,4 +182,5 @@ export const dataStructureUtils = {
   findByIdInTree,
   findIndexPathByIdInTree,
   getTreeParentById,
+  genTreeArrNodeId
 };
