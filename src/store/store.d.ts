@@ -81,11 +81,6 @@ type ProjectItemType = {
   version: string;
   description: string;
 };
-type TableFormHeader = {
-  prop: string;
-  label: string;
-  width?: number;
-};
 type InputListItem = {
   label: string;
   value: string;
@@ -118,18 +113,63 @@ type MultiplSelectionItem = {
   limit?: number;
   value: string[];
 };
-type TableListItem = {
-  label: string;
-  tableData: object[];
-  tableHeader: TableFormHeader[];
-  inputProp: {
-    propLabel: string;
-    type: "select" | "input" | "input-number";
-    value: string | number;
-    options: string[];
-  }[];
-};
 type CheckListItem = { label: string; checked: boolean };
+namespace BuildFormItem {
+  type Base = {
+    targetGroupLabel: string;
+    enable?: boolean;
+  };
+  type StripBase<T> = {
+    [P in keyof T as Exclude<P, keyof Base>]: T[P];
+  };
+  type Input = Base & {
+    type: "input";
+    label: string;
+    value: string;
+  };
+  type MultiplSelect = Base & {
+    type: "multiplSelect";
+    label: string;
+    options: {
+      groupLabel: string;
+      options: {
+        value: string;
+        label: string;
+      }[];
+    }[];
+    limit?: number;
+    value: string[];
+  };
+  type GroupSelect = Base & {
+    type: "groupSelect";
+    label: string;
+    options: {
+      groupLabel: string;
+      options: {
+        value: string;
+        label: string;
+      }[];
+    }[];
+    value: string;
+  };
+  type Select = Base & {
+    type: "select";
+    label: string;
+    options: string[];
+    value: string;
+  };
+  type Check = Base & {
+    type: "check";
+    label: string;
+    checked: boolean;
+  };
+}
+type BuildFormItems =
+  | BuildFormItem.Input
+  | BuildFormItem.MultiplSelect
+  | BuildFormItem.GroupSelect
+  | BuildFormItem.Select
+  | BuildFormItem.Check;
 type RendererList = {
   id?: string;
   groupLabel: string;
@@ -138,8 +178,7 @@ type RendererList = {
   inputList: InputListItem[];
   selectList: SelectListItem[];
   groupSelectList: groupSelectListItem[];
-  multipleGroupSelectList: MultiplSelectionItem[];
-  tableList: TableListItem[];
+  multipleSelectList: MultiplSelectionItem[];
 };
 type RendererFieldTypes =
   | "input"
@@ -186,110 +225,6 @@ type RendererGroups = {
   enable: boolean;
   field: FormRendererField;
 }[];
-
-type BuildFormItem =
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      limit?: number;
-      value: string[];
-      enable?: boolean;
-    }
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      value: string;
-      enable?: boolean;
-    }
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      options: string[];
-      value: string;
-      enable?: boolean;
-    }
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      tableData: object[];
-      tableHeader: TableFormHeader[];
-      inputProp: {
-        propLabel: string;
-        type: "select" | "input" | "input-number";
-        value: string | number;
-        options: string[];
-      }[];
-      enable?: boolean;
-    }
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      checked: boolean;
-      enable?: boolean;
-    }
-  | {
-      targetGroupLabel: string;
-      type:
-        | "multiplSelection"
-        | "groupSelect"
-        | "select"
-        | "check"
-        | "table"
-        | "input";
-      label: string;
-      value: string;
-      enable?: boolean;
-    };
-type BuildFormList = BuildFormItem[];
 type CodeSnippet = {
   id: string;
   name: string;
@@ -302,7 +237,7 @@ type ListState = {
   projectList: ProjectItemType[];
   rendererList: RendererList[];
   previewRendererList: RendererList[];
-  previewBuildFormList: BuildFormList;
+  previewBuildFormList: BuildFormItems[];
   deviceList: string[];
   codeSnippets: CodeSnippet[];
 };
