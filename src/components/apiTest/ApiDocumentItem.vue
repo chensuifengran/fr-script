@@ -110,6 +110,9 @@ watchEffect(async () => {
   props.model?.document?.example?.code;
   await autoDetailHeight();
 });
+const tableData = computed(() => {
+  return dataStructureUtils.genTreeArrNodeId(props.model?.document?.params || [])
+});
 </script>
 
 <template>
@@ -147,7 +150,7 @@ watchEffect(async () => {
         </div>
         <div class="api-details-item" v-if="model.document.params" @click.stop>
           <span>参数：</span>
-          <el-table :data="model.document.params" table-layout="auto" row-key="name">
+          <el-table default-expand-all :data="tableData" table-layout="auto" row-key="id">
             <el-table-column prop="name" label="参数名" />
             <el-table-column prop="required" label="必填">
               <template #default="scope">
