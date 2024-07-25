@@ -2,10 +2,6 @@ import { storeToRefs } from "pinia";
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { useLog } from "./useLog";
 
-const buildTableForm = () => {
-  return new TableForm();
-};
-
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -103,11 +99,11 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
             存在则覆盖defaultItem的multipleGroupSelectList[index].value
             */
           const AllMultipleValues: string[] = [];
-          for (let j = 0; j < defaultItem.multipleGroupSelectList.length; j++) {
+          for (let j = 0; j < defaultItem.multipleSelectList.length; j++) {
             const defaultMultipleGroupSelectItem =
-              defaultItem.multipleGroupSelectList[j];
+              defaultItem.multipleSelectList[j];
             const targetMultipleGroupSelectItem =
-              targetItem.multipleGroupSelectList.find(
+              targetItem.multipleSelectList.find(
                 (item) => item.label === defaultMultipleGroupSelectItem.label
               );
             if (targetMultipleGroupSelectItem) {
@@ -134,32 +130,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               }
               defaultMultipleGroupSelectItem.value =
                 newTargetMultipleGroupSelectItemValue;
-            }
-          }
-          //拿到defaultItem的tableList[index]的inputProp所有的propLabel
-          const AllTableInputPropLabel: string[] = [];
-          for (let j = 0; j < defaultItem.tableList.length; j++) {
-            const defaultTableItem = defaultItem.tableList[j];
-            const targetTableItem = targetItem.tableList.find(
-              (item) => item.label === defaultTableItem.label
-            );
-            if (targetTableItem) {
-              const inputProp = defaultTableItem.inputProp;
-              AllTableInputPropLabel.push(...inputProp.map((i) => i.propLabel));
-              //判断targetTableItem的tableData的每一项的键是否存在于AllTableInputPropLabel中
-              const tableData = targetTableItem.tableData;
-              for (let k = 0; k < tableData.length; k++) {
-                const item = tableData[k];
-                for (const key in item) {
-                  if (Object.prototype.hasOwnProperty.call(item, key)) {
-                    if (!AllTableInputPropLabel.includes(key)) {
-                      delete (item as any)[key];
-                    }
-                  }
-                }
-              }
-              //覆盖defaultTableItem的tableData
-              defaultTableItem.tableData = tableData;
             }
           }
         }
@@ -218,14 +188,9 @@ const replaceRendererList = (newRendererList: RendererList[]) => {
   addRendererListToWindow();
 };
 
-//给渲染列表添加checkList类型元素
-const pushElementToCheckList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    checked: boolean;
-    enable?: boolean;
-  },
+//给渲染列表动态添加元素
+const pushElement = (
+  elem: BuildFormItems,
   pushTo: "rendererList" | "previewRendererList" = "rendererList"
 ) => {
   const { rendererList, previewRendererList } = useListStore();
@@ -236,374 +201,25 @@ const pushElementToCheckList = (
   const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
   if (idx === -1) {
     //目标组不存在则新增目标组
-    rList.push({
-      groupLabel: elem.targetGroupLabel,
-      enable: elem.enable === undefined ? true : elem.enable,
-      checkList: [
-        {
-          label: elem.label,
-          checked: elem.checked,
-        },
-      ],
-      groupSelectList: [],
-      selectList: [],
-      multipleGroupSelectList: [],
-      tableList: [],
-      inputList: [],
-    });
-  } else {
-    rList[idx].checkList.push({
-      label: elem.label,
-      checked: elem.checked,
-    });
-  }
-  pushTo === "rendererList" && addRendererListToWindow();
-};
-//给渲染列表添加inputList类型元素
-const pushElementToInputList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    value: string;
-    enable?: boolean;
-  },
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
-  if (idx === -1) {
-    //目标组不存在则新增目标组
-    rList.push({
-      groupLabel: elem.targetGroupLabel,
-      enable: elem.enable === undefined ? true : elem.enable,
-      inputList: [
-        {
-          label: elem.label,
-          value: elem.value,
-        },
-      ],
-      groupSelectList: [],
-      checkList: [],
-      selectList: [],
-      multipleGroupSelectList: [],
-      tableList: [],
-    });
-  } else {
-    rList[idx].inputList.push({
-      label: elem.label,
-      value: elem.value,
-    });
-  }
-  pushTo === "rendererList" && addRendererListToWindow();
-};
-//给渲染列表添加selectList类型元素
-const pushElementToSelectList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: string[];
-    value: string;
-    enable?: boolean;
-  },
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
-  if (idx === -1) {
-    //目标组不存在则新增目标组
-    rList.push({
-      groupLabel: elem.targetGroupLabel,
-      enable: elem.enable === undefined ? true : elem.enable,
-      groupSelectList: [],
-      checkList: [],
-      selectList: [
-        {
-          label: elem.label,
-          options: elem.options,
-          value: elem.value,
-        },
-      ],
-      multipleGroupSelectList: [],
-      tableList: [],
-      inputList: [],
-    });
-  } else {
-    rList[idx].selectList.push({
-      label: elem.label,
-      options: elem.options,
-      value: elem.value,
-    });
-  }
-  pushTo === "rendererList" && addRendererListToWindow();
-};
-//给渲染列表添加groupSelectList类型元素
-const pushElementToGSList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    value: string;
-    enable?: boolean;
-  },
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
-  if (idx === -1) {
-    //目标组不存在则新增目标组
-    rList.push({
-      groupLabel: elem.targetGroupLabel,
-      enable: elem.enable === undefined ? true : elem.enable,
-      groupSelectList: [
-        {
-          label: elem.label,
-          options: elem.options,
-          value: elem.value,
-        },
-      ],
-      checkList: [],
-      selectList: [],
-      multipleGroupSelectList: [],
-      tableList: [],
-      inputList: [],
-    });
-  } else {
-    rList[idx].groupSelectList.push({
-      label: elem.label,
-      options: elem.options,
-      value: elem.value,
-    });
-  }
-  pushTo === "rendererList" && addRendererListToWindow();
-};
-//给渲染列表添加multipleGroupSelectList类型元素
-const pushElementToMGSList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    limit?: number;
-    value: string[];
-    enable?: boolean;
-  },
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
-  if (idx === -1) {
-    //目标组不存在则新增目标组
-    rList.push({
+    const group: any = {
       groupLabel: elem.targetGroupLabel,
       enable: elem.enable === undefined ? true : elem.enable,
       checkList: [],
       selectList: [],
       groupSelectList: [],
       inputList: [],
-
-      multipleGroupSelectList: [
-        {
-          label: elem.label,
-          options: elem.options,
-          limit: elem.limit === undefined ? 0 : elem.limit,
-          value: elem.value,
-        },
-      ],
-      tableList: [],
-    });
+      multipleSelectList: [],
+    };
+    group[elem.type + "List"] = [elem];
+    rList.push(group);
   } else {
-    rList[idx].multipleGroupSelectList.push({
-      label: elem.label,
-      options: elem.options,
-      limit: elem.limit,
-      value: elem.value,
-    });
-  }
-  pushTo === "rendererList" && addRendererListToWindow();
-};
-const pushElementToTableList = (
-  elem: {
-    targetGroupLabel: string;
-    label: string;
-    tableData: object[];
-    tableHeader: TableFormHeader[];
-    inputProp: {
-      propLabel: string;
-      type: "select" | "input" | "input-number";
-      value: string | number;
-      options: string[];
-    }[];
-    enable?: boolean;
-  },
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
-  if (idx === -1) {
-    //目标组不存在则新增目标组
-    rList.push({
-      groupLabel: elem.targetGroupLabel,
-      enable: elem.enable === undefined ? true : elem.enable,
-      checkList: [],
-      selectList: [],
-      groupSelectList: [],
-      multipleGroupSelectList: [],
-      inputList: [],
-      tableList: [
-        {
-          label: elem.label,
-          tableData: elem.tableData,
-          tableHeader: elem.tableHeader,
-          inputProp: elem.inputProp,
-        },
-      ],
-    });
-  } else {
-    rList[idx].tableList.push({
-      label: elem.label,
-      tableData: elem.tableData,
-      tableHeader: elem.tableHeader,
-      inputProp: elem.inputProp,
-    });
+    (rList[idx] as any)[elem.type + "List"].push(elem);
   }
   pushTo === "rendererList" && addRendererListToWindow();
 };
 //渲染UI表单
 const buildForm = (
-  buildFormList: (
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        options: {
-          groupLabel: string;
-          options: {
-            value: string;
-            label: string;
-          }[];
-        }[];
-        limit?: number;
-        value: string[];
-        enable?: boolean;
-      }
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        options: {
-          groupLabel: string;
-          options: {
-            value: string;
-            label: string;
-          }[];
-        }[];
-        value: string;
-        enable?: boolean;
-      }
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        options: string[];
-        value: string;
-        enable?: boolean;
-      }
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        tableData: object[];
-        tableHeader: TableFormHeader[];
-        inputProp: {
-          propLabel: string;
-          type: "select" | "input" | "input-number";
-          value: string | number;
-          options: string[];
-        }[];
-        enable?: boolean;
-      }
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        checked: boolean;
-        enable?: boolean;
-      }
-    | {
-        targetGroupLabel: string;
-        type:
-          | "input"
-          | "multiplSelection"
-          | "groupSelect"
-          | "select"
-          | "check"
-          | "table";
-        label: string;
-        value: string;
-        enable?: boolean;
-      }
-  )[],
+  buildFormList: BuildFormItems[],
   pushTo: "rendererList" | "previewRendererList" = "rendererList"
 ) => {
   const listStore = useListStore();
@@ -615,90 +231,7 @@ const buildForm = (
   }
   for (let i = 0; i < buildFormList.length; i++) {
     const item = buildFormList[i];
-    if (item.type === "multiplSelection") {
-      pushElementToMGSList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          options: {
-            groupLabel: string;
-            options: {
-              value: string;
-              label: string;
-            }[];
-          }[];
-          limit?: number;
-          value: string[];
-          enable?: boolean;
-        },
-        pushTo
-      );
-    } else if (item.type === "groupSelect") {
-      pushElementToGSList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          options: {
-            groupLabel: string;
-            options: {
-              value: string;
-              label: string;
-            }[];
-          }[];
-          value: string;
-          enable?: boolean;
-        },
-        pushTo
-      );
-    } else if (item.type === "select") {
-      pushElementToSelectList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          options: string[];
-          value: string;
-          enable?: boolean;
-        },
-        pushTo
-      );
-    } else if (item.type === "table") {
-      pushElementToTableList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          tableData: object[];
-          tableHeader: TableFormHeader[];
-          inputProp: {
-            propLabel: string;
-            type: "select" | "input" | "input-number";
-            value: string | number;
-            options: string[];
-          }[];
-          enable?: boolean;
-        },
-        pushTo
-      );
-    } else if (item.type === "check") {
-      pushElementToCheckList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          checked: boolean;
-          enable?: boolean;
-        },
-        pushTo
-      );
-    } else {
-      pushElementToInputList(
-        item as {
-          targetGroupLabel: string;
-          label: string;
-          value: string;
-          enable?: boolean;
-        },
-        pushTo
-      );
-    }
+    pushElement(item, pushTo);
   }
 };
 
@@ -773,10 +306,11 @@ const getWillRunScript = (runId: string, script: string) => {
         ${buildApiScript + "\n"}
         changeScriptRunState(true);
         replaceRendererList([]);
-        pushElementToCheckList({
+        pushElement({
           targetGroupLabel: "*脚本设置",
           label: "导入上次运行配置",
-          checked: false
+          checked: false,
+          type: "check",
         });
         const signal = abortSignalInScript && abortSignalInScript.signal;
         const signalHandle = ()=>{
@@ -937,12 +471,6 @@ export const useScriptApi = () => {
   return {
     importLastRunConfig,
     replaceRendererList,
-    pushElementToCheckList,
-    pushElementToInputList,
-    pushElementToSelectList,
-    pushElementToGSList,
-    pushElementToMGSList,
-    pushElementToTableList,
     getWillRunScript,
     setEndBeforeCompletion,
     getEndBeforeCompletion: () => endBeforeCompletion,
@@ -978,7 +506,7 @@ export const useBuiltInApi = () => {
   const appGSStore = useAppGlobalSettings();
   const listStore = useListStore();
   const { scriptList } = storeToRefs(listStore);
-  const _buildForm = (buildFormList: BuildFormList) => {
+  const _buildForm = (buildFormList: BuildFormItems[]) => {
     buildForm(buildFormList);
     if (openId.value !== "-1") {
       const target = scriptList.value.find((i) => i.id === openId.value);
@@ -1030,7 +558,6 @@ export const useBuiltInApi = () => {
     nextTask,
     getTaskStatus,
     setTaskEndStatus,
-    buildTableForm,
     getCustomizeForm,
     abortSignalInScript: abortSignalInScript.value,
     startScriptSignal: new AbortController(),
@@ -1042,11 +569,6 @@ export const useBuiltInApi = () => {
     changeScriptRunState,
     ...exportAllFn(),
     replaceRendererList,
-    pushElementToCheckList,
-    pushElementToInputList,
-    pushElementToSelectList,
-    pushElementToGSList,
-    pushElementToMGSList,
-    pushElementToTableList,
+    pushElement,
   };
 };
