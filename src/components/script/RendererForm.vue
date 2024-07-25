@@ -34,7 +34,7 @@
             <el-option v-for="item in s.options" :key="item" :label="item" :value="item" />
           </el-select>
         </div>
-        <div class="select-item" v-for="s in g.multipleGroupSelectList" :key="s.label">
+        <div class="select-item" v-for="s in g.multipleSelectList" :key="s.label">
           <el-text class="mgr-10">{{ s.label }}</el-text>
           <el-select multiple size="small" :disabled="!g.enable" :multiple-limit="s.limit" v-model="s.value"
             :placeholder="s.label" @change="rendererListChangeHandle">
@@ -61,37 +61,6 @@
               i.label
             }}</template>
           </el-input>
-        </div>
-        <div class="table-list-div" v-for="t in g.tableList">
-          <div>{{ t.label }}</div>
-          <el-table table-layout="fixed" :data="t.tableData" style="width: 100%" max-height="250"
-            @change="rendererListChangeHandle">
-            <el-table-column v-for="h in t.tableHeader" :prop="h.prop" :key="h.label" :label="h.label"
-              :width="h.width"></el-table-column>
-            <el-table-column>
-              <template #default="scope">
-                <el-button link type="primary" size="small" @click.prevent="t.tableData.splice(scope.$index, 1)">
-                  移除
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-descriptions class="descriptions-box" direction="horizontal" :column="2" size="default" border>
-            <el-descriptions-item v-for="p in t.inputProp" :key="p.propLabel" :label="p.propLabel">
-              <template v-if="p.type === 'select'">
-                <el-select v-model="p.value" :placeholder="p.propLabel" @change="rendererListChangeHandle">
-                  <el-option v-for="item in p.options" :key="item" :label="item" :value="item" />
-                </el-select>
-              </template>
-              <template v-else-if="p.type === 'input-number'">
-                <el-input-number v-model="(p.value as number)" :placeholder="p.propLabel" />
-              </template>
-              <template v-else>
-                <el-input v-model="p.value" :placeholder="p.propLabel" />
-              </template>
-            </el-descriptions-item>
-          </el-descriptions>
-          <el-button style="width: 100%" @click="onAddItem(t)">添加</el-button>
         </div>
       </div>
     </ElCard>
@@ -155,28 +124,6 @@ const configChangeHandle = async (label?: string) => {
   }
 };
 
-const onAddItem = (t: {
-  label: string;
-  tableData: object[];
-  tableHeader: TableFormHeader[];
-  inputProp: {
-    propLabel: string;
-    type: "select" | "input" | "input-number";
-    value: string | number;
-    options: string[];
-  }[];
-}) => {
-  const dataObj: any = {};
-  const table = JSON.parse(JSON.stringify(t));
-
-  const ip = table.inputProp;
-  for (let i = 0; i < ip.length; i++) {
-    const e = ip[i];
-    dataObj[e.propLabel] = e.value;
-  }
-  t.tableData.push(dataObj);
-  rendererListChangeHandle();
-};
 let stopHandle: WatchStopHandle;
 onMounted(() => {
   if (props.isPreviewForm) return;
@@ -193,11 +140,11 @@ onBeforeUnmount(() => {
     stopHandle();
   }
 });
-//"multiplSelection" | "groupSelect" | "select" | "check" | "table" | "input"转换为previewRendererList对应的列表
+//"multiplSelect" | "groupSelect" | "select" | "check" | "input"转换为previewRendererList对应的列表
 const bTypeToPType = (bType: string) => {
   switch (bType) {
-    case "multiplSelection":
-      return "multipleGroupSelectList";
+    case "multiplSelect":
+      return "multipleSelectList";
     default:
       return bType + "List";
   }
@@ -219,11 +166,10 @@ const diffComponentValue = () => {
           const item = i as {
             targetGroupLabel: string;
             type:
-            | "multiplSelection"
+            | "multiplSelect"
             | "groupSelect"
             | "select"
             | "check"
-            | "table"
             | "input";
             label: string;
             checked: boolean;
@@ -236,11 +182,10 @@ const diffComponentValue = () => {
           const item = i as {
             targetGroupLabel: string;
             type:
-            | "multiplSelection"
+            | "multiplSelect"
             | "groupSelect"
             | "select"
             | "check"
-            | "table"
             | "input";
             label: string;
             value: string | string[];
@@ -263,7 +208,7 @@ const rendererListChangeHandle = () => {
 };
 const isCheckFlow = (g: RendererList) => {
   return (
-    g.multipleGroupSelectList.length > 0 ||
+    g.multipleSelectList.length > 0 ||
     g.selectList.length > 0 ||
     g.groupSelectList.length > 0 ||
     g.inputList.length > 0
