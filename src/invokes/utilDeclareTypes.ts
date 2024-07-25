@@ -26,7 +26,7 @@ export const UTIL_DECLARE_STRING = `
       }[];
       value: string;
     }[];
-    multipleGroupSelectList: {
+    multipleSelectList: {
       label: string;
       options: {
         groupLabel: string;
@@ -38,21 +38,7 @@ export const UTIL_DECLARE_STRING = `
       limit?: number;
       value: string[];
     }[];
-    tableList: {
-      label: string;
-      tableData: object[];
-      tableHeader: TableFormHeader[];
-      inputProp: {
-        propLabel: string;
-        type: "select" | "input" | "input-number";
-        value: string | number;
-        options: string[];
-      }[];
-    }[];
   };
-
-
-
 
   declare class FormUtil {
     constructor(form: RendererList[]);
@@ -61,7 +47,7 @@ export const UTIL_DECLARE_STRING = `
      *
      * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
      *
-     * @param {("checkList" | "groupSelectList" | "inputList" | "multipleGroupSelectList" | "selectList" | "tableList")} valueType 字段类型。
+     * @param {("checkList" | "groupSelectList" | "inputList" | "multipleSelectList" | "selectList" | "tableList")} valueType 字段类型。
      * @param {string} label 字段标签。
      * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
      * @param {string} [groupLabel="*脚本设置"] 组标签，默认为 "*脚本设置"。
@@ -73,7 +59,7 @@ export const UTIL_DECLARE_STRING = `
         | "checkList"
         | "groupSelectList"
         | "inputList"
-        | "multipleGroupSelectList"
+        | "multipleSelectList"
         | "selectList"
         | "tableList",
       label: string,
@@ -88,111 +74,7 @@ export const UTIL_DECLARE_STRING = `
   declare const SCRIPT_ROOT_DIR: string;
   declare const isStop: boolean;
   declare const SCRIPT_ID: string;
-  declare function buildForm(
-    buildFormList: (
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          options: {
-            groupLabel: string;
-            options: {
-              value: string;
-              label: string;
-            }[];
-          }[];
-          limit?: number;
-          value: string[];
-          enable?: boolean;
-        }
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          options: {
-            groupLabel: string;
-            options: {
-              value: string;
-              label: string;
-            }[];
-          }[];
-          value: string;
-          enable?: boolean;
-        }
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          options: string[];
-          value: string;
-          enable?: boolean;
-        }
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          tableData: object[];
-          tableHeader: TableFormHeader[];
-          inputProp: {
-            propLabel: string;
-            type: "select" | "input" | "input-number";
-            value: string | number;
-            options: string[];
-          }[];
-          enable?: boolean;
-        }
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          checked: boolean;
-          enable?: boolean;
-        }
-      | {
-          targetGroupLabel: string;
-          type:
-            | "input"
-            | "multiplSelection"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "table";
-          label: string;
-          value: string;
-          enable?: boolean;
-        }
-    )[]
-  ): void;
+
   declare function setAllTask(num: number): void;
   declare function setCurTask(num: number): void;
   declare function getAllTask(): number;
@@ -201,7 +83,6 @@ export const UTIL_DECLARE_STRING = `
   declare function nextTask(name: string): void;
   declare function getTaskStatus():("" | "success" | "warning" | "exception");
   declare function setTaskEndStatus(status: "success" | "warning" | "exception" | "", endMessage?: string): void;
-  declare function buildTableForm(): TableForm;
   /**
    * 获取自定义表单
    * @returns {Promise<FormUtil>}
@@ -232,95 +113,66 @@ export const UTIL_DECLARE_STRING = `
     type: "success" | "danger" | "info" | "warning";
   }[];
   declare function replaceRendererList(newRendererList: RendererList[]) : void;
-  declare function pushElementToCheckList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    checked: boolean;
-    enable?: boolean | undefined;
-  }): void;
-  declare function pushElementToInputList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    value: string;
-    enable?: boolean | undefined;
-  }): void;
-  declare function pushElementToSelectList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: string[];
-    value: string;
-    enable?: boolean | undefined;
-  }): void;
-  declare function pushElementToGSList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: {
-      groupLabel: string;
+
+  declare namespace BuildFormItem {
+    type Base = {
+      targetGroupLabel: string;
+      enable?: boolean;
+    };
+    type StripBase<T> = {
+      [P in keyof T as Exclude<P, keyof Base>]: T[P];
+    };
+    type Input = Base & {
+      type: "input";
+      label: string;
+      value: string;
+    };
+    type MultiplSelect = Base & {
+      type: "multiplSelect";
+      label: string;
       options: {
-        value: string;
-        label: string;
+        groupLabel: string;
+        options: {
+          value: string;
+          label: string;
+        }[];
       }[];
-    }[];
-    value: string;
-    enable?: boolean | undefined;
-  }): void;
-  declare function pushElementToMGSList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    options: {
-      groupLabel: string;
+      limit?: number;
+      value: string[];
+    };
+    type GroupSelect = Base & {
+      type: "groupSelect";
+      label: string;
       options: {
-        value: string;
-        label: string;
+        groupLabel: string;
+        options: {
+          value: string;
+          label: string;
+        }[];
       }[];
-    }[];
-    limit?: number | undefined;
-    value: string[];
-    enable?: boolean | undefined;
-  }): void;
-  declare function pushElementToTableList(elem: {
-    targetGroupLabel: string;
-    label: string;
-    tableData: object[];
-    tableHeader: TableFormHeader[];
-    inputProp: {
-      propLabel: string;
-      type: "select" | "input" | "input-number";
-      value: string | number;
+      value: string;
+    };
+    type Select = Base & {
+      type: "select";
+      label: string;
       options: string[];
-    }[];
-    enable?: boolean | undefined;
-  }): void;
+      value: string;
+    };
+    type Check = Base & {
+      type: "check";
+      label: string;
+      checked: boolean;
+    };
+  }
+
+  declare type BuildFormItems =
+    | BuildFormItem.Input
+    | BuildFormItem.MultiplSelect
+    | BuildFormItem.GroupSelect
+    | BuildFormItem.Select
+    | BuildFormItem.Check;
+
+  declare function pushElement(elem: BuildFormItems): void;
+
+  declare function buildForm(buildFormList: BuildFormItems[]): void;
 `;
-//@ts-ignore
-const RETAIN_STRING = `
-declare type TableFormHeader = {
-  prop: string;
-  label: string;
-  width?: number;
-}
-declare class TableForm {
-  private tableHeader: TableFormHeader[];
-  private inputProp: {
-    propLabel: string;
-    type: "select" | "input" | "input-number";
-    value: string | number;
-    options: string[];
-  }[];
-  constructor();
-  get getTableHeader(): TableFormHeader[];
-  get getInputProp(): {
-    propLabel: string;
-    type: "select" | "input" | "input-number";
-    value: string | number;
-    options: string[];
-  }[];
-  set setTableHeader(tableHeader: TableFormHeader[]);
-  pushTableHeaderProp(
-    h: TableFormHeader,
-    type: "select" | "input" | "input-number",
-    value: string | number,
-    options?: string[]
-  ): void;
-}
-`
