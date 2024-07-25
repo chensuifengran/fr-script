@@ -23,7 +23,7 @@ export const defaultInvokeTemplateOptions =
         params: [],
         returnValue: {
           instructions: "",
-          type: "",
+          type: "void",
         },
         example: {
           title: "",
@@ -76,7 +76,7 @@ export class InvokeTemplate {
     if (!argList) {
       return "";
     } else {
-      return ` ${argList.map((i) => JSON.stringify(i)).join(", ")} `;
+      return `${argList.map((i) => JSON.stringify(i)).join(", ")}`;
     }
   }
   private genCBOptionNames() {
@@ -89,10 +89,10 @@ export class InvokeTemplate {
   }
   private genCBOption() {
     const argList = this.options.dialog.args;
-    if (!argList) {
+    if (!argList?.length) {
       return "";
     } else {
-      return ` ${argList
+      return `${argList
         .map((i) => {
           let type = "string";
           const numberComponentTypes = [
@@ -114,13 +114,12 @@ export class InvokeTemplate {
           }
           return `${i.name}: ${type}`;
         })
-        .join(";\n    ")}`;
+        .join(";\n    ")};\n    `;
     }
   }
   defaultSnippet() {
     const { returnValue, params } = this.options.document;
     let snippetStr = "";
-
     if (returnValue?.type) {
       const t = returnValue.type.toLocaleLowerCase();
       let startIndex = 0;
@@ -150,6 +149,7 @@ export class InvokeTemplate {
         this.options.name
       }(${paramSnippetStr});\${0:}`;
     }
+    return snippetStr;
   }
   get indexTemplate() {
     return `import { apiDocument } from "./document";
@@ -177,39 +177,50 @@ export const ${this.options.name}Api = <InvokeApiMethodType>{
   auxiliary${this.options.disabled ? ",\n  disabled: true" : ""}
 };`;
   }
+  private genRetract(count: number, retractSize = 2) {
+    return " ".repeat(count * retractSize);
+  }
+  private genParamListStr(
+    paramList?: DocumentParamItem[],
+    tabCount = 2
+  ): string {
+    return `[${paramList ? "\n" + this.genRetract(tabCount) : ""}${
+      paramList
+        ? paramList
+            .map((param) => {
+              return `{
+${this.genRetract(tabCount + 1)}name: "${param.name}",
+${this.genRetract(tabCount + 1)}required: ${param.required ? "true" : "false"},
+${this.genRetract(tabCount + 1)}instructions: "${param.instructions}",
+${this.genRetract(tabCount + 1)}type: ${
+                Array.isArray(param.type)
+                  ? `[${param.type.map((i) => `'${i}'`).join(", ")}]`
+                  : `'${param.type}'`
+              },
+${this.genRetract(tabCount + 1)}default: "${
+                param.type === "string"
+                  ? `${
+                      param.default.includes('"') || param.default.includes("'")
+                        ? `'${param.default}'`
+                        : param.default
+                    }`
+                  : param.default
+              }",
+${this.genRetract(tabCount + 1)}children: ${this.genParamListStr(
+                param.children,
+                tabCount + 2
+              )}
+${this.genRetract(tabCount)}}`;
+            })
+            .join(",\n" + this.genRetract(tabCount))
+        : ""
+    }${paramList ? "\n" + this.genRetract(tabCount - 1) : ""}]`;
+  }
   get documentTemplate() {
     const d = this.options.document;
     return `export const apiDocument = <ApiDocumentType>{
   howToUse: "${d.howToUse}",
-  params: [
-    ${
-      d.params
-        ? d.params
-            .map((param) => {
-              return `{
-      name: "${param.name}",
-      required: ${param.required ? "true" : "false"},
-      instructions: "${param.instructions}",
-      type: ${
-        Array.isArray(param.type)
-          ? `[${param.type.map((i) => `'${i}'`).join(", ")}]`
-          : `'${param.type}'`
-      },
-      default: "${
-        param.type === "string"
-          ? `${
-              param.default.includes('"') || param.default.includes("'")
-                ? `'${param.default}'`
-                : param.default
-            }`
-          : param.default
-      }",
-    },`;
-            })
-            .join("")
-        : ""
-    }
-  ],
+  params: ${this.genParamListStr(d.params)},
   returnValue: {
     ${
       d?.returnValue?.instructions
@@ -257,9 +268,9 @@ export const ${this.options.name}Api = <InvokeApiMethodType>{
     const { title, notOpen, content, args } = this.options.dialog;
     return `export const dialogOptions = <TestModuleDialogType>{
   ${notOpen ? `notOpen: true,\n  ` : ""}${
-      title ? `title: "${title}",\n` : ""
-    }  targetMethodName: "${this.options.name}",
-  ${content ? `content: "${content}",\n` : ""}  args: ${
+      title ? `title: "${title}",\n  ` : ""
+    }targetMethodName: "${this.options.name}",
+  ${content ? `content: "${content}",\n  ` : ""}args: ${
       args ? `[${this.genArgList()}]` : `[]`
     }
 };`;
@@ -270,8 +281,7 @@ export const ${this.options.name}Api = <InvokeApiMethodType>{
     if (dialog.notOpen) {
       return `export const modelCallback = async (
   _options: {
-    ${this.genCBOption()};
-    replaceCurFnArgs?: (targetArgs: string) => void;
+    ${this.genCBOption()}replaceCurFnArgs?: (targetArgs: string) => void;
   },
   testModuleCtx: {
     showDetails: ShowDetailsFn;
@@ -286,8 +296,7 @@ export const ${this.options.name}Api = <InvokeApiMethodType>{
 import { ${name}Fn } from "./exportFn";
 export const modelCallback = async (
   options: {
-    ${this.genCBOption()};
-    replaceCurFnArgs?: (targetArgs: string) => void;
+    ${this.genCBOption()}replaceCurFnArgs?: (targetArgs: string) => void;
   },
   testModuleCtx: {
     showDetails: ShowDetailsFn;
@@ -319,7 +328,7 @@ export const modelCallback = async (
     const { name, scope } = this.options;
     return `export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
+  parameterBackfill: async (...args: (string | string[])[]) => {
     //处理来自编辑器的参数
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "${name}"${
@@ -360,8 +369,7 @@ export const modelCallback = async (
    * 并且提供一个replaceCurFnArgs方法用来替换编辑器中当前函数的参数
   */
   parameterReplace: (options: {
-    ${this.genCBOption()};
-    replaceCurFnArgs: (targetArgs: string) => void;
+    ${this.genCBOption()}replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     //根据实际情况去替换编辑器中的参数
     options.replaceCurFnArgs(
