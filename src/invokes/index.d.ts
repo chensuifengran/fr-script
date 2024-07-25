@@ -28,6 +28,7 @@ type DocumentParamItem = {
 };
 
 type ApiDocumentType = {
+  id?: string;
   howToUse: string;
   params?: DocumentParamItem[];
   returnValue: {
@@ -127,20 +128,18 @@ namespace DialogArg {
     limit?: [number, number];
   } & ExtraAttr;
 }
-
-type ArgItem<
-  T extends
-    | DialogArg.Select
-    | DialogArg.FileInput<true>
-    | DialogArg.FileInput<false>
-    | DialogArg.Input
-    | DialogArg.RectInput
-    | DialogArg.Slider
-    | DialogArg.Switch
-    | DialogArg.DirInput
-    | DialogArg.NumberInput
-    | DialogArg.NumberRangeInput
-> = {
+type ArgItems =
+  | DialogArg.Select
+  | DialogArg.FileInput<true>
+  | DialogArg.FileInput<false>
+  | DialogArg.Input
+  | DialogArg.RectInput
+  | DialogArg.Slider
+  | DialogArg.Switch
+  | DialogArg.DirInput
+  | DialogArg.NumberInput
+  | DialogArg.NumberRangeInput;
+type ArgItem<T extends ArgItems = ArgItems> = {
   id?: string;
   noTest?: boolean;
   onlyTest?: boolean;
