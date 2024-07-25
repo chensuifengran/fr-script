@@ -17,14 +17,19 @@
           <el-button @click="reset(true)" :disabled="!isChanged">重置</el-button>
           <el-button type="primary" @click="save" :disabled="!isChanged">保存</el-button>
         </el-button-group>
-        <el-segmented v-model="currentTab" :options="tabOption" ml-1/>
+        <el-button-group ml-1 v-show="currentTab === '创建API'" size="small">
+          <el-button type="warning" @click="resetCreate">清空</el-button>
+          <el-button type="primary" @click="createApi">创建</el-button>
+        </el-button-group>
+        <el-segmented v-model="currentTab" :options="tabOption" ml-1 />
       </div>
     </div>
     <div w-full overflow-y-scroll overflow-x-hidden>
       <invokes-manager-form v-model="localForm.manager" :scope-list="scopeList"
         v-show="currentTab === '管理API' && targetApi" />
       <el-empty v-show="currentTab === '管理API' && !targetApi" description="请选择一个API进行管理" />
-      <invokes-manager-form v-model="localForm.create" :scope-list="scopeList" v-show="currentTab === '创建API'" />
+      <invokes-manager-form ref="IMFRef" v-model="localForm.create" :scope-list="scopeList"
+        v-show="currentTab === '创建API'" />
     </div>
   </div>
 </template>
@@ -32,6 +37,7 @@
 import { nanoid } from 'nanoid';
 import { SelectOption } from '../utils/dataStructure';
 import { InvokeTemplateOptions } from '../utils/invokeTemplate';
+const IMFRef = ref<any>();
 type ExtraProperties = {
   enabled?: boolean;
   disabled?: boolean;
@@ -114,7 +120,7 @@ const save = () => {
   beforeLocalForm = JSON.stringify(localForm.value.manager);
   console.log(JSON.parse(beforeLocalForm));
   console.log(new InvokeTemplate(JSON.parse(beforeLocalForm)));
-  
+
 }
 const checkSave = async (e: any) => {
   if (isChanged.value) {
@@ -145,10 +151,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
         ...item.testModule,
         document: {
           ...item.testModule?.document,
-          params: item.testModule?.document?.params?.map((i: DocumentParamItem) => ({
-            ...i,
-            id: nanoid()
-          })),
+          params: dataStructureUtils.genTreeArrNodeId(item.testModule?.document?.params || []),
           returnValue: {
             ...item.testModule?.document?.returnValue,
             instructions: item.testModule?.document?.returnValue?.instructions || ""
@@ -252,10 +255,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
             ...child.testModule,
             document: {
               ...child.testModule?.document,
-              params: child.testModule?.document?.params?.map((i: DocumentParamItem) => ({
-                ...i,
-                id: nanoid()
-              })),
+              params: dataStructureUtils.genTreeArrNodeId(child.testModule?.document?.params || []),
               returnValue: {
                 ...child.testModule?.document?.returnValue,
                 instructions: child.testModule?.document?.returnValue?.instructions || ""
@@ -354,6 +354,14 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
       })
     }
   }) as SelectOption<ExtraProperties>[];
+  //默认选中第一个
+  if (apiDataList.value[0]) {
+    if (apiDataList.value[0].children && apiDataList.value[0].children[0]) {
+      targetApi.value = apiDataList.value[0].children[0].id;
+    } else {
+      targetApi.value = apiDataList.value[0].id;
+    }
+  }
 }
 const initData = async () => {
   const dataSources: InvokeApiMethodType[] = JSON.parse(JSON.stringify(await getApiModules(false, true, true)));
@@ -376,78 +384,18 @@ const filterNodeMethod = (value: string, data: SelectOption<ExtraProperties>) =>
     data.testModule?.document?.howToUse?.toLocaleLowerCase().includes(value.toLocaleLowerCase()) ||
     data.testModule?.document?.searchKeys?.some((key) => key.toLocaleLowerCase().includes(value.toLocaleLowerCase()))
 }
-// const createInvokeItem = () => {
-//   const t = new InvokeTemplate(
-//     {
-//       name: "test03",
-//       scope: 'Test',
-//       weight: 1,
-//       disabled: false,
-//       document: {
-//         howToUse: "监听快捷键触发，触发后调用回调函数。22222",
-//         params: [
-//           {
-//             name: "keys",
-//             required: true,
-//             instructions: "等待触发的快捷键，如：['Alt+S','Alt+E']",
-//             type: "string[]",
-//             default: "",
-//           },
-//           {
-//             name: "handler",
-//             required: true,
-//             instructions: "快捷键触发后的回调函数，参数key为触发的快捷键",
-//             type: "(key:string)=>void",
-//             default: "",
-//           },
-//         ],
-//         returnValue: {
-//           instructions: "返回一个函数，调用该函数可以取消监听",
-//           type: "Promise<(() => Promise<void>) | undefined>",
-//         },
-//         example: {
-//           title: '该API在"测试调用"后会动态填入参数到示例',
-//           code: `//等待 Alt+S 或 Alt+R 被按下
-// const unlisten = await GlobalShortcut.listen(["Alt+S","Alt+R"],(key)=>{console.log(key);});//监听快捷键
-// //取消监听
-// if(unlisten){
-//   await unlisten();
-// }`,
-//         },
-//         searchKeys: ["test"],
-//         codeSnippet:
-//           "const unlisten = await GlobalShortcut.listen(['${1:key}'],(key)=>{${2:}});",
-//       },
-//       dialog: {
-//         title: "Test01",
-//         content:
-//           "如需识别屏幕内容，图片路径无需填写。如需识别图片内容，需填写图片路径。",
-//         args: [
-//           {
-//             name: "rect",
-//             componentType: "RectInput",
-//             value: {
-//               x: -1,
-//               y: -1,
-//               width: -1,
-//               height: -1,
-//             },
-//             label: "识别区域",
-//             targetSrc: "imgPath",
-//           },
-//           {
-//             name: "imgPath",
-//             componentType: "FileInput",
-//             value: "",
-//             label: "图片路径",
-//           },
-//         ],
-//       }
-//     }
-//   );
-//   console.log(t.indexTemplate, t.documentTemplate, t.exportFnTemplate, t.declaration, t.dialogTemplate, t.dialogCBTemplate, t.auxiliaryTemplate);
-//   t.create();
-// };
+const resetCreate = () => {
+  localForm.value.create = defaultInvokeTemplateOptions();
+}
+const createApi = () => {
+  const { codeSnippetPlaceholder } = IMFRef.value;
+  if (!localForm.value.create.document.codeSnippet?.trim().length) {
+    localForm.value.create.document.codeSnippet = codeSnippetPlaceholder;
+  }
+  const template = new InvokeTemplate(localForm.value.create);
+  template.create();
+  ElMessage.success('创建成功');
+}
 </script>
 <style></style>
 <style lang="scss" scoped>
