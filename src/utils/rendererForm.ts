@@ -5,9 +5,8 @@ class FormUtil {
       | "checkList"
       | "groupSelectList"
       | "inputList"
-      | "multipleGroupSelectList"
-      | "selectList"
-      | "tableList",
+      | "multipleSelectList"
+      | "selectList",
     label: string,
     failValue: T,
     groupLabel: string = "*脚本设置"
@@ -27,12 +26,10 @@ class FormUtil {
         return (field as CheckListItem).checked as T;
       } else if (valueType === "inputList") {
         return (field as InputListItem).value as T;
-      } else if (valueType === "multipleGroupSelectList") {
+      } else if (valueType === "multipleSelectList") {
         return (field as MultiplSelectionItem).value as T;
       } else if (valueType === "selectList") {
         return (field as SelectListItem).value as T;
-      } else if (valueType === "tableList") {
-        return (field as TableListItem).tableData as T;
       } else {
         return (field as groupSelectListItem).value as T;
       }
