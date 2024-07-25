@@ -4,7 +4,15 @@
       <div class="dialog-form">
         <el-form label-position="left" label-width="150px" :model="editDialogForm">
           <el-form-item label="字段命名" prop="name">
-            <el-input v-model="editDialogForm.name" />
+            <template v-if="documentParams.length">
+              <el-select v-model="editDialogForm.name" filterable allow-create>
+                <el-option v-for="argItem in documentParams" :key="argItem.id" :label="argItem.name"
+                  :value="argItem.name" />
+              </el-select>
+            </template>
+            <template v-else>
+              <el-input v-model="editDialogForm.name" />
+            </template>
           </el-form-item>
           <el-form-item label="字段标签" prop="label">
             <el-input v-model="editDialogForm.label" />
@@ -200,6 +208,12 @@
 import { VueDraggable } from 'vue-draggable-plus';
 import { nanoid } from 'nanoid';
 import { ListStore } from '../../store/listStore';
+defineProps({
+  documentParams: {
+    type: Array as PropType<DocumentParamItem[]>,
+    default: []
+  }
+});
 const editDialogForm = reactive({
   componentType: <"input" | "RectInput" | "slider" | "switch" | "DirInput" | "numberInput" | "numberRangeInput" | "select" | "FileInput" | undefined>undefined,
   noTest: false,//此字段不在API调试中使用(展示)
@@ -546,8 +560,6 @@ const editDialogCallback = () => {
     target.noTest = editDialogForm.noTest;
     target.onlyTest = editDialogForm.onlyTest;
     ElMessage.success('编辑成功');
-    console.log(target);
-
   } else {
     ElMessage.error('编辑失败：未找到对应参数!');
   }

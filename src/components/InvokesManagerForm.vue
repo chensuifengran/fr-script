@@ -44,7 +44,7 @@
         <div flex flex-col flex-items-start mb-2>
           <el-text self-start mb-2>API参数</el-text>
           <el-table :data="localForm.document.params" table-layout="fixed" row-key="id" default-expand-all
-            :border="true" max-height="350">
+            :border="true" max-height="75vh">
             <el-table-column prop="name" label="参数名" fixed width="180">
               <template #default="scope">
                 <el-input v-model="scope.row.name" placeholder="参数名" />
@@ -78,7 +78,7 @@
             <el-table-column prop="default" label="默认值">
               <template #default="scope">
                 <el-select v-if="Array.isArray(scope.row.type)" v-model="scope.row.default" size="small"
-                  :disabled="scope.row.required">
+                  :disabled="scope.row.required" filterable allow-create clearable>
                   <el-option v-for="item in scope.row.type" :key="item" :label="item" :value="item" />
                 </el-select>
                 <el-input v-model="scope.row.default" placeholder="默认值" v-else size="small"
@@ -152,8 +152,9 @@
             placeholder="可以添加搜索关键词"></el-select>
         </div>
         <div flex flex-col flex-items-start w-full box-border pr-2>
-          <el-text self-start>代码片段</el-text>
-          <el-input v-model="localForm.document.codeSnippet" type="textarea" placeholder="代码片段" autosize />
+          <el-text self-start>代码片段(不填按照下面提示的内容生成)</el-text>
+          <el-input v-model="localForm.document.codeSnippet" type="textarea" :placeholder="codeSnippetPlaceholder"
+            autosize />
         </div>
       </div>
     </div>
@@ -183,7 +184,7 @@
           </div>
           <div flex flex-col flex-items-start w-full box-border pl-8px>
             <el-text self-start>弹窗组件编辑(可从左侧将指定参数组件拖拽至右侧)</el-text>
-            <dialog-arg-editor v-model="localForm.dialog.args" />
+            <dialog-arg-editor v-model="localForm.dialog.args" :document-params="currentDocParams" />
           </div>
         </div>
       </div>
@@ -206,6 +207,9 @@ type ExtraProperties = {
 const localForm = defineModel<Required<InvokeTemplateOptions>>({
   required: true,
 });
+const currentDocParams = computed(() => {
+  return localForm.value.document.params;
+})
 defineProps({
   scopeList: {
     type: Array as PropType<{
@@ -215,6 +219,17 @@ defineProps({
     required: true
   }
 });
+const codeSnippetPlaceholder = ref('');
+defineExpose({
+  codeSnippetPlaceholder
+})
+watchEffect(() => {
+  const { returnValue: _, params: __ } = localForm.value.document;
+  if (!localForm.value.document.codeSnippet?.trim().length) {
+    const t = new InvokeTemplate(localForm.value);
+    codeSnippetPlaceholder.value = t.defaultSnippet();
+  }
+})
 const apiDataList = ref<SelectOption<ExtraProperties>[]>([]);
 const apiFormShow = ref(true);
 const dialogFormShow = ref(true);
