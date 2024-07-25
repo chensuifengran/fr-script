@@ -49,6 +49,7 @@ export type BuiltInApiType = {
   ocr: typeof import("./ocr/exportFn")["ocrFn"];
   Preludes: {
     __NS_DATA__: Record<string, any>;
+    buildForm: typeof import("./Preludes/buildForm/exportFn")["buildFormFn"];
     log: typeof import("./Preludes/log/exportFn")["logFn"];
     sleep: typeof import("./Preludes/sleep/exportFn")["sleepFn"];
   };

@@ -57,6 +57,7 @@ declare global {
       ocr: typeof import("./invokes/ocr/exportFn")["ocrFn"];
       Preludes: {
         __NS_DATA__: Record<string, any>;
+        buildForm: typeof import("./invokes/Preludes/buildForm/exportFn")["buildFormFn"];
         log: typeof import("./invokes/Preludes/log/exportFn")["logFn"];
         sleep: typeof import("./invokes/Preludes/sleep/exportFn")["sleepFn"];
       };
