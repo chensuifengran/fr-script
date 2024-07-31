@@ -13,7 +13,6 @@ type FnInfo = {
     endColumn: number;
   };
 };
-
 const { basename, resolve } = pathUtils;
 
 const fnInfo = ref<FnInfo | null>(null);
@@ -62,345 +61,52 @@ const paramsProcess = async (
     if (Array.isArray(args[index])) {
       _params.push((await paramsProcess(args[index] as any)) as any);
     } else {
-      let i = (args[index] as string).replaceAll('"', "").replaceAll("'", "");
-      const arg = i
-        .replace(/\s/g, "")
-        .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
-        .replace(
-          "SCREEN_SHOT_PATH+",
-          pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-        )
-        .replace(
-          "SCREEN_SHOT_PATH",
-          pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-        )
-        .replace(
-          "SCREEN_SHOT_DIR+",
-          pathStrProcess(
-            await resolve(appGSStore.envSetting.screenshotSavePath, "..")
+      if (typeof args[index] === "string") {
+        let i = (args[index] as string).replaceAll('"', "").replaceAll("'", "");
+        const arg = i
+          .replace(/\s/g, "")
+          .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
+          .replace(
+            "SCREEN_SHOT_PATH+",
+            pathStrProcess(appGSStore.envSetting.screenshotSavePath)
           )
-        )
-        .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
-      _params.push(arg);
+          .replace(
+            "SCREEN_SHOT_PATH",
+            pathStrProcess(appGSStore.envSetting.screenshotSavePath)
+          )
+          .replace(
+            "SCREEN_SHOT_DIR+",
+            pathStrProcess(
+              await resolve(appGSStore.envSetting.screenshotSavePath, "..")
+            )
+          )
+          .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
+        _params.push(arg);
+      } else {
+        _params.push(args[index]);
+      }
     }
   }
   return _params;
 };
-const strIndexOfApi = (str: string) => {
-  if (str?.length === 0) return -1;
-  for (const api of getInvokeApiMethods()) {
-    if (api.exportFn) {
-      if (api.scope) {
-        const index = str.indexOf(api.scope + "." + api.name);
-        if (index !== -1) {
-          const length = api.scope.length + api.name.length + 1;
-          if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
-            const newStr = str.slice(index + length);
-            const newStrIndex = newStr.indexOf(api.name);
-            return newStrIndex === -1 ? index : index + length + newStrIndex;
-          }
-          return index;
-        } else {
-          //如果没找到，则尝试匹配不带scope的名字
-          const index = str.indexOf(api.name);
-          if (index !== -1) {
-            const length = api.name?.length;
-            if (
-              str[index + length] !== "(" ||
-              !/\s/.test(str[index + length])
-            ) {
-              const newStr = str.slice(index + length);
-              const newStrIndex = newStr.indexOf(api.name);
-              return newStrIndex === -1 ? index : index + length + newStrIndex;
-            }
-            return index;
-          }
-        }
-      } else {
-        const index = str.indexOf(api.name);
-        if (index !== -1) {
-          const length = api.name?.length;
-          if (str[index + length] !== "(" || !/\s/.test(str[index + length])) {
-            const newStr = str.slice(index + length);
-            const newStrIndex = newStr.indexOf(api.name);
-            return newStrIndex === -1 ? index : index + length + newStrIndex;
-          }
-          return index;
-        } else continue;
-      }
-    }
-  }
-  return -1;
-};
-const transformListParams = (params: string[]) => {
-  const _params = params.map((i) => {
-    if (i === "[]") {
-      return <string[]>[];
-    } else {
-      return i;
-    }
-  });
-  const resultParams: (string | string[])[] = [];
-  const includeArrItem = _params.filter(
-    (i) => i.indexOf("[") || i.indexOf("]")
-  );
-  const arrayCount = Math.floor(includeArrItem.length / 2);
-  if (arrayCount < 1) {
-    return _params;
-  }
-  const listArr: string[] = [];
-  let currentArrayCount = 0;
-  let d = "left";
-  for (let index = 0; index < _params.length; index++) {
-    const param = _params[index];
-    if (Array.isArray(param)) {
-      resultParams.push(param);
-      continue;
-    }
-    if (currentArrayCount < arrayCount) {
-      if (d === "left") {
-        if (param.includes("[")) {
-          d = "right";
-          listArr.push(param.replace("[", ""));
-        } else {
-          resultParams.push(param);
-        }
-      } else {
-        if (param.includes("]")) {
-          d = "left";
-          listArr.push(param.replace("]", ""));
-          resultParams.push([...listArr]);
-          listArr.splice(0, listArr.length);
-          currentArrayCount++;
-        } else {
-          listArr.push(param);
-        }
-      }
-    } else {
-      resultParams.push(param);
-    }
-  }
-  return resultParams;
-};
-const apiAutoTip = () => {
-  const { findEditor } = useEditor();
-  // 获取编辑器实例
-  const editor = findEditor("codeEditBox");
+
+const getCursorPosFnInfo = async (
+  editor: monaco.editor.IStandaloneCodeEditor | undefined
+) => {
   if (!editor) {
     return;
   }
-  // 获取当前选择的文本范围或光标的当前位置
-  const curSelection = editor.getSelection()!;
-  // 获取当前选择的文本所在行的行号
-  const { startLineNumber } = curSelection;
-  // 获取当前文本模型
-  const mod = editor?.getModel();
-  // 获取当前选择的文本所在行的内容
-  let curLineContent = mod?.getLineContent(startLineNumber) || "";
-  // 将当前选择的文本所在行的内容的注释部分清空
-  curLineContent = curLineContent.replace(ANNOTATION_REGEX, "");
-  const endIndex = curLineContent.lastIndexOf(")");
-  const startIndex = curLineContent.lastIndexOf("(");
-  if (endIndex !== -1) {
-    //↑当前行匹配到)
-    if (startIndex !== -1 && startIndex < endIndex) {
-      //↑当前行匹配到(，并且(在)前面
-      const nameIndex = strIndexOfApi(curLineContent);
-      if (nameIndex !== -1) {
-        if (nameIndex !== 0 && !/\s/.test(curLineContent[nameIndex - 1])) {
-          fnInfo.value = null;
-          return;
-        }
-        const targetApiName = curLineContent
-          .substring(nameIndex, startIndex)
-          .trim();
-        const scopeName = targetApiName.split(".");
-        fnInfo.value = {
-          scope: scopeName.length > 1 ? scopeName[0] : "",
-          name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-          params: transformListParams(
-            curLineContent
-              .substring(startIndex + 1, endIndex)
-              .replace(/\s/g, "")
-              .split(",")
-          ),
-          paramsRange: {
-            startLineNumber: startLineNumber,
-            endLineNumber: startLineNumber,
-            startColumn: startIndex + 2,
-            endColumn: endIndex + 1,
-          },
-        };
-      } else {
-        fnInfo.value = null;
-        return;
-      }
-    } else if (startIndex === -1) {
-      //↑当前行没有匹配到(，需要往上面找
-      let pre = 0;
-      let startFnIndex = curLineContent.lastIndexOf("(");
-      let matchContent = curLineContent.substring(0, endIndex + 1);
-      while (startFnIndex === -1) {
-        //↑当前行没有匹配到(，需要往上面找
-        if (--pre + startLineNumber <= 0) {
-          //↑第一行还是没有匹配到(，直接返回
-          fnInfo.value = null;
-          return;
-        } else {
-          startFnIndex = mod!
-            .getLineContent(pre + startLineNumber)
-            .lastIndexOf("(");
-          const preLineContent =
-            mod?.getLineContent(pre + startLineNumber) || "";
-          matchContent = preLineContent + matchContent;
-        }
-      }
-      const nameIndex = strIndexOfApi(matchContent);
-      if (nameIndex !== 0 && !/\s/.test(matchContent[nameIndex - 1])) {
-        fnInfo.value = null;
-        return;
-      }
-      const targetApiName = matchContent
-        .substring(nameIndex, startFnIndex)
-        .trim();
-      const scopeName = targetApiName.split(".");
-      fnInfo.value = {
-        scope: scopeName.length > 1 ? scopeName[0] : "",
-        name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: transformListParams(
-          matchContent
-            .substring(startFnIndex + 1, matchContent.length - 1)
-            .replace(/\s/g, "")
-            .split(",")
-        ),
-        paramsRange: {
-          startLineNumber: startLineNumber + pre,
-          endLineNumber: startLineNumber,
-          startColumn: startFnIndex + 2,
-          endColumn: endIndex + 1,
-        },
-      };
-    }
-  } else {
-    //↑当前行没有匹配到)
-    if (startIndex !== -1) {
-      //↑当前行匹配到(，需要往下面找
-      let next = 0;
-      let endFnIndex = curLineContent.lastIndexOf(")");
-      let matchContent = curLineContent;
-      while (endFnIndex === -1) {
-        //↑当前行没有匹配到(，需要往上面找
-        if (++next + startLineNumber > mod!.getLineCount()) {
-          //↑最后一行还是没有匹配到(，直接返回
-          fnInfo.value = null;
-          return;
-        } else {
-          endFnIndex = mod!
-            .getLineContent(next + startLineNumber)
-            .lastIndexOf(")");
-          const nextLineContent =
-            mod?.getLineContent(next + startLineNumber) || "";
-          matchContent = matchContent + nextLineContent;
-        }
-      }
-
-      const nameIndex = strIndexOfApi(matchContent);
-      const targetApiName = matchContent
-        .substring(nameIndex, startIndex)
-        .trim();
-      if (nameIndex !== 0 && !/\s/.test(matchContent[nameIndex - 1])) {
-        fnInfo.value = null;
-        return;
-      }
-      const scopeName = targetApiName.split(".");
-      fnInfo.value = {
-        scope: scopeName.length > 1 ? scopeName[0] : "",
-        name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: transformListParams(
-          matchContent
-            .substring(startIndex + 1, matchContent.indexOf(")"))
-            .replace(/\s/g, "")
-            .split(",")
-        ),
-        paramsRange: {
-          startLineNumber: startLineNumber,
-          endLineNumber: startLineNumber + next,
-          startColumn: startIndex + 2,
-          endColumn: endFnIndex + 1,
-        },
-      };
-    } else {
-      //↑当前行没有匹配到(和)，需要往上面找和下面找
-      let pre = 0;
-      let startFnIndex = curLineContent.lastIndexOf("(");
-      let matchContent = curLineContent;
-      while (startFnIndex === -1) {
-        //↑当前行没有匹配到(，需要往上面找
-        if (--pre + startLineNumber <= 0) {
-          //↑第一行还是没有匹配到(，直接返回
-          fnInfo.value = null;
-          return;
-        } else {
-          const preLineStartIndex = mod!
-            .getLineContent(pre + startLineNumber)
-            .lastIndexOf("(");
-          const afterContent = mod!
-            .getLineContent(pre + startLineNumber)
-            .slice(preLineStartIndex + 1);
-          //判断(之后是否存在)，如果存在则不再往上找，直接返回
-          if (preLineStartIndex !== -1 && afterContent.includes(")")) {
-            fnInfo.value = null;
-            return;
-          }
-          startFnIndex = preLineStartIndex;
-          const preLineContent =
-            mod?.getLineContent(pre + startLineNumber) || "";
-          matchContent = preLineContent + matchContent;
-        }
-      }
-      let next = 0;
-      let endFnIndex = curLineContent.lastIndexOf(")");
-      while (endFnIndex === -1) {
-        //↑当前行没有匹配到(，需要往上面找
-        if (++next + startLineNumber > mod!.getLineCount()) {
-          //↑最后一行还是没有匹配到(，直接返回
-          fnInfo.value = null;
-          return;
-        } else {
-          endFnIndex = mod!
-            .getLineContent(next + startLineNumber)
-            .lastIndexOf(")");
-          const nextLineContent =
-            mod?.getLineContent(next + startLineNumber) || "";
-          matchContent = matchContent + nextLineContent;
-        }
-      }
-      const nameIndex = strIndexOfApi(matchContent);
-      const targetApiName = matchContent
-        .substring(nameIndex, startFnIndex)
-        .trim();
-      if (nameIndex !== 0 && !/\s/.test(matchContent[nameIndex - 1])) {
-        fnInfo.value = null;
-        return;
-      }
-      const scopeName = targetApiName.split(".");
-      fnInfo.value = {
-        scope: scopeName.length > 1 ? scopeName[0] : "",
-        name: scopeName.length > 1 ? scopeName[1] : scopeName[0],
-        params: transformListParams(
-          matchContent
-            .substring(startFnIndex + 1, matchContent.indexOf(")") - 1)
-            .replace(/\s/g, "")
-            .split(",")
-        ),
-        paramsRange: {
-          startLineNumber: startLineNumber + pre,
-          endLineNumber: startLineNumber + next,
-          startColumn: startFnIndex + 2,
-          endColumn: endFnIndex + 1,
-        },
-      };
-    }
+  const model = editor.getModel();
+  if (!model) {
+    return;
+  }
+  console.time("getCursorPosFnInfo");
+  const position = editor.getPosition();
+  const result = await astWorker.analyzeFnInfo(model, position);
+  fnInfo.value = result;
+  if (!fnInfo.value) {
+    console.timeEnd("getCursorPosFnInfo");
+    return;
   }
   const target = getInvokeApiMethods()
     .map((i) => {
@@ -413,21 +119,36 @@ const apiAutoTip = () => {
     .find((i) => {
       if (i.scope) {
         return (
-          i.dialog!.targetMethodName === fnInfo.value!.name ||
-          i.scope + "." + i.dialog!.targetMethodName === fnInfo.value!.name
+          i.dialog!.targetMethodName === fnInfo.value?.name ||
+          i.scope + "." + i.dialog!.targetMethodName === fnInfo.value?.name
         );
       }
       return i?.dialog!.targetMethodName === fnInfo.value!.name;
     });
-
   if (target === undefined) {
     fnInfo.value = null;
+    console.timeEnd("getCursorPosFnInfo");
     return;
   }
   if (fnInfo.value) {
     fnInfo.value.content = target.document?.howToUse;
     fnInfo.value.haveAuxiliary = target.haveAuxiliary;
   }
+  console.timeEnd("getCursorPosFnInfo");
+};
+let getCursorPosFnInfoTimer: NodeJS.Timeout | null = null;
+
+const apiAutoTip = async () => {
+  const { findEditor } = useEditor();
+  // 获取编辑器实例
+  const editor = findEditor("codeEditBox");
+  if (!editor) {
+    return;
+  }
+  getCursorPosFnInfoTimer && clearTimeout(getCursorPosFnInfoTimer);
+  getCursorPosFnInfoTimer = setTimeout(() => {
+    getCursorPosFnInfo(editor);
+  }, 50);
 };
 
 //编辑器的代码片段
@@ -527,7 +248,6 @@ const createDependencyProposals = async (range: {
   return [...allSnippet, ...codeSnippetList];
 };
 export const AutoTipUtils = {
-  strIndexOfApi,
   getFnInfo,
   paramsProcess,
   createDependencyProposals,
