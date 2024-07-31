@@ -29,6 +29,7 @@
     "monaco-editor": "^0.48.0",
     "nanoid": "^5.0.7",
     "pinia": "^2.1.7",
+    "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
     "vue-draggable-plus": "^0.4.1",
     "vue-hooks-plus": "^2.2.1",
