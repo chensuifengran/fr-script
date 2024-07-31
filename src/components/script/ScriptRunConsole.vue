@@ -74,7 +74,7 @@ const AsyncRendererForm = defineAsyncComponent(
 );
 
 const { running, name, version, hideWindow, savePath } = useScriptView();
-const {logOutput} = useLog();
+const { logOutput } = useLog();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
 
