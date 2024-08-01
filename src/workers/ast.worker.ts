@@ -4,7 +4,6 @@ import {
   Node,
   ObjectBindingPattern,
   CallExpression,
-  VariableDeclaration,
   ObjectLiteralExpression,
   PropertyAssignment,
   ShorthandPropertyAssignment,
@@ -156,17 +155,28 @@ const getNearestVariableValue = (
   ss: SourceFile,
   treeLevel: number
 ) => {
-  let res: string | number | boolean | undefined | null = "";
+  let res: string | number | boolean | undefined | null = "__EMPTY__";
   const visit = (node: Node<ts.Node>) => {
-    if (node.getKind() === ts.SyntaxKind.VariableDeclaration) {
+    if (
+      //变量声明
+      node.isKind(ts.SyntaxKind.VariableDeclaration) ||
+      //赋值表达式
+      (res !== "__EMPTY__" && node.isKind(ts.SyntaxKind.BinaryExpression))
+    ) {
       if (node.getEnd() <= offset && getNodeTreeLevel(node) <= treeLevel) {
-        const vNode = node as VariableDeclaration;
-        if (vNode.getName() === name) {
-          const initializer = vNode.getInitializer();
-          if (initializer) {
-            res = parseNodeValue(initializer, offset, ss);
-          } else {
-            res = undefined;
+        if (node.isKind(ts.SyntaxKind.VariableDeclaration)) {
+          if (node.getName() === name) {
+            const initializer = node.getInitializer();
+            if (initializer) {
+              res = parseNodeValue(initializer, offset, ss);
+            } else {
+              res = undefined;
+            }
+          }
+        } else {
+          const n = node as BinaryExpression;
+          if (n.getLeft().getText() === name) {
+            res = parseNodeValue(n.getRight(), offset, ss);
           }
         }
       }
@@ -174,7 +184,7 @@ const getNearestVariableValue = (
     node.forEachChild(visit);
   };
   ss.forEachChild(visit);
-  return res;
+  return res === "__EMPTY__" ? undefined : res;
 };
 
 const getDeconstructionName = (
