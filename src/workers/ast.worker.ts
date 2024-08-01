@@ -9,6 +9,7 @@ import {
   PropertyAssignment,
   ShorthandPropertyAssignment,
   SpreadAssignment,
+  BinaryExpression,
 } from "ts-morph";
 import ts from "typescript";
 import * as monaco from "monaco-editor";
@@ -58,7 +59,45 @@ const parseObjectLiteral = (node: Node, offset: number, ss: SourceFile) => {
   });
   return resObj;
 };
-const parseNodeValue = (node: Node, offset: number, ss: SourceFile): any => {
+//
+const processBinaryExpression = (
+  node: Node,
+  offset: number,
+  ss: SourceFile
+): any => {
+  let n: BinaryExpression;
+  if (node.isKind(ts.SyntaxKind.ParenthesizedExpression)) {
+    n = node.getExpression() as BinaryExpression;
+  } else {
+    n = node as BinaryExpression;
+  }
+  let left, right;
+  if (
+    n.getLeft().isKind(ts.SyntaxKind.BinaryExpression) ||
+    n.getLeft().isKind(ts.SyntaxKind.ParenthesizedExpression)
+  ) {
+    left = processBinaryExpression(n.getLeft(), offset, ss);
+  } else {
+    left = parseNodeValue(n.getLeft(), offset, ss, false);
+  }
+  if (
+    n.getRight().isKind(ts.SyntaxKind.BinaryExpression) ||
+    n.getRight().isKind(ts.SyntaxKind.ParenthesizedExpression)
+  ) {
+    right = processBinaryExpression(n.getRight(), offset, ss);
+  } else {
+    right = parseNodeValue(n.getRight(), offset, ss, false);
+  }
+  const evalStr = `${left}${n.getOperatorToken().getText()}${right}`;
+  const res = eval(evalStr);
+  return res;
+};
+const parseNodeValue = (
+  node: Node,
+  offset: number,
+  ss: SourceFile,
+  delQuotationMarks = true
+): any => {
   if (node.isKind(ts.SyntaxKind.ArrayLiteralExpression)) {
     const res = node.getElements().map((e) => parseNodeValue(e, offset, ss));
     return res;
@@ -85,17 +124,22 @@ const parseNodeValue = (node: Node, offset: number, ss: SourceFile): any => {
     return false;
   }
   if (node.isKind(ts.SyntaxKind.StringLiteral)) {
-    return node.getText().replace(/"/g, "");
+    return delQuotationMarks
+      ? node.getText().replace(/"/g, "")
+      : node.getText();
   }
   if (node.isKind(ts.SyntaxKind.NumericLiteral)) {
     return +node.getText();
   }
-  if (node.isKind(ts.SyntaxKind.BinaryExpression)) {
-    const expression = node.getText();
+  if (
+    node.isKind(ts.SyntaxKind.BinaryExpression) ||
+    node.isKind(ts.SyntaxKind.ParenthesizedExpression)
+  ) {
     try {
-      const res = eval(expression);
+      const res = processBinaryExpression(node, offset, ss);
       return res;
     } catch (error) {
+      const expression = node.getText();
       return expression;
     }
   }
