@@ -12,6 +12,7 @@ import {
 } from "ts-morph";
 import ts from "typescript";
 import * as monaco from "monaco-editor";
+const STRING_QUOTATION_MARK_REGEX = /(^["'`])|(["'`]$)/g;
 const cache = {
   lastCode: "",
   lastSS: <SourceFile | null>null,
@@ -97,6 +98,9 @@ const parseNodeValue = (
   ss: SourceFile,
   delQuotationMarks = true
 ): any => {
+  if (node.isKind(ts.SyntaxKind.AsExpression)) {
+    node = node.getExpression();
+  }
   if (node.isKind(ts.SyntaxKind.ArrayLiteralExpression)) {
     const res = node.getElements().map((e) => parseNodeValue(e, offset, ss));
     return res;
@@ -113,8 +117,100 @@ const parseNodeValue = (
     );
     return res;
   }
+  if (node.isKind(ts.SyntaxKind.CallExpression)) {
+    try {
+      const res = eval(node.getText());
+      return res;
+    } catch (error) {
+      return undefined;
+    }
+  }
+  if (
+    node.isKind(ts.SyntaxKind.PropertyAccessExpression) ||
+    node.isKind(ts.SyntaxKind.ElementAccessExpression)
+  ) {
+    try {
+      const scope = node.getExpression().getText();
+      const targetObj = getNearestVariableValue(
+        offset,
+        scope,
+        ss,
+        getNodeTreeLevel(node)
+      );
+      if (targetObj) {
+        if (node.isKind(ts.SyntaxKind.PropertyAccessExpression)) {
+          return targetObj[node.getName()];
+        } else {
+          const key = node.getArgumentExpression();
+          if (key?.isKind(ts.SyntaxKind.StringLiteral)) {
+            console.log(targetObj, key.getText());
+            return targetObj[
+              key.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
+            ];
+          } else if (key?.isKind(ts.SyntaxKind.NumericLiteral)) {
+            return targetObj[+key.getText()];
+          } else if (key?.isKind(ts.SyntaxKind.Identifier)) {
+            const iValue = parseNodeValue(key, offset, ss);
+            return targetObj[iValue];
+          }
+          console.log("未知的ElementAccessExpression", key?.getKindName());
+        }
+      }
+    } catch (error) {
+      console.error("parseNodeValue fail:", error);
+    }
+    return undefined;
+  }
   if (node.isKind(ts.SyntaxKind.ArrowFunction)) {
-    return node.getText();
+    try {
+      const res = eval(node.getText());
+      return res;
+    } catch (error) {
+      return undefined;
+    }
+  }
+  if (node.isKind(ts.SyntaxKind.FunctionDeclaration)) {
+    const fnName = node.getName();
+    try {
+      const res = eval(`${node.getText()};${fnName}`);
+      return res;
+    } catch (error) {
+      return undefined;
+    }
+  }
+  if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
+    try {
+      const res = eval(
+        ts.transpileModule(node.getText(), {
+          compilerOptions: { module: ts.ModuleKind.ESNext },
+        }).outputText +
+          ";" +
+          node.getName()
+      );
+      return res;
+    } catch (error) {
+      console.error("get Class fail:", error);
+      return undefined;
+    }
+  }
+  if (node.isKind(ts.SyntaxKind.NewExpression)) {
+    try {
+      const str =
+        getNearestClassString(
+          offset,
+          node.getExpression().getText(),
+          ss,
+          getNodeTreeLevel(node)
+        ) +
+        ";const target = " +
+        node.getText() +
+        ";target";
+      const res = eval(str);
+      return res;
+    } catch (error) {
+      console.error("get NewExpression instance fail:", error);
+      return undefined;
+    }
   }
   if (node.isKind(ts.SyntaxKind.TrueKeyword)) {
     return true;
@@ -124,7 +220,7 @@ const parseNodeValue = (
   }
   if (node.isKind(ts.SyntaxKind.StringLiteral)) {
     return delQuotationMarks
-      ? node.getText().replace(/"/g, "")
+      ? node.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
       : node.getText();
   }
   if (node.isKind(ts.SyntaxKind.NumericLiteral)) {
@@ -142,12 +238,34 @@ const parseNodeValue = (
       return expression;
     }
   }
-
   if (node.isKind(ts.SyntaxKind.NullKeyword)) {
     return null;
   }
-  return undefined;
 };
+//获得离光标最近的类声明的字符串
+const getNearestClassString = (
+  offset: number,
+  className: string,
+  ss: SourceFile,
+  treeLevel: number
+) => {
+  let res = "";
+  const visit = (node: Node<ts.Node>) => {
+    if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
+      if (node.getEnd() <= offset && getNodeTreeLevel(node) <= treeLevel) {
+        if (node.getName() === className) {
+          res = ts.transpile(node.getText(), {
+            target: ts.ScriptTarget.ESNext,
+          });
+        }
+      }
+    }
+    node.forEachChild(visit);
+  };
+  ss.forEachChild(visit);
+  return res;
+};
+
 //获得离光标最近的变量声明的值
 const getNearestVariableValue = (
   offset: number,
@@ -155,13 +273,14 @@ const getNearestVariableValue = (
   ss: SourceFile,
   treeLevel: number
 ) => {
-  let res: string | number | boolean | undefined | null = "__EMPTY__";
+  let res: any = "__UNDEFINED_FLAG__";
   const visit = (node: Node<ts.Node>) => {
     if (
       //变量声明
       node.isKind(ts.SyntaxKind.VariableDeclaration) ||
       //赋值表达式
-      (res !== "__EMPTY__" && node.isKind(ts.SyntaxKind.BinaryExpression))
+      (res !== "__UNDEFINED_FLAG__" &&
+        node.isKind(ts.SyntaxKind.BinaryExpression))
     ) {
       if (node.getEnd() <= offset && getNodeTreeLevel(node) <= treeLevel) {
         if (node.isKind(ts.SyntaxKind.VariableDeclaration)) {
@@ -184,7 +303,7 @@ const getNearestVariableValue = (
     node.forEachChild(visit);
   };
   ss.forEachChild(visit);
-  return res === "__EMPTY__" ? undefined : res;
+  return res === "__UNDEFINED_FLAG__" ? undefined : res;
 };
 
 const getDeconstructionName = (
