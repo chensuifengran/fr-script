@@ -9,6 +9,7 @@ import {
   ShorthandPropertyAssignment,
   SpreadAssignment,
   BinaryExpression,
+  Identifier,
 } from "ts-morph";
 import ts from "typescript";
 import * as monaco from "monaco-editor";
@@ -27,7 +28,7 @@ const getNodeTreeLevel = (node: Node) => {
   }
   return level;
 };
-const parseObjectLiteral = (node: Node, offset: number, ss: SourceFile) => {
+const parseObjectLiteral = (node: Node, nodeOffset: number, ss: SourceFile) => {
   const n = node as ObjectLiteralExpression;
   let resObj: Record<string, any> = {};
   const properties = n.getProperties();
@@ -37,13 +38,13 @@ const parseObjectLiteral = (node: Node, offset: number, ss: SourceFile) => {
       const key = prop.getName();
       const value = prop.getInitializer();
       if (value) {
-        resObj[key] = parseNodeValue(value, offset, ss);
+        resObj[key] = parseNodeValue(value, nodeOffset, ss);
       }
     } else if (p.isKind(ts.SyntaxKind.ShorthandPropertyAssignment)) {
       const prop = p as ShorthandPropertyAssignment;
       const key = prop.getName();
       const value = getNearestVariableValue(
-        offset,
+        nodeOffset,
         key,
         ss,
         getNodeTreeLevel(node)
@@ -51,18 +52,18 @@ const parseObjectLiteral = (node: Node, offset: number, ss: SourceFile) => {
       resObj[key] = value;
     } else if (p.isKind(ts.SyntaxKind.SpreadAssignment)) {
       const prop = p as SpreadAssignment;
-      const value = parseNodeValue(prop.getExpression(), offset, ss);
+      const value = parseNodeValue(prop.getExpression(), nodeOffset, ss);
       resObj = { ...resObj, ...value };
     } else {
-      console.log("未知属性", p.getKindName());
+      console.error("不支持的属性", p.getKindName());
     }
   });
   return resObj;
 };
-//
+
 const processBinaryExpression = (
   node: Node,
-  offset: number,
+  nodeOffset: number,
   ss: SourceFile
 ): any => {
   let n: BinaryExpression;
@@ -76,25 +77,52 @@ const processBinaryExpression = (
     n.getLeft().isKind(ts.SyntaxKind.BinaryExpression) ||
     n.getLeft().isKind(ts.SyntaxKind.ParenthesizedExpression)
   ) {
-    left = processBinaryExpression(n.getLeft(), offset, ss);
+    left = processBinaryExpression(n.getLeft(), nodeOffset, ss);
   } else {
-    left = parseNodeValue(n.getLeft(), offset, ss, false);
+    left = parseNodeValue(n.getLeft(), nodeOffset, ss, false);
   }
   if (
     n.getRight().isKind(ts.SyntaxKind.BinaryExpression) ||
     n.getRight().isKind(ts.SyntaxKind.ParenthesizedExpression)
   ) {
-    right = processBinaryExpression(n.getRight(), offset, ss);
+    right = processBinaryExpression(n.getRight(), nodeOffset, ss);
   } else {
-    right = parseNodeValue(n.getRight(), offset, ss, false);
+    right = parseNodeValue(n.getRight(), nodeOffset, ss, false);
   }
   const evalStr = `${left}${n.getOperatorToken().getText()}${right}`;
   const res = eval(evalStr);
   return res;
 };
+//获得离变量节点最近的函数参数中包含指定变量名的函数作用域起点
+const getNearestFnScopeStartOffset = (node: Identifier): number => {
+  let res = 0;
+  let parent: Node | undefined = node.getParent();
+  const variableName = node.getText();
+  while (parent) {
+    if (
+      parent.isKind(ts.SyntaxKind.FunctionDeclaration) ||
+      parent.isKind(ts.SyntaxKind.ArrowFunction)
+    ) {
+      const fn = parent;
+      const params = fn.getParameters();
+      for (let i = 0; i < params.length; i++) {
+        if (params[i].getName() === variableName) {
+          res = (fn.getBody()?.getStart() || 0) + 2;
+          break;
+        }
+      }
+      if (res) {
+        break;
+      }
+    }
+    parent = parent.getParent();
+  }
+  return res;
+};
+
 const parseNodeValue = (
   node: Node,
-  offset: number,
+  nodeOffset: number,
   ss: SourceFile,
   delQuotationMarks = true
 ): any => {
@@ -102,18 +130,23 @@ const parseNodeValue = (
     node = node.getExpression();
   }
   if (node.isKind(ts.SyntaxKind.ArrayLiteralExpression)) {
-    const res = node.getElements().map((e) => parseNodeValue(e, offset, ss));
+    const res = node
+      .getElements()
+      .map((e) => parseNodeValue(e, nodeOffset, ss));
     return res;
   }
   if (node.isKind(ts.SyntaxKind.ObjectLiteralExpression)) {
-    return parseObjectLiteral(node, offset, ss);
+    return parseObjectLiteral(node, nodeOffset, ss);
   }
   if (node.isKind(ts.SyntaxKind.Identifier)) {
+    const startOffset = getNearestFnScopeStartOffset(node);
     const res = getNearestVariableValue(
-      offset,
+      nodeOffset,
       node.getText(),
       ss,
-      getNodeTreeLevel(node)
+      getNodeTreeLevel(node),
+      startOffset,
+      false
     );
     return res;
   }
@@ -122,7 +155,7 @@ const parseNodeValue = (
       const res = eval(node.getText());
       return res;
     } catch (error) {
-      return undefined;
+      return;
     }
   }
   if (
@@ -132,7 +165,7 @@ const parseNodeValue = (
     try {
       const scope = node.getExpression().getText();
       const targetObj = getNearestVariableValue(
-        offset,
+        nodeOffset,
         scope,
         ss,
         getNodeTreeLevel(node)
@@ -150,7 +183,7 @@ const parseNodeValue = (
           } else if (key?.isKind(ts.SyntaxKind.NumericLiteral)) {
             return targetObj[+key.getText()];
           } else if (key?.isKind(ts.SyntaxKind.Identifier)) {
-            const iValue = parseNodeValue(key, offset, ss);
+            const iValue = parseNodeValue(key, nodeOffset, ss);
             return targetObj[iValue];
           }
           console.log("未知的ElementAccessExpression", key?.getKindName());
@@ -159,24 +192,13 @@ const parseNodeValue = (
     } catch (error) {
       console.error("parseNodeValue fail:", error);
     }
-    return undefined;
+    return;
   }
-  if (node.isKind(ts.SyntaxKind.ArrowFunction)) {
-    try {
-      const res = eval(node.getText());
-      return res;
-    } catch (error) {
-      return undefined;
-    }
-  }
-  if (node.isKind(ts.SyntaxKind.FunctionDeclaration)) {
-    const fnName = node.getName();
-    try {
-      const res = eval(`${node.getText()};${fnName}`);
-      return res;
-    } catch (error) {
-      return undefined;
-    }
+  if (
+    node.isKind(ts.SyntaxKind.ArrowFunction) ||
+    node.isKind(ts.SyntaxKind.FunctionDeclaration)
+  ) {
+    return node.getText();
   }
   if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
     try {
@@ -190,14 +212,14 @@ const parseNodeValue = (
       return res;
     } catch (error) {
       console.error("get Class fail:", error);
-      return undefined;
+      return;
     }
   }
   if (node.isKind(ts.SyntaxKind.NewExpression)) {
     try {
       const str =
         getNearestClassString(
-          offset,
+          nodeOffset,
           node.getExpression().getText(),
           ss,
           getNodeTreeLevel(node)
@@ -209,7 +231,7 @@ const parseNodeValue = (
       return res;
     } catch (error) {
       console.error("get NewExpression instance fail:", error);
-      return undefined;
+      return;
     }
   }
   if (node.isKind(ts.SyntaxKind.TrueKeyword)) {
@@ -231,7 +253,7 @@ const parseNodeValue = (
     node.isKind(ts.SyntaxKind.ParenthesizedExpression)
   ) {
     try {
-      const res = processBinaryExpression(node, offset, ss);
+      const res = processBinaryExpression(node, nodeOffset, ss);
       return res;
     } catch (error) {
       const expression = node.getText();
@@ -244,7 +266,7 @@ const parseNodeValue = (
 };
 //获得离光标最近的类声明的字符串
 const getNearestClassString = (
-  offset: number,
+  nodeOffset: number,
   className: string,
   ss: SourceFile,
   treeLevel: number
@@ -252,7 +274,7 @@ const getNearestClassString = (
   let res = "";
   const visit = (node: Node<ts.Node>) => {
     if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
-      if (node.getEnd() <= offset && getNodeTreeLevel(node) <= treeLevel) {
+      if (node.getEnd() <= nodeOffset && getNodeTreeLevel(node) <= treeLevel) {
         if (node.getName() === className) {
           res = ts.transpile(node.getText(), {
             target: ts.ScriptTarget.ESNext,
@@ -268,10 +290,12 @@ const getNearestClassString = (
 
 //获得离光标最近的变量声明的值
 const getNearestVariableValue = (
-  offset: number,
+  nodeOffset: number,
   name: string,
   ss: SourceFile,
-  treeLevel: number
+  treeLevel: number,
+  startOffset = 0,
+  limitInitValue = true
 ) => {
   let res: any = "__UNDEFINED_FLAG__";
   const visit = (node: Node<ts.Node>) => {
@@ -279,23 +303,26 @@ const getNearestVariableValue = (
       //变量声明
       node.isKind(ts.SyntaxKind.VariableDeclaration) ||
       //赋值表达式
-      (res !== "__UNDEFINED_FLAG__" &&
+      ((!limitInitValue || res !== "__UNDEFINED_FLAG__") &&
         node.isKind(ts.SyntaxKind.BinaryExpression))
     ) {
-      if (node.getEnd() <= offset && getNodeTreeLevel(node) <= treeLevel) {
+      if (
+        node.getStart() >= startOffset &&
+        node.getEnd() <= nodeOffset &&
+        getNodeTreeLevel(node) <= treeLevel
+      ) {
         if (node.isKind(ts.SyntaxKind.VariableDeclaration)) {
           if (node.getName() === name) {
             const initializer = node.getInitializer();
             if (initializer) {
-              res = parseNodeValue(initializer, offset, ss);
+              res = parseNodeValue(initializer, nodeOffset, ss);
             } else {
               res = undefined;
             }
           }
         } else {
-          const n = node as BinaryExpression;
-          if (n.getLeft().getText() === name) {
-            res = parseNodeValue(n.getRight(), offset, ss);
+          if (node.getLeft().getText() === name) {
+            res = parseNodeValue(node.getRight(), nodeOffset, ss);
           }
         }
       }
@@ -307,19 +334,19 @@ const getNearestVariableValue = (
 };
 
 const getDeconstructionName = (
-  offset: number,
+  nodeOffset: number,
   apiName: string,
   ss: SourceFile
 ) => {
   let res: string | boolean | number | undefined | null = "";
   const visit = (node: Node<ts.Node>) => {
     if (node.getKind() === ts.SyntaxKind.ObjectBindingPattern) {
-      if (node.getEnd() <= offset) {
+      if (node.getEnd() <= nodeOffset) {
         const OBPNode = node as ObjectBindingPattern;
         if (OBPNode.getText().includes(apiName)) {
           const initializer = OBPNode.getParent()?.getInitializer();
           if (initializer) {
-            res = parseNodeValue(initializer, offset, ss);
+            res = parseNodeValue(initializer, nodeOffset, ss);
           } else {
             res = undefined;
           }
@@ -385,11 +412,9 @@ const analyzeFnInfo = async (
           return res;
         } catch (error) {
           console.error(error, a.getText());
-          return [];
+          return undefined;
         }
       });
-      console.log(args);
-
       const sp = n.getStart();
       const ep = n.getEnd();
       let startIndex = sp + (name.length + 1);
@@ -426,6 +451,7 @@ const analyzeFnInfo = async (
       pos: targetInfo.pos,
     };
     self.postMessage(result);
+    console.log(result);
   } else {
     self.postMessage(null);
     return;
