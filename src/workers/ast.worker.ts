@@ -5,15 +5,13 @@ import {
   ObjectBindingPattern,
   CallExpression,
   ObjectLiteralExpression,
-  PropertyAssignment,
-  ShorthandPropertyAssignment,
   SpreadAssignment,
   BinaryExpression,
   Identifier,
 } from "ts-morph";
 import ts from "typescript";
 import * as monaco from "monaco-editor";
-const STRING_QUOTATION_MARK_REGEX = /(^["'`])|(["'`]$)/g;
+const STRING_QUOTATION_MARK_REGEX = /(^["'`]{1,2})|(["'`]{1,2}$)/g;
 const cache = {
   lastCode: "",
   lastSS: <SourceFile | null>null,
@@ -34,15 +32,13 @@ const parseObjectLiteral = (node: Node, nodeOffset: number, ss: SourceFile) => {
   const properties = n.getProperties();
   properties.forEach((p) => {
     if (p.isKind(ts.SyntaxKind.PropertyAssignment)) {
-      const prop = p as PropertyAssignment;
-      const key = prop.getName();
-      const value = prop.getInitializer();
+      const key = p.getName();
+      const value = p.getInitializer();
       if (value) {
         resObj[key] = parseNodeValue(value, nodeOffset, ss);
       }
     } else if (p.isKind(ts.SyntaxKind.ShorthandPropertyAssignment)) {
-      const prop = p as ShorthandPropertyAssignment;
-      const key = prop.getName();
+      const key = p.getName();
       const value = getNearestVariableValue(
         nodeOffset,
         key,
@@ -146,7 +142,7 @@ const parseNodeValue = (
       ss,
       getNodeTreeLevel(node),
       startOffset,
-      false
+      startOffset === 0
     );
     return res;
   }
@@ -176,7 +172,6 @@ const parseNodeValue = (
         } else {
           const key = node.getArgumentExpression();
           if (key?.isKind(ts.SyntaxKind.StringLiteral)) {
-            console.log(targetObj, key.getText());
             return targetObj[
               key.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
             ];
@@ -186,7 +181,7 @@ const parseNodeValue = (
             const iValue = parseNodeValue(key, nodeOffset, ss);
             return targetObj[iValue];
           }
-          console.log("未知的ElementAccessExpression", key?.getKindName());
+          console.warn("未知的ElementAccessExpression", key?.getKindName());
         }
       }
     } catch (error) {
@@ -196,7 +191,8 @@ const parseNodeValue = (
   }
   if (
     node.isKind(ts.SyntaxKind.ArrowFunction) ||
-    node.isKind(ts.SyntaxKind.FunctionDeclaration)
+    node.isKind(ts.SyntaxKind.FunctionDeclaration) ||
+    node.isKind(ts.SyntaxKind.FunctionExpression)
   ) {
     return node.getText();
   }
@@ -244,6 +240,29 @@ const parseNodeValue = (
     return delQuotationMarks
       ? node.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
       : node.getText();
+  }
+  if (node.isKind(ts.SyntaxKind.TemplateExpression)) {
+    const variables = node.getTemplateSpans().map((t) => {
+      let value = parseNodeValue(t.getExpression(), nodeOffset, ss);
+      try {
+        if (typeof value !== "string") {
+          value = JSON.stringify(value).replace(
+            STRING_QUOTATION_MARK_REGEX,
+            ""
+          );
+        }
+      } catch (error) {}
+      const expression = t.getExpression().getText();
+      return {
+        value,
+        expression,
+      };
+    });
+    let oriText = node.getText().replace(STRING_QUOTATION_MARK_REGEX, "");
+    variables.forEach((v) => {
+      oriText = oriText.replace(`\$\{${v.expression}\}`, v.value);
+    });
+    return oriText;
   }
   if (node.isKind(ts.SyntaxKind.NumericLiteral)) {
     return +node.getText();
@@ -300,16 +319,19 @@ const getNearestVariableValue = (
   let res: any = "__UNDEFINED_FLAG__";
   const visit = (node: Node<ts.Node>) => {
     if (
-      //变量声明
-      node.isKind(ts.SyntaxKind.VariableDeclaration) ||
-      //赋值表达式
-      ((!limitInitValue || res !== "__UNDEFINED_FLAG__") &&
-        node.isKind(ts.SyntaxKind.BinaryExpression))
+      node.getStart() >= startOffset &&
+      node.getEnd() <= nodeOffset &&
+      getNodeTreeLevel(node) <= treeLevel
     ) {
       if (
-        node.getStart() >= startOffset &&
-        node.getEnd() <= nodeOffset &&
-        getNodeTreeLevel(node) <= treeLevel
+        //变量声明
+        node.isKind(ts.SyntaxKind.VariableDeclaration) ||
+        //赋值表达式
+        ((!limitInitValue || res !== "__UNDEFINED_FLAG__") &&
+          node.isKind(ts.SyntaxKind.BinaryExpression)) ||
+        //函数声明、类声明
+        node.isKind(ts.SyntaxKind.FunctionDeclaration) ||
+        node.isKind(ts.SyntaxKind.ClassDeclaration)
       ) {
         if (node.isKind(ts.SyntaxKind.VariableDeclaration)) {
           if (node.getName() === name) {
@@ -320,9 +342,16 @@ const getNearestVariableValue = (
               res = undefined;
             }
           }
-        } else {
+        } else if (node.isKind(ts.SyntaxKind.BinaryExpression)) {
           if (node.getLeft().getText() === name) {
             res = parseNodeValue(node.getRight(), nodeOffset, ss);
+          }
+        } else if (
+          node.isKind(ts.SyntaxKind.FunctionDeclaration) ||
+          node.isKind(ts.SyntaxKind.ClassDeclaration)
+        ) {
+          if (node.getName() === name) {
+            res = node.getText();
           }
         }
       }
@@ -346,7 +375,7 @@ const getDeconstructionName = (
         if (OBPNode.getText().includes(apiName)) {
           const initializer = OBPNode.getParent()?.getInitializer();
           if (initializer) {
-            res = parseNodeValue(initializer, nodeOffset, ss);
+            res = initializer.getText();
           } else {
             res = undefined;
           }
@@ -402,18 +431,27 @@ const analyzeFnInfo = async (
         name = scope + "." + name;
         isDeconstruction = true;
       }
-      const args = n.getArguments().map((a) => {
+      const args = n.getArguments().map((a, index) => {
         const t = a.getType().getText();
+        let returnValue: any = undefined;
         if (t === "undefined[]") {
-          return [];
+          returnValue = [];
         }
         try {
           const res = parseNodeValue(a, cursorOffset, ss!);
-          return res;
+          returnValue =
+            typeof res === "string"
+              ? res.replace(STRING_QUOTATION_MARK_REGEX, "")
+              : res;
         } catch (error) {
           console.error(error, a.getText());
-          return undefined;
         }
+        return {
+          value: returnValue,
+          type: t,
+          expression: a.getText(),
+          index
+        };
       });
       const sp = n.getStart();
       const ep = n.getEnd();
@@ -451,7 +489,6 @@ const analyzeFnInfo = async (
       pos: targetInfo.pos,
     };
     self.postMessage(result);
-    console.log(result);
   } else {
     self.postMessage(null);
     return;
