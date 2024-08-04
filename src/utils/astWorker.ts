@@ -1,4 +1,21 @@
 import * as monaco from "monaco-editor";
+export type AnalyzeFnInfoParams = {
+  type: string;
+  value: any;
+  expression: string;
+  index: number;
+};
+export type AnalyzeFnInfoType = {
+  scope: string;
+  name: string;
+  params: AnalyzeFnInfoParams[];
+  paramsRange: {
+    startLineNumber: number;
+    endLineNumber: number;
+    startColumn: number;
+    endColumn: number;
+  };
+} | null;
 const worker = new Worker(
   new URL("../workers/ast.worker.ts", import.meta.url),
   { type: "module" }
@@ -7,22 +24,12 @@ const analyzeFnInfo = (
   editorModel: monaco.editor.ITextModel | null,
   position: monaco.Position | null
 ) => {
-  return new Promise<{
-    scope: string;
-    name: string;
-    params: any[];
-    paramsRange: {
-      startLineNumber: number;
-      endLineNumber: number;
-      startColumn: number;
-      endColumn: number;
-    };
-  } | null>((resolve) => {
+  return new Promise<AnalyzeFnInfoType>((resolve) => {
     worker.onmessage = (e) => {
       const data = e.data as {
         scope: string;
         name: string;
-        params: any[];
+        params: AnalyzeFnInfoParams[];
         pos: {
           startIndex: number;
           endIndex: number;
