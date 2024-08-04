@@ -1,9 +1,10 @@
 import * as monaco from "monaco-editor";
 import { useEditor } from "./useEditor";
+import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 type FnInfo = {
   name: string;
   scope?: string;
-  params: any[];
+  params: AnalyzeFnInfoParams[];
   content?: string;
   haveAuxiliary?: boolean;
   paramsRange: {
@@ -51,44 +52,46 @@ const pathStrReset = (pathStr: string) => {
   return pathStr.replaceAll("\\\\", "\\");
 };
 
-const paramsProcess = async (
-  args: (string | string[])[]
-): Promise<(string | string[])[]> => {
+const stringParamsProcess = async (
+  content: string | undefined
+): Promise<string> => {
+  if (content === undefined) {
+    return "";
+  }
   const appGSStore = useAppGlobalSettings();
   const { currentScriptDir } = useScriptRuntime();
-  const _params: (string | string[])[] = [];
-  for (let index = 0; index < args.length; index++) {
-    if (Array.isArray(args[index])) {
-      _params.push((await paramsProcess(args[index] as any)) as any);
-    } else {
-      if (typeof args[index] === "string") {
-        let i = (args[index] as string).replaceAll('"', "").replaceAll("'", "");
-        const arg = i
-          .replace(/\s/g, "")
-          .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
-          .replace(
-            "SCREEN_SHOT_PATH+",
-            pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-          )
-          .replace(
-            "SCREEN_SHOT_PATH",
-            pathStrProcess(appGSStore.envSetting.screenshotSavePath)
-          )
-          .replace(
-            "SCREEN_SHOT_DIR+",
-            pathStrProcess(
-              await resolve(appGSStore.envSetting.screenshotSavePath, "..")
-            )
-          )
-          .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
-        _params.push(arg);
-      } else {
-        _params.push(args[index]);
-      }
-    }
-  }
-  return _params;
+  const arg = content
+    .replace(/\s/g, "")
+    .replace("WORK_DIR+", pathStrProcess(appGSStore.envSetting.workDir))
+    .replace(
+      "SCREEN_SHOT_PATH+",
+      pathStrProcess(appGSStore.envSetting.screenshotSavePath)
+    )
+    .replace(
+      "SCREEN_SHOT_PATH",
+      pathStrProcess(appGSStore.envSetting.screenshotSavePath)
+    )
+    .replace(
+      "SCREEN_SHOT_DIR+",
+      pathStrProcess(
+        await resolve(appGSStore.envSetting.screenshotSavePath, "..")
+      )
+    )
+    .replace("SCRIPT_ROOT_DIR+", pathStrProcess(currentScriptDir.value));
+  return arg;
 };
+
+const paramsProcess = (...args: AnalyzeFnInfoParams[]) =>
+  Promise.all(
+    args.map(async (p) => {
+      const value =
+        p.type === "string" ? await stringParamsProcess(p.value) : p.value;
+      return {
+        ...p,
+        value,
+      };
+    })
+  );
 
 const getCursorPosFnInfo = async (
   editor: monaco.editor.IStandaloneCodeEditor | undefined
@@ -118,9 +121,10 @@ const getCursorPosFnInfo = async (
     })
     .find((i) => {
       if (i.scope) {
+        const _scope = i.scope || "";
         return (
-          i.dialog!.targetMethodName === fnInfo.value?.name ||
-          i.scope + "." + i.dialog!.targetMethodName === fnInfo.value?.name
+          _scope === (fnInfo.value?.scope || "") &&
+          i.dialog!.targetMethodName === fnInfo.value?.name
         );
       }
       return i?.dialog!.targetMethodName === fnInfo.value!.name;
