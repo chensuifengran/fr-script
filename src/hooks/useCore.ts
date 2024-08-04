@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import { BuiltInApiType } from "../invokes/BuiltInApiType";
+import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 export const CORE_NAMESPACES = "__FR_BUILT_IN_API__";
 //弹窗
 const dynamicDialog = reactive({
@@ -124,7 +125,7 @@ const invokeDynamicDialog = (
   content?: string,
   callType: "test" | "changeArgs" = "test",
   replaceCurFnArgs?: (targetArgs: string) => void,
-  currentParams?: string[]
+  currentParams?: AnalyzeFnInfoParams[]
 ) => {
   const targetMethod = builtInApi.find((i) => i.name === methodName);
   if (title && content) {
@@ -139,22 +140,83 @@ const invokeDynamicDialog = (
     }
     if (title && content) {
       const cb = async () => {
-        const callArgsObject: ExportFns = {
+        const callArgsObject: Record<string, any> = {
           replaceCurFnArgs,
         };
+        let needUpdate = false;
         const dialog = targetMethod!.testModule!.dialog;
+        let usedIndex = 0;
         for (let i = 0; i < dialog.args!.length; i++) {
           const arg = dialog.args![i];
           if (!arg.onlyTest || (arg.onlyTest && callType === "test")) {
             callArgsObject[arg.name] = arg.value;
+            if (
+              currentParams &&
+              arg.value !== currentParams[i + usedIndex]?.value
+            ) {
+              if (arg.componentType === "RectInput") {
+                const ev = JSON.stringify({
+                  x: currentParams[i + usedIndex]?.value,
+                  y: currentParams[i + usedIndex + 1]?.value,
+                  width: currentParams[i + usedIndex + 2]?.value,
+                  height: currentParams[i + usedIndex + 3]?.value,
+                });
+                if (ev === JSON.stringify(arg.value)) {
+                  usedIndex += 3;
+                } else {
+                  needUpdate = true;
+                }
+              } else if (
+                arg.componentType === "FileInput" ||
+                arg.componentType === "DirInput"
+              ) {
+                if (
+                  JSON.stringify(arg.value) !==
+                  AutoTipUtils.pathStrReset(
+                    JSON.stringify(currentParams[i + usedIndex]?.value)
+                  )
+                ) {
+                  needUpdate = true;
+                }
+              } else if (
+                JSON.stringify(arg.value) !==
+                JSON.stringify(currentParams[i + usedIndex]?.value)
+              ) {
+                if (currentParams[i + usedIndex]?.value === undefined) {
+                  const docParam =
+                    targetMethod.testModule!.document!.params?.find((p) => {
+                      return p.name === arg.name;
+                    });
+                  if (docParam?.required) {
+                    needUpdate = true;
+                  } else if (
+                    JSON.stringify(docParam?.default).replace(
+                      /(^["'`]{1,2})|(["'`]{1,2}$)/g,
+                      ""
+                    ) !==
+                    JSON.stringify(arg.value).replace(
+                      /(^["'`]{1,2})|(["'`]{1,2}$)/g,
+                      ""
+                    )
+                  ) {
+                    needUpdate = true;
+                  }
+                } else {
+                  needUpdate = true;
+                }
+              }
+            }
           }
+        }
+        if (!needUpdate) {
+          callArgsObject.replaceCurFnArgs = () => {};
         }
         targetMethod!.testModule!.callback(callArgsObject, testModuleCtx);
         dynamicDialog.show = false;
       };
       dynamicDialog.callback = cb;
     } else {
-      targetMethod!.testModule!.callback(undefined, testModuleCtx);
+      targetMethod!.testModule!.callback(undefined, testModuleCtx, []);
     }
   }
 };
@@ -198,7 +260,10 @@ const exportAllFn = (): BuiltInApiType => {
       i.helperClass.forEach((helperClass) => {
         const className = helperClass.name;
         if (className === i.name) {
-          console.error("helperClass的name不能和api名称相同", JSON.stringify(i));
+          console.error(
+            "helperClass的name不能和api名称相同",
+            JSON.stringify(i)
+          );
           throw new Error(`helperClass的name不能和api名称相同`);
         }
         if (allFn[className]) {
