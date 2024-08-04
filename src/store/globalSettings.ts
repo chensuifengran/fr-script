@@ -1,10 +1,15 @@
 import { defineStore } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 // 第一个参数是应用程序中 store 的唯一 id
-export const useAppGlobalSettings = defineStore("globalSettings", {
+export const useAppGlobalSettings = defineStore<
+  string,
+  GlobalSettings,
+  {},
+  ListStoreActions
+>("globalSettings", {
   // 其它配置项
   state: () => {
-    return <GlobalSettings>{
+    return {
       isInited: false,
       app: {
         latestVersion: "0.0.3",
