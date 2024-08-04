@@ -1,15 +1,15 @@
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "sleep" && i.scope === "Preludes"
     );
     const dialog = selfModule!.testModule!.dialog;
 
     if (dialog.args) {
-      if (!isNaN(Number(params[0]))) {
-        dialog.args[0].value = Number(params[0]) || 1000;
+      if (!isNaN(Number(params[0]?.value))) {
+        dialog.args[0].value = Number(params[0]?.value) || 1000;
       } else {
         dialog.args[0].value = 1000;
       }

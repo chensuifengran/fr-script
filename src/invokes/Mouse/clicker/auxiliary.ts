@@ -1,18 +1,18 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "clicker" && i.scope === "Mouse"
     );
     const dialog = selfModule!.testModule!.dialog;
     dialog.args!.forEach((i, index) => {
       if (index !== 2) {
-        i.value = +params[index] || 0;
+        i.value = +params[index]?.value || 0;
       } else {
-        i.value = params[index] || "left";
+        if (i.componentType === "select") {
+          i.value = params[index]?.value || "left";
+        }
       }
     });
   },

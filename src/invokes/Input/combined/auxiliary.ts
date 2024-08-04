@@ -2,8 +2,8 @@
 
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "combined" && i.scope === "Input"
     );

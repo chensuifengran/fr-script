@@ -1,8 +1,7 @@
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "matchTemplate" && i.scope === "CV"
     );
@@ -11,13 +10,16 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
         case 1:
-          i.value = AutoTipUtils.pathStrReset(params[index] || "");
+          if (i.componentType === "FileInput") {
+            i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
+          }
           break;
         case 2:
         case 3:
-          i.value = +params[index] || 0;
+          if (i.componentType === "slider") {
+            i.value = +params[index]?.value || 0;
+          }
           break;
-
         default:
           break;
       }

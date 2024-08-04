@@ -1,9 +1,7 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenshot"
     );
@@ -11,27 +9,29 @@ export const auxiliary = <AuxiliaryType>{
     dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
-          i.value = AutoTipUtils.pathStrReset(params[4] || "");
+          i.value = AutoTipUtils.pathStrReset(params[4]?.value || "");
           break;
         case 1:
           i.value =
-            (params[0] &&
-              params[1] &&
-              params[2] &&
-              params[3] &&
+            (params[0]?.value &&
+              params[1]?.value &&
+              params[2]?.value &&
+              params[3]?.value &&
               !(
-                +params[0] === -1 ||
-                +params[1] === -1 ||
-                +params[2] === -1 ||
-                +params[3] === -1
+                +params[0]?.value === -1 ||
+                +params[1]?.value === -1 ||
+                +params[2]?.value === -1 ||
+                +params[3]?.value === -1
               )) ||
             false;
           break;
         case 2:
-          i.value.x = +params[0] >= 0 ? +params[0] : -1;
-          i.value.y = +params[1] >= 0 ? +params[1] : -1;
-          i.value.width = +params[2] || -1;
-          i.value.height = +params[3] || -1;
+          if (i.componentType === "RectInput") {
+            i.value.x = +params[0]?.value >= 0 ? +params[0]?.value : -1;
+            i.value.y = +params[1]?.value >= 0 ? +params[1]?.value : -1;
+            i.value.width = +params[2]?.value || -1;
+            i.value.height = +params[3]?.value || -1;
+          }
           break;
         default:
           break;

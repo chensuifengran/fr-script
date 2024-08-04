@@ -1,8 +1,8 @@
 
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "connectTo"
     );
@@ -10,7 +10,7 @@ export const auxiliary = <AuxiliaryType>{
     dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
-          i.value = params[index] || "";
+          i.value = params[index]?.value || "";
           break;
         default:
           break;

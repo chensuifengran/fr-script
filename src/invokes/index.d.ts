@@ -175,7 +175,14 @@ type TestModuleType = {
 };
 type AuxiliaryType = {
   //参数回填方法
-  parameterBackfill: (...args: string[]) => void;
+  parameterBackfill: (
+    ...args: {
+      type: string;
+      expression: string;
+      value: any;
+      index: number;
+    }[]
+  ) => void;
   //参数处理方法
   parameterReplace: (options: any) => void;
 };

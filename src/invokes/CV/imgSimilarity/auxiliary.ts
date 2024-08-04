@@ -1,9 +1,7 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "imgSimilarity" && i.scope === "CV"
     );
@@ -12,13 +10,17 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
         case 1:
-          i.value = AutoTipUtils.pathStrReset(params[index] || "");
+          if (i.componentType === "FileInput") {
+            i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
+          }
           break;
         case 2:
-          i.value.x = +params[2] || 0;
-          i.value.y = +params[3] || 0;
-          i.value.width = +params[4] || 0;
-          i.value.height = +params[5] || 0;
+          if (i.componentType === "RectInput") {
+            i.value.x = +params[2]?.value || 0;
+            i.value.y = +params[3]?.value || 0;
+            i.value.width = +params[4]?.value || 0;
+            i.value.height = +params[5]?.value || 0;
+          }
           break;
         default:
           break;

@@ -1,7 +1,7 @@
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "ocr");
     const dialog = selfModule!.testModule!.dialog;
     if (!dialog.args) {
@@ -11,14 +11,14 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
           i.value = {
-            x: +params[0] || 0,
-            y: +params[1] || 0,
-            width: +params[2] || 0,
-            height: +params[3] || 0,
+            x: +params[0]?.value || 0,
+            y: +params[1]?.value || 0,
+            width: +params[2]?.value || 0,
+            height: +params[3]?.value || 0,
           };
           break;
         case 1:
-          i.value = AutoTipUtils.pathStrReset(params[4] as string || "");
+          i.value = AutoTipUtils.pathStrReset(params[4]?.value || "");
           break;
         default:
           break;

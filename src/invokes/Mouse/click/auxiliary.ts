@@ -1,9 +1,7 @@
-
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "click" && i.scope === "Mouse"
     );
@@ -13,10 +11,12 @@ export const auxiliary = <AuxiliaryType>{
         case 0:
         case 1:
         case 3:
-          i.value = +params[index] || 0;
+          i.value = +params[index]?.value || 0;
           break;
         case 2:
-          i.value = params[index] || "left";
+          if (i.componentType === "select") {
+            i.value = params[index]?.value || "left";
+          }
           break;
         default:
           break;

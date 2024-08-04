@@ -1,8 +1,7 @@
-
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenMatchTemplate" && i.scope === "CV"
     );
@@ -10,22 +9,30 @@ export const auxiliary = <AuxiliaryType>{
     dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
-          i.value.x = +params[0] || 0;
-          i.value.y = +params[1] || 0;
-          i.value.width = +params[2] || 0;
-          i.value.height = +params[3] || 0;
+          if (i.componentType === "RectInput") {
+            i.value.x = +params[0]?.value || 0;
+            i.value.y = +params[1]?.value || 0;
+            i.value.width = +params[2]?.value || 0;
+            i.value.height = +params[3]?.value || 0;
+          }
           break;
         case 1:
-          i.value = AutoTipUtils.pathStrReset(params[4] || "");
+          if (i.componentType === "FileInput") {
+            i.value = AutoTipUtils.pathStrReset(params[4]?.value || "");
+          }
           break;
         case 2:
-          i.value = +params[5] || 0;
-          break;
         case 3:
-          i.value = +params[6] || 0;
+          if (i.componentType === "slider") {
+            i.value = +params[index + 3]?.value || 0;
+          }
           break;
         case 4:
-          i.value = params[7] ? params[7].toUpperCase() : "auto";
+          if (i.componentType === "select") {
+            i.value = params[7]?.value
+              ? params[7]?.value?.toUpperCase()
+              : "auto";
+          }
           break;
         default:
           break;

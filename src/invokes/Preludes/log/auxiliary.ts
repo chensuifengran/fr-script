@@ -1,7 +1,7 @@
 export const auxiliary = <AuxiliaryType>{
   //参数回填方法
-  parameterBackfill: async (...args: string[]) => {
-    const params = await AutoTipUtils.paramsProcess(args);
+  parameterBackfill: async (...args) => {
+    const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "log" && i.scope === "Preludes"
     );
@@ -9,9 +9,10 @@ export const auxiliary = <AuxiliaryType>{
     if (dialog.args) {
       dialog.args.forEach((arg, index) => {
         if (index === 0) {
-          arg.value = params[0] || "";
+          arg.value = params[0]?.value ? JSON.stringify(params[0]?.value) : "";
+          arg.value = arg.value.replace(/(^["'`]{1,2})|(["'`]{1,2}$)/g, "");
         } else {
-          arg.value = params[index] || "info";
+          arg.value = params[index]?.value || "info";
         }
       });
     }
