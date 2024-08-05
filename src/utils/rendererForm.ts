@@ -27,7 +27,7 @@ class FormUtil {
       } else if (valueType === "inputList") {
         return (field as InputListItem).value as T;
       } else if (valueType === "multipleSelectList") {
-        return (field as MultiplSelectionItem).value as T;
+        return (field as MultipleSelectionItem).value as T;
       } else if (valueType === "selectList") {
         return (field as SelectListItem).value as T;
       } else {

@@ -127,8 +127,8 @@ export const UTIL_DECLARE_STRING = `
       label: string;
       value: string;
     };
-    type MultiplSelect = Base & {
-      type: "multiplSelect";
+    type MultipleSelect = Base & {
+      type: "multipleSelect";
       label: string;
       options: {
         groupLabel: string;
@@ -167,12 +167,10 @@ export const UTIL_DECLARE_STRING = `
 
   declare type BuildFormItems =
     | BuildFormItem.Input
-    | BuildFormItem.MultiplSelect
+    | BuildFormItem.MultipleSelect
     | BuildFormItem.GroupSelect
     | BuildFormItem.Select
     | BuildFormItem.Check;
 
   declare function pushElement(elem: BuildFormItems): void;
-
-  declare function buildForm(buildFormList: BuildFormItems[]): void;
 `;

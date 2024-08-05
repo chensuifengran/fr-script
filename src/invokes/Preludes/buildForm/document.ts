@@ -12,7 +12,7 @@ export const apiDocument = <ApiDocumentType>{
           name: "BuildFormItems",
           required: false,
           instructions: "表单组件",
-          type: ['BuildFormItem.Input ', ' BuildFormItem.MultiplSelect ', ' BuildFormItem.GroupSelect ', ' BuildFormItem.Select ', ' BuildFormItem.Check'],
+          type: ['BuildFormItem.Input ', ' BuildFormItem.MultipleSelect ', ' BuildFormItem.GroupSelect ', ' BuildFormItem.Select ', ' BuildFormItem.Check'],
           default: " ",
           children: [
             {
@@ -57,7 +57,7 @@ export const apiDocument = <ApiDocumentType>{
               ]
             },
             {
-              name: "BuildFormItem.MultiplSelect",
+              name: "BuildFormItem.MultipleSelect",
               required: false,
               instructions: "多选分组组件",
               type: 'object',

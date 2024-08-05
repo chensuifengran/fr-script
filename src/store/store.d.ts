@@ -101,7 +101,7 @@ type groupSelectListItem = {
   }[];
   value: string;
 };
-type MultiplSelectionItem = {
+type MultipleSelectionItem = {
   label: string;
   options: {
     groupLabel: string;
@@ -127,8 +127,8 @@ namespace BuildFormItem {
     label: string;
     value: string;
   };
-  type MultiplSelect = Base & {
-    type: "multiplSelect";
+  type MultipleSelect = Base & {
+    type: "multipleSelect";
     label: string;
     options: {
       groupLabel: string;
@@ -166,7 +166,7 @@ namespace BuildFormItem {
 }
 type BuildFormItems =
   | BuildFormItem.Input
-  | BuildFormItem.MultiplSelect
+  | BuildFormItem.MultipleSelect
   | BuildFormItem.GroupSelect
   | BuildFormItem.Select
   | BuildFormItem.Check;
@@ -178,7 +178,7 @@ type RendererList = {
   inputList: InputListItem[];
   selectList: SelectListItem[];
   groupSelectList: groupSelectListItem[];
-  multipleSelectList: MultiplSelectionItem[];
+  multipleSelectList: MultipleSelectionItem[];
 };
 type RendererFieldTypes =
   | "input"
