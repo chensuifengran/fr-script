@@ -115,9 +115,6 @@ const goEditor = () => {
 };
 const builtInApi = useBuiltInApi();
 const run = (script: string, runId: string) => {
-  script = script.replace(STRING_URL_REGEX, (matchText) => {
-    return matchText.replace('//', "__%%__");
-  }).replace(ANNOTATION_REGEX, "").replaceAll("__%%__", "//");
   runningFnId.value = runId;
   window[CORE_NAMESPACES] = {
     ...builtInApi,
@@ -203,25 +200,26 @@ const initScript = async (reinit: boolean = false) => {
     } else {
       scriptStr = transpile(await fsUtils.readFile(fPath), {
         target: ScriptTarget.ESNext,
+        removeComments: true,
       });
     }
+    const target = scriptList.value.find((s) => s.id === openId!.value);
+    if (target && (target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
+      const t = setTimeout(() => {
+        cmdFn(target.setting.targetApp, true);
+        clearTimeout(t);
+      });
+    }
+    const invokedOcr = await astWorker.methodIsInvoked(scriptStr, "ocr");
     if (
       appGSStore.ocr.value === "GPU" &&
-      scriptStr.replace(ANNOTATION_REGEX, "").includes("ocr(")
+      invokedOcr
     ) {
       await ocrFn(0, 0, 1, 1);
     }
     run(scriptStr, "fn" + taskId)();
     isInit.value = true;
     isReInit.value = true;
-    const target = scriptList.value.find((s) => s.id === openId!.value);
-    if (!target) return;
-    if ((target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
-      const t = setTimeout(() => {
-        cmdFn(target.setting.targetApp, true);
-        clearTimeout(t);
-      });
-    }
   } catch (e: any) {
     running.value = 0;
     console.error(e);
