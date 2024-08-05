@@ -135,8 +135,10 @@ const invokeDynamicDialog = (
     dynamicDialog.callType = callType;
   }
   if (targetMethod) {
-    if (targetMethod.auxiliary?.parameterBackfill && currentParams) {
-      targetMethod.auxiliary.parameterBackfill(...currentParams);
+    if (targetMethod.auxiliary?.onDialogOpen && currentParams) {
+      targetMethod.auxiliary.onDialogOpen(() => {
+        dynamicDialog.show = false;
+      }, ...currentParams);
     }
     if (title && content) {
       const cb = async () => {

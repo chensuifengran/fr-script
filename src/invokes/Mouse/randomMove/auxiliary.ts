@@ -1,7 +1,7 @@
 
 export const auxiliary = <AuxiliaryType>{
-  //参数回填方法，快速填写参数弹窗打开时调用，用于弹窗内参数值的回填
-  parameterBackfill: async (...args) => {
+  //快速编辑/修改参数弹窗打开时触发，快速填写参数弹窗打开时调用，用于弹窗内参数值的回填
+  onDialogOpen: async (_close,...args) => {
     let params = await AutoTipUtils.paramsProcess(...args);
     //当前函数的信息
     const selfModule = getInvokeApiMethods().find(

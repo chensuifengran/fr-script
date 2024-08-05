@@ -1,8 +1,8 @@
 
 
 export const auxiliary = <AuxiliaryType>{
-  //参数回填方法
-  parameterBackfill: async (...args) => {
+  //快速编辑/修改参数弹窗打开时触发
+  onDialogOpen: async (_close,...args) => {
     const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "combined" && i.scope === "Input"
@@ -10,7 +10,7 @@ export const auxiliary = <AuxiliaryType>{
     const dialog = selfModule!.testModule!.dialog;
     dialog.args!.forEach((i,index) => {
       if(index === 0){
-        i.value = params.map((i) => i.replace("[", "").replace("]", ""));
+        i.value = params.map((i) => i.value.replace("[", "").replace("]", ""));
       }
     });
   },

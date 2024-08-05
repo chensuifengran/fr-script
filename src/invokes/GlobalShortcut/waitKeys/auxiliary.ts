@@ -1,6 +1,6 @@
 export const auxiliary = <AuxiliaryType>{
-  //参数回填方法
-  parameterBackfill: async (...args) => {
+  //快速编辑/修改参数弹窗打开时触发
+  onDialogOpen: async (_close,...args) => {
     const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "waitKeys" && i.scope === "GlobalShortcut"
@@ -9,10 +9,10 @@ export const auxiliary = <AuxiliaryType>{
     if (dialog.args && dialog.args[0]) {
       dialog.args[0].value = params.map((p) => {
         //替换掉p的[和]
-        p = p.replace(/[\[\]]/g, "");
-        return p;
-      });
-    };
+        p.value = p.value.replace(/[\[\]]/g, "");
+        return p.value;
+      }) as string[];
+    }
   },
   //参数处理方法
   parameterReplace: (options: {
