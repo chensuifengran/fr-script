@@ -327,8 +327,8 @@ export const modelCallback = async (
   get auxiliaryTemplate() {
     const { name, scope } = this.options;
     return `export const auxiliary = <AuxiliaryType>{
-  //参数回填方法
-  parameterBackfill: async (...args: (string | string[])[]) => {
+  //快速编辑/修改参数弹窗打开时触发
+  onDialogOpen: async (_close,...args) => {
     //处理来自编辑器的参数
     const params = await AutoTipUtils.paramsProcess(args);
     const selfModule = getInvokeApiMethods().find((i) => i.name === "${name}"${
