@@ -30,5 +30,3 @@ const main = async () => {
   
 };
 `;
-export const ANNOTATION_REGEX = /\/\*[^\/]*\*\/|\/\/.+\n?/g;
-export const STRING_URL_REGEX = /[`'"].*\/\/.+[`'"]/g;
