@@ -174,8 +174,12 @@ type TestModuleType = {
   document?: ApiDocumentType;
 };
 type AuxiliaryType = {
-  //参数回填方法
-  parameterBackfill: (
+  //快速编辑/修改参数弹窗打开时触发
+  onDialogOpen: (
+    /**
+     * 用于特殊情况下主动关闭弹窗，一般情况用不上
+     */
+    close:()=>void,
     ...args: {
       type: string;
       expression: string;
