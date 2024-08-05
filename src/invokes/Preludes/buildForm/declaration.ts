@@ -1,4 +1,4 @@
 export const declaration = `function buildForm(
-  buildFormList: BuildFormItems[] = [],
+  buildFormList: BuildFormItems[]
 ): void;
 `;
