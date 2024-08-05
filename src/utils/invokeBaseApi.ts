@@ -125,7 +125,7 @@ const screenDiffTemplates = async (
   drive: string
 ) => {
   try {
-    const res = await invoke<string>("screen_diff_template", {
+    const res = await invoke<string>("screen_diff_templates", {
       x,
       y,
       width,
