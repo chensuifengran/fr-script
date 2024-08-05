@@ -42,6 +42,11 @@ monaco.languages.registerCompletionItemProvider("typescript", {
     };
   },
 });
+monaco.languages.typescript.typescriptDefaults.setExtraLibs([
+  {
+    content: editorTsDeclaration(),
+  },
+]);
 const openOperationRecordDrawer = ref(false);
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
@@ -152,11 +157,6 @@ export const useEditor = () => {
         return new EditorWorker();
       },
     });
-  monaco.languages.typescript.typescriptDefaults.setExtraLibs([
-    {
-      content: editorTsDeclaration(),
-    },
-  ]);
   let currentDomId = "";
   let editor: monaco.editor.IStandaloneCodeEditor | undefined = undefined;
   /**
