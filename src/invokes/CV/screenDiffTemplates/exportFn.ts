@@ -13,13 +13,15 @@ export const screenDiffTemplatesFn = async (
     return;
   }
   try {
-    const res = await invokeBaseApi.screenDiffTemplates(      x,
+    const res = await invokeBaseApi.screenDiffTemplates(
+      x,
       y,
       width,
       height,
-      tempPaths.join('|'),
+      tempPaths.join("|"),
       targetIndex,
-      drive);
+      drive
+    );
     return res;
   } catch (error) {
     console.error("screenDiffTemplatesFnError:", error);

@@ -7,7 +7,7 @@ import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
-import UnoCSS from 'unocss/vite'
+import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 export default defineConfig({
@@ -27,7 +27,7 @@ export default defineConfig({
       imports: [
         "vue",
         "vue-router",
-        "@vueuse/core"
+        "@vueuse/core",
         // 添加其他需要自动导入的模块
       ],
       dts: "./src/auto-imports.d.ts",
