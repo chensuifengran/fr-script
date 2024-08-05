@@ -13,8 +13,14 @@ import ts from "typescript";
 import * as monaco from "monaco-editor";
 const STRING_QUOTATION_MARK_REGEX = /(^["'`]{1,2})|(["'`]{1,2}$)/g;
 const cache = {
-  lastCode: "",
-  lastSS: <SourceFile | null>null,
+  analyzeFnInfo: {
+    lastCode: "",
+    lastSS: <SourceFile | null>null,
+  },
+  methodIsInvoked: {
+    lastCode: "",
+    lastSS: <SourceFile | null>null,
+  },
 };
 const project = new Project({ useInMemoryFileSystem: true });
 const getNodeTreeLevel = (node: Node) => {
@@ -394,15 +400,15 @@ const analyzeFnInfo = async (
   position: monaco.Position | null
 ) => {
   let ss;
-  if (code === cache.lastCode) {
-    ss = cache.lastSS;
+  if (code === cache.analyzeFnInfo.lastCode) {
+    ss = cache.analyzeFnInfo.lastSS;
   } else {
-    if (cache.lastSS) {
-      project.removeSourceFile(cache.lastSS);
+    if (cache.analyzeFnInfo.lastSS) {
+      project.removeSourceFile(cache.analyzeFnInfo.lastSS);
     }
     ss = project.createSourceFile("analyzeFnInfo.temp.ts", code);
-    cache.lastCode = code;
-    cache.lastSS = ss;
+    cache.analyzeFnInfo.lastCode = code;
+    cache.analyzeFnInfo.lastSS = ss;
   }
   if (!position) {
     self.postMessage(null);
@@ -419,11 +425,11 @@ const analyzeFnInfo = async (
   const visit = (node: Node<ts.Node>) => {
     //如果光标位置位于函数或者函数调用的位置,获取作用域scope名(如有)、函数名、函数参数、函数参数的位置
     if (
-      node.getKind() === ts.SyntaxKind.CallExpression &&
+      node.isKind(ts.SyntaxKind.CallExpression) &&
       node.getStart() <= cursorOffset &&
       node.getEnd() >= cursorOffset
     ) {
-      const n = node as CallExpression;
+      const n = node;
       let name = n.getExpression().getText();
       const scope = getDeconstructionName(cursorOffset, name, ss!);
       let isDeconstruction = false;
@@ -450,7 +456,7 @@ const analyzeFnInfo = async (
           value: returnValue,
           type: t,
           expression: a.getText(),
-          index
+          index,
         };
       });
       const sp = n.getStart();
@@ -494,9 +500,57 @@ const analyzeFnInfo = async (
     return;
   }
 };
+/**
+ * 判断代码中是否调用了指定方法
+ * @param code 代码
+ * @param methodFullName 方法的全名：如Predules.log
+ */
+const methodIsInvoked = (code: string, methodFullName: string): boolean => {
+  let isInvoked = false;
+  let ss: SourceFile;
+  if (code === cache.methodIsInvoked.lastCode) {
+    if (!cache.methodIsInvoked.lastSS) {
+      cache.methodIsInvoked.lastSS = project.createSourceFile(
+        "methodIsInvoked.temp.ts",
+        code
+      );
+      ss = cache.methodIsInvoked.lastSS;
+    } else {
+      ss = cache.methodIsInvoked.lastSS;
+    }
+  } else {
+    if (cache.methodIsInvoked.lastSS) {
+      project.removeSourceFile(cache.methodIsInvoked.lastSS);
+    }
+    ss = project.createSourceFile("methodIsInvoked.temp.ts", code);
+    cache.methodIsInvoked.lastCode = code;
+    cache.methodIsInvoked.lastSS = ss;
+  }
+  const visit = (node: Node<ts.Node>) => {
+    if (node.getKind() === ts.SyntaxKind.CallExpression) {
+      const n = node as CallExpression;
+      let name = n.getExpression().getText();
+      const scope = getDeconstructionName(code.length, name, ss!);
+      if (scope) {
+        name = scope + "." + name;
+      }
+      if (name === methodFullName) {
+        isInvoked = true;
+      }
+    }
+    !isInvoked && node.forEachChild(visit);
+  };
+  ss.forEachChild(visit);
+  return isInvoked;
+};
 
 self.onmessage = function (e) {
   if (e.data.type === "analyzeFnInfo") {
     analyzeFnInfo(e.data.code, e.data.cursorOffset, e.data.position);
+  } else if (e.data.type === "methodIsInvoked") {
+    const isInvoked = methodIsInvoked(e.data.code, e.data.methodFullName);
+    self.postMessage(isInvoked);
+  } else {
+    self.postMessage(null);
   }
 };

@@ -74,6 +74,20 @@ const analyzeFnInfo = (
   });
 };
 
+const methodIsInvoked = (code: string, methodFullName: string) => {
+  return new Promise<boolean>((resolve) => {
+    worker.onmessage = (e) => {
+      resolve(e.data as boolean);
+    };
+    worker.postMessage({
+      type: "methodIsInvoked",
+      code,
+      methodFullName,
+    });
+  });
+};
+
 export const astWorker = {
   analyzeFnInfo,
+  methodIsInvoked,
 };
