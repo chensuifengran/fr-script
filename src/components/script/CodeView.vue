@@ -1,7 +1,7 @@
 <template>
   <div class="code" overflow-x-hidden>
     <div class="code-content" overflow-y-scroll>
-      <div v-for="c in _code" :key="c" v-html="c" text-nowrap cursor-text></div>
+      <div v-for="(c, index) in _code" :key="c+index" v-html="c" text-nowrap cursor-text></div>
     </div>
     <div v-html="_code.join('\n')" ref="rawCodeRef" style="display: none"></div>
     <el-button class="copy-code" @click="copy" size="small" v-if="showCopy"><el-icon>
