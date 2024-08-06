@@ -1,6 +1,6 @@
 const openId = ref<string>("-1");
 const tempEditorValue = ref("");
-const preloadText = ref(SCRIPT_TEMPLATE);
+const preloadText = ref(SCRIPT_TEMPLATE());
 const preloadPath = ref("");
 const curScriptDir = ref("");
 const contentTransform = ref("translateX(0)");
