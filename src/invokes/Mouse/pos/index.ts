@@ -1,5 +1,5 @@
 import { posFn } from "./exportFn";
-import { modelCallback } from "./modelCallbcak";
+import { modelCallback } from "./modelCallback";
 import { dialogOptions } from "./dialog";
 import { apiDocument } from "./document";
 import { declaration } from "./declaration";

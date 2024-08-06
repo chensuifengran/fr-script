@@ -1,5 +1,5 @@
 import { wheelFn } from "./exportFn";
-import { modelCallback } from "./modelCallbcak";
+import { modelCallback } from "./modelCallback";
 import { apiDocument } from "./document";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";

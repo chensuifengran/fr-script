@@ -1,5 +1,5 @@
 import { setMouseOptionFn } from "./exportFn";
-import { modelCallback } from "./modelCallbcak";
+import { modelCallback } from "./modelCallback";
 import { apiDocument } from "./document";
 import { declaration } from "./declaration";
 
