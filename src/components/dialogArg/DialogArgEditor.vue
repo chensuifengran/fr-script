@@ -24,8 +24,8 @@
             <el-switch v-model="editDialogForm.onlyTest" @change="onOnlyTestChange" />
           </el-form-item>
           <el-form-item label="显示条件" prop="displayCondition">
-            <el-select v-model="editDialogForm.displayCondition" multiple>
-              <el-option v-for="argItem in model" :key="argItem.id" :label="argItem.name + `(${argItem.label})`"
+            <el-select v-model="editDialogForm.displayCondition" multiple placeholder="选择被依赖的字段，当被依赖字段值为true时本字段才显示">
+              <el-option v-for="argItem in displayConditionOption" :key="argItem.id" :label="argItem.name + `(${argItem.label})`"
                 :value="argItem.name" />
             </el-select>
           </el-form-item>
@@ -296,6 +296,15 @@ const onNoTestChange = () => {
 const model = defineModel<DialogDynamicArgItem[]>({
   default: []
 });
+const displayConditionOption = computed(()=>{
+  return model.value.filter(i => i.name !== editDialogForm.name).map(i => {
+    return {
+      id: i.id,
+      name: i.name,
+      label: i.label
+    }
+  });
+})
 
 const localArgs = [
   <DialogArg.Input>{
