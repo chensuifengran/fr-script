@@ -440,7 +440,7 @@ onMounted(async () => {
     editorActions.auxiliaryActionRegister(editor, auxiliaryActionCallback);
     editorActions.insertSnippetCodeActionRegister(editor, () => { showInsertCodeDialog.value = true });
     editor.onDidChangeCursorPosition(cursorHandle);
-    setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE);
+    setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE());
     const t = setTimeout(() => {
       checkDeclare();
       showEditor.value = true;
@@ -474,15 +474,15 @@ const getFile = async () => {
           type: "error",
           position: "bottom-right",
         });
-        fileInfo.originData = SCRIPT_TEMPLATE;
+        fileInfo.originData = SCRIPT_TEMPLATE();
         fileInfo.savePath = "";
-        setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
+        setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE());
         return;
       }
     } else {
-      fileInfo.originData = SCRIPT_TEMPLATE;
+      fileInfo.originData = SCRIPT_TEMPLATE();
       fileInfo.savePath = "";
-      setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
+      setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE());
       ElNotification({
         title: "提示",
         message: "文件读取失败，路径为空，进入新增模式",
@@ -492,9 +492,9 @@ const getFile = async () => {
     }
   } else if (openId!.value === "-1" && currentName === "scriptEditor") {
     //-1表示新建脚本
-    fileInfo.originData = SCRIPT_TEMPLATE;
+    fileInfo.originData = SCRIPT_TEMPLATE();
     fileInfo.savePath = "";
-    setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE);
+    setText(EDITOR_DOM_ID, SCRIPT_TEMPLATE());
   }
 };
 watch(openId!, getFile);

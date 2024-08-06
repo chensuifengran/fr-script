@@ -1,4 +1,9 @@
-export const SCRIPT_TEMPLATE = `//引用类型推断文件，以便在vscode中获得内置api的类型推断
+export const SCRIPT_TEMPLATE = () => {
+  const index = import.meta.glob<Record<string, any>>(
+    "../invokes/Preludes/**/index.ts"
+  );
+  const preludes = Object.keys(index).map((namePath) => namePath.split("/")[3]);
+  return `//引用类型推断文件，以便在vscode中获得内置api的类型推断
 //@ts-ignore
 /// <reference path="./lib/csfr.d.ts" />
 /*
@@ -7,7 +12,7 @@ export const SCRIPT_TEMPLATE = `//引用类型推断文件，以便在vscode中�
  * @name:newScript
  * @description:脚本描述
  */
-const { log, sleep } = Preludes;
+const { ${preludes.join(", ")} } = Preludes;
 //脚本运行入口函数
 const main = async () => {
 
@@ -30,3 +35,4 @@ const main = async () => {
   
 };
 `;
+};
