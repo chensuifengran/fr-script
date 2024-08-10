@@ -62,6 +62,8 @@ fn main() {
             file::write_file,
             file::read_dir,
             file::delete_file,
+            file::delete_dir,
+            file::move_child_to_new_dir,
             init::init,
             request::request_get,
             request::get_spark_info,

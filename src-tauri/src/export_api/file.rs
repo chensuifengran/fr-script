@@ -1,6 +1,7 @@
+use crate::types::{fs_types::MoveResult, generate_result};
+use futures::future::BoxFuture;
 use std::fs;
-
-use crate::types::generate_result;
+use std::path::Path;
 
 /// 获取当前可执行文件的安装目录。
 ///
@@ -139,6 +140,10 @@ pub async fn open_file_explorer(path: String) -> Result<(), String> {
 #[tauri::command]
 pub async fn read_file(path: String) -> Result<String, String> {
     let path = path.replace("/", "\\");
+    let exists = std::path::Path::new(&path).exists();
+    if !exists {
+        return Err("文件不存在".to_string());
+    }
     let content = match fs::read_to_string(path) {
         Ok(content) => content,
         Err(err) => return Err(err.to_string()),
@@ -189,4 +194,160 @@ pub async fn delete_file(path: String) -> Result<String, String> {
         Ok(_) => Ok("文件删除成功".to_string()),
         Err(err) => Err(err.to_string()),
     }
+}
+#[tauri::command]
+pub async fn delete_dir(path: String, force: bool) -> Result<String, String> {
+    let path = path.replace("/", "\\");
+    if force {
+        match fs::remove_dir_all(path) {
+            Ok(_) => Ok("文件夹删除成功".to_string()),
+            Err(err) => Err(err.to_string()),
+        }
+    } else {
+        match fs::remove_dir(path) {
+            Ok(_) => Ok("文件夹删除成功".to_string()),
+            Err(err) => Err(err.to_string()),
+        }
+    }
+}
+
+// 将一个文件夹下的所有文件(夹)移动到另一个文件夹
+#[tauri::command]
+pub async fn move_child_to_new_dir(
+    source_dir: String,
+    target_dir: String,
+    overwrite: bool,
+    remove_source_dir: bool,
+) -> Result<String, ()> {
+    let res =
+        move_child_to_new_dir_inner(source_dir, target_dir, overwrite, remove_source_dir).await;
+    match res {
+        Ok(fail_res) => {
+            if fail_res.is_empty() {
+                return Ok(generate_result("移动文件成功".to_string(), 200));
+            }
+            Ok(generate_result(fail_res, 500))
+        }
+        Err(_) => Ok(generate_result("移动文件失败".to_string(), 501)),
+    }
+}
+
+fn move_child_to_new_dir_inner(
+    source_dir: String,
+    target_dir: String,
+    overwrite: bool,
+    remove_source_dir: bool,
+) -> BoxFuture<'static, Result<Vec<MoveResult>, ()>> {
+    Box::pin(async move {
+        let mut fail_res: Vec<MoveResult> = vec![];
+        let source_dir = source_dir.replace("/", "\\");
+        let target_dir = target_dir.replace("/", "\\");
+        let source_dir = Path::new(&source_dir);
+        let target_dir = Path::new(&target_dir);
+        if !source_dir.exists() {
+            fail_res.push(MoveResult::new(
+                source_dir.to_str().unwrap().to_string(),
+                target_dir.to_str().unwrap().to_string(),
+                overwrite,
+                false,
+                "源文件夹不存在".to_string(),
+            ));
+            return Ok(fail_res.clone());
+        }
+        if !target_dir.exists() {
+            fs::create_dir_all(target_dir).unwrap();
+        }
+        let dir = match fs::read_dir(source_dir) {
+            Ok(dir) => dir,
+            Err(err) => {
+                fail_res.push(MoveResult::new(
+                    source_dir.to_str().unwrap().to_string(),
+                    target_dir.to_str().unwrap().to_string(),
+                    overwrite,
+                    false,
+                    err.to_string(),
+                ));
+                return Ok(fail_res.clone());
+            }
+        };
+        for entry in dir {
+            let entry = entry.unwrap();
+            let file_type = entry.file_type().unwrap();
+            let file_name = entry.file_name();
+            let target_path = target_dir.join(&file_name);
+            if target_path.exists() && !overwrite {
+                fail_res.push(MoveResult::new(
+                    entry.path().to_str().unwrap().to_string(),
+                    target_path.to_str().unwrap().to_string(),
+                    overwrite,
+                    false,
+                    "目标文件已存在，不允许覆盖".to_string(),
+                ));
+                continue;
+            }
+            if file_type.is_dir() {
+                let child_source_dir = entry.path().to_str().unwrap().to_string();
+                let child_target_dir = target_dir
+                    .join(file_name.clone())
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                let child_res = move_child_to_new_dir_inner(
+                    child_source_dir,
+                    child_target_dir,
+                    overwrite,
+                    remove_source_dir,
+                )
+                .await;
+                match child_res.clone() {
+                    Ok(res) => {
+                        if !res.is_empty() {
+                            fail_res.extend(res);
+                        } else {
+                            let exists = match fs::metadata(entry.path()) {
+                                Ok(meta) => meta.is_dir(),
+                                Err(_) => false,
+                            };
+                            if remove_source_dir && exists {
+                                fs::remove_dir(entry.path()).unwrap_or(());
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        fail_res.push(MoveResult::new(
+                            entry.path().to_str().unwrap().to_string(),
+                            target_path.to_str().unwrap().to_string(),
+                            overwrite,
+                            false,
+                            "移动文件夹失败".to_string(),
+                        ));
+                    }
+                }
+            } else {
+                let res = fs::copy(entry.path(), target_path.clone());
+                match res {
+                    Ok(_) => {
+                        fs::remove_file(entry.path()).unwrap();
+                    }
+                    Err(err) => {
+                        fail_res.push(MoveResult::new(
+                            entry.path().to_str().unwrap().to_string(),
+                            target_path.to_str().unwrap().to_string(),
+                            overwrite,
+                            false,
+                            err.to_string(),
+                        ));
+                    }
+                }
+            }
+        }
+        let exists = match fs::metadata(source_dir) {
+            Ok(meta) => meta.is_dir(),
+            Err(_) => false,
+        };
+        if fail_res.is_empty() && remove_source_dir && exists {
+            fs::remove_dir(source_dir).unwrap_or(());
+        }
+        Ok(fail_res)
+    })
 }
