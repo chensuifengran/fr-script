@@ -87,7 +87,21 @@ const methodIsInvoked = (code: string, methodFullName: string) => {
   });
 };
 
+const parseInvokeApiConfig = (code: string, exportApiName: string) => {
+  return new Promise<Record<string, any>>((resolve) => {
+    worker.onmessage = (e) => {
+      resolve(e.data);
+    };
+    worker.postMessage({
+      type: "parseInvokeApiConfig",
+      code,
+      exportApiName,
+    });
+  });
+};
+
 export const astWorker = {
   analyzeFnInfo,
   methodIsInvoked,
+  parseInvokeApiConfig,
 };

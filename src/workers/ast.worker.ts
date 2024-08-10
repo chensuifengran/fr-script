@@ -544,12 +544,37 @@ const methodIsInvoked = (code: string, methodFullName: string): boolean => {
   return isInvoked;
 };
 
+const parseInvokeApiConfig = (code: string, exportApiName: string) => {
+  project.getSourceFile("parseInvokeApiConfig.ts")?.delete();
+  const ss = project.createSourceFile(
+    "parseInvokeApiConfig.ts",
+    code
+      .replace(`<InvokeApiMethodType>`, "")
+      .replace(`<ApiDocumentType>`, "")
+      .replace(`<TestModuleDialogType>`, "")
+  );
+  let indexFileInfo: Record<string, any> | null = null;
+  const visit = (node: Node<ts.Node>) => {
+    if (node.isKind(ts.SyntaxKind.VariableDeclaration)) {
+      if (node.getName() === exportApiName) {
+        indexFileInfo = parseNodeValue(node.getInitializer()!, 0, ss);
+      }
+    }
+    indexFileInfo || node.forEachChild(visit);
+  };
+  ss.forEachChild(visit);
+  return indexFileInfo;
+};
+
 self.onmessage = function (e) {
   if (e.data.type === "analyzeFnInfo") {
     analyzeFnInfo(e.data.code, e.data.cursorOffset, e.data.position);
   } else if (e.data.type === "methodIsInvoked") {
     const isInvoked = methodIsInvoked(e.data.code, e.data.methodFullName);
     self.postMessage(isInvoked);
+  } else if (e.data.type === "parseInvokeApiConfig") {
+    const indexFileInfo = parseInvokeApiConfig(e.data.code, e.data.exportApiName);
+    self.postMessage(indexFileInfo);
   } else {
     self.postMessage(null);
   }
