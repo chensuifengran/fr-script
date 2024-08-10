@@ -3,7 +3,7 @@ import { KeyOptions } from "./Input/KeyOptions";
  * 提供给编辑器的类型声明, 用于代码提示
  * @returns {string}
  */
-export const editorTsDeclaration = () => {
+export const editorTsDeclaration = (): string => {
   const index = import.meta.glob<Record<string, any>>("./**/index.ts", {
     eager: true,
   });
