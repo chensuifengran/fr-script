@@ -124,6 +124,59 @@ const deleteFile = async (path: string) => {
     return false;
   }
 };
+/**
+ * @description 移动子文件到新目录
+ * @param sourceDir 源目录
+ * @param targetDir 目标目录
+ * @param overwrite 是否覆盖
+ * @param removeSourceDir 是否删除源目录
+ * @returns 是否成功
+ */
+const moveChildToNewDir = async (
+  sourceDir: string,
+  targetDir: string,
+  overwrite: boolean = true,
+  removeSourceDir: boolean = true
+): Promise<boolean> => {
+  try {
+    const info = JSON.parse(
+      await invoke("move_child_to_new_dir", {
+        sourceDir,
+        targetDir,
+        overwrite,
+        removeSourceDir,
+      })
+    );
+    if (info.code === 200) {
+      return true;
+    } else {
+      console.error(info.message);
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+  return false;
+};
+
+const deleteDir = async (
+  path: string,
+  force: boolean,
+  acceptError: boolean = false
+) => {
+  try {
+    await invoke("delete_dir", {
+      path,
+      force,
+    });
+    return true;
+  } catch (error) {
+    if (!acceptError) {
+      console.error(error, path);
+    }
+    return false;
+  }
+};
 export const fsUtils = {
   getFileInfo,
   decompress,
@@ -134,5 +187,7 @@ export const fsUtils = {
   readFile,
   writeFile,
   readDir,
-  deleteFile
+  deleteFile,
+  deleteDir,
+  moveChildToNewDir,
 };
