@@ -87,9 +87,11 @@
         :block="true"
       >
         <template #default="{ item }">
-          <div @click="scrollTo(item.value)">
-            {{ item.label }}
-          </div>
+          <template v-if="typeof item === 'object'">
+            <div @click="scrollTo(item.value as string)">
+              {{ item.label }}
+            </div>
+          </template>
         </template>
       </el-segmented>
       <div overflow-y-scroll overflow-x-hidden ref="scrollRef" flex-1>
