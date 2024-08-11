@@ -606,6 +606,14 @@ const getSparkInfo = async () => {
   }
 };
 
+const closeSplashscreen = ()=>{
+  try {
+    invoke("close_splashscreen");
+  } catch (error) {
+    console.error("invokeBaseApi.closeSplashscreen error: ", error);
+  }
+}
+
 
 export const invokeBaseApi = {
   captureOperation,
@@ -638,4 +646,5 @@ export const invokeBaseApi = {
   screenshot,
   imgColor,
   getSparkInfo,
+  closeSplashscreen
 };

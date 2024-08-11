@@ -69,8 +69,9 @@ fn main() {
             request::get_spark_info,
             sys::open_in_default_browser,
             sys::error_report,
+            sys::close_splashscreen,
             cmd::run_cmd,
-            web_driver::example_web_driver
+            web_driver::example_web_driver,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

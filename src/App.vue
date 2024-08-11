@@ -12,7 +12,14 @@ const listStore = useListStore();
 const shortcutsStore = useGlobalShortcutsStore();
 const { app } = storeToRefs(appGSStore);
 const router = useRouter();
-const { borderRadius, appOpacity, borderColor, appTransform, appAsideBgColor, appBackground } = useAppTheme();
+const {
+  borderRadius,
+  appOpacity,
+  borderColor,
+  appTransform,
+  appAsideBgColor,
+  appBackground,
+} = useAppTheme();
 const { isEditing } = useScriptInfo();
 const contentHeight = computed(() => {
   if (isEditing.value) {
@@ -63,52 +70,58 @@ const aside_width = computed(() => {
     return "97px";
   }
 });
-onMounted(async () => {
-  shortcutsStore.init();
-  if (appWindow.label === 'main') {
-    const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
-    await unregister(showMainWindowShortcuts);
-    register(showMainWindowShortcuts, () => appWindow.show());
-  }
-
-  const init = async (listenResize = true) => {
-    listenResize &&
-      window.addEventListener("resize", () => {
-        syncWindowInnerWidth(window.innerWidth);
-        if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
-          collapsedAside();
-        } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
-          collapsedAside();
-        }
-      });
-    //自动保存当前全局配置以及导入之前的全局配置
-    await appGSStore.init();
-    await listStore.init();
-    handleSelect(app.value.state.aside.currentItem);
-    libUtil.checkDepUpdate();
-  };
-  const currentWindowLabel = appWindow.label;
-  if (currentWindowLabel !== "main") {
-    const notInitWindows = ["floatWindow", "pointerUtil", "notification"];
-    if (!notInitWindows.includes(currentWindowLabel)) {
-      await init(false);
-    }
-    router.replace({
-      path: "/" + currentWindowLabel,
+const init = async (listenResize = true) => {
+  listenResize &&
+    window.addEventListener("resize", () => {
+      syncWindowInnerWidth(window.innerWidth);
+      if (window.innerWidth < 800 && !app.value.state.aside.collapsed) {
+        collapsedAside();
+      } else if (window.innerWidth >= 800 && app.value.state.aside.collapsed) {
+        collapsedAside();
+      }
     });
-    isMainWindow.value = false;
-  } else {
-    await init();
+  //自动保存当前全局配置以及导入之前的全局配置
+  await appGSStore.init();
+  await listStore.init();
+  handleSelect(app.value.state.aside.currentItem);
+  libUtil.checkDepUpdate();
+};
+onMounted(async () => {
+  try {
+    shortcutsStore.init();
+    if (appWindow.label === "main") {
+      const showMainWindowShortcuts =
+        shortcutsStore.getShortcuts("强制显示主窗口");
+      await unregister(showMainWindowShortcuts);
+      register(showMainWindowShortcuts, () => appWindow.show());
+    }
+    const currentWindowLabel = appWindow.label;
+    if (currentWindowLabel !== "main") {
+      const notInitWindows = ["floatWindow", "pointerUtil", "notification"];
+      if (!notInitWindows.includes(currentWindowLabel)) {
+        await init(false);
+      }
+      router.replace({
+        path: "/" + currentWindowLabel,
+      });
+      isMainWindow.value = false;
+    } else {
+      await init();
+    }
+    await registerAllInvokeApi();
+  } catch (error) {
+    console.error("初始化异常：", error);
+  } finally {
+    invokeBaseApi.closeSplashscreen();
   }
-  registerAllInvokeApi();
 });
 onUnmounted(() => {
-  if (appWindow.label === 'main') {
-    const showMainWindowShortcuts = shortcutsStore.getShortcuts("强制显示主窗口");
+  if (appWindow.label === "main") {
+    const showMainWindowShortcuts =
+      shortcutsStore.getShortcuts("强制显示主窗口");
     unregister(showMainWindowShortcuts);
   }
-})
-
+});
 
 const collapsedAside = () => {
   app.value.state.aside.collapsed = !app.value.state.aside.collapsed;
@@ -128,16 +141,33 @@ onBeforeMount(() => {
       <div class="common-layout">
         <el-container>
           <el-aside class="aside">
-            <el-tooltip effect="dark" :content="app.state.aside.collapsed ? '展开' : '折叠'" placement="right">
-              <el-button class="aside-btn" :icon="app.state.aside.collapsed ? Expand : Fold" text
-                @click="collapsedAside" />
+            <el-tooltip
+              effect="dark"
+              :content="app.state.aside.collapsed ? '展开' : '折叠'"
+              placement="right"
+            >
+              <el-button
+                class="aside-btn"
+                :icon="app.state.aside.collapsed ? Expand : Fold"
+                text
+                @click="collapsedAside"
+              />
             </el-tooltip>
-            <el-menu :collapse="app.state.aside.collapsed" :collapse-transition="false" popper-effect="dark"
-              class="el-menu-vertical" :default-active="app.state.aside.currentItem" :key="menuKey"
-              @select="(index: string) => handleSelect(index, true)">
+            <el-menu
+              :collapse="app.state.aside.collapsed"
+              :collapse-transition="false"
+              popper-effect="dark"
+              class="el-menu-vertical"
+              :default-active="app.state.aside.currentItem"
+              :key="menuKey"
+              @select="(index: string) => handleSelect(index, true)"
+            >
               <div>
-                <el-menu-item v-for="topRoute in topRoutes" :index="topRoute.name as string"
-                  :key="topRoute.path + '|' + topRoute.meta!.title">
+                <el-menu-item
+                  v-for="topRoute in topRoutes"
+                  :index="topRoute.name as string"
+                  :key="topRoute.path + '|' + topRoute.meta!.title"
+                >
                   <el-icon>
                     <component :is="topRoute.meta!.icon" />
                   </el-icon>
@@ -146,8 +176,11 @@ onBeforeMount(() => {
               </div>
               <div data-tauri-drag-region style="flex: 1; cursor: move"></div>
               <div>
-                <el-menu-item v-for="bottomRoute in bottomRoutes" :index="bottomRoute.name as string"
-                  :key="bottomRoute.path + '|' + bottomRoute.meta!.title">
+                <el-menu-item
+                  v-for="bottomRoute in bottomRoutes"
+                  :index="bottomRoute.name as string"
+                  :key="bottomRoute.path + '|' + bottomRoute.meta!.title"
+                >
                   <el-icon>
                     <component :is="bottomRoute.meta!.icon" />
                   </el-icon>
@@ -158,21 +191,37 @@ onBeforeMount(() => {
           </el-aside>
           <el-main class="app-main">
             <router-view v-slot="{ Component }">
-              <transition enter-active-class="animate__animated animate__fadeIn ">
+              <transition
+                enter-active-class="animate__animated animate__fadeIn "
+              >
                 <component :is="Component" />
               </transition>
             </router-view>
           </el-main>
         </el-container>
       </div>
-      <el-dialog v-model="appVersionInfo.openDialog" :title="'版本更新v' + appVersionInfo.version"
-        class="version-update-dialog">
+      <el-dialog
+        v-model="appVersionInfo.openDialog"
+        :title="'版本更新v' + appVersionInfo.version"
+        class="version-update-dialog"
+      >
         <div>{{ appVersionInfo.desc }}</div>
         <template #footer>
           <div>
-            <el-button type="info" size="small" @click="appVersionInfo.openDialog = false">取消</el-button>
-            <el-button size="small" v-for="item in appVersionInfo.downloadUrl" :key="item.origin" type="primary"
-              @click="goDownloadNewApp(item)">{{ item.origin }}下载</el-button>
+            <el-button
+              type="info"
+              size="small"
+              @click="appVersionInfo.openDialog = false"
+              >取消</el-button
+            >
+            <el-button
+              size="small"
+              v-for="item in appVersionInfo.downloadUrl"
+              :key="item.origin"
+              type="primary"
+              @click="goDownloadNewApp(item)"
+              >{{ item.origin }}下载</el-button
+            >
           </div>
         </template>
       </el-dialog>

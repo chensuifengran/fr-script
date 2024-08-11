@@ -13,7 +13,7 @@
   "tauri": {
     "allowlist": {
       "all": true,
-      "fs":{
+      "fs": {
         "all": true,
         "scope": ["**"]
       }
@@ -30,9 +30,7 @@
         "icons/icon.ico",
         "icons/icon.png"
       ],
-      "resources": [
-        "resources/*"
-      ]
+      "resources": ["resources/*"]
     },
     "security": {
       "csp": null
@@ -47,7 +45,18 @@
         "width": 980,
         "height": 600,
         "minWidth": 700,
-        "fileDropEnabled": false
+        "fileDropEnabled": false,
+        "visible": false
+      },
+      {
+        "width": 400,
+        "height": 200,
+        "decorations": false,
+        "transparent": true,
+        "center": true,
+        "url": "splashscreen.html",
+        "label": "splashscreen",
+        "alwaysOnTop": true
       }
     ]
   }
