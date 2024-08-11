@@ -1,3 +1,5 @@
+import { useDark } from "@vueuse/core";
+
 const borderRadius = ref("10px");
 const appOpacity = ref(1);
 const isDark = useDark();
