@@ -86,8 +86,23 @@ export const useAppGlobalSettings = defineStore<
         },
         { detached: false }
       );
-      window.localStorage.getItem("globalSettings") &&
-        (await this.importData(window.localStorage.getItem("globalSettings")!));
+      const loaclGs = window.localStorage.getItem("globalSettings");
+      if (loaclGs) {
+        await this.importData(loaclGs);
+      } else {
+        //设置默认工作目录和截图保存路径
+        if (this.envSetting.workDir === "") {
+          const workDir = await pathUtils.getInstallDir();
+          this.envSetting.workDir = workDir;
+        }
+        if (this.envSetting.screenshotSavePath) {
+          const screenshotSavePath = await pathUtils.resolve(
+            await pathUtils.getInstallDir(),
+            "screenshot.png"
+          );
+          this.envSetting.screenshotSavePath = screenshotSavePath;
+        }
+      }
       this.isInited = true;
     },
   },
