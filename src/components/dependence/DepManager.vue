@@ -1,6 +1,6 @@
 <template>
   <div class="dep-manager">
-    <el-tabs v-model="activeDrewerName" class="tabs" @tab-change="handleTabChange">
+    <el-tabs v-model="activeDrewerName" class="tabs" @tab-change="handleTabChange" tab-position="top">
       <el-tab-pane label="缺失依赖下载" name="lackDepDownload" v-loading="contentLoading">
         <el-tabs
           tab-position="left"
@@ -98,7 +98,6 @@ const handleTabChange = async (name: string | number) => {
   height: 100%;
   position: relative;
   display: flex;
-  flex-direction: column;
 }
 </style>
 <style lang="scss">
