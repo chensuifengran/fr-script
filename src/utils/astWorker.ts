@@ -100,8 +100,15 @@ const parseInvokeApiConfig = (code: string, exportApiName: string) => {
   });
 };
 
+const clearCache = () => {
+  worker.postMessage({
+    type: "clearCache",
+  });
+};
+
 export const astWorker = {
   analyzeFnInfo,
   methodIsInvoked,
   parseInvokeApiConfig,
+  clearCache,
 };

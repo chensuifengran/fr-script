@@ -12,7 +12,7 @@ import {
 import ts from "typescript";
 import * as monaco from "monaco-editor";
 const STRING_QUOTATION_MARK_REGEX = /(^["'`]{1,2})|(["'`]{1,2}$)/g;
-const cache = {
+const defaultCache = () => ({
   analyzeFnInfo: {
     lastCode: "",
     lastSS: <SourceFile | null>null,
@@ -21,7 +21,12 @@ const cache = {
     lastCode: "",
     lastSS: <SourceFile | null>null,
   },
-};
+  checkSyntaxErrors: {
+    lastCode: "",
+    lastSS: <SourceFile | null>null,
+  },
+});
+let cache = defaultCache();
 const project = new Project({ useInMemoryFileSystem: true });
 const getNodeTreeLevel = (node: Node) => {
   let level = 0;
@@ -565,6 +570,18 @@ const parseInvokeApiConfig = (code: string, exportApiName: string) => {
   ss.forEachChild(visit);
   return indexFileInfo;
 };
+const clearCache = () => {
+  if (cache.analyzeFnInfo.lastSS) {
+    project.removeSourceFile(cache.analyzeFnInfo.lastSS);
+  }
+  if (cache.methodIsInvoked.lastSS) {
+    project.removeSourceFile(cache.methodIsInvoked.lastSS);
+  }
+  if (cache.checkSyntaxErrors.lastSS) {
+    project.removeSourceFile(cache.checkSyntaxErrors.lastSS);
+  }
+  cache = defaultCache();
+};
 
 self.onmessage = function (e) {
   if (e.data.type === "analyzeFnInfo") {
@@ -573,8 +590,13 @@ self.onmessage = function (e) {
     const isInvoked = methodIsInvoked(e.data.code, e.data.methodFullName);
     self.postMessage(isInvoked);
   } else if (e.data.type === "parseInvokeApiConfig") {
-    const indexFileInfo = parseInvokeApiConfig(e.data.code, e.data.exportApiName);
+    const indexFileInfo = parseInvokeApiConfig(
+      e.data.code,
+      e.data.exportApiName
+    );
     self.postMessage(indexFileInfo);
+  } else if (e.data.type === "clearCache") {
+    clearCache();
   } else {
     self.postMessage(null);
   }
