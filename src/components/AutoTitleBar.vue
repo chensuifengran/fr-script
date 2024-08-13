@@ -151,7 +151,9 @@ const closeHandle = async () => {
   for (let i = 0; i < allWindow.length; i++) {
     const w = allWindow[i];
     if (w.label !== "main") {
-      await w.close();
+      try{
+        await w.close();
+      }catch{}
     }
   }
   await appWindow.close();
