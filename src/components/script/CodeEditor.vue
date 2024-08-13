@@ -452,6 +452,7 @@ onMounted(async () => {
   });
 });
 onBeforeUnmount(() => {
+  astWorker.clearCache();
   unRegisterEditorEvent("mounted");
   window.removeEventListener("resize", resizeHandle);
   document.getElementById(EDITOR_DOM_ID)?.removeEventListener("keydown", keydownHandle);
