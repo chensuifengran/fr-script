@@ -4,14 +4,20 @@
     <el-dialog v-model="sameScriptMod.visible" title="脚本导入">
       <div>{{ sameScriptMod.content }}</div>
       <div>作为新脚本导入：</div>
-      <div>此选项会在脚本列表新增一项脚本，该脚本无法继承同名脚本配置(id不一致)</div>
+      <div>
+        此选项会在脚本列表新增一项脚本，该脚本无法继承同名脚本配置(id不一致)
+      </div>
       <div>更新同名脚本：</div>
-      <div>此选项会将新脚本内容覆盖掉同名脚本，该脚本可以继承同名脚本配置(id一致)</div>
+      <div>
+        此选项会将新脚本内容覆盖掉同名脚本，该脚本可以继承同名脚本配置(id一致)
+      </div>
 
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="sameScriptMod.newImport">作为新脚本导入</el-button>
-          <el-button @click="sameScriptMod.updateImport">更新同名脚本</el-button>
+          <el-button @click="sameScriptMod.updateImport"
+            >更新同名脚本</el-button
+          >
         </span>
       </template>
     </el-dialog>
@@ -29,7 +35,12 @@
       <div class="header">
         <span style="font-size: 18px">脚本列表</span>
         <div class="header-right">
-          <el-input class="input" v-model="search" clearable placeholder="搜索脚本名称或备注" />
+          <el-input
+            class="input"
+            v-model="search"
+            clearable
+            placeholder="搜索脚本名称或备注"
+          />
           <el-button-group>
             <el-button @click="imoprtScript">导入</el-button>
             <el-button type="primary" @click="onAddItem">新建</el-button>
@@ -40,13 +51,30 @@
 
     <div class="list">
       <el-empty v-if="scriptList.length === 0" description="暂无脚本" />
-      <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort"
-        :animation="200" handle=".drag-handle" @start="onStart" @update="onEnd" @end="onEnd">
-        <ScriptListItem v-for="item in showList" :key="item.id" :id="item.id" @editorScriptFile="editorScriptFile"
-          :show-hover="showItemHover" @openFile="openFile" @setScript="setScript" @runScript="runScript"
-          @deleteScript="deleteScript" />
+      <VueDraggable
+        ref="el"
+        v-model="showList"
+        ghostClass="ghost"
+        class="draggable-content"
+        :disabled="disableSort"
+        :animation="200"
+        handle=".drag-handle"
+        @start="onStart"
+        @update="onEnd"
+        @end="onEnd"
+      >
+        <ScriptListItem
+          v-for="item in showList"
+          :key="item.id"
+          :id="item.id"
+          @editorScriptFile="editorScriptFile"
+          :show-hover="showItemHover"
+          @openFile="openFile"
+          @setScript="setScript"
+          @runScript="runScript"
+          @deleteScript="deleteScript"
+        />
       </VueDraggable>
-
     </div>
   </div>
 </template>
@@ -55,9 +83,9 @@
 import { invoke } from "@tauri-apps/api";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
-import { UseDraggableReturn, VueDraggable } from 'vue-draggable-plus'
+import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
 const el = ref<UseDraggableReturn>();
-let deleteConfirm: () => void = () => { };
+let deleteConfirm: () => void = () => {};
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const {
@@ -73,15 +101,15 @@ const { appBackground } = useAppTheme();
 const sameScriptMod = reactive({
   visible: false,
   content: "",
-  newImport: () => { },
-  updateImport: () => { },
+  newImport: () => {},
+  updateImport: () => {},
 });
 const onStart = () => {
   showItemHover.value = false;
 };
 const onEnd = () => {
   showItemHover.value = true;
-}
+};
 const deleteScriptDialog = ref(false);
 const deleteScript = (index: number) => {
   deleteConfirm = () => {
@@ -107,7 +135,10 @@ const editorScriptFile = (index: number) => {
   }
   const t = setTimeout(async () => {
     openId!.value = scriptList.value[index].id;
-    curScriptDir.value = await pathUtils.resolve(scriptList.value[index].savePath, "../");
+    curScriptDir.value = await pathUtils.resolve(
+      scriptList.value[index].savePath,
+      "../"
+    );
     clearTimeout(t);
   }, 100);
   asideBarPos.value = "absolute";
@@ -127,7 +158,9 @@ const openFile = async (index: number) => {
     execCommand.run(`code ${path}`);
   } catch (error: any) {
     if (error === "cancel") {
-      invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
+      invoke("open_file_explorer", {
+        path: await pathUtils.resolve(path, "../"),
+      });
     }
   }
 };
@@ -304,7 +337,7 @@ const imoprtScript = async () => {
   }
 };
 
-const runScript = (index: number) => {
+const runScript = async (index: number) => {
   openId!.value = scriptList.value[index].id;
   //路由跳转到运行器
   router.replace("/script/run");
@@ -318,8 +351,8 @@ const setScript = (index: number) => {
 
 const search = ref("");
 const disableSort = computed(() => {
-  return search.value !== ""
-})
+  return search.value !== "";
+});
 
 const showList = computed({
   get: () => {
@@ -335,9 +368,8 @@ const showList = computed({
   },
   set: (v) => {
     scriptList.value = v;
-  }
+  },
 });
-
 </script>
 
 <style lang="scss" scoped>
