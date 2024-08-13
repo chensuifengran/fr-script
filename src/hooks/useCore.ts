@@ -321,7 +321,6 @@ export const getApiModules = async (
   for (let i = 0; i < _apis.length; i++) {
     const [key, value] = _apis[i];
     const apiNamePath = await pathUtils.join(key, "../");
-
     const apiName = await pathUtils.basename(apiNamePath);
     const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
     if (!module) {
