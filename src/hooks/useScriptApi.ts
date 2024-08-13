@@ -468,6 +468,31 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   }
 };
 export const useScriptApi = () => {
+  const { openId } = useScriptInfo();
+  const listStore = useListStore();
+  const { scriptList } = storeToRefs(listStore);
+  const _buildForm = (buildFormList: BuildFormItems[]) => {
+    buildForm(buildFormList);
+    if (openId.value !== "-1") {
+      const target = scriptList.value.find((i) => i.id === openId.value);
+      if (!target?.setting.autoImportLastRunConfig) {
+        return;
+      } else if (target.setting.autoImportLastRunConfig) {
+        const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
+          (i) => i.groupLabel === "*脚本设置"
+        );
+        if (scriptConfig) {
+          const importLastRunConfigItem = scriptConfig.checkList.find(
+            (i) => i.label === "导入上次运行配置"
+          );
+          if (importLastRunConfigItem) {
+            importLastRunConfigItem.checked = true;
+            importLastRunConfig();
+          }
+        }
+      }
+    }
+  };
   return {
     importLastRunConfig,
     replaceRendererList,
@@ -475,6 +500,7 @@ export const useScriptApi = () => {
     setEndBeforeCompletion,
     getEndBeforeCompletion: () => endBeforeCompletion,
     getFileInfo,
+    buildForm: _buildForm,
   };
 };
 
@@ -501,33 +527,8 @@ class FormUtil {
  */
 export const useBuiltInApi = () => {
   const { exportAllFn } = useCore();
-  const { openId } = useScriptInfo();
   const { rendererList } = useListStore();
   const appGSStore = useAppGlobalSettings();
-  const listStore = useListStore();
-  const { scriptList } = storeToRefs(listStore);
-  const _buildForm = (buildFormList: BuildFormItems[]) => {
-    buildForm(buildFormList);
-    if (openId.value !== "-1") {
-      const target = scriptList.value.find((i) => i.id === openId.value);
-      if (!target?.setting.autoImportLastRunConfig) {
-        return;
-      } else if (target.setting.autoImportLastRunConfig) {
-        const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
-          (i) => i.groupLabel === "*脚本设置"
-        );
-        if (scriptConfig) {
-          const importLastRunConfigItem = scriptConfig.checkList.find(
-            (i) => i.label === "导入上次运行配置"
-          );
-          if (importLastRunConfigItem) {
-            importLastRunConfigItem.checked = true;
-            importLastRunConfig();
-          }
-        }
-      }
-    }
-  };
   const WORK_DIR = appGSStore.envSetting.workDir;
   const SCREEN_SHOT_DIR = pathUtils.resolve(
     appGSStore.envSetting.screenshotSavePath || "",
@@ -549,7 +550,6 @@ export const useBuiltInApi = () => {
     SCRIPT_ROOT_DIR,
     isStop: false,
     SCRIPT_ID: getScriptId(),
-    buildForm: _buildForm,
     setAllTask,
     setCurTask,
     getAllTask,
