@@ -210,7 +210,7 @@ const invokeDynamicDialog = (
             }
           }
         }
-        if (!needUpdate) {
+        if (!needUpdate && callType === "changeArgs") {
           callArgsObject.replaceCurFnArgs = () => {};
         }
         targetMethod!.testModule!.callback(callArgsObject, testModuleCtx);
