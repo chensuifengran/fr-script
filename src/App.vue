@@ -114,6 +114,11 @@ onMounted(async () => {
   } finally {
     invokeBaseApi.closeSplashscreen();
   }
+  if (process.env.NODE_ENV === "production") {
+    window.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+    });
+  }
 });
 onUnmounted(() => {
   if (appWindow.label === "main") {
