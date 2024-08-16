@@ -1,9 +1,16 @@
 <template>
   <div class="run-code-box">
-    <el-page-header @back="goBack" v-show="running !== 2" title="脚本列表">
+    <el-page-header
+      @back="goBack"
+      v-show="taskRunStatus !== 'running'"
+      title="脚本列表"
+    >
       <template #content>
         <div class="head-content">
-          <span class="s-name">{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span>
+          <span class="s-name"
+            >{{ name || "未保存的临时脚本" }} :
+            {{ version || "未知版本" }}</span
+          >
           <el-tooltip effect="dark" content="编辑脚本" placement="bottom">
             <code-icon class="icon" @click.stop="goEditor" />
           </el-tooltip>
@@ -12,23 +19,39 @@
               <span i-solar-settings-linear></span>
             </el-icon>
           </el-tooltip>
-          <el-checkbox class="mgl-10" v-model="hideWindow" label="运行时隐藏窗口" />
+          <el-checkbox
+            class="mgl-10"
+            v-model="hideWindow"
+            label="运行时隐藏窗口"
+          />
         </div>
       </template>
       <template #extra>
         <div>
           <el-tooltip effect="dark" content="Ctrl+Shift+A" placement="bottom">
-            <el-button @click="invokeStartHandle" v-show="running === 0" plain>运行</el-button>
+            <el-button
+              @click="invokeStartHandle"
+              v-show="taskRunStatus === 'ready'"
+              plain
+              >运行</el-button
+            >
           </el-tooltip>
           <el-tooltip effect="dark" content="Ctrl+Shift+D" placement="bottom">
-            <el-button @click="() => initScript(true)" v-show="running === 1" plain>重新初始化</el-button>
+            <el-button
+              @click="() => initScript(true)"
+              v-show="taskRunStatus === 'done'"
+              plain
+              >重新初始化</el-button
+            >
           </el-tooltip>
         </div>
       </template>
     </el-page-header>
-    <div v-show="running === 2" class="end-box">
+    <div v-show="taskRunStatus === 'running'" class="end-box">
       <div>
-        <span class="s-name">{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span>
+        <span class="s-name"
+          >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
+        >
         <el-tag class="mgl-5" size="small" type="info" v-show="savePath">{{
           savePath
         }}</el-tag>
@@ -36,15 +59,57 @@
         <DotLoader style="margin-left: 15px" />
       </div>
       <div>
-        <el-button @click="enableFloatWindow(false)" v-show="running === 2" type="primary" plain>小窗运行</el-button>
+        <el-button
+          @click="enableFloatWindow(false)"
+          v-show="taskRunStatus === 'running'"
+          type="primary"
+          plain
+          >小窗运行</el-button
+        >
         <el-tooltip effect="dark" content="Ctrl+Shift+S" placement="bottom">
-          <el-button @click="stop" v-show="running === 2" type="danger" plain>结束</el-button>
+          <el-button
+            @click="stop"
+            v-show="taskRunStatus === 'running'"
+            type="danger"
+            plain
+            >结束</el-button
+          >
         </el-tooltip>
       </div>
     </div>
     <div class="console-log-div" v-show="!isLoading">
-      <async-renderer-form v-show="running === 0" :reInit="reInit" />
-      <log-timeline v-show="running !== 0" :data="logOutput" />
+      <renderer-form
+        :reInit="reInit"
+        flex-1
+        h-full
+        mr-2
+        :disabled-all="taskRunStatus === 'running'"
+      />
+      <div
+        h-full
+        flex
+        flex-col
+        pos-relative
+        :style="{
+          width: taskRunStatus === 'running' ? '65%' : '220px',
+        }"
+      >
+        <renderer-list-catalog
+          scroll-container-id="renderer-form"
+          v-if="taskRunStatus !== 'running'"
+          class="catalog-box"
+          w-full
+          flex
+          flex-1
+        />
+        <log-timeline
+          :data="logOutput"
+          w-full
+          :style="{
+            height: taskRunStatus === 'running' ? '100%' : '85px',
+          }"
+        />
+      </div>
     </div>
   </div>
   <teleport to="body">
@@ -56,7 +121,11 @@
 </template>
 
 <script setup lang="ts">
-import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
+import {
+  isRegistered,
+  register,
+  unregister,
+} from "@tauri-apps/api/globalShortcut";
 import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
@@ -68,12 +137,9 @@ import { cmdFn } from "../../invokes/cmd/exportFn";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 import { useLog } from "../../hooks/useLog";
+import { TaskRunStatus } from "../../hooks/useScriptApi";
 const { notify } = eventUtil;
-const AsyncRendererForm = defineAsyncComponent(
-  () => import("@/components/script/RendererForm.vue")
-);
-
-const { running, name, version, hideWindow, savePath } = useScriptView();
+const { taskRunStatus, name, version, hideWindow, savePath } = useScriptView();
 const { logOutput } = useLog();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
@@ -89,12 +155,14 @@ const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 
-const { openId, tempEditorValue, contentTransform, asideBarPos } = useScriptInfo();
+const { openId, tempEditorValue, contentTransform, asideBarPos } =
+  useScriptInfo();
 const goSetScript = () => {
   router.replace("/script/setting");
 };
 
-const { setEndBeforeCompletion, getFileInfo, getWillRunScript } = useScriptApi()!;
+const { setEndBeforeCompletion, getFileInfo, getWillRunScript } =
+  useScriptApi();
 
 const goBack = () => {
   router.replace({
@@ -138,9 +206,9 @@ const enableFloatWindow = async (isInit: boolean = false) => {
     });
   } else {
     await notify.sendCustom({
-      name: 'continue',
-      message: ''
-    })
+      name: "continue",
+      message: "",
+    });
   }
 };
 const invokeStartHandle = async () => {
@@ -148,7 +216,7 @@ const invokeStartHandle = async () => {
   if (hideWindow.value) {
     await enableFloatWindow(true);
   }
-  running.value = 2;
+  taskRunStatus.value = "running";
   window[CORE_NAMESPACES].startScriptSignal?.abort();
   const target = scriptList.value.find((s) => s.id === openId!.value);
   if (!target) return;
@@ -156,7 +224,9 @@ const invokeStartHandle = async () => {
   if (targetDevice !== "") {
     //获得所有设备，取消非目标设备的连接
     const deviceList = (await devicesFn()) || [];
-    const excludeDevices = [...new Set([...deviceList, ...target.setting.excludeDevice])];
+    const excludeDevices = [
+      ...new Set([...deviceList, ...target.setting.excludeDevice]),
+    ];
 
     for (let i = 0; i < excludeDevices?.length; i++) {
       console.log("与设备断开连接：", excludeDevices[i]);
@@ -204,24 +274,25 @@ const initScript = async (reinit: boolean = false) => {
       });
     }
     const target = scriptList.value.find((s) => s.id === openId!.value);
-    if (target && (target.setting.targetApp ?? "") !== "" && target.setting.autoStartTargetApp) {
+    if (
+      target &&
+      (target.setting.targetApp ?? "") !== "" &&
+      target.setting.autoStartTargetApp
+    ) {
       const t = setTimeout(() => {
         cmdFn(target.setting.targetApp, true);
         clearTimeout(t);
       });
     }
     const invokedOcr = await astWorker.methodIsInvoked(scriptStr, "ocr");
-    if (
-      appGSStore.ocr.value === "GPU" &&
-      invokedOcr
-    ) {
+    if (appGSStore.ocr.value === "GPU" && invokedOcr) {
       await ocrFn(0, 0, 1, 1);
     }
     run(scriptStr, "fn" + taskId)();
     isInit.value = true;
     isReInit.value = true;
   } catch (e: any) {
-    running.value = 0;
+    taskRunStatus.value = "ready";
     console.error(e);
   } finally {
     const t = setTimeout(() => {
@@ -250,15 +321,21 @@ const GlobalShortcuts = [
   },
 ];
 let timer: NodeJS.Timeout;
-const registerGlobalShortcuts = (targetIndex: number) => {
+const registerGlobalShortcuts = (status: TaskRunStatus) => {
+  const targetIndex =
+    status === "running" ? 2 : taskRunStatus.value === "done" ? 1 : 0;
   timer && clearTimeout(timer);
   timer = setTimeout(async () => {
     clearTimeout(timer);
     const targetShortcuts = GlobalShortcuts[targetIndex];
-    const shortcuts = shortcutsStore.getShortcuts(targetShortcuts.onlyDescription);
+    const shortcuts = shortcutsStore.getShortcuts(
+      targetShortcuts.onlyDescription
+    );
     if (targetShortcuts) {
       for (let i = 0; i < GlobalShortcuts.length; i++) {
-        const shortcuts = shortcutsStore.getShortcuts(GlobalShortcuts[i].onlyDescription);
+        const shortcuts = shortcutsStore.getShortcuts(
+          GlobalShortcuts[i].onlyDescription
+        );
         await unregister(shortcuts);
       }
       if (!(await isRegistered(shortcuts))) {
@@ -272,10 +349,10 @@ const registerGlobalShortcuts = (targetIndex: number) => {
   }, 300);
 };
 watchEffect(async () => {
-  if (!isInit.value && running.value !== 1) {
+  if (!isInit.value && taskRunStatus.value !== "done") {
     return;
   }
-  registerGlobalShortcuts(running.value);
+  registerGlobalShortcuts(taskRunStatus.value);
 });
 
 const isLoading = ref(true);
@@ -290,7 +367,7 @@ onMounted(async () => {
   setTimeout(() => {
     targetWindow?.hide();
   });
-  registerGlobalShortcuts(running.value);
+  registerGlobalShortcuts(taskRunStatus.value);
   unlistenNotify = await notify.listen((data) => {
     const { type } = data.payload as { type: string; payload: any };
     if (type === "end") {
@@ -353,31 +430,16 @@ onUnmounted(() => {
   .console-log-div {
     margin-top: 10px;
     padding: 10px;
-    flex: 1;
-    // background-color: #3c3c3c;
-    overflow-y: scroll;
-    overflow-x: hidden;
+    height: calc(100vh - 102px);
+    overflow: hidden;
     position: relative;
-
-    .log-box {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-
-      &>div:last-of-type {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        // justify-content: center;
-        overflow: scroll;
-        padding: 5px 0 0 0;
-      }
-
-      .alert-item {
-        margin-bottom: 5px;
-      }
+    display: flex;
+    flex-direction: row;
+    transition: all 0.5s;
+    .catalog-box {
+      height: calc(100% - 85px);
+      transition: all 0.5s;
+      position: relative;
     }
   }
 }
@@ -413,8 +475,8 @@ onUnmounted(() => {
 </style>
 <style lang="scss">
 .log-box {
-  &>.el-card {
-    &>.el-card__body {
+  & > .el-card {
+    & > .el-card__body {
       height: 100%;
       display: flex;
       flex-direction: column;

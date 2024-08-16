@@ -1,62 +1,162 @@
 <template>
-  <div class="renderer-form">
-    <el-alert v-if="isPreviewForm" title="表单预览" type="info" description="表单预览仅能修改组件默认值，修改/删除组件需打开下方的“组件管理树”进行修改。"
-      show-icon class="alert" />
-    <ElCard class="box-card" v-for="g in showList" :key="g.groupLabel">
+  <div class="renderer-form" id="renderer-form">
+    <el-alert
+      v-if="isPreviewForm"
+      title="表单预览"
+      type="info"
+      description="表单预览仅能修改组件默认值，修改/删除组件需打开下方的“组件管理树”进行修改。"
+      show-icon
+      class="alert"
+    />
+    <ElCard class="box-card" v-for="g in showList" :key="g.groupLabel" :id="'renderer-form-g-'+g.groupLabel">
       <template #header>
         <div class="card-header">
           <span>{{ g.groupLabel }}</span>
-          <el-switch v-model="g.enable" class="mgl-5" v-if="g.groupLabel !== '*脚本设置'" @change="rendererListChangeHandle"
-            style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
+          <el-switch
+            v-model="g.enable"
+            class="mgl-5"
+            v-if="g.groupLabel !== '*脚本设置'"
+            @change="rendererListChangeHandle"
+            style="
+              --el-switch-off-color: #ff4949;
+            "
+            :disabled="disabledAll"
+          />
         </div>
       </template>
       <div class="form-content">
-        <div class="check-content" :style="{
-          flexFlow: isCheckFlow(g) ? 'wrap' : 'column',
-        }">
-          <el-checkbox v-for="c in g.checkList" :key="c.label" :label="c.label" class="check-item" v-model="c.checked"
-            :style="{
-              marginLeft: isCheckFlow(g) ? '5px' : undefined,
-            }" :disabled="(isPreviewForm &&
+        <div class="check-content">
+          <el-checkbox
+            v-for="c in g.checkList"
+            :key="c.label"
+            :label="c.label"
+            class="check-item"
+            v-model="c.checked"
+            :disabled="
+              (isPreviewForm &&
                 g.groupLabel === '*脚本设置' &&
                 c.label === '导入上次运行配置') ||
-              !g.enable
-              " @change="configChangeHandle(c.label)" />
+              !g.enable || disabledAll
+            "
+            @change="configChangeHandle(c.label)"
+          />
         </div>
-        <div class="select-item" v-for="s in g.selectList" :key="s.label" :style="{
-          flexDirection: s.label.length && s.label.length > 6 ? 'column' : 'row',
-        }">
-          <el-text class="mgr-10">{{ s.label }}</el-text>
-          <el-select class="select" :style="{
-            minWidth: getSelectMinWidth(s.value),
-          }" v-model="s.value" :placeholder="s.label" @change="rendererListChangeHandle" size="small"
-            :disabled="!g.enable">
-            <el-option v-for="item in s.options" :key="item" :label="item" :value="item" />
+        <div
+          class="select-item"
+          v-for="s in g.selectList"
+          :key="s.label"
+          :style="{
+            flexDirection:
+              s.label.length && s.label.length > 6 ? 'column' : 'row',
+            alignItems:
+              s.label.length && s.label.length > 6 ? 'flex-start' : 'center',
+          }"
+        >
+          <el-text
+            :style="{
+              alignSelf:
+                s.label.length && s.label.length > 6 ? 'self-start' : 'center',
+            }"
+            >{{ s.label }}</el-text
+          >
+          <el-select
+            class="select"
+            :style="{
+              minWidth:
+                s.label.length && s.label.length > 6
+                  ? '100%'
+                  : getSelectMinWidth(s.value),
+            }"
+            v-model="s.value"
+            :placeholder="s.label"
+            @change="rendererListChangeHandle"
+            size="small"
+            :disabled="!g.enable || disabledAll"
+          >
+            <el-option
+              v-for="item in s.options"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </div>
-        <div class="select-item" v-for="s in g.multipleSelectList" :key="s.label">
-          <el-text class="mgr-10">{{ s.label }}</el-text>
-          <el-select multiple size="small" :disabled="!g.enable" :multiple-limit="s.limit" v-model="s.value"
-            :placeholder="s.label" @change="rendererListChangeHandle">
-            <el-option-group v-for="group in s.options" :key="group.groupLabel" :label="group.groupLabel">
-              <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value" />
+        <div
+          class="select-item"
+          v-for="s in g.multipleSelectList"
+          :key="s.label"
+          style="align-items: flex-start"
+        >
+          <el-text style="align-self: self-start">{{ s.label }}</el-text>
+          <el-select
+            multiple
+            size="small"
+            :disabled="!g.enable || disabledAll"
+            :multiple-limit="s.limit"
+            v-model="s.value"
+            :placeholder="s.label"
+            @change="rendererListChangeHandle"
+          >
+            <el-option-group
+              v-for="group in s.options"
+              :key="group.groupLabel"
+              :label="group.groupLabel"
+            >
+              <el-option
+                v-for="item in group.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-option-group>
           </el-select>
         </div>
-        <div class="select-item" v-for="s in g.groupSelectList" :key="s.label">
-          <el-text class="mgr-10">{{ s.label }}</el-text>
-          <el-select size="small" v-model="s.value" :style="{
-            minWidth: getSelectMinWidth(s.value),
-          }" :placeholder="s.label" :disabled="!g.enable" @change="rendererListChangeHandle">
-            <el-option-group v-for="group in s.options" :key="group.groupLabel" :label="group.groupLabel">
-              <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value" />
+        <div
+          class="select-item"
+          v-for="s in g.groupSelectList"
+          :key="s.label"
+          style="align-items: flex-start"
+        >
+          <el-text style="align-self: self-start">{{ s.label }}</el-text>
+          <el-select
+            size="small"
+            v-model="s.value"
+            :placeholder="s.label"
+            :disabled="!g.enable || disabledAll"
+            @change="rendererListChangeHandle"
+          >
+            <el-option-group
+              v-for="group in s.options"
+              :key="group.groupLabel"
+              :label="group.groupLabel"
+            >
+              <el-option
+                v-for="item in group.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-option-group>
           </el-select>
         </div>
-        <div class="input-item" v-for="i in g.inputList" :key="i.label">
-          <el-text v-if="i.label.length && i.label.length > 6">{{ i.label }}</el-text>
-          <el-input size="small" v-model="i.value" :placeholder="i.label" :disabled="!g.enable"
-            @change="rendererListChangeHandle">
+        <div
+          class="input-item"
+          v-for="i in g.inputList"
+          :key="i.label"
+          style="align-items: flex-start"
+        >
+          <el-text
+            v-if="i.label.length && i.label.length > 6"
+            style="align-self: self-start"
+            >{{ i.label }}</el-text
+          >
+          <el-input
+            size="small"
+            v-model="i.value"
+            :placeholder="i.label"
+            :disabled="!g.enable || disabledAll"
+            @change="rendererListChangeHandle"
+          >
             <template #prepend v-if="i.label.length && i.label.length <= 6">{{
               i.label
             }}</template>
@@ -82,22 +182,34 @@ const props = defineProps({
   },
   saveBuildForm: {
     type: Function as PropType<() => void>,
-    default: () => { },
+    default: () => {},
+  },
+  disabledAll: {
+    type: Boolean,
+    default: false,
   },
 });
 const { importLastRunConfig } = useScriptApi();
 const listStore = useListStore();
-const { rendererList: storeRendererList, previewRendererList, scriptList } = storeToRefs(
-  listStore
-);
+const {
+  rendererList: storeRendererList,
+  previewRendererList,
+  scriptList,
+} = storeToRefs(listStore);
 const rendererList = props.isPreviewForm
   ? previewRendererList.value
   : storeRendererList.value;
 const localPreviewValue = reactive([...previewRendererList.value.slice(0)]);
-const showList = computed(() => (props.isPreviewForm ? localPreviewValue : rendererList));
+const showList = computed(() =>
+  props.isPreviewForm ? localPreviewValue : rendererList
+);
 if (props.isPreviewForm) {
   watch(previewRendererList, () => {
-    localPreviewValue.splice(0, localPreviewValue.length, ...previewRendererList.value);
+    localPreviewValue.splice(
+      0,
+      localPreviewValue.length,
+      ...previewRendererList.value
+    );
   });
 }
 let isFirst = true;
@@ -160,17 +272,19 @@ const diffComponentValue = () => {
     );
     if (target) {
       i.enable = target.enable;
-      const targetItem = (target as any)[type].find((j: any) => j.label === i.label);
+      const targetItem = (target as any)[type].find(
+        (j: any) => j.label === i.label
+      );
       if (targetItem) {
         if (type === "checkList") {
           const item = i as {
             targetGroupLabel: string;
             type:
-            | "multiplSelect"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "input";
+              | "multiplSelect"
+              | "groupSelect"
+              | "select"
+              | "check"
+              | "input";
             label: string;
             checked: boolean;
             enable?: boolean;
@@ -182,11 +296,11 @@ const diffComponentValue = () => {
           const item = i as {
             targetGroupLabel: string;
             type:
-            | "multiplSelect"
-            | "groupSelect"
-            | "select"
-            | "check"
-            | "input";
+              | "multiplSelect"
+              | "groupSelect"
+              | "select"
+              | "check"
+              | "input";
             label: string;
             value: string | string[];
             enable?: boolean;
@@ -206,14 +320,6 @@ const rendererListChangeHandle = () => {
     props.saveBuildForm!();
   }
 };
-const isCheckFlow = (g: RendererList) => {
-  return (
-    g.multipleSelectList.length > 0 ||
-    g.selectList.length > 0 ||
-    g.groupSelectList.length > 0 ||
-    g.inputList.length > 0
-  );
-};
 
 const getSelectMinWidth = (text: string) => {
   const len = Math.min(text.length - 1, 7);
@@ -227,15 +333,14 @@ const getSelectMinWidth = (text: string) => {
   margin-left: 5px;
 }
 
-.mgr-10 {
-  margin-right: 10px;
-}
-
 .renderer-form {
-  margin-bottom: 10px;
   width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll;
   display: flex;
-  flex-flow: wrap;
+  flex-direction: column;
+  transition: all 0.5s;
 
   .box-card {
     margin: 0 10px;
@@ -243,6 +348,7 @@ const getSelectMinWidth = (text: string) => {
     border-radius: 10px;
     transition: all 0.3s;
     box-shadow: 2px 2px 3px #00000033;
+    overflow: visible;
 
     .form-content {
       display: flex;
@@ -251,6 +357,9 @@ const getSelectMinWidth = (text: string) => {
       .check-content {
         display: flex;
         flex-flow: wrap;
+        .check-item {
+          margin-right: 5px;
+        }
       }
 
       .select-item,
@@ -263,12 +372,8 @@ const getSelectMinWidth = (text: string) => {
         margin-top: 5px;
 
         .select {
-          max-width: 50%;
+          max-width: 70%;
         }
-      }
-
-      .check-item {
-        margin-right: 0;
       }
     }
 
