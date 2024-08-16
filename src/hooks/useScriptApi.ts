@@ -391,7 +391,8 @@ export const getFileInfo = (
       return type;
   }
 };
-const running = ref(0);
+export type TaskRunStatus = "ready" | "done" | "running";
+const taskRunStatus = ref<TaskRunStatus>("ready");
 const { notify } = eventUtil;
 const getScriptId = () => getFileInfo("id");
 let endBeforeCompletion = false;
@@ -423,7 +424,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     return;
   }
   if (state === "stop") {
-    running.value = 1;
+    taskRunStatus.value = "done";
     window[CORE_NAMESPACES].removeIntervals &&
       window[CORE_NAMESPACES].removeIntervals();
     if (window[CORE_NAMESPACES]) {
@@ -442,13 +443,13 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   } else if (state) {
     useLog().clearLogOutput();
     useBuiltInApi().Preludes.log("脚本就绪，等待开始运行", "loading");
-    running.value = 0;
+    taskRunStatus.value = "ready";
     endBeforeCompletion = false;
   } else {
     if (endBeforeCompletion) {
       return;
     }
-    running.value = 1;
+    taskRunStatus.value = "done";
     useBuiltInApi().Preludes.log("脚本执行完成", "success");
     setTaskEndStatus("success", "脚本执行完成");
     if (window[CORE_NAMESPACES]) {
@@ -506,7 +507,7 @@ export const useScriptApi = () => {
 
 export const useScriptView = () => {
   return {
-    running,
+    taskRunStatus,
     name,
     version,
     hideWindow,
