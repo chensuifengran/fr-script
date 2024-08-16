@@ -284,9 +284,10 @@ const initScript = async (reinit: boolean = false) => {
         clearTimeout(t);
       });
     }
-    const invokedOcr = await astWorker.methodIsInvoked(scriptStr, "ocr");
-    if (appGSStore.ocr.value === "GPU" && invokedOcr) {
-      await ocrFn(0, 0, 1, 1);
+    if (appGSStore.ocr.value === "GPU") {
+      if (await astWorker.methodIsInvoked(scriptStr, "ocr")) {
+        await ocrFn(0, 0, 1, 1);
+      }
     }
     run(scriptStr, "fn" + taskId)();
     isInit.value = true;
