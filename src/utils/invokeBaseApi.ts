@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api";
 import { OCRResult } from "../invokes/ocr/exportFn";
+import { appWindow } from "@tauri-apps/api/window";
 
 const getScreenSize = async () => {
   try {
@@ -602,9 +603,10 @@ const getSparkInfo = async () => {
   }
 };
 
-const closeSplashscreen = () => {
+const closeSplashscreen = async () => {
   try {
-    invoke("close_splashscreen");
+    await invoke("close_splashscreen");
+    await appWindow.setFocus();
   } catch (error) {
     console.error("invokeBaseApi.closeSplashscreen error: ", error);
   }
