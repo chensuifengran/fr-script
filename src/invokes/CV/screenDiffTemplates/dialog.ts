@@ -29,12 +29,5 @@ export const dialogOptions = <TestModuleType["dialog"]>{
       value: 0,
       label: "主模板图片索引, 其余模板会携带与主模板的位置差异",
     },
-    {
-      name: "drive",
-      componentType: "select",
-      options: ["auto", "C", "D", "E", "F", "G", "H", "I", "J", "K"],
-      value: "auto",
-      label: "临时截图存放的盘符",
-    },
   ],
 };

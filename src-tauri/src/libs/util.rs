@@ -524,7 +524,7 @@ impl Util {
     /// ```
     /// let util: Arc<Util> = UTIL_INSTANCE.clone();
     /// let res: String =
-    ///   util.screen_match_template(0, 0, 100, 100, "E:\\temp.png", 0.0, 1.0, "D")
+    ///   util.screen_match_template(0, 0, 100, 100, "E:\\temp.png", 0.0, 1.0)
     ///     .unwrap_or(format!("{}", ERROR_COORDINATE));
     /// ```
     ///
@@ -537,7 +537,6 @@ impl Util {
     /// * `temp_path`: 模板图片路径。
     /// * `exact_value`: 确定模板图像需要与屏幕区域匹配的紧密程度才能被视为匹配。值越高，匹配需要越精确。<=0直接返回匹配结果，否则只返回大于等于精确值的匹配结果
     /// * `scale`: 缩放倍数，0为默认缩放倍数。有效值：0~1的浮点数。
-    /// * `drive`: “drive”参数是一个字符串，临时图像文件存储的盘符，例如(“C”、“D”)，暂存在C盘可能需要管理员权限。
     /// “x”、“y”、“width”、“height” 任意值为-1表示全屏截图进行匹配（不推荐）。
     ///
     /// 返回:
@@ -554,7 +553,6 @@ impl Util {
         temp_path: &str,
         exact_value: f64,
         scale: f64,
-        drive: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let func: libloading::Symbol<
@@ -566,7 +564,6 @@ impl Util {
                     *const c_char,
                     f64,
                     f64,
-                    *const c_char,
                 ) -> *const c_char,
             > = match self.lib.get(b"screenMatchTemplate") {
                 Ok(f) => f,
@@ -586,13 +583,6 @@ impl Util {
                     return Err(Box::new(e));
                 }
             };
-            let c_drive: CString = match CString::new(drive) {
-                Ok(p) => p,
-                Err(e) => {
-                    log::error!("[FFI][Util::screen_match_template()][drive]CString类型转换失败");
-                    return Err(Box::new(e));
-                }
-            };
             let c_str: *const c_char = (*func)(
                 x,
                 y,
@@ -601,7 +591,6 @@ impl Util {
                 c_temp_path.as_ptr(),
                 exact_value,
                 scale,
-                c_drive.as_ptr(),
             );
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
@@ -624,7 +613,7 @@ impl Util {
     ///  util.screen_diff_templates(
     ///     0, 0, 100, 100,
     ///     "E:\\a.png | E:\\b.png",
-    ///     0, "D"
+    ///     0
     ///  ).unwrap_or(format!("{}", ERROR_MSG_DATA));
     /// ```
     ///
@@ -636,7 +625,6 @@ impl Util {
     /// * `height`: 截图高度。
     /// * `temp_paths`: 模板图像的路径，多路径使用“|”分割。
     /// * `target_index`: 主模板索引，其余模板会携带与主模板的位置偏移量。
-    /// * `drive`: 临时图像文件存储的盘符，例如(“C”、“D”)，暂存在C盘可能需要管理员权限。
     ///
     /// 返回:
     ///
@@ -664,7 +652,6 @@ impl Util {
         height: i32,
         temp_paths: &str,
         target_index: i32,
-        drive: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let func: libloading::Symbol<
@@ -675,7 +662,6 @@ impl Util {
                     i32,
                     *const c_char,
                     i32,
-                    *const c_char,
                 ) -> *const c_char,
             > = match self.lib.get(b"screenDiffTemplates") {
                 Ok(f) => f,
@@ -695,13 +681,6 @@ impl Util {
                     return Err(Box::new(e));
                 }
             };
-            let c_drive: CString = match CString::new(drive) {
-                Ok(p) => p,
-                Err(e) => {
-                    log::error!("[FFI][Util::screen_diff_templates()][drive]CString类型转换失败");
-                    return Err(Box::new(e));
-                }
-            };
             let c_str: *const c_char = (*func)(
                 x,
                 y,
@@ -709,7 +688,6 @@ impl Util {
                 height,
                 c_temp_paths.as_ptr(),
                 target_index,
-                c_drive.as_ptr(),
             );
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {

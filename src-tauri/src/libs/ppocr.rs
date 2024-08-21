@@ -1,7 +1,7 @@
 use libloading::Library;
-use std::{ffi::{c_char, CStr, CString}, ptr::addr_of};
+use std::ffi::{c_char, CStr, CString};
 
-use crate::global::{GPU_MEM, TEMP_DRIVE};
+use crate::global::GPU_MEM;
 pub struct PPOCR {
     lib: Library,
 }
@@ -235,7 +235,7 @@ impl PPOCR {
     /// ```
     /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
-    ///    ppocr.screen_ocr(0, 0, 100, 100, "D")
+    ///    ppocr.screen_ocr(0, 0, 100, 100)
     ///       .unwrap_or(format!("{}",ERROR_OCR_RESULT));
     /// ```
     ///
@@ -263,7 +263,7 @@ impl PPOCR {
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, i32) -> *const c_char,
             > = match self.lib.get(b"screenOcr") {
                 Ok(screen_ocr) => screen_ocr,
                 Err(e) => {
@@ -271,8 +271,7 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
-            let result_c: *const c_char = (*screen_ocr)(x, y, width, height, c_temp_drive, GPU_MEM);
+            let result_c: *const c_char = (*screen_ocr)(x, y, width, height, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
@@ -295,7 +294,7 @@ impl PPOCR {
     /// ```
     /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: String =
-    ///   ppocr.screen_ocr_only_texts(0, 0, 100, 100, "D")
+    ///   ppocr.screen_ocr_only_texts(0, 0, 100, 100)
     ///    .unwrap_or(format!("{}",ERROR_OCR_RESULT));
     /// ```
     ///
@@ -323,7 +322,7 @@ impl PPOCR {
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr_only_texts: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, c_char, i32) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, i32) -> *const c_char,
             > = match self.lib.get(b"screenOcrOnlyTexts") {
                 Ok(screen_ocr_only_texts) => screen_ocr_only_texts,
                 Err(e) => {
@@ -331,9 +330,7 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
-            let result_c: *const c_char =
-                (*screen_ocr_only_texts)(x, y, width, height, c_temp_drive, GPU_MEM);
+            let result_c: *const c_char = (*screen_ocr_only_texts)(x, y, width, height, GPU_MEM);
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
@@ -356,7 +353,7 @@ impl PPOCR {
     /// ```
     /// let ppocr: Arc<PPOCR> = PPOCR_INSTANCE.clone();
     /// let res: i32 =
-    ///  ppocr.screen_ocr_find_texts(0, 0, 100, 100, "文字1|文字2", "D")
+    ///  ppocr.screen_ocr_find_texts(0, 0, 100, 100, "文字1|文字2")
     ///  .unwrap_or(-1);
     /// ```
     ///
@@ -381,7 +378,7 @@ impl PPOCR {
     ) -> Result<i32, Box<dyn std::error::Error>> {
         unsafe {
             let screen_ocr_find_texts: libloading::Symbol<
-                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, c_char, i32) -> i32,
+                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, i32) -> i32,
             > = match self.lib.get(b"screenOcrFindTexts") {
                 Ok(screen_ocr_find_texts) => screen_ocr_find_texts,
                 Err(e) => {
@@ -399,16 +396,8 @@ impl PPOCR {
                     return Err(Box::new(e));
                 }
             };
-            let c_temp_drive = *CStr::from_ptr(std::mem::transmute(addr_of!(TEMP_DRIVE))).as_ptr();
-            let result: i32 = (*screen_ocr_find_texts)(
-                x,
-                y,
-                width,
-                height,
-                includes_texts_c.as_ptr(),
-                c_temp_drive,
-                GPU_MEM,
-            );
+            let result: i32 =
+                (*screen_ocr_find_texts)(x, y, width, height, includes_texts_c.as_ptr(), GPU_MEM);
             Ok(result)
         }
     }

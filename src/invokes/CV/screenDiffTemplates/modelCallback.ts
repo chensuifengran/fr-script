@@ -11,7 +11,6 @@ export const modelCallback = async (
     };
     tempPaths: string[];
     targetIndex: number;
-    drive: string;
     replaceCurFnArgs?: (targetArgs: string) => void;
   },
   testModuleCtx: {
@@ -23,7 +22,7 @@ export const modelCallback = async (
     AutoTipUtils.apiAutoTip();
     return res;
   }
-  const { range, tempPaths, targetIndex, drive } = options;
+  const { range, tempPaths, targetIndex } = options;
   const { showDetails } = testModuleCtx;
   console.time("screenDiffTemplates耗时");
   const res = await screenDiffTemplatesFn(
@@ -32,8 +31,7 @@ export const modelCallback = async (
     range.width,
     range.height,
     tempPaths,
-    targetIndex || 0,
-    drive || "D"
+    targetIndex || 0
   );
   console.timeEnd("screenDiffTemplates耗时");
   const selfModule = getInvokeApiMethods().find(
@@ -41,8 +39,6 @@ export const modelCallback = async (
   )?.testModule!;
   selfModule.document!.example!.code = `const res = await CV.screenDiffTemplates(${JSON.stringify(
     range
-  )}, ["${tempPaths.join('","').replace(/\\/g, "\\\\")}"], ${targetIndex}${
-    drive === "auto" ? "" : `, "${drive}"`
-  } );`;
+  )}, ["${tempPaths.join('","').replace(/\\/g, "\\\\")}"], ${targetIndex});`;
   showDetails(JSON.stringify(res), "screenDiffTemplates");
 };

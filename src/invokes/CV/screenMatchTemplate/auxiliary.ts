@@ -1,6 +1,6 @@
 export const auxiliary = <AuxiliaryType>{
   //快速编辑/修改参数弹窗打开时触发
-  onDialogOpen: async (_close,...args) => {
+  onDialogOpen: async (_close, ...args) => {
     const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "screenMatchTemplate" && i.scope === "CV"
@@ -50,7 +50,6 @@ export const auxiliary = <AuxiliaryType>{
     tempPath: string;
     exactValue: number;
     scale: number;
-    drive: string;
     replaceCurFnArgs: (targetArgs: string) => void;
   }) => {
     options.replaceCurFnArgs(
@@ -58,9 +57,7 @@ export const auxiliary = <AuxiliaryType>{
         options.range.height
       }, ${AutoTipUtils.replaceConstantPath(options.tempPath)}, ${
         options.exactValue
-      }, ${options.scale}${
-        options.drive === "auto" ? "" : `, "${options.drive}"`
-      }`
+      }, ${options.scale}`
     );
   },
 };

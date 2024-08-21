@@ -8,7 +8,6 @@ export const screenMatchTemplateFn = async (
   tempPath: string,
   exactValue = 0.0,
   scale = 0.0,
-  drive = "auto",
   taskId?: string
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
@@ -23,8 +22,7 @@ export const screenMatchTemplateFn = async (
       height,
       tempPath,
       exactValue,
-      scale,
-      drive
+      scale
     );
     return new MatchUtil(_x, _y);
   } catch (error) {

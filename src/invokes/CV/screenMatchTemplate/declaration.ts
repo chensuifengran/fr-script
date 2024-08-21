@@ -6,9 +6,8 @@ function screenMatchTemplate(
     height:number,
     tempPath: string,
     exactValue?:number,
-    scale?:number,
-    drive?:string
+    scale?:number
 ):Promise<
     MatchUtil | undefined
 >;
-`
+`;

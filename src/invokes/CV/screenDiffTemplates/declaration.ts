@@ -5,8 +5,7 @@ function screenDiffTemplates(
     width: number,
     height: number,
     tempPaths: string[],
-    targetIndex?: number,
-    drive?:string
+    targetIndex?: number
 ):Promise<{
     x:number;
     y:number;

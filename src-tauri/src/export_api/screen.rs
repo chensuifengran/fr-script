@@ -2,11 +2,8 @@ use crate::{libs::util::Util, types::generate_result, UTIL_INSTANCE};
 use enigo::*;
 use std::sync::Arc;
 
-use super::{
-    constant::{
-        ERROR_COLOR, ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT,
-    },
-    tools::auto_select_drive,
+use super::constant::{
+    ERROR_COLOR, ERROR_COORDINATE, ERROR_MSG_DATA, ERROR_RECT_INFO, ERROR_WIDTH_HEIGHT,
 };
 
 pub fn detect_image_path_extensions(path: &str) -> bool {
@@ -158,7 +155,6 @@ pub async fn get_screen_rect_info() -> Result<String, ()> {
 /// * `temp_path`: 模板图片路径。
 /// * `exact_value`: 确定模板图像需要与屏幕区域匹配的紧密程度才能被视为匹配。值越高，匹配需要越精确。<=0直接返回匹配结果，否则只返回大于等于精确值的匹配结果
 /// * `scale`: 缩放倍数，0为默认缩放倍数。有效值：0~1的浮点数。
-/// * `drive`: 临时图像文件存储的盘符，例如(“C”、“D”)，暂存在C盘可能需要管理员权限。
 /// “x”、“y”、“width”、“height” 任意值为-1表示全屏截图进行匹配（不推荐）。
 ///
 /// 返回:
@@ -174,28 +170,21 @@ pub async fn screen_match_template(
     temp_path: &str,
     exact_value: f64,
     scale: f64,
-    drive: Option<String>,
 ) -> Result<String, ()> {
-    //如果没有指定盘符，自动选择一个可用的盘符
-    let drive = match drive {
-        Some(d) => d,
-        None => format!("{}", auto_select_drive().unwrap_or('C')),
-    };
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
-        .screen_match_template(x, y, width, height, temp_path, exact_value, scale, &drive)
+        .screen_match_template(x, y, width, height, temp_path, exact_value, scale)
         .unwrap_or(format!("{}", ERROR_COORDINATE));
     if res == format!("{}", ERROR_COORDINATE) {
         log::error!(
-            "[command]screen_match_template:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}, {}, {}]",
+            "[command]screen_match_template:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}, {}]",
             x,
             y,
             width,
             height,
             temp_path,
             exact_value,
-            scale,
-            drive
+            scale
         );
     }
     Ok(res)
@@ -211,7 +200,6 @@ pub async fn screen_match_template(
 /// * `height`: 截图高度。
 /// * `temp_paths`: 模板图像的路径，多路径使用“|”分割。
 /// * `target_index`: 主模板索引，其余模板会携带与主模板的位置偏移量。
-/// * `drive`: 临时图像文件存储的盘符，例如(“C”、“D”)，暂存在C盘可能需要管理员权限。
 ///
 /// 返回:
 ///
@@ -239,27 +227,20 @@ pub async fn screen_diff_templates(
     height: i32,
     temp_paths: &str,
     target_index: i32,
-    drive: Option<String>,
 ) -> Result<String, ()> {
-    //如果没有指定盘符，自动选择一个可用的盘符
-    let drive = match drive {
-        Some(d) => d,
-        None => format!("{}", auto_select_drive().unwrap_or('C')),
-    };
     let util: Arc<Util> = UTIL_INSTANCE.clone();
     let res: String = util
-        .screen_diff_templates(x, y, width, height, temp_paths, target_index, &drive)
+        .screen_diff_templates(x, y, width, height, temp_paths, target_index)
         .unwrap_or(format!("{}", ERROR_MSG_DATA));
     if res == format!("{}", ERROR_MSG_DATA) {
         log::error!(
-            "[command]screen_diff_templates:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}, {}]",
+            "[command]screen_diff_templates:屏幕匹配模板失败 [{}, {}, {}, {}, {}, {}]",
             x,
             y,
             width,
             height,
             temp_paths,
-            target_index,
-            drive
+            target_index
         );
     }
     Ok(res)

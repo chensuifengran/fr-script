@@ -121,8 +121,7 @@ const screenDiffTemplates = async (
   width: number,
   height: number,
   tempPaths: string,
-  targetIndex: number,
-  drive: string
+  targetIndex: number
 ) => {
   try {
     const res = await invoke<string>("screen_diff_templates", {
@@ -132,7 +131,6 @@ const screenDiffTemplates = async (
       height,
       tempPaths,
       targetIndex,
-      drive: drive === "auto" ? undefined : drive,
     });
     const result = JSON.parse(res) as {
       message: string;
@@ -161,8 +159,7 @@ const screenMatchTemplate = async (
   height: number,
   tempPath: string,
   exactValue = 0.0,
-  scale = 0.0,
-  drive = "auto"
+  scale = 0.0
 ) => {
   try {
     const res = await invoke<string>("screen_match_template", {
@@ -173,7 +170,6 @@ const screenMatchTemplate = async (
       tempPath,
       exactValue,
       scale,
-      drive: drive === "auto" ? undefined : drive,
     });
     const { x: _x, y: _y } = JSON.parse(res) as {
       x: number;
@@ -606,14 +602,13 @@ const getSparkInfo = async () => {
   }
 };
 
-const closeSplashscreen = ()=>{
+const closeSplashscreen = () => {
   try {
     invoke("close_splashscreen");
   } catch (error) {
     console.error("invokeBaseApi.closeSplashscreen error: ", error);
   }
-}
-
+};
 
 export const invokeBaseApi = {
   captureOperation,
@@ -646,5 +641,5 @@ export const invokeBaseApi = {
   screenshot,
   imgColor,
   getSparkInfo,
-  closeSplashscreen
+  closeSplashscreen,
 };

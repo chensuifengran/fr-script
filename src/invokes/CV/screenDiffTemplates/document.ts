@@ -43,13 +43,6 @@ export const apiDocument = <ApiDocumentType>{
       type: "number",
       default: "0",
     },
-    {
-      name: "drive",
-      required: false,
-      instructions: "临时截图存放的盘符",
-      type: "string",
-      default: "'auto'",
-    },
   ],
   returnValue: {
     type: `Promise<{

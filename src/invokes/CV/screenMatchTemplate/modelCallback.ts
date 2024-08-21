@@ -12,7 +12,6 @@ export const modelCallback = async (
     tempPath: string;
     exactValue: number;
     scale: number;
-    drive: string;
     replaceCurFnArgs?: (targetArgs: string) => void;
   },
   testModuleCtx: {
@@ -24,7 +23,7 @@ export const modelCallback = async (
     AutoTipUtils.apiAutoTip();
     return res;
   }
-  const { range, tempPath, exactValue, scale, drive } = options;
+  const { range, tempPath, exactValue, scale } = options;
   const { showDetails } = testModuleCtx;
   console.time("screenMatchTemplate耗时");
   const res = await screenMatchTemplateFn(
@@ -34,8 +33,7 @@ export const modelCallback = async (
     range.height,
     tempPath,
     exactValue,
-    scale,
-    drive || "auto"
+    scale
   );
   console.timeEnd("screenMatchTemplate耗时");
   const selfModule = getInvokeApiMethods().find(
@@ -45,6 +43,6 @@ export const modelCallback = async (
         \tCV.screenMatchTemplate(${JSON.stringify(range)}, "${tempPath.replace(
     /\\/g,
     "\\\\"
-  )}", ${exactValue}, ${scale}${drive === "auto" ? "" : `, "${drive}"`});`;
+  )}", ${exactValue}, ${scale});`;
   showDetails(JSON.stringify(res), "screenMatchTemplate");
 };

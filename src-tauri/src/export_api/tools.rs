@@ -4,55 +4,7 @@ use crate::{
     types::hook_types::CaptureOptions,
     PPOCR_INSTANCE, UTIL_INSTANCE,
 };
-use std::{fs, sync::Arc};
-
-/// 测试盘符是否可用
-///
-/// 参数:
-///
-/// * `drive`: 盘符，例如：D
-///
-/// 返回:
-///
-/// {bool} 是否可用
-pub fn test_drive(drive: &char) -> bool {
-    match fs::File::create(format!("{}:\\__test_out__.png", drive)) {
-        Ok(_) => match fs::remove_file(format!("{}:\\__test_out__.png", drive)) {
-            Ok(_) => true,
-            Err(e) => {
-                log::error!("test_drive :{:?} [{}]", e, drive);
-                false
-            }
-        },
-        Err(e) => {
-            log::error!("test_drive :{:?} [{}]", e, drive);
-            false
-        }
-    }
-}
-
-/// 从D到J枚举一个可用的盘符，类型为char
-///
-/// 返回：
-///
-/// Result<char,()>
-pub fn auto_select_drive() -> Result<char, ()> {
-    let drive_enum = ['D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    let mut res = ' ';
-    for i in 0..=6 {
-        let c = drive_enum[i];
-        if test_drive(&c) {
-            res = c;
-            break;
-        }
-    }
-    if res != ' ' {
-        Ok(res)
-    } else {
-        //返回C盘
-        Ok('C')
-    }
-}
+use std::sync::Arc;
 
 /// 获取依赖版本
 ///

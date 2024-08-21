@@ -5,7 +5,6 @@ export const screenDiffTemplatesFn = async (
   height: number,
   tempPaths: string[],
   targetIndex: number,
-  drive: string,
   taskId?: string
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
@@ -19,8 +18,7 @@ export const screenDiffTemplatesFn = async (
       width,
       height,
       tempPaths.join("|"),
-      targetIndex,
-      drive
+      targetIndex
     );
     return res;
   } catch (error) {

@@ -46,12 +46,5 @@ export const dialogOptions = {
         step: 0.1,
       },
     },
-    {
-      name: "drive",
-      componentType: "select",
-      options: ["auto", "C", "D", "E", "F", "G", "H", "I", "J", "K"],
-      value: "auto",
-      label: "临时截图存放的盘符",
-    },
   ],
 };

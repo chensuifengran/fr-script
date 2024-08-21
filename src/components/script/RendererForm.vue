@@ -8,7 +8,12 @@
       show-icon
       class="alert"
     />
-    <ElCard class="box-card" v-for="g in showList" :key="g.groupLabel" :id="'renderer-form-g-'+g.groupLabel">
+    <ElCard
+      class="box-card"
+      v-for="g in showList"
+      :key="g.groupLabel"
+      :id="'renderer-form-g-' + g.groupLabel"
+    >
       <template #header>
         <div class="card-header">
           <span>{{ g.groupLabel }}</span>
@@ -17,9 +22,7 @@
             class="mgl-5"
             v-if="g.groupLabel !== '*脚本设置'"
             @change="rendererListChangeHandle"
-            style="
-              --el-switch-off-color: #ff4949;
-            "
+            style="--el-switch-off-color: #ff4949"
             :disabled="disabledAll"
           />
         </div>
@@ -36,7 +39,8 @@
               (isPreviewForm &&
                 g.groupLabel === '*脚本设置' &&
                 c.label === '导入上次运行配置') ||
-              !g.enable || disabledAll
+              !g.enable ||
+              disabledAll
             "
             @change="configChangeHandle(c.label)"
           />
@@ -47,96 +51,72 @@
           :key="s.label"
           :style="{
             flexDirection:
-              s.label.length && s.label.length > 6 ? 'column' : 'row',
+              s.multiple || (s.label.length && s.label.length) > 6
+                ? 'column'
+                : 'row',
             alignItems:
-              s.label.length && s.label.length > 6 ? 'flex-start' : 'center',
+              s.multiple || (s.label.length && s.label.length > 6)
+                ? 'flex-start'
+                : 'center',
           }"
         >
-          <el-text
-            :style="{
-              alignSelf:
-                s.label.length && s.label.length > 6 ? 'self-start' : 'center',
-            }"
-            >{{ s.label }}</el-text
-          >
+          <div flex flex-row items-center>
+            <el-tag size="small" v-if="s.group"
+              >{{ getItemType(s.options[0]?.options[0])
+              }}{{ s.multiple ? "[]" : "" }}</el-tag
+            >
+            <el-tag size="small" v-else
+              >{{ getItemType(s.options[0])
+              }}{{ s.multiple ? "[]" : "" }}</el-tag
+            >
+            <el-text
+              ml-1
+              :style="{
+                alignSelf:
+                  s.label.length && s.label.length > 6
+                    ? 'self-start'
+                    : 'center',
+              }"
+              >{{ s.label }}</el-text
+            >
+          </div>
           <el-select
             class="select"
             :style="{
               minWidth:
-                s.label.length && s.label.length > 6
+                s.multiple || (s.label.length && s.label.length > 6)
                   ? '100%'
                   : getSelectMinWidth(s.value),
             }"
+            :multiple="s.multiple"
             v-model="s.value"
             :placeholder="s.label"
             @change="rendererListChangeHandle"
             size="small"
             :disabled="!g.enable || disabledAll"
           >
-            <el-option
-              v-for="item in s.options"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
-        </div>
-        <div
-          class="select-item"
-          v-for="s in g.multipleSelectList"
-          :key="s.label"
-          style="align-items: flex-start"
-        >
-          <el-text style="align-self: self-start">{{ s.label }}</el-text>
-          <el-select
-            multiple
-            size="small"
-            :disabled="!g.enable || disabledAll"
-            :multiple-limit="s.limit"
-            v-model="s.value"
-            :placeholder="s.label"
-            @change="rendererListChangeHandle"
-          >
-            <el-option-group
-              v-for="group in s.options"
-              :key="group.groupLabel"
-              :label="group.groupLabel"
-            >
+            <template v-if="s.group">
+              <el-option-group
+                v-for="g in s.options"
+                :key="g.groupLabel"
+                :label="g.groupLabel"
+              >
+                <el-option
+                  v-for="(item, index) in g.options"
+                  :key="optTransformer.transformKey(item, s.id || index)"
+                  :label="optTransformer.transformLabel(item)"
+                  :value="optTransformer.transformValue(item)"
+                />
+              </el-option-group>
+            </template>
+            <template v-else>
               <el-option
-                v-for="item in group.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="(item, index) in s.options"
+                :key="index"
+                :label="optTransformer.transformLabel(item)"
+                :value="item"
               />
-            </el-option-group>
-          </el-select>
-        </div>
-        <div
-          class="select-item"
-          v-for="s in g.groupSelectList"
-          :key="s.label"
-          style="align-items: flex-start"
-        >
-          <el-text style="align-self: self-start">{{ s.label }}</el-text>
-          <el-select
-            size="small"
-            v-model="s.value"
-            :placeholder="s.label"
-            :disabled="!g.enable || disabledAll"
-            @change="rendererListChangeHandle"
-          >
-            <el-option-group
-              v-for="group in s.options"
-              :key="group.groupLabel"
-              :label="group.groupLabel"
-            >
-              <el-option
-                v-for="item in group.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-option-group>
+            </template>
           </el-select>
         </div>
         <div
@@ -189,6 +169,45 @@ const props = defineProps({
     default: false,
   },
 });
+type OIType =
+  | string
+  | number
+  | boolean
+  | OptionItem<string>
+  | OptionItem<number>
+  | OptionItem<boolean>;
+const optTransformer = {
+  transformKey: (item: OIType, idx: number | string) => {
+    if (typeof item === "object") {
+      return item.label + "_" + idx;
+    }
+    return item + "_" + idx;
+  },
+  transformValue: (item: OIType) => {
+    if (typeof item === "object") {
+      return item.value;
+    }
+    return item;
+  },
+  transformLabel: (item: OIType) => {
+    if (typeof item === "object") {
+      return item.label;
+    }
+    if (typeof item === "boolean") {
+      return item ? "true" : "false";
+    }
+    return item;
+  },
+};
+const getItemType = (item: any) => {
+  if (typeof item === "object") {
+    if (item.value) {
+      return typeof item.value;
+    }
+    return "object";
+  }
+  return typeof item;
+};
 const { importLastRunConfig } = useScriptApi();
 const listStore = useListStore();
 const {
@@ -201,7 +220,7 @@ const rendererList = props.isPreviewForm
   : storeRendererList.value;
 const localPreviewValue = reactive([...previewRendererList.value.slice(0)]);
 const showList = computed(() =>
-  props.isPreviewForm ? localPreviewValue : rendererList
+  props.isPreviewForm ? localPreviewValue : RFormUtil.genId(rendererList)
 );
 if (props.isPreviewForm) {
   watch(previewRendererList, () => {
@@ -252,15 +271,8 @@ onBeforeUnmount(() => {
     stopHandle();
   }
 });
-//"multiplSelect" | "groupSelect" | "select" | "check" | "input"转换为previewRendererList对应的列表
-const bTypeToPType = (bType: string) => {
-  switch (bType) {
-    case "multiplSelect":
-      return "multipleSelectList";
-    default:
-      return bType + "List";
-  }
-};
+// "select" | "check" | "input"转换为previewRendererList对应的列表
+const bTypeToPType = (bType: string) => bType + "List";
 
 //比较scriptStore.previewRendererList 和 scriptStore.previewBuildFormList各组件默认值，不一致则以previewRendererList为准
 const diffComponentValue = () => {
@@ -321,7 +333,13 @@ const rendererListChangeHandle = () => {
   }
 };
 
-const getSelectMinWidth = (text: string) => {
+const getSelectMinWidth = (text: string | number | boolean | object) => {
+  if (typeof text === "object") {
+    text = JSON.stringify(text);
+  }
+  if (typeof text === "number" || typeof text === "boolean") {
+    text = `${text}`;
+  }
   const len = Math.min(text.length - 1, 7);
   let d = 45;
   return `${d + len * 15}px`;
