@@ -326,7 +326,6 @@ export const apiDocument = <ApiDocumentType>{
     }
   ],
   returnValue: {
-    
     type: `void`,
   },
   example: {
