@@ -1,53 +1,71 @@
 export const UTIL_DECLARE_STRING = `
+  declare namespace SelectType {
+    type Multiple<T> = {
+      multiple: true;
+      value: T[];
+      limit?: number;
+    };
+    type GroupOption<T> = {
+      group: true;
+      options: {
+        groupLabel: string;
+        options: T[] | OptionItem<T>[];
+      }[];
+    };
+    type ConstantOption<T> = {
+      group?: false;
+      options: T[] | OptionItem<T>[];
+    };
+    type Single<T> = {
+      multiple?: false;
+      value: T;
+    };
+    type Base<
+      T extends string | number | boolean,
+      Opt extends ConstantOption<T> | GroupOption<T>,
+      Val extends Single<T> | Multiple<T>
+    > = Opt & Val;
+    type Default<T> = ConstantOption<T> & Single<T>;
+  }
+  declare type OptionItem<T extends string | number | boolean = string> = {
+    label: string;
+    value: T;
+  };
+  declare type IdField = {
+    id?: string;
+  }
+  declare type InputListItem = OptionItem & IdField;
+  declare type BaseSelectItem<T extends string | number | boolean> = {
+    label: string;
+  } & (
+    | SelectType.Default<T>
+    | SelectType.Base<T, SelectType.ConstantOption<T>, SelectType.Multiple<T>>
+    | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Single<T>>
+    | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Multiple<T>>
+  ) & IdField;
+  declare type SelectListItem =
+    | BaseSelectItem<string>
+    | BaseSelectItem<number>
+    | BaseSelectItem<boolean>;
+    
+  declare type CheckListItem = { label: string; checked: boolean } & IdField;
+
   declare type RendererList = {
     groupLabel: string;
     enable: boolean;
-    checkList: {
-      label: string;
-      checked: boolean;
-    }[];
-    inputList: {
-      label: string;
-      value: string;
-    }[];
-    selectList: {
-      label: string;
-      options: string[];
-      value: string;
-    }[];
-    groupSelectList: {
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      value: string;
-    }[];
-    multipleSelectList: {
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      limit?: number;
-      value: string[];
-    }[];
+    checkList: CheckListItem[];
+    inputList: InputListItem[];
+    selectList: SelectListItem[];
   };
 
-  declare class FormUtil {
+  declare class RFormUtil {
     constructor(form: RendererList[]);
     /**
      * 获取表单字段的值。
      *
      * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
      *
-     * @param {("checkList" | "groupSelectList" | "inputList" | "multipleSelectList" | "selectList" | "tableList")} valueType 字段类型。
+     * @param {("checkList" | "inputList" | "selectList")} valueType 字段类型。
      * @param {string} label 字段标签。
      * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
      * @param {string} [groupLabel="*脚本设置"] 组标签，默认为 "*脚本设置"。
@@ -57,14 +75,25 @@ export const UTIL_DECLARE_STRING = `
     public getFieldValue<T = number | string | string[] | boolean | object[]>(
       valueType:
         | "checkList"
-        | "groupSelectList"
         | "inputList"
-        | "multipleSelectList"
-        | "selectList"
-        | "tableList",
+        | "selectList",
       label: string,
       failValue: T,
       groupLabel?: string
+    ): T;
+    /**
+     * 通过 id 获取表单字段的值。
+     *
+     * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
+     *
+     * @param {string} id 字段 id。
+     * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
+     *
+     * @returns 字段的值，如果字段不存在或组不启用，则返回 failValue。
+     */
+    public getFieldValueById<T = number | string | string[] | boolean | object[]>(
+      id: string,
+      failValue: T
     ): T;
   }
   declare const WORK_DIR: string;
@@ -85,9 +114,9 @@ export const UTIL_DECLARE_STRING = `
   declare function setTaskEndStatus(status: "success" | "warning" | "exception" | "", endMessage?: string): void;
   /**
    * 获取自定义表单
-   * @returns {Promise<FormUtil>}
+   * @returns {Promise<RFormUtil>}
   */
-  declare function getCustomizeForm(): Promise<FormUtil>;
+  declare function getCustomizeForm(): Promise<RFormUtil>;
   declare const abortSignalInScript: AbortController;
   declare const startScriptSignal: AbortController;
   declare function removeIntervals(): void;
@@ -127,37 +156,10 @@ export const UTIL_DECLARE_STRING = `
       label: string;
       value: string;
     };
-    type MultipleSelect = Base & {
-      type: "multipleSelect";
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      limit?: number;
-      value: string[];
-    };
-    type GroupSelect = Base & {
-      type: "groupSelect";
-      label: string;
-      options: {
-        groupLabel: string;
-        options: {
-          value: string;
-          label: string;
-        }[];
-      }[];
-      value: string;
-    };
     type Select = Base & {
       type: "select";
       label: string;
-      options: string[];
-      value: string;
-    };
+    } & SelectListItem;
     type Check = Base & {
       type: "check";
       label: string;
@@ -167,8 +169,6 @@ export const UTIL_DECLARE_STRING = `
 
   declare type BuildFormItems =
     | BuildFormItem.Input
-    | BuildFormItem.MultipleSelect
-    | BuildFormItem.GroupSelect
     | BuildFormItem.Select
     | BuildFormItem.Check;
 

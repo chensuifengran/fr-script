@@ -81,39 +81,57 @@ type ProjectItemType = {
   version: string;
   description: string;
 };
-type InputListItem = {
-  label: string;
-  value: string;
-};
-type SelectListItem = {
-  label: string;
-  options: string[];
-  value: string;
-};
-type groupSelectListItem = {
-  label: string;
-  options: {
-    groupLabel: string;
+namespace SelectType {
+  type Multiple<T> = {
+    multiple: true;
+    value: T[];
+    limit?: number;
+  };
+  type GroupOption<T> = {
+    group: true;
     options: {
-      value: string;
-      label: string;
+      groupLabel: string;
+      options: T[] | OptionItem<T>[];
     }[];
-  }[];
-  value: string;
-};
-type MultipleSelectionItem = {
+  };
+  type ConstantOption<T> = {
+    group?: false;
+    options: T[] | OptionItem<T>[];
+  };
+  type Single<T> = {
+    multiple?: false;
+    value: T;
+  };
+  type Base<
+    T extends string | number | boolean,
+    Opt extends ConstantOption<T> | GroupOption<T>,
+    Val extends Single<T> | Multiple<T>
+  > = Opt & Val;
+  type Default<T> = ConstantOption<T> & Single<T>;
+}
+type OptionItem<T extends string | number | boolean = string> = {
   label: string;
-  options: {
-    groupLabel: string;
-    options: {
-      value: string;
-      label: string;
-    }[];
-  }[];
-  limit?: number;
-  value: string[];
+  value: T;
 };
-type CheckListItem = { label: string; checked: boolean };
+type IdField = {
+  id?: string;
+}
+type InputListItem = OptionItem & IdField;
+type BaseSelectItem<T extends string | number | boolean> = {
+  label: string;
+} & (
+  | SelectType.Default<T>
+  | SelectType.Base<T, SelectType.ConstantOption<T>, SelectType.Multiple<T>>
+  | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Single<T>>
+  | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Multiple<T>>
+) & IdField;
+type SelectListItem =
+  | BaseSelectItem<string>
+  | BaseSelectItem<number>
+  | BaseSelectItem<boolean>;
+
+type CheckListItem = { label: string; checked: boolean } & IdField;
+
 namespace BuildFormItem {
   type Base = {
     targetGroupLabel: string;
@@ -127,37 +145,10 @@ namespace BuildFormItem {
     label: string;
     value: string;
   };
-  type MultipleSelect = Base & {
-    type: "multipleSelect";
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    limit?: number;
-    value: string[];
-  };
-  type GroupSelect = Base & {
-    type: "groupSelect";
-    label: string;
-    options: {
-      groupLabel: string;
-      options: {
-        value: string;
-        label: string;
-      }[];
-    }[];
-    value: string;
-  };
   type Select = Base & {
     type: "select";
     label: string;
-    options: string[];
-    value: string;
-  };
+  } & SelectListItem;
   type Check = Base & {
     type: "check";
     label: string;
@@ -166,8 +157,6 @@ namespace BuildFormItem {
 }
 type BuildFormItems =
   | BuildFormItem.Input
-  | BuildFormItem.MultipleSelect
-  | BuildFormItem.GroupSelect
   | BuildFormItem.Select
   | BuildFormItem.Check;
 type RendererList = {
@@ -177,54 +166,8 @@ type RendererList = {
   checkList: CheckListItem[];
   inputList: InputListItem[];
   selectList: SelectListItem[];
-  groupSelectList: groupSelectListItem[];
-  multipleSelectList: MultipleSelectionItem[];
-};
-type RendererFieldTypes =
-  | "input"
-  | "select"
-  | "select-group"
-  | "multiple-select-group"
-  | "check"
-  | "switch";
-
-type GroupSelectOption = {
-  groupLabel: string;
-  options: {
-    value: string;
-    label: string;
-  }[];
-}[];
-type SelectOptionTypes = GroupSelectOption | string[];
-type SelectLimitType = number | undefined;
-type SelectFieldValueType<
-  T extends SelectOptionTypes,
-  K extends SelectLimitType = undefined
-> = {
-  options: T;
-  value: string;
-  limit: K;
 };
 
-type FieldValueType<
-  T extends SelectOptionTypes,
-  K extends SelectLimitType = undefined
-> = string | boolean | SelectFieldValueType<T, K>;
-type FormRendererField<
-  T extends SelectOptionTypes,
-  K extends SelectLimitType = undefined,
-  P extends FieldValueType<T, K>
-> = {
-  id: string;
-  label: string;
-  type: RendererFieldTypes;
-  value: P;
-};
-type RendererGroups = {
-  groupLabel?: string;
-  enable: boolean;
-  field: FormRendererField;
-}[];
 type CodeSnippet = {
   id: string;
   name: string;
