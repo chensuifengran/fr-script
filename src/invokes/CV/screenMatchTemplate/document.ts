@@ -60,10 +60,8 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
-    code: `//使用自动选择临时截图存放盘符
-const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1);
-//更换临时截图存放盘符为E盘（请确保盘符可用，C盘需要以管理员身份运行）
-const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1, 'E');`,
+    code: `
+const res = await CV.screenMatchTemplate(0, 0, 100, 100, 'E:\\\\template.png', 0, 1);`,
   },
   searchKeys: ["模板", "图片", "位置", "中心坐标", "opencv", "cv", "截图"],
   codeSnippet:

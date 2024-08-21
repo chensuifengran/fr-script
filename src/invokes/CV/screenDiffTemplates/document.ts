@@ -59,7 +59,7 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: `//多模板与主模板的位置差异匹配
-const res = await CV.screenDiffTemplates(0, 0, 100, 100, ['E:\\\\template1.png','E:\\\\template2.png'], 0, 'D');`,
+const res = await CV.screenDiffTemplates(0, 0, 100, 100, ['E:\\\\template1.png','E:\\\\template2.png'], 0);`,
   },
   searchKeys: ["模板", "图片", "位置", "中心坐标"],
   codeSnippet:
