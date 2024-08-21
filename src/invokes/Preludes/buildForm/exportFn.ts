@@ -7,7 +7,7 @@ export const buildFormFn = async (
     return false;
   }
   try {
-    //TODO
+    useScriptApi().buildForm(buildFormList);
   } catch (e) {
     console.error("buildFormFnError: ", e);
   }
