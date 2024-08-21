@@ -40,10 +40,57 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               (item) => item.label === defaultSelectItem.label
             );
             if (targetSelectItem) {
-              const options = defaultSelectItem.options;
-              if (options.includes(targetSelectItem.value)) {
-                defaultSelectItem.value = targetSelectItem.value;
+              let opts: (string | number | boolean)[] = [];
+              let newVal;
+              if (targetSelectItem.group) {
+                opts = targetSelectItem.options.flatMap((i) =>
+                  i.options.map((j) => {
+                    if (typeof j === "object") {
+                      return j.value;
+                    } else {
+                      return j;
+                    }
+                  })
+                );
+              } else {
+                opts = targetSelectItem.options.map((i) => {
+                  if (typeof i === "object") {
+                    return i.value;
+                  } else {
+                    return i;
+                  }
+                });
               }
+              if (targetSelectItem.multiple) {
+                if (Array.isArray(targetSelectItem.value)) {
+                  newVal = targetSelectItem.value.filter((i) =>
+                    opts.includes(i)
+                  );
+                } else {
+                  console.warn(
+                    "表单结构发生变化,跳过导入本项的值",
+                    JSON.stringify(targetSelectItem)
+                  );
+                }
+              } else {
+                if (!Array.isArray(targetSelectItem.value)) {
+                  newVal = opts.includes(targetSelectItem.value)
+                    ? targetSelectItem.value
+                    : defaultSelectItem.value;
+                } else {
+                  console.warn(
+                    "表单结构发生变化,跳过导入本项的值",
+                    JSON.stringify(targetSelectItem)
+                  );
+                }
+              }
+              defaultSelectItem.value = newVal as
+                | string
+                | number
+                | boolean
+                | number[]
+                | string[]
+                | boolean[];
             }
           }
           //覆盖defaultItem的checkList[index]的checked
@@ -64,72 +111,6 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
             );
             if (targetInputItem) {
               defaultInputItem.value = targetInputItem.value;
-            }
-          }
-          /*
-            提取defaultItem的groupSelectList[index]中的所有选项分组的value,
-            判断targetItem的groupSelectList[index].value,
-            是否存在于提取出来的数组中
-            存在则覆盖defaultItem的groupSelectList[index].value
-            */
-          const AllValues: string[] = [];
-          for (let j = 0; j < defaultItem.groupSelectList.length; j++) {
-            const defaultGroupSelectItem = defaultItem.groupSelectList[j];
-            const targetGroupSelectItem = targetItem.groupSelectList.find(
-              (item) => item.label === defaultGroupSelectItem.label
-            );
-            if (targetGroupSelectItem) {
-              const options = defaultGroupSelectItem.options;
-              for (let k = 0; k < options.length; k++) {
-                const option = options[k];
-                for (let l = 0; l < option.options.length; l++) {
-                  const item = option.options[l];
-                  AllValues.push(item.value);
-                }
-              }
-              if (AllValues.includes(targetGroupSelectItem.value)) {
-                defaultGroupSelectItem.value = targetGroupSelectItem.value;
-              }
-            }
-          }
-          /*
-            提取defaultItem的multipleGroupSelectList[index]中的所有选项分组的value,
-            判断targetItem的multipleGroupSelectList[index].value,
-            是否存在于提取出来的数组中
-            存在则覆盖defaultItem的multipleGroupSelectList[index].value
-            */
-          const AllMultipleValues: string[] = [];
-          for (let j = 0; j < defaultItem.multipleSelectList.length; j++) {
-            const defaultMultipleGroupSelectItem =
-              defaultItem.multipleSelectList[j];
-            const targetMultipleGroupSelectItem =
-              targetItem.multipleSelectList.find(
-                (item) => item.label === defaultMultipleGroupSelectItem.label
-              );
-            if (targetMultipleGroupSelectItem) {
-              const options = defaultMultipleGroupSelectItem.options;
-              for (let k = 0; k < options.length; k++) {
-                const option = options[k];
-                for (let l = 0; l < option.options.length; l++) {
-                  const item = option.options[l];
-                  AllMultipleValues.push(item.value);
-                }
-              }
-              const targetMultipleGroupSelectItemValue =
-                targetMultipleGroupSelectItem.value;
-              const newTargetMultipleGroupSelectItemValue: string[] = [];
-              for (
-                let k = 0;
-                k < targetMultipleGroupSelectItemValue.length;
-                k++
-              ) {
-                const item = targetMultipleGroupSelectItemValue[k];
-                if (AllMultipleValues.includes(item)) {
-                  newTargetMultipleGroupSelectItemValue.push(item);
-                }
-              }
-              defaultMultipleGroupSelectItem.value =
-                newTargetMultipleGroupSelectItemValue;
             }
           }
         }
@@ -294,7 +275,7 @@ const getCustomizeForm = async () => {
     };
     signal!.addEventListener("abort", signalHandle);
   });
-  return new rendererFormUtil.FormUtil(rendererForm);
+  return new RFormUtil(rendererForm);
 };
 const abortSignalInScript = ref<AbortController | undefined>();
 const getWillRunScript = (runId: string, script: string) => {
@@ -417,6 +398,7 @@ const notDelApi = [
   "removeIntervals",
   "log",
   "setInterval",
+  "getScriptId",
 ];
 const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
   const { runningFnId } = useScriptRuntime();
@@ -515,12 +497,6 @@ export const useScriptView = () => {
   };
 };
 
-class FormUtil {
-  constructor(_rendererList: RendererList[]) {
-    throw new Error("此类只能用于getCustomizeForm方法调用后生成实例！");
-  }
-}
-
 /**
  * 脚本运行时的所有内置api,返回新增内置API后请
  * 前往../invokes/utilDeclareTypes.ts中添加类型声明，
@@ -541,7 +517,6 @@ export const useBuiltInApi = () => {
     "../"
   );
   return {
-    FormUtil,
     WORK_DIR,
     copyText,
     readClipboardFirstText,
