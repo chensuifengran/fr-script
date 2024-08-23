@@ -33,6 +33,7 @@
               @click="invokeStartHandle"
               v-show="taskRunStatus === 'ready'"
               plain
+              :disabled="isLoading"
               >运行</el-button
             >
           </el-tooltip>
@@ -77,13 +78,13 @@
         </el-tooltip>
       </div>
     </div>
-    <div class="console-log-div" v-show="!isLoading">
+    <div class="console-log-div">
       <renderer-form
         :reInit="reInit"
         flex-1
         h-full
         mr-2
-        :disabled-all="taskRunStatus === 'running'"
+        :disabled-all="isLoading || taskRunStatus !== 'ready'"
       />
       <div
         h-full
@@ -91,12 +92,12 @@
         flex-col
         pos-relative
         :style="{
-          width: taskRunStatus === 'running' ? '65%' : '220px',
+          width: taskRunStatus !== 'ready' ? '65%' : '220px',
         }"
       >
         <renderer-list-catalog
           scroll-container-id="renderer-form"
-          v-if="taskRunStatus !== 'running'"
+          v-if="taskRunStatus === 'ready'"
           class="catalog-box"
           w-full
           flex
@@ -106,18 +107,12 @@
           :data="logOutput"
           w-full
           :style="{
-            height: taskRunStatus === 'running' ? '100%' : '85px',
+            height: taskRunStatus !== 'ready' ? '100%' : '85px',
           }"
         />
       </div>
     </div>
   </div>
-  <teleport to="body">
-    <div class="loading-box" v-if="isLoading">
-      <loading />
-      <div>脚本初始化中,OCR服务为GPU时首次加载需要较长时间...</div>
-    </div>
-  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -212,14 +207,16 @@ const enableFloatWindow = async (isInit: boolean = false) => {
   }
 };
 const invokeStartHandle = async () => {
+  const target = scriptList.value.find((s) => s.id === openId!.value);
+  if (!target) {
+    builtInApi.Preludes.log("目标脚本不存在", "danger");
+    return;
+  }
+  taskRunStatus.value = "running";
   setEndBeforeCompletion(false);
   if (hideWindow.value) {
     await enableFloatWindow(true);
   }
-  taskRunStatus.value = "running";
-  window[CORE_NAMESPACES].startScriptSignal?.abort();
-  const target = scriptList.value.find((s) => s.id === openId!.value);
-  if (!target) return;
   const targetDevice = target.setting.targetAdbDevice.trim();
   if (targetDevice !== "") {
     //获得所有设备，取消非目标设备的连接
@@ -227,15 +224,29 @@ const invokeStartHandle = async () => {
     const excludeDevices = [
       ...new Set([...deviceList, ...target.setting.excludeDevice]),
     ];
-
     for (let i = 0; i < excludeDevices?.length; i++) {
-      console.log("与设备断开连接：", excludeDevices[i]);
-      await disConnectToFn(excludeDevices[i]);
+      builtInApi.Preludes.log(
+        "尝试与设备断开连接：" + excludeDevices[i],
+        "loading"
+      );
+      try {
+        await disConnectToFn(excludeDevices[i]);
+      } catch (e) {}
     }
     //连接目标设备
-    console.log("连接至设备：", targetDevice);
-    await connectToFn(targetDevice);
+    builtInApi.Preludes.log("连接至设备：" + targetDevice, "loading");
+    try {
+      await connectToFn(targetDevice);
+    } catch (error) {
+      builtInApi.Preludes.log("连接设备失败：" + error, "danger");
+      taskRunStatus.value = "ready";
+      return;
+    }
   }
+  nextTick(() => {
+    window[CORE_NAMESPACES].startScriptSignal?.abort();
+    builtInApi.Preludes.log("脚本开始运行");
+  });
 };
 const stop = () => {
   isInit.value = false;
@@ -250,6 +261,7 @@ const stop = () => {
 const isInit = ref(false);
 const initScript = async (reinit: boolean = false) => {
   logOutput.splice(0, logOutput.length);
+  builtInApi.Preludes.log("脚本初始化中", "loading");
   if (reinit) {
     const targetWindow = createWindow("notification", "/notification", {
       height: 135,
@@ -280,26 +292,29 @@ const initScript = async (reinit: boolean = false) => {
       target.setting.autoStartTargetApp
     ) {
       const t = setTimeout(() => {
+        builtInApi.Preludes.log("启动目标应用中...", "loading");
         cmdFn(target.setting.targetApp, true);
         clearTimeout(t);
       });
     }
     if (appGSStore.ocr.value === "GPU") {
       if (await astWorker.methodIsInvoked(scriptStr, "ocr")) {
+        builtInApi.Preludes.log("[GPU]OCR服务预加载中，请耐心等待", "loading");
         await ocrFn(0, 0, 1, 1);
       }
     }
     run(scriptStr, "fn" + taskId)();
     isInit.value = true;
     isReInit.value = true;
+    builtInApi.Preludes.log("脚本已就绪,等待开始运行。", "loading");
   } catch (e: any) {
     taskRunStatus.value = "ready";
     console.error(e);
+    builtInApi.Preludes.log("脚本初始化失败：" + JSON.stringify(e), "danger");
   } finally {
-    const t = setTimeout(() => {
+    nextTick(() => {
       isLoading.value = false;
-      clearTimeout(t);
-    }, 300);
+    });
   }
 };
 const GlobalShortcutActions: Record<string, () => Promise<void> | void> = {
