@@ -1,7 +1,5 @@
 import { storeToRefs } from "pinia";
-import { WebviewWindow } from "@tauri-apps/api/window";
-import { useLog } from "./useLog";
-
+import { appWindow, WebviewWindow } from "@tauri-apps/api/window";
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -423,8 +421,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       notify.done();
     }
   } else if (state) {
-    useLog().clearLogOutput();
-    useBuiltInApi().Preludes.log("脚本就绪，等待开始运行", "loading");
+    // useLog().clearLogOutput();
     taskRunStatus.value = "ready";
     endBeforeCompletion = false;
   } else {
@@ -445,7 +442,8 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     }
     //显示当前窗口
     if (hideWindow.value) {
-      WebviewWindow.getByLabel("main")?.show();
+      appWindow.show();
+      appWindow.setFocus();
       notify.done();
     }
   }
