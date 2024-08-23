@@ -220,7 +220,7 @@ const rendererList = props.isPreviewForm
   : storeRendererList.value;
 const localPreviewValue = reactive([...previewRendererList.value.slice(0)]);
 const showList = computed(() =>
-  props.isPreviewForm ? localPreviewValue : RFormUtil.genId(rendererList)
+  props.isPreviewForm ? localPreviewValue : rendererList
 );
 if (props.isPreviewForm) {
   watch(previewRendererList, () => {
@@ -230,6 +230,8 @@ if (props.isPreviewForm) {
       ...previewRendererList.value
     );
   });
+}else{
+  storeRendererList.value = RFormUtil.genId(storeRendererList.value)
 }
 let isFirst = true;
 const { openId } = useScriptInfo();
