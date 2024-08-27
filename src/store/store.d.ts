@@ -115,8 +115,18 @@ type OptionItem<T extends string | number | boolean = string> = {
 };
 type IdField = {
   id?: string;
-}
-type InputListItem = OptionItem & IdField;
+};
+type CommonInputItem = {
+  inputType?:"common"
+} & OptionItem<string> & IdField;
+type RangeInputItem = {
+  inputType:"range";
+  label: string;
+  value: [number, number];
+  limit?: [number, number];
+  controls?: boolean;
+} & IdField;
+type InputListItem = CommonInputItem | RangeInputItem;
 type BaseSelectItem<T extends string | number | boolean> = {
   label: string;
 } & (
@@ -124,7 +134,8 @@ type BaseSelectItem<T extends string | number | boolean> = {
   | SelectType.Base<T, SelectType.ConstantOption<T>, SelectType.Multiple<T>>
   | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Single<T>>
   | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Multiple<T>>
-) & IdField;
+) &
+  IdField;
 type SelectListItem =
   | BaseSelectItem<string>
   | BaseSelectItem<number>
@@ -143,8 +154,7 @@ namespace BuildFormItem {
   type Input = Base & {
     type: "input";
     label: string;
-    value: string;
-  };
+  } & InputListItem;
   type Select = Base & {
     type: "select";
     label: string;
@@ -179,8 +189,6 @@ type ListState = {
   scriptList: ScriptItemType[];
   projectList: ProjectItemType[];
   rendererList: RendererList[];
-  previewRendererList: RendererList[];
-  previewBuildFormList: BuildFormItems[];
   deviceList: string[];
   codeSnippets: CodeSnippet[];
 };

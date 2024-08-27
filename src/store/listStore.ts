@@ -13,8 +13,6 @@ export const useListStore = defineStore<
       rendererList: [],
       scriptList: [],
       projectList: [],
-      previewBuildFormList: [],
-      previewRendererList: [],
       deviceList: [],
       codeSnippets: [],
     };
