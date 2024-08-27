@@ -154,30 +154,28 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
   }
 };
 
-const addRendererListToWindow = () => {
+const updateWindowRendererList = () => {
   const { rendererList } = useListStore();
-  if (!window[CORE_NAMESPACES].rendererList) {
-    window[CORE_NAMESPACES].rendererList = rendererList;
-  }
+  window[CORE_NAMESPACES].rendererList = rendererList;
 };
 
 const replaceRendererList = (newRendererList: RendererList[]) => {
   const { rendererList } = useListStore();
   rendererList.splice(0, rendererList.length, ...newRendererList);
-  addRendererListToWindow();
+  updateWindowRendererList();
 };
 
 //给渲染列表动态添加元素
 const pushElement = (
   elem: BuildFormItems,
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
+  //更新window对象中的rendererList
+  updateRendererList: boolean = true
 ) => {
-  const { rendererList, previewRendererList } = useListStore();
-  let rList = rendererList;
-  if (pushTo === "previewRendererList") {
-    rList = previewRendererList;
-  }
-  const idx = rList.findIndex((g) => g.groupLabel === elem.targetGroupLabel);
+  const { rendererList } = useListStore();
+
+  const idx = rendererList.findIndex(
+    (g) => g.groupLabel === elem.targetGroupLabel
+  );
   if (idx === -1) {
     //目标组不存在则新增目标组
     const group: any = {
@@ -190,28 +188,19 @@ const pushElement = (
       multipleSelectList: [],
     };
     group[elem.type + "List"] = [elem];
-    rList.push(group);
+    rendererList.push(group);
   } else {
-    (rList[idx] as any)[elem.type + "List"].push(elem);
+    (rendererList[idx] as any)[elem.type + "List"].push(elem);
   }
-  pushTo === "rendererList" && addRendererListToWindow();
+  updateRendererList && updateWindowRendererList();
 };
 //渲染UI表单
-const buildForm = (
-  buildFormList: BuildFormItems[],
-  pushTo: "rendererList" | "previewRendererList" = "rendererList"
-) => {
-  const listStore = useListStore();
-  if (pushTo === "previewRendererList") {
-    listStore.previewRendererList.splice(
-      0,
-      listStore.previewRendererList.length
-    );
-  }
+const buildForm = (buildFormList: BuildFormItems[]) => {
   for (let i = 0; i < buildFormList.length; i++) {
     const item = buildFormList[i];
-    pushElement(item, pushTo);
+    pushElement(item, false);
   }
+  updateWindowRendererList();
 };
 
 const allTask = ref(1);
