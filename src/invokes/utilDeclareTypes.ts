@@ -34,7 +34,17 @@ export const UTIL_DECLARE_STRING = `
   declare type IdField = {
     id?: string;
   }
-  declare type InputListItem = OptionItem & IdField;
+  declare type CommonInputItem = {
+    inputType?:"common"
+  } & OptionItem<string> & IdField;
+  declare type RangeInputItem = {
+    inputType:"range";
+    label: string;
+    value: [number, number];
+    limit?: [number, number];
+    controls?: boolean;
+  } & IdField;
+  type InputListItem = CommonInputItem | RangeInputItem;
   declare type BaseSelectItem<T extends string | number | boolean> = {
     label: string;
   } & (
@@ -154,8 +164,7 @@ export const UTIL_DECLARE_STRING = `
     type Input = Base & {
       type: "input";
       label: string;
-      value: string;
-    };
+    } & InputListItem;
     type Select = Base & {
       type: "select";
       label: string;
