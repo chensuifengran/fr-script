@@ -1,16 +1,8 @@
 <template>
   <div class="renderer-form" id="renderer-form">
-    <el-alert
-      v-if="isPreviewForm"
-      title="表单预览"
-      type="info"
-      description="表单预览仅能修改组件默认值，修改/删除组件需打开下方的“组件管理树”进行修改。"
-      show-icon
-      class="alert"
-    />
     <ElCard
       class="box-card"
-      v-for="g in showList"
+      v-for="g in rendererList"
       :key="g.groupLabel"
       :id="'renderer-form-g-' + g.groupLabel"
     >
@@ -19,9 +11,8 @@
           <span>{{ g.groupLabel }}</span>
           <el-switch
             v-model="g.enable"
-            class="mgl-5"
+            ml-5px
             v-if="g.groupLabel !== '*脚本设置'"
-            @change="rendererListChangeHandle"
             style="--el-switch-off-color: #ff4949"
             :disabled="disabledAll"
           />
@@ -35,13 +26,7 @@
             :label="c.label"
             class="check-item"
             v-model="c.checked"
-            :disabled="
-              (isPreviewForm &&
-                g.groupLabel === '*脚本设置' &&
-                c.label === '导入上次运行配置') ||
-              !g.enable ||
-              disabledAll
-            "
+            :disabled="!g.enable || disabledAll"
             @change="configChangeHandle(c.label)"
           />
         </div>
@@ -51,11 +36,15 @@
           :key="s.label"
           :style="{
             flexDirection:
-              s.multiple || (s.label.length && s.label.length) > 6
+              disabledAll ||
+              s.multiple ||
+              (s.label.length && s.label.length > 6)
                 ? 'column'
                 : 'row',
             alignItems:
-              s.multiple || (s.label.length && s.label.length > 6)
+              disabledAll ||
+              s.multiple ||
+              (s.label.length && s.label.length > 6)
                 ? 'flex-start'
                 : 'center',
           }"
@@ -73,7 +62,7 @@
               ml-1
               :style="{
                 alignSelf:
-                  s.label.length && s.label.length > 6
+                  disabledAll || (s.label.length && s.label.length > 6)
                     ? 'self-start'
                     : 'center',
               }"
@@ -84,14 +73,15 @@
             class="select"
             :style="{
               minWidth:
-                s.multiple || (s.label.length && s.label.length > 6)
+                disabledAll ||
+                s.multiple ||
+                (s.label.length && s.label.length > 6)
                   ? '100%'
                   : getSelectMinWidth(s.value),
             }"
             :multiple="s.multiple"
             v-model="s.value"
             :placeholder="s.label"
-            @change="rendererListChangeHandle"
             size="small"
             :disabled="!g.enable || disabledAll"
           >
@@ -125,22 +115,35 @@
           :key="i.label"
           style="align-items: flex-start"
         >
-          <el-text
-            v-if="i.label.length && i.label.length > 6"
-            style="align-self: self-start"
-            >{{ i.label }}</el-text
-          >
-          <el-input
-            size="small"
-            v-model="i.value"
-            :placeholder="i.label"
-            :disabled="!g.enable || disabledAll"
-            @change="rendererListChangeHandle"
-          >
-            <template #prepend v-if="i.label.length && i.label.length <= 6">{{
-              i.label
-            }}</template>
-          </el-input>
+          <template v-if="i.inputType === 'range'">
+            <range-input
+              w-full
+              v-model="i.value"
+              :limit="i.limit"
+              :disabled="!g.enable || disabledAll"
+              :label="i.label"
+              :controls="i.controls"
+            />
+          </template>
+          <template v-else>
+            <el-text
+              v-if="disabledAll || (i.label.length && i.label.length > 6)"
+              style="align-self: self-start"
+              >{{ i.label }}</el-text
+            >
+            <el-input
+              size="small"
+              v-model="i.value"
+              :placeholder="i.label"
+              :disabled="!g.enable || disabledAll"
+            >
+              <template
+                #prepend
+                v-if="!disabledAll && (i.label.length && i.label.length <= 6)"
+                >{{ i.label }}</template
+              >
+            </el-input>
+          </template>
         </div>
       </div>
     </ElCard>
@@ -152,10 +155,6 @@ import { storeToRefs } from "pinia";
 import { WatchStopHandle } from "vue";
 
 const props = defineProps({
-  isPreviewForm: {
-    type: Boolean,
-    default: false,
-  },
   reInit: {
     type: Function as PropType<() => boolean>,
     default: () => false,
@@ -210,56 +209,19 @@ const getItemType = (item: any) => {
 };
 const { importLastRunConfig } = useScriptApi();
 const listStore = useListStore();
-const {
-  rendererList: storeRendererList,
-  previewRendererList,
-  scriptList,
-} = storeToRefs(listStore);
-const rendererList = props.isPreviewForm
-  ? previewRendererList.value
-  : storeRendererList.value;
-const localPreviewValue = reactive([...previewRendererList.value.slice(0)]);
-const showList = computed(() =>
-  props.isPreviewForm ? localPreviewValue : rendererList
-);
-if (props.isPreviewForm) {
-  watch(previewRendererList, () => {
-    localPreviewValue.splice(
-      0,
-      localPreviewValue.length,
-      ...previewRendererList.value
-    );
-  });
-}else{
-  storeRendererList.value = RFormUtil.genId(storeRendererList.value)
-}
+const { rendererList } = storeToRefs(listStore);
+
 let isFirst = true;
-const { openId } = useScriptInfo();
-if (!props.isPreviewForm) {
-  watch(openId, () => {
-    if (openId.value !== "-1") {
-      const target = scriptList.value.find((i) => i.id === openId.value);
-      if (target?.setting.autoImportLastRunConfig) {
-        isFirst = true;
-      }
-    }
-  });
-}
 
 const configChangeHandle = async (label?: string) => {
-  if (props.isPreviewForm) {
-    diffComponentValue();
-    props.saveBuildForm!();
-    return;
-  }
   if (label === "导入上次运行配置") {
-    await importLastRunConfig(rendererList);
+    await importLastRunConfig(rendererList.value);
   }
 };
 
 let stopHandle: WatchStopHandle;
 onMounted(() => {
-  if (props.isPreviewForm) return;
+  rendererList.value = RFormUtil.genId(rendererList.value);
   stopHandle = watchEffect(async () => {
     const reInit = props.reInit();
     if (reInit) {
@@ -273,67 +235,6 @@ onBeforeUnmount(() => {
     stopHandle();
   }
 });
-// "select" | "check" | "input"转换为previewRendererList对应的列表
-const bTypeToPType = (bType: string) => bType + "List";
-
-//比较scriptStore.previewRendererList 和 scriptStore.previewBuildFormList各组件默认值，不一致则以previewRendererList为准
-const diffComponentValue = () => {
-  const { previewRendererList, previewBuildFormList } = storeToRefs(listStore);
-  previewBuildFormList.value.forEach((i) => {
-    const type = bTypeToPType(i.type);
-    const target = previewRendererList.value.find(
-      (j) => j.groupLabel === i.targetGroupLabel
-    );
-    if (target) {
-      i.enable = target.enable;
-      const targetItem = (target as any)[type].find(
-        (j: any) => j.label === i.label
-      );
-      if (targetItem) {
-        if (type === "checkList") {
-          const item = i as {
-            targetGroupLabel: string;
-            type:
-              | "multiplSelect"
-              | "groupSelect"
-              | "select"
-              | "check"
-              | "input";
-            label: string;
-            checked: boolean;
-            enable?: boolean;
-          };
-          if (targetItem.checked !== item.checked) {
-            item.checked = targetItem.checked;
-          }
-        } else {
-          const item = i as {
-            targetGroupLabel: string;
-            type:
-              | "multiplSelect"
-              | "groupSelect"
-              | "select"
-              | "check"
-              | "input";
-            label: string;
-            value: string | string[];
-            enable?: boolean;
-          };
-          if (targetItem.value !== item.value) {
-            item.value = targetItem.value;
-          }
-        }
-      }
-    }
-  });
-};
-
-const rendererListChangeHandle = () => {
-  if (props.isPreviewForm) {
-    diffComponentValue();
-    props.saveBuildForm!();
-  }
-};
 
 const getSelectMinWidth = (text: string | number | boolean | object) => {
   if (typeof text === "object") {
@@ -349,10 +250,6 @@ const getSelectMinWidth = (text: string | number | boolean | object) => {
 </script>
 
 <style lang="scss" scoped>
-.mgl-5 {
-  margin-left: 5px;
-}
-
 .renderer-form {
   width: 100%;
   height: 100%;
