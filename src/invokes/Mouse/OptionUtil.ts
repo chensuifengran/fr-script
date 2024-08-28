@@ -23,7 +23,5 @@ export const computePosition = async (x: number, y: number) => {
       }
     }
   }
-  console.log("computePosition", targetPos);
-  
   return targetPos;
 };
