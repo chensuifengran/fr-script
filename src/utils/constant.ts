@@ -27,7 +27,7 @@ const main = async () => {
   ]);
 
   //等待用户点击"开始"按钮，点击按钮时等待结束，后续可以通过getCustomizeForm获取表单数据
-  const { getFieldValue } = await getCustomizeForm();
+  const { getFieldValue, getFieldValueById } = await getCustomizeForm();
   //示例
   //const testField = getFieldValue<boolean>('checkList', '测试字段', false, '测试组');
   //console.log(testField);//true
