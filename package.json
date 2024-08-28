@@ -10,10 +10,11 @@
     "build:debug": "vue-tsc --noEmit && node .\\script\\switchEnv DEBUG &&vite build",
     "preview": "vite preview",
     "tauri": "tauri dev",
-    "tauri:build": "pnpm build && tauri build",
+    "tauri:build": "pnpm genType && pnpm genDeclare && pnpm build && tauri build",
     "tauri:build:debug": "pnpm build:debug && tauri build",
     "tauri:only_build": "tauri build",
     "genType": "node .\\script\\genBuiltInApiType.js",
+    "genDeclare": "node .\\script\\genApiDeclare.js",
     "verify": "vue-tsc --noEmit"
   },
   "dependencies": {
