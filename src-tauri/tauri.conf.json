@@ -55,8 +55,7 @@
         "transparent": true,
         "center": true,
         "url": "splashscreen.html",
-        "label": "splashscreen",
-        "alwaysOnTop": true
+        "label": "splashscreen"
       }
     ]
   }

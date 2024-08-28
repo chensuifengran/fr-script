@@ -3,18 +3,19 @@ use fr_script::{event::register_event_handler, export_api::{cmd, file, image, in
 use tauri::Manager;
 fn main() {
     tauri::Builder::default()
-        .setup(|_app: &mut tauri::App| {
+        .setup(|app: &mut tauri::App| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = _app.get_window("main").unwrap();
+                let window = app.get_window("main").unwrap();
                 window.open_devtools();
             }
-            let resource_path = _app
+            let resource_path = app
                 .path_resolver()
                 .resolve_resource("resources/log4rs.yml")
                 .expect("failed to resolve resource");
             log4rs::init_file(resource_path, Default::default()).unwrap();
-            register_event_handler(_app);
+            register_event_handler(app);
+            let _ = app.get_window("splashscreen").unwrap().set_focus();
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
