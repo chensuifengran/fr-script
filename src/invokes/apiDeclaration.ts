@@ -45,17 +45,19 @@ export const editorTsDeclaration = (): string => {
     if (key === "root") {
       allDeclarationString += scopes[key].join("\n");
     } else {
-      allDeclarationString += `declare namespace ${key} {\n${scopes[
-        key
-      ].join("\n")}\n}\n`;
+      allDeclarationString += `declare namespace ${key} {\n${scopes[key].join(
+        "\n"
+      )}\n}\n`;
     }
   });
   const INPUT_KEY_TYPE = `declare type Key = ${KeyOptions.map(
     (i) => `"${i.split(":")[1]}"`
   ).join("|")};`;
   return `
-  ${INPUT_KEY_TYPE}
-  ${UTIL_DECLARE_STRING}
-  ${allDeclarationString}
-  `;
+${INPUT_KEY_TYPE.trim()}
+${UTIL_DECLARE_STRING.trim()}
+${BUILD_FORM_DECLARE.trim()}
+${RENDERER_LIST_DECLARE.trim()}
+${allDeclarationString.trim()}
+`.trim();
 };
