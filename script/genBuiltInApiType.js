@@ -34,10 +34,10 @@ try {
         return;
       }
       if (genType === "declare") {
-        declareContent += `\n      ${dir}: typeof import("./invokes/${dir}/exportFn")["${dir}Fn"];`;
+        declareContent += `\n      ${dir}: typeof import("../../invokes/${dir}/exportFn")["${dir}Fn"];`;
       } else {
-        content += `  ${dir}: typeof import("./${dir}/exportFn")["${dir}Fn"];\n`;
-        declareContent += `\n      ${dir}: typeof import("./invokes/${dir}/exportFn")["${dir}Fn"];`;
+        content += `  ${dir}: typeof import("../../invokes/${dir}/exportFn")["${dir}Fn"];\n`;
+        declareContent += `\n      ${dir}: typeof import("../../invokes/${dir}/exportFn")["${dir}Fn"];`;
       }
     } else {
       const subDirs = readdirSync(dirPath, { withFileTypes: true })
@@ -58,7 +58,7 @@ try {
             );
             return;
           }
-          declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
+          declareContent += `\n        ${subDir}: typeof import("../../invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
         declareContent += "\n      };";
       } else {
@@ -78,7 +78,7 @@ try {
             disabledPath.push(indexFilePath);
             return;
           }
-          content += `    ${subDir}: typeof import("./${dir}/${subDir}/exportFn")["${subDir}Fn"];\n`;
+          content += `    ${subDir}: typeof import("../../invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];\n`;
         });
         content += "  };\n";
         declareContent += `\n      ${dir}: {`;
@@ -89,7 +89,7 @@ try {
           if (disabledPath.includes(indexFilePath)) {
             return;
           }
-          declareContent += `\n        ${subDir}: typeof import("./invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
+          declareContent += `\n        ${subDir}: typeof import("../../invokes/${dir}/${subDir}/exportFn")["${subDir}Fn"];`;
         });
         declareContent += "\n      };";
       }
@@ -112,11 +112,11 @@ export {};
 declare global {
   interface Window {
     ${CORE_NAMESPACES}: {${declareContent}
-    } & ReturnType<typeof import("./hooks/useScriptApi")["useBuiltInApi"]>;
+    } & ReturnType<typeof import("../../hooks/useScriptApi")["useBuiltInApi"]>;
   }
 }
   `;
-    const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
+    const declareGlobalPath = resolve(__dirname, "../src/types/auto_gen_types/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
     console.log(
       "✨",
@@ -124,15 +124,16 @@ declare global {
       declareGlobalPath
     );
   } else {
+    const outputPath = resolve(invokesPath, "../types/auto_gen_types/builtInApi.d.ts");
     const builtInApiType =
-      "export type BuiltInApiType = {\n" + content + "};\n";
-    writeFileSync(resolve(invokesPath, "BuiltInApiType.ts"), builtInApiType);
+      "declare type BuiltInApiType = {\n" + content + "};\n";
+    writeFileSync(outputPath, builtInApiType);
     console.log(
       "✨",
       "The",
-      chalk.green("BuiltInApiType.ts"),
+      chalk.green("builtInApi.d.ts"),
       "file is generated in the:",
-      chalk.blue(invokesPath + "\\BuiltInApiType.ts")
+      chalk.blue(outputPath)
     );
     const useCorePath = resolve(__dirname, "../src/hooks/useCore.ts");
     const coreString = readFileSync(useCorePath, "utf-8");
@@ -150,11 +151,11 @@ export {};
 declare global {
   interface Window {
     ${CORE_NAMESPACES}: {${declareContent}
-    } & ReturnType<typeof import("./hooks/useScriptApi")["useBuiltInApi"]>;
+    } & ReturnType<typeof import("../../hooks/useScriptApi")["useBuiltInApi"]>;
   }
 }
   `;
-    const declareGlobalPath = resolve(__dirname, "../src/core.d.ts");
+    const declareGlobalPath = resolve(__dirname, "../src/types/auto_gen_types/core.d.ts");
     writeFileSync(declareGlobalPath, declareGlobalTemp);
     console.log(
       "✨",
