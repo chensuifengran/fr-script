@@ -29,7 +29,7 @@ export default defineConfig({
         "vue-router",
         // 添加其他需要自动导入的模块
       ],
-      dts: "./src/auto-imports.d.ts",
+      dts: "./src/types/auto_gen_types/auto-imports.d.ts",
       dirs: [
         "./src/api/**",
         "./src/hooks/**",
@@ -48,7 +48,7 @@ export default defineConfig({
           enabledCollections: ["ep"],
         }),
       ],
-      dts: "./src/components.d.ts",
+      dts: "./src/types/auto_gen_types/components.d.ts",
     }),
     Icons({
       autoInstall: true,

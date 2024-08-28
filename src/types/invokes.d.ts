@@ -1,23 +1,22 @@
-type ShowDetailsFn = (text: string | undefined, preStr?: string) => void;
+declare type ShowDetailsFn = (text: string | undefined, preStr?: string) => void;
 
-type MouseOption = {
+declare type ReturnMethods = {
+  [methodName: string]: [returnType: string, argumentTypes: string[]];
+};
+
+declare type ExportFns = {
+  [methodName: string]: ((...args: any[]) => Promise<any>) | any;
+};
+declare type MouseOption = {
   randomOffset?: [
     //随机偏移量
     [number, number], //x坐标偏移量[最小值,最大值]
     [number, number] //y坐标偏移量[最小值,最大值]
   ];
-  baseSize?: [number, number]; //基础尺寸
+  baseSize?: [number, number]; //基准屏幕像素
 };
 
-type ReturnMethods = {
-  [methodName: string]: [returnType: string, argumentTypes: string[]];
-};
-
-type ExportFns = {
-  [methodName: string]: ((...args: any[]) => Promise<any>) | any;
-};
-
-type DocumentParamItem = {
+declare type DocumentParamItem = {
   id?: string;
   name: string;
   required: boolean;
@@ -27,7 +26,7 @@ type DocumentParamItem = {
   children?: DocumentParamItem[];
 };
 
-type ApiDocumentType = {
+declare type ApiDocumentType = {
   id?: string;
   howToUse: string;
   params?: DocumentParamItem[];
@@ -43,7 +42,7 @@ type ApiDocumentType = {
   //编辑器代码片段
   codeSnippet?: string;
 };
-namespace DialogArg {
+declare namespace DialogArg {
   type Combined<
     T extends string | number = string,
     Multiple extends true | false = false
@@ -128,7 +127,7 @@ namespace DialogArg {
     limit?: [number, number];
   } & ExtraAttr;
 }
-type ArgItems =
+declare type ArgItems =
   | DialogArg.Select
   | DialogArg.FileInput<true>
   | DialogArg.FileInput<false>
@@ -139,7 +138,7 @@ type ArgItems =
   | DialogArg.DirInput
   | DialogArg.NumberInput
   | DialogArg.NumberRangeInput;
-type ArgItem<T extends ArgItems = ArgItems> = {
+declare type ArgItem<T extends ArgItems = ArgItems> = {
   id?: string;
   noTest?: boolean;
   onlyTest?: boolean;
@@ -148,7 +147,7 @@ type ArgItem<T extends ArgItems = ArgItems> = {
   displayCondition?: string[];
   placeholder?: string;
 } & T;
-type DialogDynamicArgItem =
+declare type DialogDynamicArgItem =
   | ArgItem<DialogArg.Select>
   | ArgItem<DialogArg.FileInput<true>>
   | ArgItem<DialogArg.FileInput<false>>
@@ -160,20 +159,20 @@ type DialogDynamicArgItem =
   | ArgItem<DialogArg.NumberInput>
   | ArgItem<DialogArg.NumberRangeInput>;
 
-type TestModuleDialogType = {
+declare type TestModuleDialogType = {
   notOpen?: boolean;
   title?: string;
   targetMethodName: string;
   content?: string;
   args?: DialogDynamicArgItem[];
 };
-type TestModuleType = {
+declare type TestModuleType = {
   weight: number;
   dialog: TestModuleDialogType;
   callback: (...args: any[]) => Promise<void> | void;
   document?: ApiDocumentType;
 };
-type AuxiliaryType = {
+declare type AuxiliaryType = {
   //快速编辑/修改参数弹窗打开时触发
   onDialogOpen: (
     /**
@@ -190,7 +189,7 @@ type AuxiliaryType = {
   //参数处理方法
   parameterReplace: (options: any) => void;
 };
-type InvokeApiMethodType = {
+declare type InvokeApiMethodType = {
   scope?: string;
   name: string;
   exportFn?: {
@@ -206,7 +205,7 @@ type InvokeApiMethodType = {
   //禁用该内置API
   disabled?: boolean;
 };
-type Key =
+declare type Key =
   // 数字键
   | "Num0"
   | "Num1"

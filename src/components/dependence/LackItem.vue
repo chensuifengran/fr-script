@@ -16,7 +16,6 @@
 
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api/tauri";
-import { NeedUpdateDepType } from "../../types/lib";
 
 const props = defineProps({
   item: {

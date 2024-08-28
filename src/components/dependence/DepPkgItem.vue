@@ -19,7 +19,6 @@
 </template>
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api/tauri";
-import { DepPkgItemType } from "../../types/lib";
 
 const props = defineProps({
   item: {

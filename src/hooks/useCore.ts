@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import { BuiltInApiType } from "../invokes/BuiltInApiType";
 import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 export const CORE_NAMESPACES = "__FR_BUILT_IN_API__";
 //弹窗
@@ -222,7 +221,7 @@ const invokeDynamicDialog = (
     }
   }
 };
-const exportAllFn = (): BuiltInApiType => {
+const exportAllFn = (): BuiltInApi => {
   const allFn: ExportFns = {};
   builtInApi.forEach((i) => {
     if (!i.exportFn) {
@@ -279,7 +278,7 @@ const exportAllFn = (): BuiltInApiType => {
       });
     }
   });
-  return allFn as BuiltInApiType;
+  return allFn as BuiltInApi;
 };
 const genBuiltInApi = (runId: string) => {
   return builtInApi

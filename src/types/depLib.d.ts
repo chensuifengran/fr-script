@@ -1,4 +1,4 @@
-export type DependenceItemType = {
+declare type DependenceItemType = {
   name: string;
   version: string;
   desc: string;
@@ -12,7 +12,7 @@ export type DependenceItemType = {
   root_path?: string;
   dependence: DependenceItemType[];
 };
-export type DepPkgItemType = {
+declare type DepPkgItemType = {
   name: string;
   download_url: {
     origin: string;
@@ -25,7 +25,7 @@ export type DepPkgItemType = {
   child_files: string[];
 };
 
-export type CheckDepItemType = {
+declare type CheckDepItemType = {
   name: string;
   exists?:
     | {
@@ -44,18 +44,18 @@ export type CheckDepItemType = {
   child_files: string[];
 };
 
-export type LibNameItemType = CheckDepItemType & {
+declare type LibNameItemType = CheckDepItemType & {
   child_files?: string[];
   root_path?: string;
 };
 
-export type VersionItemType = {
+declare type VersionItemType = {
   name: string;
   version: string;
   children?: VersionItemType[];
 };
 
-export type NeedUpdateDepType = {
+declare type NeedUpdateDepType = {
   name: string;
   version: string;
   currentVersion?: string;

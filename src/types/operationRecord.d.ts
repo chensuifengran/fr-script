@@ -1,10 +1,10 @@
-type SaveConfigForm = {
+declare type SaveConfigForm = {
   name: string;
   description: string;
   prefix: string;
   code: string;
 };
-type CaptureOptions = {
+declare type CaptureOptions = {
   merge_mouse_options?: {
     merge: boolean;
     max_interval_ms: number;
@@ -17,7 +17,7 @@ type CaptureOptions = {
     press_release_max_interval_ms: number;
   };
 };
-type CaptureSettingForm = {
+declare type CaptureSettingForm = {
   [K in keyof CaptureOptions]-?: CaptureOptions[K] extends undefined
     ? never
     : CaptureOptions[K];

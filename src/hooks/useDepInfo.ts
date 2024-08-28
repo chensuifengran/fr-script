@@ -1,5 +1,4 @@
 import { WebviewWindow } from "@tauri-apps/api/window";
-import { DepPkgItemType, NeedUpdateDepType } from "../types/lib";
 import { UnlistenFn } from "@tauri-apps/api/event";
 const allLibsName = ref<string[]>([]);
 const lackDependence = reactive<NeedUpdateDepType[][]>([]);

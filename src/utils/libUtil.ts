@@ -1,14 +1,6 @@
 import { getVersion } from "@tauri-apps/api/app";
 import { exists, renameFile } from "@tauri-apps/api/fs";
 import { invoke } from "@tauri-apps/api";
-import {
-  CheckDepItemType,
-  DepPkgItemType,
-  DependenceItemType,
-  LibNameItemType,
-  NeedUpdateDepType,
-  VersionItemType,
-} from "../types/lib";
 import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
