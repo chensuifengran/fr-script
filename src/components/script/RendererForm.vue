@@ -125,21 +125,63 @@
               :controls="i.controls"
             />
           </template>
+          <template v-else-if="i.inputType === 'number'">
+            <div w-full flex flex-row items-center justify-between>
+              <el-text>{{ i.label }}</el-text>
+              <el-input-number
+                size="small"
+                v-model="i.value"
+                :min="i.min"
+                :max="i.max"
+                :step="i.step"
+                :disabled="!g.enable || disabledAll"
+                :controls="i.controls"
+                :controls-position="i.controlsPosition"
+                :step-strictly="i.stepStrictly"
+                :precision="i.precision"
+                :valueOnClear="i.valueOnClear"
+              />
+            </div>
+          </template>
           <template v-else>
             <el-text
-              v-if="disabledAll || (i.label.length && i.label.length > 6)"
+              v-if="
+                disabledAll ||
+                i.mod === 'textarea' ||
+                (i.label.length && i.label.length > 6)
+              "
               style="align-self: self-start"
               >{{ i.label }}</el-text
             >
             <el-input
               size="small"
               v-model="i.value"
-              :placeholder="i.label"
+              :placeholder="i.placeholder || i.label"
+              :type="i.mod ? i.mod : 'text'"
+              :clearable="i.clearable"
+              :show-password="i.showPassword"
               :disabled="!g.enable || disabledAll"
+              :maxlength="i.maxlength"
+              :show-word-limit="i.showWordLimit"
+              :autosize="
+                typeof i.autosize === 'object'
+                  ? {
+                      minRows: i.autosize[0],
+                      maxRows: i.autosize[1],
+                    }
+                  : typeof i.autosize === 'number'
+                  ? { minRows: i.autosize, maxRows: i.autosize }
+                  : i.autosize
+              "
             >
               <template
                 #prepend
-                v-if="!disabledAll && (i.label.length && i.label.length <= 6)"
+                v-if="
+                  !disabledAll &&
+                  i.label.length &&
+                  i.label.length <= 6 &&
+                  i.mod !== 'textarea'
+                "
                 >{{ i.label }}</template
               >
             </el-input>

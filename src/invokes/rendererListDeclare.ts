@@ -35,9 +35,28 @@ declare type OptionItem<T extends string | number | boolean = string> = {
 declare type IdField = {
   id?: string;
 };
-declare type CommonInputItem = {
-  inputType?: "common";
+declare type TextInputItem = {
+  inputType?: "text";
+  mod?: "password" | "textarea" | "text";
+  placeholder?: string;
+  clearable?: boolean;
+  showPassword?: boolean;
+  maxlength?: number;
+  showWordLimit?: boolean;
+  autosize?: [number | undefined, number | undefined] | number | boolean;
 } & OptionItem<string> &
+  IdField;
+declare type NumberInputItem = {
+  inputType: "number";
+  min?: number;
+  max?: number;
+  step?: number;
+  stepStrictly?: boolean;
+  precision?: number;
+  controlsPosition?: "right" | "";
+  controls?: boolean;
+  valueOnClear?: number | "max" | "min";
+} & OptionItem<number> &
   IdField;
 declare type RangeInputItem = {
   inputType: "range";
@@ -46,7 +65,7 @@ declare type RangeInputItem = {
   limit?: [number, number];
   controls?: boolean;
 } & IdField;
-declare type InputListItem = CommonInputItem | RangeInputItem;
+declare type InputListItem = TextInputItem | NumberInputItem | RangeInputItem;
 declare type BaseSelectItem<T extends string | number | boolean> = {
   label: string;
 } & (
