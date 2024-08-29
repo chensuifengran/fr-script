@@ -53,7 +53,9 @@
 //   }
 // }
 const { appBackground } = useAppTheme();
-
+onMounted(()=>{
+  invokeBaseApi.closeSplashscreen();
+})
 </script>
 
 <style lang="scss" scoped>

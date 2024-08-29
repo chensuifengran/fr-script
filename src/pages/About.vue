@@ -35,6 +35,9 @@ const send = ()=>{
   q.value = '';
 }
 const [answer, loading, start] = useSpark();
+onMounted(()=>{
+  invokeBaseApi.closeSplashscreen();
+})
 </script>
 
 <style lang="scss" scoped>

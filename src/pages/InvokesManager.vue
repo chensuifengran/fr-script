@@ -679,6 +679,7 @@ onMounted(async () => {
   window.addEventListener("resize", windowResizeHandle);
   scrollRef.value?.addEventListener("scroll", scrollHandle);
   linkTarget.value = anchorLinks[0].value;
+  invokeBaseApi.closeSplashscreen();
 });
 onUnmounted(() => {
   window.removeEventListener("resize", windowResizeHandle);

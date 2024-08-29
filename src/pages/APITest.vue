@@ -122,6 +122,7 @@ onMounted(() => {
   if (!appGSStore.isInited) {
     appGSStore.init();
   }
+  invokeBaseApi.closeSplashscreen();
 });
 const load = async () => {
   if (loadCount.value < tatalCount) {

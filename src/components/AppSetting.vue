@@ -219,6 +219,7 @@ onMounted(async () => {
       }
     });
   }
+  invokeBaseApi.closeSplashscreen();
 });
 onUnmounted(() => {
   focusUnListenFn && focusUnListenFn();

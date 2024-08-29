@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { OCRResult } from "../invokes/ocr/exportFn";
 import { appWindow } from "@tauri-apps/api/window";
+import { useSessionStorageState } from "vue-hooks-plus";
 
 const getScreenSize = async () => {
   try {
@@ -602,11 +603,18 @@ const getSparkInfo = async () => {
     };
   }
 };
-
+const [closeFlag, setCloseFlag] = useSessionStorageState<boolean>(
+  "CLOSE_SPLASHSCREEN_FLAG",
+  { defaultValue: false }
+);
 const closeSplashscreen = async () => {
+  if (closeFlag.value) {
+    return;
+  }
   try {
     await invoke("close_splashscreen");
     await appWindow.setFocus();
+    setCloseFlag(true);
   } catch (error) {
     console.error("invokeBaseApi.closeSplashscreen error: ", error);
   }

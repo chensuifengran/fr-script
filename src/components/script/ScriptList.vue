@@ -370,6 +370,9 @@ const showList = computed({
     scriptList.value = v;
   },
 });
+onMounted(()=>{
+  invokeBaseApi.closeSplashscreen();
+})
 </script>
 
 <style lang="scss" scoped>

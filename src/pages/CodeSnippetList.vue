@@ -288,6 +288,9 @@ const mainBorderRadius = computed(() => {
 onUnmounted(() => {
   disposeEditor();
 })
+onMounted(()=>{
+  invokeBaseApi.closeSplashscreen();
+})
 </script>
 
 <style lang="scss" scoped>

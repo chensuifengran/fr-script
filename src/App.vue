@@ -111,8 +111,6 @@ onMounted(async () => {
     await registerAllInvokeApi();
   } catch (error) {
     console.error("初始化异常：", error);
-  } finally {
-    invokeBaseApi.closeSplashscreen();
   }
   if (process.env.NODE_ENV === "production") {
     window.addEventListener("contextmenu", (event) => {
