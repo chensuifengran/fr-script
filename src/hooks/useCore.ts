@@ -221,7 +221,7 @@ const invokeDynamicDialog = (
     }
   }
 };
-const exportAllFn = (): BuiltInApi => {
+const exportAllFn = (): BuiltInApiType => {
   const allFn: ExportFns = {};
   builtInApi.forEach((i) => {
     if (!i.exportFn) {
@@ -278,7 +278,7 @@ const exportAllFn = (): BuiltInApi => {
       });
     }
   });
-  return allFn as BuiltInApi;
+  return allFn as BuiltInApiType;
 };
 const genBuiltInApi = (runId: string) => {
   return builtInApi
