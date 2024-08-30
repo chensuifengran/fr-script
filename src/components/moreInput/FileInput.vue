@@ -1,54 +1,83 @@
 <template>
   <div class="file-input-content">
     <template v-if="typeof value === 'string'">
-      <el-text v-if="label !== '' && label.length > 10" :style="{
-        color: pathExits ? undefined : 'red',
-      }">
+      <el-text
+        v-if="label !== '' && label.length > 10"
+        :style="{
+          color: pathExits ? undefined : 'red',
+          alignSelf: labelPos === 'left' ? 'flex-start' : 'center',
+        }"
+      >
         {{ label }}
       </el-text>
-      <el-autocomplete v-model="value" :fetch-suggestions="querySearch" size="small" @select="selectHandler"
-        :disabled="disabled">
-        <template #prepend v-if="label !== '' && label.length <= 10"><el-text :style="{
-          color: pathExits ? undefined : 'red',
-        }">
+      <el-autocomplete
+        v-model="value"
+        :fetch-suggestions="querySearch"
+        size="small"
+        @select="selectHandler"
+        :disabled="disabled"
+      >
+        <template #prepend v-if="label !== '' && label.length <= 10"
+          ><el-text
+            :style="{
+              color: pathExits ? undefined : 'red',
+            }"
+          >
             {{ label }}
-          </el-text></template>
+          </el-text></template
+        >
         <template #append>
           <el-button @click="selectFilePath">选择文件</el-button>
         </template>
         <template #default="{ item }">
           <div class="suggestion-item">
-            <el-text>{{ item.value }}</el-text><el-tag size="small">{{ item.label }}</el-tag>
+            <el-text>{{ item.value }}</el-text
+            ><el-tag size="small">{{ item.label }}</el-tag>
           </div>
         </template>
       </el-autocomplete>
       <div v-show="!pathExits" class="tip">
-        <el-icon color="red"><span i-mdi-close></span></el-icon><el-tag type="danger">该路径无效，请检查路径填写是否有误</el-tag>
+        <el-icon color="red"><span i-mdi-close></span></el-icon
+        ><el-tag type="danger">该路径无效，请检查路径填写是否有误</el-tag>
       </div>
     </template>
     <template v-else>
       <div flex flex-row flex-items-center justify-between>
-        <el-text v-if="label !== ''" :style="{
-          color: pathExits ? undefined : 'red',
-        }">
+        <el-text
+          v-if="label !== ''"
+          :style="{
+            color: pathExits ? undefined : 'red',
+          }"
+        >
           {{ label }}
         </el-text>
         <div flex flex-items-center flex-row>
-          <el-button type="primary" class="w-100" size="small" @click="selectFilePath">
-          +选择文件
-        </el-button>
-        <el-button class="w-100" size="small" @click="clearFilePath">
-          x清空已选
-        </el-button>
+          <el-button
+            type="primary"
+            class="w-100"
+            size="small"
+            @click="selectFilePath"
+          >
+            +选择文件
+          </el-button>
+          <el-button class="w-100" size="small" @click="clearFilePath">
+            x清空已选
+          </el-button>
         </div>
       </div>
       <div class="path-content">
-        <el-tag class="tag" v-for="p in value" :key="p" size="small"
-          :type="!unExists.includes(p) ? 'success' : 'danger'" closable :disable-transitions="false"
-          @close="handleClose(p)">
+        <el-tag
+          class="tag"
+          v-for="p in value"
+          :key="p"
+          size="small"
+          :type="!unExists.includes(p) ? 'success' : 'danger'"
+          closable
+          :disable-transitions="false"
+          @close="handleClose(p)"
+        >
           {{ p }}
         </el-tag>
-
       </div>
     </template>
   </div>
@@ -73,17 +102,26 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  labelPos: {
+    type: String as PropType<"left" | "center">,
+    default: "center",
+  },
 });
 type SuggestionItem = {
   label: string;
   value: string;
 };
 const suggestions = reactive<SuggestionItem[]>([]);
-const querySearch = (queryString: string, cb: (s: SuggestionItem[]) => void) => {
+const querySearch = (
+  queryString: string,
+  cb: (s: SuggestionItem[]) => void
+) => {
   const results = queryString
     ? suggestions.filter((item) => {
-      return item.value.includes(queryString) || item.label.includes(queryString);
-    })
+        return (
+          item.value.includes(queryString) || item.label.includes(queryString)
+        );
+      })
     : suggestions;
   cb(results);
 };
@@ -126,9 +164,9 @@ const selectFilePath = async () => {
     }
   }
 };
-const clearFilePath = ()=>{
+const clearFilePath = () => {
   value.value = [];
-}
+};
 watch(value, async () => {
   if (!props.verify) return;
   if (typeof value.value === "string") {
