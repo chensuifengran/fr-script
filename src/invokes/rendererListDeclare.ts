@@ -65,7 +65,18 @@ declare type RangeInputItem = {
   limit?: [number, number];
   controls?: boolean;
 } & IdField;
-declare type InputListItem = TextInputItem | NumberInputItem | RangeInputItem;
+type FileInputItem<Multiple extends boolean> = {
+  inputType: "file";
+  label: string;
+  multiple: Multiple extends true ? true : false | undefined;
+  value: Multiple extends true ? string[] : string;
+} & IdField;
+declare type InputListItem =
+  | TextInputItem
+  | NumberInputItem
+  | RangeInputItem
+  | FileInputItem<true>
+  | FileInputItem<false>;
 declare type BaseSelectItem<T extends string | number | boolean> = {
   label: string;
 } & (

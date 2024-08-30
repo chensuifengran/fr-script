@@ -143,6 +143,16 @@
               />
             </div>
           </template>
+          <template v-else-if="i.inputType === 'file'">
+            <file-input
+              v-model="i.value"
+              :label="i.label"
+              :multiple="i.multiple"
+              :disabled="!g.enable || disabledAll"
+              label-pos="left"
+              w-full
+            />
+          </template>
           <template v-else>
             <el-text
               v-if="
