@@ -2,10 +2,37 @@
   <div class="fr-slider">
     <el-text v-if="label && !hideLabel" class="label">{{ label }}</el-text>
     <div class="data-area">
-      <el-text class="mgr-10">{{ value }}</el-text>
-      <el-slider :style="{
-        width: label ? width + 'px' : '100%',
-      }" class="slider" v-model="value" :min="min" :max="max" :step="step" :disabled="disabled" />
+      <el-text mr-10px>{{ value }}</el-text>
+      <el-button
+        link
+        size="small"
+        v-if="controls"
+        :disabled="value <= min"
+        @click="reduce"
+        type="danger"
+      >
+        <el-icon><span i-mdi-minus></span></el-icon>
+      </el-button>
+      <el-slider
+        :style="{
+          width: label ? width + 'px' : '100%',
+        }"
+        v-model="value"
+        :min="min"
+        :max="max"
+        :step="step"
+        :disabled="disabled"
+      />
+      <el-button
+        link
+        size="small"
+        v-if="controls"
+        :disabled="value >= max"
+        @click="add"
+        type="primary"
+      >
+        <el-icon><span i-mdi-plus></span></el-icon>
+      </el-button>
     </div>
   </div>
 </template>
@@ -13,7 +40,7 @@
 const value = defineModel<number>({
   default: 0,
 });
-defineProps({
+const props = defineProps({
   label: {
     type: String,
     default: "",
@@ -41,15 +68,40 @@ defineProps({
   hideLabel: {
     type: Boolean,
     default: false,
-  }
+  },
+  controls: {
+    type: Boolean,
+    default: true,
+  },
 });
+const decimalPlaces = (num: number) => {
+  const match = ("" + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (!match) {
+    return 0;
+  }
+  return Math.max(
+    0,
+    (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0)
+  );
+};
+const add = () => {
+  const factor =
+    10 ** Math.max(decimalPlaces(value.value), decimalPlaces(props.step));
+  value.value =
+    (Math.round(value.value * factor) + Math.round(props.step * factor)) /
+    factor;
+};
+
+const reduce = () => {
+  const factor =
+    10 ** Math.max(decimalPlaces(value.value), decimalPlaces(props.step));
+  value.value =
+    (Math.round(value.value * factor) - Math.round(props.step * factor)) /
+    factor;
+};
 </script>
 
 <style lang="scss" scoped>
-.mgr-10 {
-  margin-right: 10px;
-}
-
 .fr-slider {
   width: 100%;
   display: flex;
