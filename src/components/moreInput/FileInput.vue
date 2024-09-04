@@ -42,11 +42,15 @@
       </div>
     </template>
     <template v-else>
-      <div flex flex-row flex-items-center justify-between>
+      <div flex flex-row flex-items-center justify-between :style="{
+        flexDirection: props.multipleLabelPos === 'left' ? 'row' : 'column',
+        alignItems: props.multipleLabelPos === 'left' ? 'center' : 'flex-start',
+      }">
         <el-text
           v-if="props.label !== ''"
           :style="{
             color: pathExits ? undefined : 'red',
+            alignSelf: props.labelPos === 'left' ? 'flex-start' : 'center',
           }"
         >
           {{ props.label }}
@@ -57,10 +61,11 @@
             class="w-100"
             size="small"
             @click="selectFilePath"
+            :disabled="props.disabled"
           >
             +选择文件
           </el-button>
-          <el-button class="w-100" size="small" @click="clearFilePath">
+          <el-button class="w-100" size="small" @click="clearFilePath" :disabled="props.disabled">
             x清空已选
           </el-button>
         </div>
@@ -106,6 +111,10 @@ const props = defineProps({
     type: String as PropType<"left" | "center">,
     default: "center",
   },
+  multipleLabelPos:{
+    type: String as PropType<"left" | "top">,
+    default: "left",
+  }
 });
 type SuggestionItem = {
   label: string;
@@ -150,6 +159,9 @@ const selectHandler = (item: Record<string, any>) => {
   value.value = item.value;
 };
 const handleClose = (tag: string) => {
+  if(props.disabled){
+    return;
+  }
   (value.value as string[]).splice(value.value.indexOf(tag), 1);
 };
 const unExists = reactive<string[]>([]);
