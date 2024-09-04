@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Sunny, Moon } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/api/process";
 import { ElButton } from "element-plus";
 import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
+import MoonIcon from "./Icons/MoonIcon.vue";
+import SunIcon from "./Icons/SunIcon.vue";
 const { getDepStateType } = libUtil;
 const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
@@ -256,7 +257,7 @@ onUnmounted(() => {
     </div>
     <div class="setting-item">
       <span>全局主题</span>
-      <el-switch v-model="darkState" :active-icon="Moon" :inactive-icon="Sunny" @change="themeChangeHandler" />
+      <el-switch v-model="darkState" :active-icon="MoonIcon" :inactive-icon="SunIcon" @change="themeChangeHandler" />
     </div>
     <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Expand, Fold } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
@@ -149,12 +148,30 @@ onBeforeMount(() => {
               :content="app.state.aside.collapsed ? '展开' : '折叠'"
               placement="right"
             >
-              <el-button
-                class="aside-btn"
-                :icon="app.state.aside.collapsed ? Expand : Fold"
-                text
-                @click="collapsedAside"
-              />
+              <template v-if="app.state.aside.collapsed">
+                <el-button
+                  class="aside-btn"
+                  link
+                  type="primary"
+                  @click="collapsedAside"
+                >
+                  <el-icon>
+                    <span i-solar-alt-arrow-right-linear></span>
+                  </el-icon>
+                </el-button>
+              </template>
+              <template v-else>
+                <el-button
+                  class="aside-btn"
+                  link
+                  type="primary"
+                  @click="collapsedAside"
+                >
+                  <el-icon>
+                    <span i-solar-alt-arrow-left-linear></span>
+                  </el-icon>
+                </el-button>
+              </template>
             </el-tooltip>
             <el-menu
               :collapse="app.state.aside.collapsed"
