@@ -11,7 +11,7 @@ export class RFormUtil {
    * @returns failValue 或 表单项的值
    */
   getFieldValue = <T = number | string | string[] | boolean | object[]>(
-    valueType: "checkList" | "inputList" | "selectList",
+    valueType: "checkList" | "inputList" | "selectList" | "pickerList",
     label: string,
     failValue: T,
     groupLabel: string = "*脚本设置"
@@ -33,6 +33,8 @@ export class RFormUtil {
         return (field as InputListItem).value as T;
       } else if (valueType === "selectList") {
         return (field as SelectListItem).value as T;
+      } else if (valueType === "pickerList") {
+        return (field as PickerListItem).value as T
       } else {
         return failValue;
       }
@@ -54,7 +56,7 @@ export class RFormUtil {
     this.form
       .filter((group) => group.enable)
       .find((g) => {
-        const allItems = [...g.checkList, ...g.inputList, ...g.selectList];
+        const allItems = [...g.checkList, ...g.inputList, ...g.selectList, ...g.pickerList];
         const item = allItems.find((i) => i.id === id);
         if (item) {
           if ("checked" in item) {

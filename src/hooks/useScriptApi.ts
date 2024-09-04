@@ -183,9 +183,8 @@ const pushElement = (
       enable: elem.enable === undefined ? true : elem.enable,
       checkList: [],
       selectList: [],
-      groupSelectList: [],
       inputList: [],
-      multipleSelectList: [],
+      pickerList: [],
     };
     group[elem.type + "List"] = [elem];
     rendererList.push(group);
