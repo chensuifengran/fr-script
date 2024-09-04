@@ -22,7 +22,7 @@
         <div class="check-content">
           <el-checkbox
             v-for="c in g.checkList"
-            :key="c.label"
+            :key="c.id"
             :label="c.label"
             class="check-item"
             v-model="c.checked"
@@ -33,7 +33,7 @@
         <div
           class="select-item"
           v-for="s in g.selectList"
-          :key="s.label"
+          :key="s.id"
           :style="{
             flexDirection:
               disabledAll ||
@@ -112,7 +112,7 @@
         <div
           class="input-item"
           v-for="i in g.inputList"
-          :key="i.label"
+          :key="i.id"
           style="align-items: flex-start"
         >
           <template v-if="i.inputType === 'range'">
@@ -149,6 +149,7 @@
               :label="i.label"
               :multiple="i.multiple"
               :disabled="!g.enable || disabledAll"
+              :multiple-label-pos="disabledAll ? 'top' : 'left'"
               label-pos="left"
               w-full
             />
@@ -197,6 +198,61 @@
             </el-input>
           </template>
         </div>
+        <div class="picker-item" v-for="i in g.pickerList" :key="i.id">
+          <template v-if="i.pickerType === 'color'">
+            <el-text>{{ i.label }}</el-text>
+            <el-color-picker
+              v-model="i.value"
+              :disabled="!g.enable || disabledAll"
+              size="small"
+              :show-alpha="enableAlpha(i.enableAlpha, i.colorFormat)"
+              :color-format="processFormat(i.colorFormat)"
+              :predefine="i.predefine"
+            />
+          </template>
+          <template v-if="i.pickerType === 'time'">
+            <div
+              class="time-picker-content"
+              :style="{
+                flexDirection: i.isRange ? 'column' : 'row',
+                justifyContent: i.isRange ? 'flex-start' : 'space-between',
+              }"
+            >
+              <el-text
+                :style="{
+                  alignSelf: i.isRange ? 'flex-start' : 'center',
+                }"
+                >{{ i.label }}</el-text
+              >
+              <template v-if="i.isRange">
+                <el-time-picker
+                  class="time-picker"
+                  v-model="i.value"
+                  :is-range="i.isRange"
+                  :start-placeholder="i.startPlaceholder"
+                  :end-placeholder="i.endPlaceholder"
+                  :disabled="!g.enable || disabledAll"
+                  :range-separator="i.rangeSeparator"
+                  :disabled-hours="i.disabledHours"
+                  :disabled-minutes="i.disabledMinutes"
+                  :disabled-seconds="i.disabledSeconds"
+                  size="small"
+                />
+              </template>
+              <template v-else>
+                <el-time-picker
+                  v-model="i.value"
+                  :disabled="!g.enable || disabledAll"
+                  :placeholder="i.placeholder"
+                  :disabled-hours="i.disabledHours"
+                  :disabled-minutes="i.disabledMinutes"
+                  :disabled-seconds="i.disabledSeconds"
+                  size="small"
+                />
+              </template>
+            </div>
+          </template>
+        </div>
       </div>
     </ElCard>
   </div>
@@ -205,7 +261,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { WatchStopHandle } from "vue";
-
+const { appAsideBgColor } = useAppTheme();
 const props = defineProps({
   reInit: {
     type: Function as PropType<() => boolean>,
@@ -270,7 +326,6 @@ const configChangeHandle = async (label?: string) => {
     await importLastRunConfig(rendererList.value);
   }
 };
-
 let stopHandle: WatchStopHandle;
 onMounted(() => {
   rendererList.value = RFormUtil.genId(rendererList.value);
@@ -287,7 +342,6 @@ onBeforeUnmount(() => {
     stopHandle();
   }
 });
-
 const getSelectMinWidth = (text: string | number | boolean | object) => {
   if (typeof text === "object") {
     text = JSON.stringify(text);
@@ -298,6 +352,27 @@ const getSelectMinWidth = (text: string | number | boolean | object) => {
   const len = Math.min(text.length - 1, 7);
   let d = 45;
   return `${d + len * 15}px`;
+};
+const enableAlpha = (enable?: boolean, colorFormat?: string) => {
+  if (enable === undefined) {
+    if (colorFormat) {
+      if (colorFormat.toLocaleLowerCase().endsWith("a")) {
+        return true;
+      }
+    }
+    return false;
+  }
+  return enable;
+};
+const processFormat = (format?: string) => {
+  if (!format) {
+    return "hex";
+  }
+  format = format.toLocaleLowerCase();
+  if (format.endsWith("a")) {
+    format = format.replace("a", "");
+  }
+  return format;
 };
 </script>
 
@@ -330,6 +405,31 @@ const getSelectMinWidth = (text: string | number | boolean | object) => {
           margin-right: 5px;
         }
       }
+      .picker-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        margin-bottom: 2px;
+        .time-picker-content {
+          width: 100%;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          box-sizing: border-box;
+          :deep(.time-picker) {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 5px;
+          }
+        }
+        &:hover {
+          background: v-bind(appAsideBgColor);
+        }
+      }
 
       .select-item,
       .input-item {
@@ -339,9 +439,14 @@ const getSelectMinWidth = (text: string | number | boolean | object) => {
         justify-content: space-between;
         margin-bottom: 5px;
         margin-top: 5px;
-
+        padding: 5px;
+        box-sizing: border-box;
+        border-radius: 5px;
         .select {
           max-width: 70%;
+        }
+        &:hover {
+          background: v-bind(appAsideBgColor);
         }
       }
     }
