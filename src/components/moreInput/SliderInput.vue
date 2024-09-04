@@ -1,13 +1,15 @@
 <template>
   <div class="fr-slider">
-    <el-text v-if="label && !hideLabel" class="label">{{ label }}</el-text>
+    <el-text v-if="props.label && !props.hideLabel" class="label">{{
+      props.label
+    }}</el-text>
     <div class="data-area">
       <el-text mr-10px>{{ value }}</el-text>
       <el-button
         link
         size="small"
-        v-if="controls"
-        :disabled="value <= min"
+        v-if="props.controls"
+        :disabled="value <= props.min"
         @click="reduce"
         type="danger"
       >
@@ -15,19 +17,19 @@
       </el-button>
       <el-slider
         :style="{
-          width: label ? width + 'px' : '100%',
+          width: props.label ? props.width + 'px' : '100%',
         }"
         v-model="value"
-        :min="min"
-        :max="max"
-        :step="step"
-        :disabled="disabled"
+        :min="props.min"
+        :max="props.max"
+        :step="props.step"
+        :disabled="props.disabled"
       />
       <el-button
         link
         size="small"
-        v-if="controls"
-        :disabled="value >= max"
+        v-if="props.controls"
+        :disabled="value >= props.max"
         @click="add"
         type="primary"
       >

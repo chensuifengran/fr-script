@@ -4,49 +4,49 @@
     flex-row
     items-center
     :style="{
-      justifyContent: label ? 'space-between' : 'flex-start',
+      justifyContent: props.label ? 'space-between' : 'flex-start',
     }"
   >
-    <div v-if="label">{{ label }}</div>
+    <div v-if="props.label">{{ props.label }}</div>
     <div
       flex
       flex-row
       items-center
       :style="{
-        width: label ? 'auto' : '100%',
+        width: props.label ? 'auto' : '100%',
       }"
     >
       <el-tooltip
         effect="dark"
-        :content="'最小值' + (limit ? `(min:${limit[0]})` : '')"
+        :content="'最小值' + (props.limit ? `(min:${props.limit[0]})` : '')"
         placement="bottom"
       >
         <el-input-number
-          :class="controls ? 'w-105px' : 'w-65px'"
+          :class="props.controls ? 'w-105px' : 'w-65px'"
           v-model="model![0]"
-          :min="limit ? limit[0] : undefined"
+          :min="props.limit ? props.limit[0] : undefined"
           :max="lowMax"
           size="small"
-          :controls="controls"
+          :controls="props.controls"
           @change="handleChange()"
-          :disabled="disabled"
+          :disabled="props.disabled"
         />
       </el-tooltip>
       ~
       <el-tooltip
         effect="dark"
-        :content="'最大值' + (limit ? `(max:${limit[1]})` : '')"
+        :content="'最大值' + (props.limit ? `(max:${props.limit[1]})` : '')"
         placement="bottom"
       >
         <el-input-number
-          :class="controls ? 'w-105px' : 'w-65px'"
+          :class="props.controls ? 'w-105px' : 'w-65px'"
           v-model="model![1]"
           :min="min"
-          :max="limit ? limit[1] : undefined"
+          :max="props.limit ? props.limit[1] : undefined"
           size="small"
-          :controls="controls"
+          :controls="props.controls"
           @change="handleChange()"
-          :disabled="disabled"
+          :disabled="props.disabled"
         />
       </el-tooltip>
     </div>
@@ -75,10 +75,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  controls:{
+  controls: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 const handleChange = () => {
   if (model.value[0] >= model.value[1]) {

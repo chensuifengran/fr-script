@@ -1,21 +1,51 @@
 <template>
   <div class="card">
     <div class="title">
-      <el-text>截取{{ targetSrc.trim().length === 0 ? "屏幕" : "图片" }}指定位置</el-text>
+      <el-text
+        >截取{{
+          props.targetSrc.trim().length === 0 ? "屏幕" : "图片"
+        }}指定位置</el-text
+      >
       <div class="title-btns">
-        <el-button :disabled="disabled" size="small" @click="useParam">填入参数</el-button>
-        <el-button :disabled="disabled" size="small" @click="copyParam">复制参数</el-button>
-        <el-button :disabled="disabled" size="small" @click="selectRect">截取屏幕矩形</el-button>
+        <el-button :disabled="props.disabled" size="small" @click="useParam"
+          >填入参数</el-button
+        >
+        <el-button :disabled="props.disabled" size="small" @click="copyParam"
+          >复制参数</el-button
+        >
+        <el-button :disabled="props.disabled" size="small" @click="selectRect"
+          >截取屏幕矩形</el-button
+        >
       </div>
     </div>
     <div class="content">
       <div class="line">
-        <el-input :disabled="disabled" size="small" v-model.number="info.x"><template #prepend>x</template></el-input>
-        <el-input :disabled="disabled" size="small" v-model.number="info.y"><template #prepend>y</template></el-input>
+        <el-input
+          :disabled="props.disabled"
+          size="small"
+          v-model.number="info.x"
+          ><template #prepend>x</template></el-input
+        >
+        <el-input
+          :disabled="props.disabled"
+          size="small"
+          v-model.number="info.y"
+          ><template #prepend>y</template></el-input
+        >
       </div>
       <div class="line">
-        <el-input :disabled="disabled" size="small" v-model.number="info.width"><template #prepend>width(宽)</template></el-input>
-        <el-input :disabled="disabled" size="small" v-model.number="info.height"><template #prepend>height(高)</template></el-input>
+        <el-input
+          :disabled="props.disabled"
+          size="small"
+          v-model.number="info.width"
+          ><template #prepend>width(宽)</template></el-input
+        >
+        <el-input
+          :disabled="props.disabled"
+          size="small"
+          v-model.number="info.height"
+          ><template #prepend>height(高)</template></el-input
+        >
       </div>
     </div>
   </div>
@@ -26,11 +56,11 @@ import { invoke } from "@tauri-apps/api";
 const { oppositeBgColor } = useAppTheme();
 const info = defineModel<
   | {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
   | Record<string, any>
 >({
   required: false,
@@ -105,7 +135,7 @@ const useParam = async () => {
       info.value.width = parseInt(arr[2]);
       info.value.height = parseInt(arr[3]);
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 const selectRect = async () => {
   try {
@@ -131,7 +161,6 @@ const selectRect = async () => {
     console.error(error);
   }
 };
-
 </script>
 
 <style lang="scss" scoped>

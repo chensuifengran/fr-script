@@ -1,9 +1,23 @@
 <template>
-  <el-dialog v-model="model" :title="title" @close="closeDialog" @keyup.enter="callback" draggable top="10vh"
-    width="70%" class="general-dialog">
-    <div v-if="content">
-      <span v-if="!isTestModule">{{ content }}</span><el-alert v-else :title="content" :closable="false" type="info"
-        show-icon />
+  <el-dialog
+    v-model="model"
+    :title="props.title"
+    @close="closeDialog"
+    @keyup.enter="props.callback"
+    draggable
+    top="10vh"
+    width="70%"
+    class="general-dialog"
+  >
+    <div v-if="props.content">
+      <span v-if="!props.isTestModule">{{ props.content }}</span
+      ><el-alert
+        v-else
+        :title="props.content"
+        :closable="false"
+        type="info"
+        show-icon
+      />
     </div>
     <div class="fields">
       <slot name="element" />
@@ -12,7 +26,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="closeDialog">取消</el-button>
-        <el-button type="primary" @click="callback"> 确定 </el-button>
+        <el-button type="primary" @click="props.callback"> 确定 </el-button>
       </span>
     </template>
   </el-dialog>
@@ -22,7 +36,7 @@
 const model = defineModel<boolean>({
   default: false,
 });
-defineProps({
+const props = defineProps({
   isTestModule: {
     type: Boolean,
     default: false,

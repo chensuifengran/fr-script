@@ -1,30 +1,45 @@
 <template>
   <div>
-    <el-text v-if="label !== '' && label.length > 10" :style="{
-      color: pathExits ? undefined : 'red',
-    }">
-      {{ label }}
-    </el-text>
-    <el-autocomplete v-model="value" :fetch-suggestions="querySearch" size="small" @select="selectHandler"
-      :disabled="disabled">
-      <template #prepend v-if="label !== '' && label.length <= 10"><el-text :style="{
+    <el-text
+      v-if="props.label !== '' && props.label.length > 10"
+      :style="{
         color: pathExits ? undefined : 'red',
-      }">
-          {{ label }}
-        </el-text></template>
+      }"
+    >
+      {{ props.label }}
+    </el-text>
+    <el-autocomplete
+      v-model="value"
+      :fetch-suggestions="querySearch"
+      size="small"
+      @select="selectHandler"
+      :disabled="props.disabled"
+    >
+      <template #prepend v-if="props.label !== '' && props.label.length <= 10"
+        ><el-text
+          :style="{
+            color: pathExits ? undefined : 'red',
+          }"
+        >
+          {{ props.label }}
+        </el-text></template
+      >
       <template #append>
         <el-button @click="selectFilePath">选择路径</el-button>
       </template>
       <template #default="{ item }">
         <div class="suggestion-item">
-          <el-text>{{ item.value }}</el-text><el-tag size="small">{{ item.label }}</el-tag>
+          <el-text>{{ item.value }}</el-text
+          ><el-tag size="small">{{ item.label }}</el-tag>
         </div>
       </template>
     </el-autocomplete>
     <div v-show="!pathExits" class="tip">
       <el-icon color="red">
-        <span i-mdi-close></span>
-      </el-icon><el-tag type="danger">该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag>
+        <span i-mdi-close></span> </el-icon
+      ><el-tag type="danger"
+        >该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag
+      >
     </div>
   </div>
 </template>
@@ -55,18 +70,23 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 type SuggestionItem = {
   label: string;
   value: string;
 };
 const suggestions = reactive<SuggestionItem[]>([]);
-const querySearch = (queryString: string, cb: (s: SuggestionItem[]) => void) => {
+const querySearch = (
+  queryString: string,
+  cb: (s: SuggestionItem[]) => void
+) => {
   const results = queryString
     ? suggestions.filter((item) => {
-      return item.value.includes(queryString) || item.label.includes(queryString);
-    })
+        return (
+          item.value.includes(queryString) || item.label.includes(queryString)
+        );
+      })
     : suggestions;
   cb(results);
 };

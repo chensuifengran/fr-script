@@ -2,28 +2,28 @@
   <div class="file-input-content">
     <template v-if="typeof value === 'string'">
       <el-text
-        v-if="label !== '' && label.length > 10"
+        v-if="props.label !== '' && props.label.length > 10"
         :style="{
           color: pathExits ? undefined : 'red',
-          alignSelf: labelPos === 'left' ? 'flex-start' : 'center',
+          alignSelf: props.labelPos === 'left' ? 'flex-start' : 'center',
         }"
       >
-        {{ label }}
+        {{ props.label }}
       </el-text>
       <el-autocomplete
         v-model="value"
         :fetch-suggestions="querySearch"
         size="small"
         @select="selectHandler"
-        :disabled="disabled"
+        :disabled="props.disabled"
       >
-        <template #prepend v-if="label !== '' && label.length <= 10"
+        <template #prepend v-if="props.label !== '' && props.label.length <= 10"
           ><el-text
             :style="{
               color: pathExits ? undefined : 'red',
             }"
           >
-            {{ label }}
+            {{ props.label }}
           </el-text></template
         >
         <template #append>
@@ -44,12 +44,12 @@
     <template v-else>
       <div flex flex-row flex-items-center justify-between>
         <el-text
-          v-if="label !== ''"
+          v-if="props.label !== ''"
           :style="{
             color: pathExits ? undefined : 'red',
           }"
         >
-          {{ label }}
+          {{ props.label }}
         </el-text>
         <div flex flex-items-center flex-row>
           <el-button

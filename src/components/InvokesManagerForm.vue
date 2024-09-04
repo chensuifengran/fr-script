@@ -2,7 +2,9 @@
   <div w-full>
     <div w-full box-border flex flex-col>
       <div class="form-item">
-        <el-text tag="b" :id="anchorIdPrefix + '-api-name'">API名称</el-text>
+        <el-text tag="b" :id="props.anchorIdPrefix + '-api-name'"
+          >API名称</el-text
+        >
         <el-input
           v-model="localForm.name"
           placeholder="API名称"
@@ -10,7 +12,9 @@
         />
       </div>
       <div class="form-item">
-        <el-text tag="b" :id="anchorIdPrefix + '-api-state'">API状态</el-text>
+        <el-text tag="b" :id="props.anchorIdPrefix + '-api-state'"
+          >API状态</el-text
+        >
         <el-switch
           v-model="localForm.disabled"
           active-text="禁用"
@@ -22,7 +26,7 @@
         />
       </div>
       <div class="form-item">
-        <el-text tag="b" :id="anchorIdPrefix + '-ns'"
+        <el-text tag="b" :id="props.anchorIdPrefix + '-ns'"
           >命名空间(namespace)</el-text
         >
         <el-select
@@ -36,7 +40,7 @@
           @change="selectScopeHandler"
         >
           <el-option
-            v-for="(item, idx) in scopeList"
+            v-for="(item, idx) in props.scopeList"
             :key="idx"
             :label="item.label"
             :value="item.value"
@@ -47,7 +51,7 @@
                 size="small"
                 type="success"
                 mr-1
-                v-if="!scopeList.find((i) => i.label === label)"
+                v-if="!props.scopeList.find((i) => i.label === label)"
                 >new</el-tag
               >
               <el-text>{{ label }}</el-text>
@@ -56,7 +60,7 @@
         </el-select>
       </div>
       <div class="form-item">
-        <el-text tag="b" :id="anchorIdPrefix + '-weight'"
+        <el-text tag="b" :id="props.anchorIdPrefix + '-weight'"
           >显示权重(越大默认排序越靠前)</el-text
         >
         <el-input-number
@@ -67,7 +71,9 @@
       </div>
       <div flex flex-col>
         <div class="form-item">
-          <el-text tag="b" :id="anchorIdPrefix + '-api-doc'">API文档</el-text>
+          <el-text tag="b" :id="props.anchorIdPrefix + '-api-doc'"
+            >API文档</el-text
+          >
           <el-button link @click="apiFormShow = !apiFormShow">
             <el-icon size="large">
               <span v-show="apiFormShow" i-mdi-chevron-down></span>
@@ -325,7 +331,7 @@
       </div>
       <div flex flex-col>
         <div class="form-item">
-          <el-text tag="b" :id="anchorIdPrefix + '-api-test'"
+          <el-text tag="b" :id="props.anchorIdPrefix + '-api-test'"
             >测试弹窗/快速修改参数弹窗</el-text
           >
           <el-button link @click="dialogFormShow = !dialogFormShow">
@@ -378,7 +384,7 @@
       </div>
       <div flex flex-col v-for="codeItem in codes" :key="codeItem.name">
         <div class="form-item">
-          <el-text tag="b" :id="anchorIdPrefix + '-' + codeItem.name">{{
+          <el-text tag="b" :id="props.anchorIdPrefix + '-' + codeItem.name">{{
             codeItem.title
           }}</el-text>
           <el-button link @click="codeItem.show = !codeItem.show">
@@ -490,7 +496,7 @@ watch(localForm, updateCodes, {
 const currentDocParams = computed(() => {
   return localForm.value.document.params;
 });
-defineProps({
+const props = defineProps({
   scopeList: {
     type: Array as PropType<
       {

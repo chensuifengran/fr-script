@@ -12,10 +12,10 @@
           :model="editDialogForm"
         >
           <el-form-item label="字段命名" prop="name">
-            <template v-if="documentParams.length">
+            <template v-if="props.documentParams.length">
               <el-select v-model="editDialogForm.name" filterable allow-create>
                 <el-option
-                  v-for="argItem in documentParams"
+                  v-for="argItem in props.documentParams"
                   :key="argItem.id"
                   :label="argItem.name"
                   :value="argItem.name"
@@ -369,7 +369,7 @@
 import { VueDraggable } from "vue-draggable-plus";
 import { nanoid } from "nanoid";
 import { ListStore } from "../../store/listStore";
-defineProps({
+const props = defineProps({
   documentParams: {
     type: Array as PropType<DocumentParamItem[]>,
     default: [],
