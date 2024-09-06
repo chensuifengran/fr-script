@@ -210,7 +210,7 @@
               :predefine="i.predefine"
             />
           </template>
-          <template v-if="i.pickerType === 'time'">
+          <template v-else-if="i.pickerType === 'time'">
             <div
               class="time-picker-content"
               :style="{
@@ -228,6 +228,7 @@
                 <el-time-picker
                   class="time-picker"
                   v-model="i.value"
+                  :default-value="[new Date(), new Date()]"
                   :is-range="i.isRange"
                   :start-placeholder="i.startPlaceholder"
                   :end-placeholder="i.endPlaceholder"
@@ -236,17 +237,61 @@
                   :disabled-hours="i.disabledHours"
                   :disabled-minutes="i.disabledMinutes"
                   :disabled-seconds="i.disabledSeconds"
+                  :value-format="getValueFormat(i)"
                   size="small"
                 />
               </template>
               <template v-else>
                 <el-time-picker
                   v-model="i.value"
+                  :default-value="new Date()"
                   :disabled="!g.enable || disabledAll"
                   :placeholder="i.placeholder"
                   :disabled-hours="i.disabledHours"
                   :disabled-minutes="i.disabledMinutes"
                   :disabled-seconds="i.disabledSeconds"
+                  :value-format="getValueFormat(i)"
+                  size="small"
+                />
+              </template>
+            </div>
+          </template>
+          <template v-else-if="i.pickerType === 'date'">
+            <div
+              class="time-picker-content"
+              :style="{
+                flexDirection: i.isRange ? 'column' : 'row',
+                justifyContent: i.isRange ? 'flex-start' : 'space-between',
+              }"
+            >
+              <el-text
+                :style="{
+                  alignSelf: i.isRange ? 'flex-start' : 'center',
+                }"
+                >{{ i.label }}</el-text
+              >
+              <template v-if="i.isRange">
+                <el-date-picker
+                  class="time-picker"
+                  v-model="i.value"
+                  :default-value="[new Date(), new Date()]"
+                  type="datetimerange"
+                  :start-placeholder="i.startPlaceholder"
+                  :end-placeholder="i.endPlaceholder"
+                  :disabled="!g.enable || disabledAll"
+                  :range-separator="i.rangeSeparator"
+                  :value-format="getValueFormat(i)"
+                  size="small"
+                />
+              </template>
+              <template v-else>
+                <el-date-picker
+                  v-model="i.value"
+                  :default-value="new Date()"
+                  type="datetime"
+                  :disabled="!g.enable || disabledAll"
+                  :placeholder="i.placeholder"
+                  :value-format="getValueFormat(i)"
                   size="small"
                 />
               </template>
@@ -373,6 +418,11 @@ const processFormat = (format?: string) => {
     format = format.replace("a", "");
   }
   return format;
+};
+const getValueFormat = (item: Record<string, any>) => {
+  if (item.valueFormat) {
+    return item.valueFormat as string;
+  }
 };
 </script>
 
