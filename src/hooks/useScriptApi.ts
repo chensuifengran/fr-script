@@ -111,6 +111,16 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
               defaultInputItem.value = targetInputItem.value;
             }
           }
+          //覆盖defaultItem的pickerList[index]的value
+          for (let j = 0; j < defaultItem.pickerList.length; j++) {
+            const defaultPickerItem = defaultItem.pickerList[j];
+            const targetPickerItem = targetItem.pickerList.find(
+              (item) => item.label === defaultPickerItem.label
+            );
+            if (targetPickerItem) {
+              defaultPickerItem.value = targetPickerItem.value;
+            }
+          }
         }
       }
       defaultObj.find((i) => {
