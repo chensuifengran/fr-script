@@ -89,6 +89,34 @@ declare type SelectListItem =
   | BaseSelectItem<boolean>;
 declare type CheckListItem = { checked: boolean } & BaseListItem;
 declare namespace PickerItem {
+  type DateTimeProp = (
+    | {
+        isRange?: false;
+        value: Date;
+        placeholder?: string;
+      }
+    | {
+        isRange?: false;
+        valueFormat: string;
+        value: string;
+        placeholder?: string;
+      }
+    | {
+        isRange: true;
+        valueFormat: string;
+        value: [string, string] | [];
+        rangeSeparator?: string;
+        startPlaceholder?: string;
+        endPlaceholder?: string;
+      }
+    | {
+        isRange: true;
+        value: [Date, Date] | [];
+        rangeSeparator?: string;
+        startPlaceholder?: string;
+        endPlaceholder?: string;
+      }
+  );
   type PTime = {
     pickerType: "time";
     clearable?: boolean;
@@ -105,38 +133,12 @@ declare namespace PickerItem {
       role: string,
       comparingDate?: any
     ) => number[];
-  } & (
-    | {
-        isRange?: false;
-        value: Date;
-        placeholder?: string;
-      }
-    | {
-        isRange: false;
-        valueFormat: string;
-        value: string;
-        placeholder?: string;
-      }
-    | {
-        isRange: true;
-        valueFormat: string;
-        value: [string, string];
-        rangeSeparator?: string;
-        startPlaceholder?: string;
-        endPlaceholder?: string;
-      }
-    | {
-        isRange: true;
-        value: [Date, Date];
-        rangeSeparator?: string;
-        startPlaceholder?: string;
-        endPlaceholder?: string;
-      }
-  );
+  } & DateTimeProp;
   type PDate = {
     pickerType: "date";
-    value: Date;
-  };
+    clearable?: boolean;
+    format?: string;
+  } & DateTimeProp;
   type Color<Alpha extends boolean> = {
     pickerType: "color";
     enableAlpha?: Alpha;
