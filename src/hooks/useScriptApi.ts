@@ -37,7 +37,7 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
             const targetSelectItem = targetItem.selectList.find(
               (item) => item.label === defaultSelectItem.label
             );
-            if (targetSelectItem) {
+            if (targetSelectItem && !targetSelectItem.segmented) {
               let opts: (string | number | boolean)[] = [];
               let newVal;
               if (targetSelectItem.group) {
@@ -89,6 +89,20 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
                 | number[]
                 | string[]
                 | boolean[];
+            } else if (targetSelectItem && targetSelectItem.segmented) {
+              const newOptionValues = targetSelectItem.options.map((o) => {
+                if (o instanceof Object) {
+                  return o.value;
+                } else {
+                  return o;
+                }
+              });
+              if (
+                defaultSelectItem.segmented &&
+                newOptionValues.includes(defaultSelectItem.value)
+              ) {
+                defaultSelectItem.value = targetSelectItem.value;
+              }
             }
           }
           //覆盖defaultItem的checkList[index]的checked
