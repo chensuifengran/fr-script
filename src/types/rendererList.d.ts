@@ -75,20 +75,42 @@ declare type InputListItem =
   | RangeInputItem
   | FileInputItem<true>
   | FileInputItem<false>;
-declare type BaseSelectItem<T extends string | number | boolean> = (
+declare type BaseSelectItem<T extends string | number | boolean> =
   | SelectType.Default<T>
   | SelectType.Base<T, SelectType.ConstantOption<T>, SelectType.Multiple<T>>
   | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Single<T>>
-  | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Multiple<T>>
+  | SelectType.Base<T, SelectType.GroupOption<T>, SelectType.Multiple<T>>;
+declare type SegmentedOption<T extends string | number | boolean> =
+  | {
+      label: string;
+      value: T;
+      disabled?: boolean;
+      [key: string]: any;
+    }
+  | T;
+declare type SegmentedItem<T extends string | number | boolean> = {
+  segmented: true;
+  options: SegmentedOption<T>[];
+  value: T;
+  multiple?: false /*适应BaseSelectItem的属性*/;
+};
+declare type SegmentedItems = (
+  | SegmentedItem<string>
+  | SegmentedItem<number>
+  | SegmentedItem<boolean>
 ) &
   BaseListItem;
-declare type SelectListItem =
+declare type BaseSelectItems = (
   | BaseSelectItem<string>
   | BaseSelectItem<number>
-  | BaseSelectItem<boolean>;
+  | BaseSelectItem<boolean>
+) & {
+  segmented?: false; //适应SegmentedItem的属性
+} & BaseListItem;
+declare type SelectListItem = BaseSelectItems | SegmentedItems;
 declare type CheckListItem = { checked: boolean } & BaseListItem;
 declare namespace PickerItem {
-  type DateTimeProp = (
+  type DateTimeProp =
     | {
         isRange?: false;
         value: Date;
@@ -114,8 +136,7 @@ declare namespace PickerItem {
         rangeSeparator?: string;
         startPlaceholder?: string;
         endPlaceholder?: string;
-      }
-  );
+      };
   type PTime = {
     pickerType: "time";
     clearable?: boolean;

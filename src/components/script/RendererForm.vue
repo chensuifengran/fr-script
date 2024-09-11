@@ -38,18 +38,19 @@
             flexDirection:
               disabledAll ||
               s.multiple ||
-              (s.label.length && s.label.length > 6)
+              (s.label.length && s.label.length > 6 && !s.segmented)
                 ? 'column'
                 : 'row',
             alignItems:
               disabledAll ||
               s.multiple ||
-              (s.label.length && s.label.length > 6)
+              (s.label.length && s.label.length > 6 && !s.segmented)
                 ? 'flex-start'
                 : 'center',
           }"
         >
-          <div flex flex-row items-center>
+          <template v-if="!s.segmented">
+            <div flex flex-row items-center>
             <el-tag size="small" v-if="s.group"
               >{{ getItemType(s.options[0]?.options[0])
               }}{{ s.multiple ? "[]" : "" }}</el-tag
@@ -108,6 +109,20 @@
               />
             </template>
           </el-select>
+          </template>
+          <template v-else>
+            <el-text
+              ml-1
+              :style="{
+                alignSelf:
+                  disabledAll || (s.label.length && s.label.length > 6)
+                    ? 'self-start'
+                    : 'center',
+              }"
+              >{{ s.label }}</el-text
+            >
+            <el-segmented v-model="s.value" :options="s.options" :disabled="disabledAll" />
+          </template>
         </div>
         <div
           class="input-item"
