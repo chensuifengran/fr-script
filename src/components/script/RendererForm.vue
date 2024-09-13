@@ -121,7 +121,7 @@
               }"
               >{{ s.label }}</el-text
             >
-            <el-segmented v-model="s.value" :options="s.options" :disabled="disabledAll" />
+            <el-segmented v-model="s.value" :options="s.options" :disabled="disabledAll || !g.enable" />
           </template>
         </div>
         <div
