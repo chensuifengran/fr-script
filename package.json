@@ -13,6 +13,7 @@
     "tauri:build": "pnpm genType && pnpm genDeclare && pnpm build && tauri build",
     "tauri:build:debug": "pnpm build:debug && tauri build",
     "tauri:only_build": "tauri build",
+    "tauri:only_build_d": "node .\\script\\switchEnv DEBUG && tauri build",
     "genType": "node .\\script\\genBuiltInApiType.js",
     "genDeclare": "node .\\script\\genApiDeclare.js",
     "verify": "vue-tsc --noEmit"
