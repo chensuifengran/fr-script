@@ -10,21 +10,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5.4", features = [] }
+tauri-build = { version = "1.5.5", features = [] }
 
 [dependencies]
 thirtyfour = "0.34.0"
 reqwest = "0.12.7"
 lazy_static = "1.5.0"
-tauri = { version = "1.7.2", features = [ "api-all"] }
-serde = { version = "1.0.202", features = ["derive"] }
+tauri = { version = "1.8.0", features = [ "api-all"] }
+serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 rusty-tesseract = "1.1.10"
 libloading = "0.8.5"
 enigo = {version="0.2.1",features= ["serde"] }
 wio = "0.2.2"
 winapi = { version = "0.3.9", features = ["winuser", "libloaderapi", "stringapiset", "winnls", "impl-default", "dcomp", "d2d1", "d2d1_2", "d3d11", "dxgi1_2", "dxgi1_3"] }
-webbrowser = "1.0.1"
+webbrowser = "1.0.2"
 sevenz-rust= {version="0.6.1"}
 encoding_rs = "0.8.34"
 log = "0.4.22"
