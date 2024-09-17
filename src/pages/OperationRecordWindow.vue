@@ -1,30 +1,44 @@
 <template>
   <div class="OR-content" data-tauri-drag-region style="cursor: move">
-    <div class="content" data-tauri-drag-region style="cursor: move" :style="{
-      color: oppositeBgColor,
-    }">
+    <div
+      class="content"
+      data-tauri-drag-region
+      style="cursor: move"
+      :style="{
+        color: oppositeBgColor,
+      }"
+    >
       <el-icon class="icon" data-tauri-drag-region style="cursor: move">
         <span i-svg-spinners-pulse-rings-multiple></span>
       </el-icon>
-      <el-tag class="icon" size="small" type="primary" data-tauri-drag-region style="cursor: move">{{
-        useTime
-      }}</el-tag>
-      <el-text class="message" data-tauri-drag-region style="cursor: move">操作录制中</el-text>
+      <el-tag
+        class="icon"
+        size="small"
+        type="primary"
+        data-tauri-drag-region
+        style="cursor: move"
+        >{{ useTime }}</el-tag
+      >
+      <el-text class="message" data-tauri-drag-region style="cursor: move"
+        >操作录制中</el-text
+      >
     </div>
     <div class="btns">
-      <el-button class="btn" size="small" type="danger" @click="stopRecording" circle><el-icon>
-          <span i-mdi-stop-circle-outline></span>
-        </el-icon></el-button>
+      <el-button
+        class="btn"
+        size="small"
+        type="danger"
+        @click="stopRecording"
+        circle
+        ><el-icon>
+          <span i-mdi-stop-circle-outline></span> </el-icon
+      ></el-button>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { UnlistenFn } from "@tauri-apps/api/event";
-import {
-  LogicalSize,
-  WebviewWindow,
-  appWindow,
-} from "@tauri-apps/api/window";
+import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
 const { borderRadius, appOpacity, oppositeBgColor } = useAppTheme();
 
 const loadingTime = ref(1);
@@ -45,7 +59,7 @@ const init = () => {
   currentInterval = setInterval(() => {
     loadingTime.value += 1;
   }, 1000);
-}
+};
 onMounted(async () => {
   appWindow.hide();
   unlistenNotify = await eventUtil.notify.listen<{
@@ -53,16 +67,16 @@ onMounted(async () => {
     payload: any;
   }>((data) => {
     const { type, payload } = data.payload;
-    if (type === 'custom-message') {
+    if (type === "custom-message") {
       const { name } = payload;
-      if (name === 'init') {
+      if (name === "init") {
         init();
-      } else if (name === 'stop') {
+      } else if (name === "stop") {
         currentInterval && clearInterval(currentInterval);
       }
     }
-  })
-})
+  });
+});
 onBeforeUnmount(() => {
   currentInterval && clearInterval(currentInterval);
   unlistenNotify && unlistenNotify();
