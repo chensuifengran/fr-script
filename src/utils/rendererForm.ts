@@ -4,14 +4,14 @@ export class RFormUtil {
   constructor(public form: RendererList[]) {}
   /**
    * 获取表单项的值
-   * @param valueType 表单项的类型
+   * @param fieldType 表单项的类型
    * @param label 表单项的label
    * @param failValue 获取失败或者未启用时的返回值
    * @param groupLabel 表单项所在的分组
    * @returns failValue 或 表单项的值
    */
   getFieldValue = <T = number | string | string[] | boolean | object[]>(
-    valueType: "checkList" | "inputList" | "selectList" | "pickerList",
+    fieldType: FieldType,
     label: string,
     failValue: T,
     groupLabel: string = "*脚本设置"
@@ -19,28 +19,20 @@ export class RFormUtil {
     const group = this.form.find((i) => {
       return i.groupLabel === groupLabel;
     });
-    if (group) {
-      if (!group.enable) {
-        return failValue;
+    const key = fieldType.replace("List", "") + "List";
+    if (group && group.enable && key in group) {
+      const field = (group as any)[key].find(
+        (i: RendererItem) => i.label === label
+      ) as RendererItem;
+      if (field) {
+        if ("checked" in field) {
+          return field.checked as T;
+        } else {
+          return field.value as T;
+        }
       }
-      const field = group[valueType].find((i) => i.label === label);
-      if (!field) {
-        return failValue;
-      }
-      if (valueType === "checkList") {
-        return (field as CheckListItem).checked as T;
-      } else if (valueType === "inputList") {
-        return (field as InputListItem).value as T;
-      } else if (valueType === "selectList") {
-        return (field as SelectListItem).value as T;
-      } else if (valueType === "pickerList") {
-        return (field as PickerListItem).value as T
-      } else {
-        return failValue;
-      }
-    } else {
-      return failValue;
     }
+    return failValue;
   };
   /**
    * 指定id获取表单项的值，需要在表单项手动指定id
@@ -56,13 +48,20 @@ export class RFormUtil {
     this.form
       .filter((group) => group.enable)
       .find((g) => {
-        const allItems = [...g.checkList, ...g.inputList, ...g.selectList, ...g.pickerList];
+        const allItems = Object.keys(g)
+          .map((gk) => {
+            if (gk.includes("List")) {
+              return (g as any)[gk] as RendererItem[];
+            }
+          })
+          .filter((i) => !!i)
+          .flat();
         const item = allItems.find((i) => i.id === id);
         if (item) {
           if ("checked" in item) {
-            resValue = (item as CheckListItem).checked as T;
+            resValue = item.checked as T;
           } else if ("value" in item) {
-            resValue = (item as SelectListItem | InputListItem).value as T;
+            resValue = item.value as T;
           }
           return true;
         }
@@ -76,28 +75,23 @@ export class RFormUtil {
    */
   static genId = (form: RendererList[]) => {
     return form.map((group) => {
-      return {
+      const g = {
         id: "g_" + nanoid(),
         ...group,
-        checkList: group.checkList.map((item) => {
-          return {
-            id: item.id || nanoid(),
-            ...item,
-          };
-        }),
-        inputList: group.inputList.map((item) => {
-          return {
-            id: item.id || nanoid(),
-            ...item,
-          };
-        }),
-        selectList: group.selectList.map((item) => {
-          return {
-            id: item.id || nanoid(),
-            ...item,
-          };
-        }),
       };
+      Object.keys(g).forEach((key) => {
+        if (key.includes("List")) {
+          (g as any)[key] = ((g as any)[key] as Record<string, any>[]).map(
+            (item) => {
+              return {
+                id: "i_" + nanoid(),
+                ...item,
+              };
+            }
+          );
+        }
+      });
+      return g;
     });
   };
 }
