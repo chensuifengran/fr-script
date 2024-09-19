@@ -4,28 +4,25 @@ declare class RFormUtil {
   /**
    * 获取表单字段的值。
    *
-   * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
+   * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]
    *
-   * @param {("checkList" | "inputList" | "selectList")} valueType 字段类型。
+   * @param {FieldType} fieldType 字段类型。
    * @param {string} label 字段标签。
    * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
    * @param {string} [groupLabel="*脚本设置"] 组标签，默认为 "*脚本设置"。
    *
    * @returns 字段的值，如果字段不存在或组不启用，则返回 failValue。
    */
-  public getFieldValue<T = number | string | string[] | boolean | object[]>(
-    valueType:
-      | "checkList"
-      | "inputList"
-      | "selectList",
-    label: string,
-    failValue: T,
+  public getFieldValue<T = string | number | boolean | string[] | object[]>(
+    fieldType: FieldType, 
+    label: string, 
+    failValue: T, 
     groupLabel?: string
   ): T;
   /**
    * 通过 id 获取表单字段的值。
    *
-   * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]。
+   * @template T 字段值的类型，默认为 number | string | string[] | boolean | object[]
    *
    * @param {string} id 字段 id。
    * @param {T} failValue 当字段不存在或组不启用时返回的失败值。
