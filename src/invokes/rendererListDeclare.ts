@@ -189,4 +189,5 @@ declare type RendererList = {
   selectList: SelectListItem[];
   pickerList: PickerListItem[];
 };
+declare type RendererItem = CheckListItem | InputListItem | SelectListItem | PickerListItem;
 `
