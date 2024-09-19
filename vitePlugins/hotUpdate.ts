@@ -63,6 +63,22 @@ const getDeclareStr = (target: "buildForm" | "rendererList") => {
     });
   }, 500);
 };
+const getEnumsScriptPath = resolve(__dirname, "../script/genEnumDeclare.js");
+const runGenEnums = () => {
+  exec(`node ${getEnumsScriptPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`执行错误: ${error}`);
+      return;
+    }
+    //HH:mm:ss
+    const date = new Date().toLocaleTimeString().slice(0, 8);
+    if (stderr) {
+      console.error(date, chalk.blue("[hot-update-plugin]"), chalk.red(stderr));
+    } else {
+      console.log(date, chalk.blue("[hot-update-plugin]"), chalk.green(stdout));
+    }
+  });
+};
 export function hotUpdatePlugin(): Plugin {
   return {
     name: "hot-update-plugin",
@@ -73,6 +89,7 @@ export function hotUpdatePlugin(): Plugin {
           "core.d.ts",
           "buildFormDeclare.ts",
           "rendererListDeclare.ts",
+          "enums.ts",
         ];
         if (excludeFiles.find((e) => file.includes(e))) {
           return;
@@ -87,6 +104,8 @@ export function hotUpdatePlugin(): Plugin {
           getDeclareStr("buildForm");
         } else if (file.includes("rendererList.d.ts")) {
           getDeclareStr("rendererList");
+        } else if (file.includes("enums.d.ts")) {
+          runGenEnums();
         }
       }
     },
