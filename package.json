@@ -5,17 +5,20 @@
   "type": "module",
   "env": "development",
   "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "dev": "node .\\script\\switchEnv && vite",
     "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",
     "build:debug": "vue-tsc --noEmit && node .\\script\\switchEnv DEBUG &&vite build",
     "preview": "vite preview",
     "tauri": "tauri dev",
-    "tauri:build": "pnpm genType && pnpm genDeclare && pnpm build && tauri build",
+    "tauri:build": "pnpm genEnum && pnpm genType && pnpm genDeclare && pnpm build && tauri build",
     "tauri:build:debug": "pnpm build:debug && tauri build",
     "tauri:only_build": "tauri build",
     "tauri:only_build_d": "node .\\script\\switchEnv DEBUG && tauri build",
     "genType": "node .\\script\\genBuiltInApiType.js",
     "genDeclare": "node .\\script\\genApiDeclare.js",
+    "genEnum": "node .\\script\\genEnumDeclare.js",
     "verify": "vue-tsc --noEmit"
   },
   "dependencies": {
@@ -46,15 +49,21 @@
     "@types/node": "22.5.3",
     "@unocss/preset-icons": "0.62.3",
     "@vitejs/plugin-vue": "5.1.3",
+    "@vitejs/plugin-vue-jsx": "^4.0.1",
     "@vue-hooks-plus/resolvers": "1.2.5",
+    "@vue/test-utils": "^2.4.6",
     "chalk": "5.3.0",
+    "jsdom": "^25.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sass": "1.78.0",
     "unocss": "0.62.3",
     "unplugin-auto-import": "0.18.2",
     "unplugin-icons": "0.19.2",
     "unplugin-vue-components": "0.27.4",
-    "vite": "^5.4.5",
+    "unplugin-vue-macros": "^2.12.2",
+    "vite": "^5.4.6",
+    "vitest": "^2.1.1",
     "vue": "3.5.0",
-    "vue-tsc": "2.1.4"
+    "vue-tsc": "2.1.6"
   }
 }
