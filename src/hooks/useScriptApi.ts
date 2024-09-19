@@ -1,5 +1,6 @@
 import { storeToRefs } from "pinia";
 import { appWindow, WebviewWindow } from "@tauri-apps/api/window";
+import { ScriptTarget, transpile } from "typescript";
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -313,6 +314,7 @@ const getWillRunScript = (runId: string, script: string) => {
         }
         signal.addEventListener('abort',signalHandle);
         const evalFunction = async()=>{
+          ${ENUM_CODE}
           ${script}
           main && await main();
           removeIntervals();
@@ -325,7 +327,10 @@ const getWillRunScript = (runId: string, script: string) => {
       console.error(e);
     }
   `;
-  return scriptTemplate;
+  return transpile(scriptTemplate, {
+    target: ScriptTarget.ESNext,
+    removeComments: true,
+  });
 };
 const setIntervals: NodeJS.Timeout[] = [];
 const _setInterval = (callback: () => void, ms?: number | undefined) => {

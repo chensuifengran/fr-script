@@ -54,6 +54,7 @@ export const editorTsDeclaration = (): string => {
     (i) => `"${i.split(":")[1]}"`
   ).join("|")};`;
   return `
+${ENUM_DECLARE.trim()}
 ${INPUT_KEY_TYPE.trim()}
 ${UTIL_DECLARE_STRING.trim()}
 ${BUILD_FORM_DECLARE.trim()}
