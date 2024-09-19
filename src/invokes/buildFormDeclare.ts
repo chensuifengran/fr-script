@@ -9,17 +9,17 @@ declare namespace BuildFormItem {
     [P in keyof T as Exclude<P, keyof Base>]: T[P];
   };
   type Input = Base & {
-    type: "input";
+    type: FieldType.Input | "input";
   } & InputListItem;
   type Select = Base & {
-    type: "select";
+    type: FieldType.Select | "select";
   } & SelectListItem;
   type Check = Base & {
-    type: "check";
+    type: FieldType.Check | "check";
     checked: boolean;
   };
   type Picker = Base & {
-    type: "picker";
+    type: FieldType.Picker | "picker";
   } & PickerListItem;
 }
 
