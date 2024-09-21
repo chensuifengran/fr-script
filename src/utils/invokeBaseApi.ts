@@ -3,6 +3,24 @@ import { OCRResult } from "../invokes/ocr/exportFn";
 import { appWindow } from "@tauri-apps/api/window";
 import { useSessionStorageState } from "vue-hooks-plus";
 
+let freeTimer: NodeJS.Timeout | null = null;
+const freeAllJson = () => {
+  freeTimer && clearTimeout(freeTimer);
+  freeTimer = setTimeout(() => {
+    invoke<boolean>("free_all_json_string")
+      .then((res) => {
+        if (res) {
+          console.log("free all json string success");
+        } else {
+          console.error("free all json string failed");
+        }
+      })
+      .catch((e) => {
+        console.error("free all json string error: ", e);
+      });
+  }, 500);
+};
+
 const getScreenSize = async () => {
   try {
     const res = await invoke<string>("get_screen_size");
@@ -10,6 +28,7 @@ const getScreenSize = async () => {
       width: number;
       height: number;
     };
+    freeAllJson();
     return jsonRes;
   } catch (error) {
     console.error("invokeBaseApi.getScreenSize error: ", error);
@@ -55,6 +74,7 @@ const cropPicture = async (
       outPath,
     });
     const json = JSON.parse(res);
+    freeAllJson();
     if (json.code === 200) {
       return 1;
     } else {
@@ -107,6 +127,7 @@ const matchTemplate = async (
       x: number;
       y: number;
     };
+    freeAllJson();
     return jsonRes;
   } catch (error) {
     console.error("invokeBaseApi.matchTemplate error: ", error);
@@ -147,6 +168,7 @@ const screenDiffTemplates = async (
         targetOffsetY: number;
       }[];
     };
+    freeAllJson();
     return result.data;
   } catch (error) {
     console.error("invokeBaseApi.screenDiffTemplates error: ", error);
@@ -177,6 +199,7 @@ const screenMatchTemplate = async (
       x: number;
       y: number;
     };
+    freeAllJson();
     return { x: _x, y: _y };
   } catch (error) {
     console.error("invokeBaseApi.screenMatchTemplate error: ", error);
@@ -193,6 +216,7 @@ const getImgSize = async (path: string) => {
       width: number;
       height: number;
     };
+    freeAllJson();
     return jsonRes;
   } catch (error) {
     console.error("invokeBaseApi.getImgSize error: ", error);
@@ -209,6 +233,7 @@ const getImgRectInfo = async (imgPath: string) => {
       imgPath,
     });
     const jsonRes = JSON.parse(res);
+    freeAllJson();
     return jsonRes;
   } catch (error) {
     console.error("invokeBaseApi.getImgRectInfo error: ", error);
@@ -219,6 +244,7 @@ const getImgRectInfo = async (imgPath: string) => {
 const getScreenRectInfo = async () => {
   try {
     const res = JSON.parse(await invoke<string>("get_screen_rect_info"));
+    freeAllJson();
     return res;
   } catch (error) {
     console.error("invokeBaseApi.getScreenRectInfo error: ", error);
@@ -500,12 +526,13 @@ const screenColor = async (x: number = 0, y: number = 0) => {
       message: string;
       data: [number, number, number];
     };
+    freeAllJson();
     return json;
   } catch (error) {
     console.error("invokeBaseApi.screenColor error: ", error);
     return {
       message: "invokeBaseApi.screenColor error: " + error,
-      data: [-1, -1, -1],
+      data: [-1, -1, -1] as [number, number, number],
     };
   }
 };
@@ -520,6 +547,7 @@ const imgColor = async (path: string, x: number, y: number) => {
       message: string;
       data: [number, number, number];
     };
+    freeAllJson();
     return json;
   } catch (error) {
     console.error("invokeBaseApi.img_color error: ", error);
@@ -548,6 +576,7 @@ const screenshot = async (
       path,
     });
     const json = JSON.parse(res);
+    freeAllJson();
     if (json.code !== 200) {
       console.error("invokeBaseApi.screenshotError: ", json);
       return false;
