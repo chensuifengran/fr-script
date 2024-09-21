@@ -13,7 +13,7 @@ impl PPOCR {
                 match Library::new("ppocr.dll") {
                     Ok(lib) => lib,
                     Err(e) => {
-                        log::error!("[FFI][Util::new()]: 加载ppocr.dll失败：{:?}", e);
+                        log::error!("[FFI][Util::new]: 加载ppocr.dll失败：{:?}", e);
                         panic!("{:?}", e);
                     }
                 }
@@ -40,19 +40,26 @@ impl PPOCR {
                     Ok(get_version) => get_version,
                     Err(e) => {
                         log::error!(
-                            "[FFI][PPOCR::get_version()]: 加载getVersion方法失败：{:?}",
+                            "[FFI][PPOCR::get_version]: 加载getVersion方法失败：{:?}",
                             e
                         );
                         return Err(Box::new(e));
                     }
                 };
             let result_c: *const c_char = (*get_version)();
+            if result_c.is_null() {
+                log::error!("[FFI][PPOCR::get_version]: 获取版本号失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][PPOCR::get_version]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::get_version()][result]: CStr类型转换失败：{:?}",
+                        "[FFI][PPOCR::get_version][result]: CStr类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
@@ -84,7 +91,7 @@ impl PPOCR {
                 match self.lib.get(b"tryInit") {
                     Ok(init) => init,
                     Err(e) => {
-                        log::error!("[FFI][PPOCR::init()]: 加载tryInit方法失败：{:?}", e);
+                        log::error!("[FFI][PPOCR::init]: 加载tryInit方法失败：{:?}", e);
                         return false;
                     }
                 };
@@ -138,7 +145,7 @@ impl PPOCR {
             > = match self.lib.get(b"ppocr") {
                 Ok(ppocr) => ppocr,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::ocr_rect()]: 加载ppocr方法失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::ocr_rect]: 加载ppocr方法失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -146,19 +153,26 @@ impl PPOCR {
                 Ok(path_c) => path_c,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::ocr_rect()][path]: CString类型转换失败：{:?}",
+                        "[FFI][PPOCR::ocr_rect][path]: CString类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
                 }
             };
             let result_c: *const c_char = (*ppocr)(path_c.as_ptr(), x, y, width, height, GPU_MEM);
+            if result_c.is_null() {
+                log::error!("[FFI][PPOCR::ocr_rect]: 识别失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][PPOCR::ocr_rect]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::ocr_rect()][result]: CStr类型转换失败：{:?}",
+                        "[FFI][PPOCR::ocr_rect][result]: CStr类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
@@ -201,7 +215,7 @@ impl PPOCR {
             > = match self.lib.get(b"imageProcess") {
                 Ok(ppocr) => ppocr,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::ocr()]: 加载imageProcess方法失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::ocr]: 加载imageProcess方法失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -209,18 +223,25 @@ impl PPOCR {
                 Ok(img_path_c) => img_path_c,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::ocr()][img_path]: CString类型转换失败：{:?}",
+                        "[FFI][PPOCR::ocr][img_path]: CString类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
                 }
             };
             let result_c: *const c_char = (*ppocr)(img_path_c.as_ptr(), GPU_MEM);
+            if result_c.is_null() {
+                log::error!("[FFI][PPOCR::ocr]: 识别失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][PPOCR::ocr]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::ocr()][result]: CStr类型转换失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::ocr][result]: CStr类型转换失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -267,17 +288,24 @@ impl PPOCR {
             > = match self.lib.get(b"screenOcr") {
                 Ok(screen_ocr) => screen_ocr,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::screen_ocr()]: 加载screenOcr方法失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::screen_ocr]: 加载screenOcr方法失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
             let result_c: *const c_char = (*screen_ocr)(x, y, width, height, GPU_MEM);
+            if result_c.is_null() {
+                log::error!("[FFI][PPOCR::screen_ocr]: 识别失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][PPOCR::screen_ocr]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::screen_ocr()][result]: CStr类型转换失败：{:?}",
+                        "[FFI][PPOCR::screen_ocr][result]: CStr类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
@@ -326,17 +354,24 @@ impl PPOCR {
             > = match self.lib.get(b"screenOcrOnlyTexts") {
                 Ok(screen_ocr_only_texts) => screen_ocr_only_texts,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::screen_ocr_only_texts()]: 加载screenOcrOnlyTexts方法失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::screen_ocr_only_texts]: 加载screenOcrOnlyTexts方法失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
             let result_c: *const c_char = (*screen_ocr_only_texts)(x, y, width, height, GPU_MEM);
+            if result_c.is_null() {
+                log::error!("[FFI][PPOCR::screen_ocr_only_texts]: 识别失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][PPOCR::screen_ocr_only_texts]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::screen_ocr_only_texts()][result]: CStr类型转换失败：{:?}",
+                        "[FFI][PPOCR::screen_ocr_only_texts][result]: CStr类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
@@ -382,7 +417,7 @@ impl PPOCR {
             > = match self.lib.get(b"screenOcrFindTexts") {
                 Ok(screen_ocr_find_texts) => screen_ocr_find_texts,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::screen_ocr_find_texts()]: 加载screenOcrFindTexts方法失败：{:?}", e);
+                    log::error!("[FFI][PPOCR::screen_ocr_find_texts]: 加载screenOcrFindTexts方法失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -390,7 +425,7 @@ impl PPOCR {
                 Ok(includes_texts_c) => includes_texts_c,
                 Err(e) => {
                     log::error!(
-                        "[FFI][PPOCR::screen_ocr_find_texts()][includes_texts]: CString类型转换失败：{:?}",
+                        "[FFI][PPOCR::screen_ocr_find_texts][includes_texts]: CString类型转换失败：{:?}",
                         e
                     );
                     return Err(Box::new(e));
