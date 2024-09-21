@@ -46,7 +46,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { invoke } from "@tauri-apps/api";
 import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
 import { appWindow } from "@tauri-apps/api/window";
 const { appAsideBgColor, appBackground } = useAppTheme();
@@ -84,21 +83,14 @@ onMounted(async () => {
     });
   });
   utilInterval = setInterval(async () => {
-    const { x, y } = JSON.parse(await invoke<string>("mouse_get_pos")).message as {
-      x: number;
-      y: number;
-    };
+    const { x, y } = await invokeBaseApi.getMousePos();
     if (x === pos.value[0] && y === pos.value[1]) {
       return;
     }
     pos.value = [x, y];
-    const res = await invoke<string>("screen_color", {
-      x,
-      y,
-    });
-    const json = JSON.parse(res);
-    if (json.message === "success") {
-      rgbColor.value = json.data;
+    const res = await invokeBaseApi.screenColor(x, y);
+    if (res.message === "success") {
+      rgbColor.value = res.data;
     }
   }, 100);
 });
