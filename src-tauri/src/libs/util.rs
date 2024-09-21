@@ -13,7 +13,7 @@ impl Util {
                 match Library::new("screenOperation.dll") {
                     Ok(lib) => lib,
                     Err(e) => {
-                        log::error!("[FFI][Util::new()]: 加载dll失败: {:?}", e);
+                        log::error!("[FFI][Util::new]: 加载dll失败: {:?}", e);
                         panic!("{:?}", e);
                     }
                 }
@@ -39,20 +39,44 @@ impl Util {
                 match self.lib.get(b"getVersion") {
                     Ok(func) => func,
                     Err(e) => {
-                        log::error!("[FFI][Util::get_version()]dll中未发现getVersion方法");
+                        log::error!("[FFI][Util::get_version]dll中未发现getVersion方法");
                         return Err(Box::new(e));
                     }
                 };
             let result_c: *const c_char = (*version)();
+            if result_c.is_null() {
+                log::error!("[FFI][Util::get_version]获取版本号失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_version]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(result_c);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_version()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_version][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             Ok(str_slice.to_owned())
+        }
+    }
+
+    /// 释放json字符串
+    ///
+    pub fn free_all_json_string(&self) -> Result<(), Box<dyn std::error::Error>> {
+        unsafe {
+            let func: libloading::Symbol<unsafe extern "C" fn()> =
+                match self.lib.get(b"freeAllJsonStrings") {
+                    Ok(f) => f,
+                    Err(e) => {
+                        log::error!("[FFI][Util::free_json_string]dll中未发现freeJsonString方法");
+                        return Err(Box::new(e));
+                    }
+                };
+            (*func)();
+            Ok(())
         }
     }
 
@@ -94,7 +118,7 @@ impl Util {
             > = match self.lib.get(b"screenshot") {
                 Ok(f) => f,
                 Err(e) => {
-                    log::error!("[FFI][Util::screenshot()]dll中未发现screenshot方法");
+                    log::error!("[FFI][Util::screenshot]dll中未发现screenshot方法");
                     return Err(Box::new(e));
                 }
             };
@@ -102,7 +126,7 @@ impl Util {
             let c_path: CString = match CString::new(path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::screenshot()]CString类型转换失败");
+                    log::error!("[FFI][Util::screenshot]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -131,16 +155,23 @@ impl Util {
                 match self.lib.get(b"getScreenSize") {
                     Ok(f) => f,
                     Err(e) => {
-                        log::error!("[FFI][Util::get_screen_size()]dll中未发现getScreenSize方法");
+                        log::error!("[FFI][Util::get_screen_size]dll中未发现getScreenSize方法");
                         return Err(Box::new(e));
                     }
                 };
             let c_str: *const c_char = (*func)();
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_screen_size]获取屏幕尺寸失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_screen_size]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_screen_size()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_screen_size][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -168,7 +199,7 @@ impl Util {
                 match self.lib.get(b"getScreenZoom") {
                     Ok(f) => f,
                     Err(e) => {
-                        log::error!("[FFI][Util::get_screen_zoom()]dll中未发现getScreenZoom方法");
+                        log::error!("[FFI][Util::get_screen_zoom]dll中未发现getScreenZoom方法");
                         return Err(Box::new(e));
                     }
                 };
@@ -214,21 +245,21 @@ impl Util {
             > = match self.lib.get(b"cropPicture") {
                 Ok(f) => f,
                 Err(e) => {
-                    log::error!("[FFI][Util::crop_picture()]dll中未发现cropPicture方法");
+                    log::error!("[FFI][Util::crop_picture]dll中未发现cropPicture方法");
                     return Err(Box::new(e));
                 }
             };
             let c_path: CString = match CString::new(path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::crop_picture()][path]CString类型转换失败");
+                    log::error!("[FFI][Util::crop_picture][path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_out_path: CString = match CString::new(out_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::crop_picture()][out_path]CString类型转换失败");
+                    log::error!("[FFI][Util::crop_picture][out_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -258,17 +289,24 @@ impl Util {
                     Ok(f) => f,
                     Err(e) => {
                         log::error!(
-                            "[FFI][Util::get_screen_rect_info()]dll中未发现getScreenRectInfo方法"
+                            "[FFI][Util::get_screen_rect_info]dll中未发现getScreenRectInfo方法"
                         );
                         return Err(Box::new(e));
                     }
                 };
             let c_str: *const c_char = (*func)();
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_screen_rect_info]获取屏幕矩形信息失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_screen_rect_info]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_screen_rect_info()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_screen_rect_info][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -301,25 +339,30 @@ impl Util {
                 match self.lib.get(b"getImgRectInfo") {
                     Ok(f) => f,
                     Err(e) => {
-                        log::error!(
-                            "[FFI][Util::get_img_rect_info()]dll中未发现getImgRectInfo方法"
-                        );
+                        log::error!("[FFI][Util::get_img_rect_info]dll中未发现getImgRectInfo方法");
                         return Err(Box::new(e));
                     }
                 };
             let c_img_path: CString = match CString::new(img_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_img_rect_info()][img_path]CString类型转换失败");
+                    log::error!("[FFI][Util::get_img_rect_info][img_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_str: *const c_char = (*func)(c_img_path.as_ptr());
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_img_rect_info]获取图片矩形信息失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_img_rect_info]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_img_rect_info()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_img_rect_info][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -362,21 +405,21 @@ impl Util {
             > = match self.lib.get(b"openCVMatchTemplate") {
                 Ok(f) => f,
                 Err(e) => {
-                    log::error!("[FFI][Util::match_template()]dll中未发现openCVMatchTemplate方法");
+                    log::error!("[FFI][Util::match_template]dll中未发现openCVMatchTemplate方法");
                     return Err(Box::new(e));
                 }
             };
             let c_img_path: CString = match CString::new(img_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::match_template()][img_path]CString类型转换失败");
+                    log::error!("[FFI][Util::match_template][img_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_temp_path: CString = match CString::new(temp_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::match_template()][temp_path]CString类型转换失败");
+                    log::error!("[FFI][Util::match_template][temp_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -386,11 +429,18 @@ impl Util {
                 exact_value,
                 scale,
             );
+            if c_str.is_null() {
+                log::error!("[FFI][Util::match_template]模板匹配失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::match_template]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::match_template()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::match_template][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -440,7 +490,7 @@ impl Util {
                 Ok(f) => f,
                 Err(e) => {
                     log::error!(
-                        "[FFI][Util::get_similarity_value()]dll中未发现getSimilarityValue方法"
+                        "[FFI][Util::get_similarity_value]dll中未发现getSimilarityValue方法"
                     );
                     return Err(Box::new(e));
                 }
@@ -448,14 +498,14 @@ impl Util {
             let c_path_a: CString = match CString::new(path_a) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_similarity_value()][path_a]CString类型转换失败");
+                    log::error!("[FFI][Util::get_similarity_value][path_a]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_path_b: CString = match CString::new(path_b) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_similarity_value()][path_b]CString类型转换失败");
+                    log::error!("[FFI][Util::get_similarity_value][path_b]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -494,23 +544,30 @@ impl Util {
                 match self.lib.get(b"getImageSize") {
                     Ok(f) => f,
                     Err(e) => {
-                        log::error!("[FFI][Util::get_image_size()]dll中未发现getImageSize方法");
+                        log::error!("[FFI][Util::get_image_size]dll中未发现getImageSize方法");
                         return Err(Box::new(e));
                     }
                 };
             let c_img_path: CString = match CString::new(img_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_image_size()][img_path]CString类型转换失败");
+                    log::error!("[FFI][Util::get_image_size][img_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_str: *const c_char = (*func)(c_img_path.as_ptr());
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_image_size]获取图片尺寸失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_image_size]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_image_size()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_image_size][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -556,20 +613,12 @@ impl Util {
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let func: libloading::Symbol<
-                unsafe extern "C" fn(
-                    i32,
-                    i32,
-                    i32,
-                    i32,
-                    *const c_char,
-                    f64,
-                    f64,
-                ) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, f64, f64) -> *const c_char,
             > = match self.lib.get(b"screenMatchTemplate") {
                 Ok(f) => f,
                 Err(e) => {
                     log::error!(
-                        "[FFI][Util::screen_match_template()]dll中未发现screenMatchTemplate方法"
+                        "[FFI][Util::screen_match_template]dll中未发现screenMatchTemplate方法"
                     );
                     return Err(Box::new(e));
                 }
@@ -577,9 +626,7 @@ impl Util {
             let c_temp_path: CString = match CString::new(temp_path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!(
-                        "[FFI][Util::screen_match_template()][temp_path]CString类型转换失败"
-                    );
+                    log::error!("[FFI][Util::screen_match_template][temp_path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -592,11 +639,18 @@ impl Util {
                 exact_value,
                 scale,
             );
+            if c_str.is_null() {
+                log::error!("[FFI][Util::screen_match_template]模板匹配失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::screen_match_template]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::screen_match_template()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::screen_match_template][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -655,19 +709,12 @@ impl Util {
     ) -> Result<String, Box<dyn std::error::Error>> {
         unsafe {
             let func: libloading::Symbol<
-                unsafe extern "C" fn(
-                    i32,
-                    i32,
-                    i32,
-                    i32,
-                    *const c_char,
-                    i32,
-                ) -> *const c_char,
+                unsafe extern "C" fn(i32, i32, i32, i32, *const c_char, i32) -> *const c_char,
             > = match self.lib.get(b"screenDiffTemplates") {
                 Ok(f) => f,
                 Err(e) => {
                     log::error!(
-                        "[FFI][Util::screen_diff_templates()]dll中未发现screenDiffTemplates方法"
+                        "[FFI][Util::screen_diff_templates]dll中未发现screenDiffTemplates方法"
                     );
                     return Err(Box::new(e));
                 }
@@ -676,24 +723,25 @@ impl Util {
                 Ok(p) => p,
                 Err(e) => {
                     log::error!(
-                        "[FFI][Util::screen_diff_templates()][temp_paths]CString类型转换失败"
+                        "[FFI][Util::screen_diff_templates][temp_paths]CString类型转换失败"
                     );
                     return Err(Box::new(e));
                 }
             };
-            let c_str: *const c_char = (*func)(
-                x,
-                y,
-                width,
-                height,
-                c_temp_paths.as_ptr(),
-                target_index,
-            );
+            let c_str: *const c_char =
+                (*func)(x, y, width, height, c_temp_paths.as_ptr(), target_index);
+            if c_str.is_null() {
+                log::error!("[FFI][Util::screen_diff_templates]模板匹配失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::screen_diff_templates]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
             let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::screen_diff_templates()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::screen_diff_templates][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -726,16 +774,22 @@ impl Util {
                 match self.lib.get(b"getScreenColor") {
                     Ok(f) => f,
                     Err(e) => {
-                        log::error!("[FFI][Util::get_screen_color()]dll中未发现getScreenColor方法");
+                        log::error!("[FFI][Util::get_screen_color]dll中未发现getScreenColor方法");
                         return Err(Box::new(e));
                     }
                 };
             let c_str: *const c_char = (*func)(x, y);
-            let c_str: &CStr = CStr::from_ptr(c_str);
-            let str_slice: &str = match c_str.to_str() {
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_screen_color]获取屏幕颜色失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_screen_color]调用结果返回空指针",
+                )));
+            }
+            let str_slice: &str = match CStr::from_ptr(c_str).to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_screen_color()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_screen_color][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
@@ -772,26 +826,33 @@ impl Util {
         unsafe {
             let func: libloading::Symbol<
                 unsafe extern "C" fn(*const c_char, i32, i32) -> *const c_char,
-            > = match self.lib.get(b"getImageColor"){
+            > = match self.lib.get(b"getImageColor") {
                 Ok(f) => f,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_image_color()]dll中未发现getImageColor方法");
+                    log::error!("[FFI][Util::get_image_color]dll中未发现getImageColor方法");
                     return Err(Box::new(e));
                 }
             };
-            let c_path: CString = match CString::new(path){
+            let c_path: CString = match CString::new(path) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_image_color()][path]CString类型转换失败");
+                    log::error!("[FFI][Util::get_image_color][path]CString类型转换失败");
                     return Err(Box::new(e));
                 }
             };
             let c_str: *const c_char = (*func)(c_path.as_ptr(), x, y);
+            if c_str.is_null() {
+                log::error!("[FFI][Util::get_image_color]获取图片颜色失败");
+                return Err(Box::new(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "[FFI][Util::get_image_color]调用结果返回空指针",
+                )));
+            }
             let c_str: &CStr = CStr::from_ptr(c_str);
-            let str_slice: &str = match c_str.to_str(){
+            let str_slice: &str = match c_str.to_str() {
                 Ok(s) => s,
                 Err(e) => {
-                    log::error!("[FFI][Util::get_image_color()][result]CStr类型转换失败");
+                    log::error!("[FFI][Util::get_image_color][result]CStr类型转换失败");
                     return Err(Box::new(e));
                 }
             };
