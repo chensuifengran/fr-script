@@ -1,5 +1,9 @@
+use std::sync::Arc;
+
 use tauri::Manager;
 use webbrowser;
+
+use crate::{libs::util::Util, UTIL_INSTANCE};
 
 #[tauri::command]
 pub async fn open_in_default_browser(url: String) -> Result<(), String> {
@@ -29,4 +33,19 @@ pub async fn close_splashscreen(window: tauri::Window) {
     }
     // 显示主窗口
     window.get_window("main").unwrap().show().unwrap();
+}
+
+#[tauri::command]
+pub async fn free_all_json_string() -> Result<bool, ()> {
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
+    match util.free_all_json_string() {
+        Ok(_) => {
+            log::debug!("成功释放所有JSON字符串");
+            Ok(true)
+        },
+        Err(_) => {
+            log::error!("[command]free_all_json_string:释放所有JSON字符串失败");
+            Ok(false)
+        }
+    }
 }

@@ -71,6 +71,7 @@ fn main() {
             sys::open_in_default_browser,
             sys::error_report,
             sys::close_splashscreen,
+            sys::free_all_json_string,
             cmd::run_cmd,
             web_driver::example_web_driver,
         ])
