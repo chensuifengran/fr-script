@@ -1,33 +1,75 @@
 <template>
-  <div class="notification-content" data-tauri-drag-region style="cursor: move" v-show="fullWindow">
-    <div class="content" data-tauri-drag-region style="cursor: move" :style="{
-      color: colorMap[scriptInfo.currentMessage.type || 'info'],
-    }">
-      <DotLoader class="icon" v-if="scriptInfo.currentMessage.type === 'loading'" data-tauri-drag-region
-        style="cursor: move" />
-      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'success'" data-tauri-drag-region
-        style="cursor: move">
-        <CheekIcon data-tauri-drag-region/>
+  <div
+    class="notification-content"
+    data-tauri-drag-region
+    style="cursor: move"
+    v-show="fullWindow"
+  >
+    <div
+      class="content"
+      data-tauri-drag-region
+      style="cursor: move"
+      :style="{
+        color: colorMap[scriptInfo.currentMessage.type || 'info'],
+      }"
+    >
+      <DotLoader
+        class="icon"
+        v-if="scriptInfo.currentMessage.type === 'loading'"
+        data-tauri-drag-region
+        style="cursor: move"
+      />
+      <el-icon
+        class="icon"
+        size="small"
+        v-else-if="scriptInfo.currentMessage.type === 'success'"
+        data-tauri-drag-region
+        style="cursor: move"
+      >
+        <CheekIcon data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'warning'" data-tauri-drag-region
-        style="cursor: move">
-        <AlertOutline data-tauri-drag-region/>
+      <el-icon
+        class="icon"
+        size="small"
+        v-else-if="scriptInfo.currentMessage.type === 'warning'"
+        data-tauri-drag-region
+        style="cursor: move"
+      >
+        <AlertOutline data-tauri-drag-region />
       </el-icon>
-      <el-icon class="icon" size="small" v-else-if="scriptInfo.currentMessage.type === 'danger'" data-tauri-drag-region
-        style="cursor: move">
-        <AlertCircle data-tauri-drag-region/>
+      <el-icon
+        class="icon"
+        size="small"
+        v-else-if="scriptInfo.currentMessage.type === 'danger'"
+        data-tauri-drag-region
+        style="cursor: move"
+      >
+        <AlertCircle data-tauri-drag-region />
       </el-icon>
-      <InfoIcon data-tauri-drag-region class="icon" size="small" v-else style="cursor: move"/>
-      <el-tag class="icon" size="small" type="primary" v-if="scriptInfo.currentMessage.type === 'loading'"
-        data-tauri-drag-region style="cursor: move">{{ useTime }}</el-tag>
+      <InfoIcon
+        data-tauri-drag-region
+        class="icon"
+        size="small"
+        v-else
+        style="cursor: move"
+      />
+      <el-tag
+        class="icon"
+        size="small"
+        type="primary"
+        v-if="scriptInfo.currentMessage.type === 'loading'"
+        data-tauri-drag-region
+        style="cursor: move"
+        >{{ useTime }}</el-tag
+      >
       <el-text class="message" data-tauri-drag-region style="cursor: move">{{
         scriptInfo.currentMessage.message
       }}</el-text>
     </div>
     <div class="btns">
-      <el-button class="btn" size="small" @click="home" circle><el-icon>
-          <span i-mdi-home-export-outline></span>
-        </el-icon></el-button>
+      <el-button class="btn" size="small" @click="home" circle
+        ><el-icon> <span i-mdi-home-export-outline></span> </el-icon
+      ></el-button>
     </div>
   </div>
 </template>
@@ -40,7 +82,8 @@ import {
   WebviewWindow,
   appWindow,
 } from "@tauri-apps/api/window";
-const { borderRadius, appOpacity, appTransform, oppositeBgColor } = useAppTheme();
+const { borderRadius, appOpacity, appTransform, oppositeBgColor } =
+  useAppTheme();
 const { createWindow } = useWebviewWindow();
 let adsorptionPredictionWindow: WebviewWindow | null;
 const loadingTime = ref(1);
@@ -85,62 +128,80 @@ const DISTENCE = 50;
 //收缩后宽度或高度
 const shrinkWidthOrHeight = 10;
 let checkStateInterval: NodeJS.Timeout | undefined;
-const stateCache = <{ lastX: number, lastY: number, lastMirrorPos: 'left' | 'right' | 'top' | '' }>{
+const stateCache = <
+  { lastX: number; lastY: number; lastMirrorPos: "left" | "right" | "top" | "" }
+>{
   lastX: 0,
   lastY: 0,
-  lastMirrorPos: ''
-}
-let SCREEN_SIZE: { width: number, height: number } | null;
+  lastMirrorPos: "",
+};
+let SCREEN_SIZE: { width: number; height: number } | null;
 let absorbTimer: NodeJS.Timeout | undefined;
 const fullWindow = ref(true);
 watch(fullWindow, async () => {
   absorbTimer && clearTimeout(absorbTimer);
-  const mirrorWindow = adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
+  const mirrorWindow =
+    adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
   if (fullWindow.value) {
     //恢复窗口
     appTransform.value = `none`;
-    borderRadius.value = '20px';
+    borderRadius.value = "20px";
     await appWindow?.setSize(new LogicalSize(300, 40));
     appOpacity.value = 1;
     await nextTick();
-    if (stateCache.lastMirrorPos === 'right') {
+    if (stateCache.lastMirrorPos === "right") {
       if (SCREEN_SIZE) {
         const appPos = await mirrorWindow?.outerPosition();
-        await appWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE.width - 300, appPos?.y || 0));
+        await appWindow?.setPosition(
+          new PhysicalPosition(SCREEN_SIZE.width - 300, appPos?.y || 0)
+        );
       }
     }
   } else {
     //吸附窗口
-    if (stateCache.lastMirrorPos === '') {
+    if (stateCache.lastMirrorPos === "") {
       return;
     }
     const appPos = await appWindow.outerPosition();
     const appSize = await appWindow.innerSize();
-    if (stateCache.lastMirrorPos === 'left') {
+    if (stateCache.lastMirrorPos === "left") {
       await appWindow?.setPosition(new PhysicalPosition(0, appPos.y));
-      appTransform.value = `translateX(calc(-100% + ${shrinkWidthOrHeight}px))`
-      borderRadius.value = '0px 10px 10px 0px';
+      appTransform.value = `translateX(calc(-100% + ${shrinkWidthOrHeight}px))`;
+      borderRadius.value = "0px 10px 10px 0px";
       absorbTimer = setTimeout(() => {
-        appWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, appSize.height));
+        appWindow?.setSize(
+          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+        );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
       }, 1000);
-    } else if (stateCache.lastMirrorPos === 'right') {
-      await appWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE!.width - appSize.width, appPos.y));
-      appTransform.value = `translateX(calc(100% - ${shrinkWidthOrHeight}px))`
-      borderRadius.value = '10px 0px 0px 10px';
+    } else if (stateCache.lastMirrorPos === "right") {
+      await appWindow?.setPosition(
+        new PhysicalPosition(SCREEN_SIZE!.width - appSize.width, appPos.y)
+      );
+      appTransform.value = `translateX(calc(100% - ${shrinkWidthOrHeight}px))`;
+      borderRadius.value = "10px 0px 0px 10px";
       absorbTimer = setTimeout(async () => {
-        await appWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, appSize.height));
-        await appWindow.setPosition(new PhysicalPosition(SCREEN_SIZE!.width - shrinkWidthOrHeight, appPos.y));
+        await appWindow?.setSize(
+          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+        );
+        await appWindow.setPosition(
+          new PhysicalPosition(
+            SCREEN_SIZE!.width - shrinkWidthOrHeight,
+            appPos.y
+          )
+        );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
       }, 1000);
     } else {
       await appWindow?.setPosition(new PhysicalPosition(appPos.x, 0));
-      appTransform.value = `translateY(calc(-100% + ${shrinkWidthOrHeight}px))`
-      borderRadius.value = '0px 0px 10px 10px';
+      appTransform.value = `translateY(calc(-100% + ${shrinkWidthOrHeight}px))`;
+      borderRadius.value = "0px 0px 10px 10px";
       absorbTimer = setTimeout(async () => {
-        await appWindow?.setSize(new LogicalSize(appSize.width, shrinkWidthOrHeight));
+        await appWindow?.setSize(
+          new LogicalSize(appSize.width, shrinkWidthOrHeight)
+        );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
       }, 1000);
@@ -148,10 +209,14 @@ watch(fullWindow, async () => {
     await mirrorWindow?.hide();
   }
 });
-const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosition) => {
-  const appSize = windowSize || (await appWindow.innerSize());
-  const { x, y } = windowPos || (await appWindow.outerPosition());
-  const { width } = await invokeBaseApi.getScreenSize();
+const getMirrorPos = async (
+  windowSize?: PhysicalSize,
+  windowPos?: PhysicalPosition
+) => {
+  const appSize = windowSize ?? (await appWindow.innerSize());
+  const { x, y } = windowPos ?? (await appWindow.outerPosition());
+  SCREEN_SIZE = SCREEN_SIZE ?? (await invokeBaseApi.getScreenSize());
+  const { width } = SCREEN_SIZE;
   let pos: "left" | "right" | "top" | "" = "";
   if (y < DISTENCE) {
     if (x < DISTENCE) {
@@ -177,52 +242,73 @@ const getMirrorPos = async (windowSize?: PhysicalSize, windowPos?: PhysicalPosit
     }
   }
   return pos;
-}
-const mouseInWindow = async (windowSize: PhysicalSize, windowPos: PhysicalPosition) => {
+};
+const mouseInWindow = async (
+  windowSize: PhysicalSize,
+  windowPos: PhysicalPosition
+) => {
   const { x, y } = await invokeBaseApi.getMousePos();
-  if (x >= windowPos.x && x <= windowPos.x + windowSize.width && y >= windowPos.y && y <= windowPos.y + windowSize.height) {
+  if (
+    x >= windowPos.x &&
+    x <= windowPos.x + windowSize.width &&
+    y >= windowPos.y &&
+    y <= windowPos.y + windowSize.height
+  ) {
     return true;
   } else {
     return false;
   }
-}
-const updateMirrorWindow = async (mirrorPos: 'left' | 'right' | 'top' | '', winSize: PhysicalSize, winPos: PhysicalPosition) => {
-  const mirrorWindow = adsorptionPredictionWindow || WebviewWindow.getByLabel('floatWindow');
+};
+const updateMirrorWindow = async (
+  mirrorPos: "left" | "right" | "top" | "",
+  winSize: PhysicalSize,
+  winPos: PhysicalPosition
+) => {
+  const mirrorWindow =
+    adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
   if (!fullWindow.value) {
     mirrorWindow?.hide();
     return;
   }
-  if (mirrorPos === '') {
+  if (mirrorPos === "") {
     mirrorWindow?.hide();
     return;
   }
-  if (mirrorPos === 'top') {
+  if (mirrorPos === "top") {
     await notify.sendCustom({
       name: "borderRadius",
       message: "0 0 10px 10px",
     });
-    await mirrorWindow?.setSize(new LogicalSize(winSize.width, shrinkWidthOrHeight));
+    await mirrorWindow?.setSize(
+      new LogicalSize(winSize.width, shrinkWidthOrHeight)
+    );
     await mirrorWindow?.setPosition(new PhysicalPosition(winPos.x, 0));
-  } else if (mirrorPos === 'left') {
+  } else if (mirrorPos === "left") {
     await notify.sendCustom({
       name: "borderRadius",
       message: "0px 10px 10px 0px",
     });
-    await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
+    await mirrorWindow?.setSize(
+      new LogicalSize(shrinkWidthOrHeight, winSize.height)
+    );
     await mirrorWindow?.setPosition(new PhysicalPosition(0, winPos.y));
-  } else if (mirrorPos === 'right') {
+  } else if (mirrorPos === "right") {
     await notify.sendCustom({
       name: "borderRadius",
       message: "10px 0px 0px 10px",
     });
-    await mirrorWindow?.setSize(new LogicalSize(shrinkWidthOrHeight, winSize.height));
+    await mirrorWindow?.setSize(
+      new LogicalSize(shrinkWidthOrHeight, winSize.height)
+    );
     if (!SCREEN_SIZE) {
       SCREEN_SIZE = await invokeBaseApi.getScreenSize();
     }
-    await mirrorWindow?.setPosition(new PhysicalPosition(SCREEN_SIZE.width - shrinkWidthOrHeight, winPos.y));
+    await mirrorWindow?.setPosition(
+      new PhysicalPosition(SCREEN_SIZE.width - shrinkWidthOrHeight, winPos.y)
+    );
   }
   await mirrorWindow?.show();
-}
+};
 let unlistenNotify: UnlistenFn;
 let currentInterval: NodeJS.Timeout;
 
@@ -264,9 +350,9 @@ onMounted(async () => {
       };
       appWindow.hide();
       leaveWindow = true;
-    } else if (type === 'custom-message') {
+    } else if (type === "custom-message") {
       const { name } = payload;
-      if (name === 'continue') {
+      if (name === "continue") {
         leaveWindow = false;
       }
     }
@@ -304,10 +390,10 @@ onMounted(async () => {
     const winPos = await appWindow.outerPosition();
     const mirrorPos = await getMirrorPos(winSize, winPos);
     stateCache.lastMirrorPos = mirrorPos;
-    if (mirrorPos === '') {
+    if (mirrorPos === "") {
       fullWindow.value = true;
     } else {
-      const mouseLeaveWindow = !await mouseInWindow(winSize, winPos);
+      const mouseLeaveWindow = !(await mouseInWindow(winSize, winPos));
       if (mouseLeaveWindow) {
         fullWindow.value = false;
       } else {
@@ -323,7 +409,6 @@ onBeforeUnmount(() => {
   unlistenNotify();
   WebviewWindow.getByLabel("floatWindow")?.hide();
 });
-
 </script>
 <style lang="scss" scoped>
 .notification-content {
