@@ -248,12 +248,12 @@ pub async fn screen_diff_templates(
 
 #[tauri::command]
 pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> {
+    let util: Arc<Util> = UTIL_INSTANCE.clone();
     if x.is_none() || y.is_none() {
         let enigo = Enigo::new(&Settings::default());
         if let Ok(enigo) = enigo {
             let r = enigo.location();
             if let Ok((x, y)) = r {
-                let util: Arc<Util> = UTIL_INSTANCE.clone();
                 let color = util
                     .get_screen_color(x, y)
                     .unwrap_or(format!("{}", ERROR_COLOR));
@@ -270,7 +270,6 @@ pub async fn screen_color(x: Option<i32>, y: Option<i32>) -> Result<String, ()> 
     } else {
         let x = x.unwrap();
         let y = y.unwrap();
-        let util: Arc<Util> = UTIL_INSTANCE.clone();
         let color = util
             .get_screen_color(x, y)
             .unwrap_or(format!("{}", ERROR_COLOR));
