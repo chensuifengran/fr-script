@@ -34,7 +34,7 @@
           v-if="appGSStore.app.dependenceState === '不可用'">
           <div class="titlebar-button warning-btn" @click="goInstallDeps()">
             <el-icon>
-              <span i-mdi-warning-filled></span>
+              <span i-mdi-tools></span>
             </el-icon>
           </div>
         </el-tooltip>
