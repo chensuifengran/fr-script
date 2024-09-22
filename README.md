@@ -10,7 +10,16 @@
 
 模拟器的模拟操作基于ADB，PC端的模拟操作基于Rust以及C++的Windows API。
 
-## 项目依赖
+## 运行条件
 
-详见：[dependents.md](./docs/dependents.md)
+- Windows 10/11 x64
+- Rust[安装](https://tauri.app/zh-cn/v1/guides/getting-started/prerequisites) >= 1.81.0 
+- pnpm 9.8.0(其它版本自测)
+- Node.js v18.12.1(其它版本自测)
 
+## 本地开发
+
+- 克隆或fork本项目
+- 安装依赖：`pnpm install`
+- 安装dll依赖，详见：[项目依赖](./docs/dependents.md)
+- 执行`pnpm tauri`启动项目
