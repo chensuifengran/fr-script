@@ -26,28 +26,45 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
       const checkItem = checkList.find((i) => i.name === localInfo.name);
       if (checkItem) {
         if (localInfo.version !== checkItem.version) {
-          const dlls = ["screenOperation.dll","ppocr.dll", "g_ppocr.dll"]
-          if(dlls.includes(checkItem.name)){
+          const dlls = ["screenOperation.dll", "ppocr.dll", "g_ppocr.dll"];
+          if (dlls.includes(checkItem.name)) {
             try {
               const dllVersion = await invoke<string>("get_dependence_version");
               const v = dllVersion.split("-");
-              if(checkItem.name === "screenOperation.dll" && v[1] === checkItem.version){
-                const target = localInfos.find(i => i.name === checkItem.name);
-                if(target){
+              if (
+                checkItem.name === "screenOperation.dll" &&
+                v[1] === checkItem.version
+              ) {
+                const target = localInfos.find(
+                  (i) => i.name === checkItem.name
+                );
+                if (target) {
                   target.version = v[1];
-                  localStorage.setItem("localDependentVersion", JSON.stringify(localInfos));
+                  localStorage.setItem(
+                    "localDependentVersion",
+                    JSON.stringify(localInfos)
+                  );
                 }
                 continue;
-              }else if(v[0] === checkItem.version){
-                const target = localInfos.find(i => i.name === checkItem.name);
-                if(target){
-                  target.version = v[0];
-                  localStorage.setItem("localDependentVersion", JSON.stringify(localInfos));
+              } else if (
+                v[0]?.replace("G", "C") === checkItem.version?.replace("G", "C")
+              ) {
+                const target = localInfos.find(
+                  (i) => i.name === checkItem.name
+                );
+                if (target) {
+                  target.version = target.version.includes("G")
+                    ? v[0].replace("C", "G")
+                    : v[0].replace("G", "C");
+                  localStorage.setItem(
+                    "localDependentVersion",
+                    JSON.stringify(localInfos)
+                  );
                 }
                 continue;
               }
             } catch (error) {
-              console.log('diffLocalVersionConfig error:', error);
+              console.log("diffLocalVersionConfig error:", error);
             }
           }
           resultList.push({
@@ -136,31 +153,39 @@ const syncOcrValue = async () => {
     return size / 1024000 < 100 ? "CPU" : "GPU";
   }
 };
-const libExists = async (name: string) => {
+const libExists = async (name: string, resolvePath = "") => {
   const installPath = await pathUtils.getInstallDir();
-  const libPath = await pathUtils.join(installPath, name);
+  let libPath = "";
+  if (resolvePath) {
+    libPath = await pathUtils.resolve(
+      await pathUtils.join(installPath, resolvePath),
+      name
+    );
+  } else {
+    libPath = await pathUtils.join(installPath, name);
+  }
   if (await exists(libPath)) {
     return fsUtils.getFileInfo(libPath);
   }
 };
-const pushUpdateDep = async(path:string)=>{
+const pushUpdateDep = async (path: string) => {
   const installPath = await pathUtils.getInstallDir();
-  const libPath = await pathUtils.join(installPath,".wait_update");
+  const libPath = await pathUtils.join(installPath, ".wait_update");
   await fsUtils.copy(path, libPath, false, true);
-}
-const batchUpdateDep = async()=>{
+};
+const batchUpdateDep = async () => {
   const installPath = await pathUtils.getInstallDir();
-  const waitUpdateDeps = await pathUtils.join(installPath,".wait_update");
+  const waitUpdateDeps = await pathUtils.join(installPath, ".wait_update");
   //判断.wait_update文件夹是否存在
-  if(!await libExists('.wait_update')){
+  if (!(await libExists(".wait_update"))) {
     return;
   }
   const depList = await fsUtils.readDir(waitUpdateDeps);
-  for(const dep of depList){
-    const depPath = await pathUtils.join(waitUpdateDeps,dep.fileName);
-    await fsUtils.copy(depPath,installPath,true,true);
+  for (const dep of depList) {
+    const depPath = await pathUtils.join(waitUpdateDeps, dep.fileName);
+    await fsUtils.copy(depPath, installPath, true, true);
   }
-}
+};
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
   for (const dep of depList) {
@@ -168,7 +193,13 @@ const checkDepList = async (depList: DependenceItemType[]) => {
       let lackDep = false;
       for (const child of dep.child_files) {
         const path = dep.root_path ? dep.root_path + "/" + child : child;
-        const childInfo = await libExists(path);
+        let childInfo;
+        if (dep.root_path?.includes("ppocr_models_") && import.meta.env.DEV) {
+          childInfo = await libExists(path, "../../");
+        } else {
+          childInfo = await libExists(path);
+        }
+
         if (!childInfo) {
           lackDep = true;
           break;
@@ -599,5 +630,5 @@ export const libUtil = {
   diffLocalVersionConfig,
   getDepStateType,
   pushUpdateDep,
-  batchUpdateDep
+  batchUpdateDep,
 };
