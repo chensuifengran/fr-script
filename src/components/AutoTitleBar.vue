@@ -291,7 +291,7 @@ onUnmounted(() => {
         border-radius: 50%;
         background-color: var(--el-color-primary);
         color: #fff;
-        margin-right: 5px;
+        margin-right: 10px;
 
         &:hover {
           background-color: rgb(3, 211, 89);
@@ -302,12 +302,11 @@ onUnmounted(() => {
         width: 22px;
         height: 22px;
         border-radius: 50%;
-        background-color: rgb(255, 45, 34);
         color: #fff;
-        margin-right: 5px;
-
+        margin-right: 10px;
+        background-color: rgb(219, 35, 25);
         &:hover {
-          background-color: rgb(255, 87, 34);
+          background-color: rgb(255, 13, 0);
         }
       }
 
