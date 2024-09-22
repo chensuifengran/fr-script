@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 src-tauri/target/*
+TODO.md
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
