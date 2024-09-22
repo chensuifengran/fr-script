@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 src-tauri/target/*
+src/types/auto_gen_types
 TODO.md
 # Editor directories and files
 .vscode/*
