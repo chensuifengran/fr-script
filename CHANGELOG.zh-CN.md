@@ -1,5 +1,26 @@
 ## Changelog
 
+### 2.0.7
+
+_2024.09.21_
+
+#### 新特性：
+
+- 交互表单Input类型组件的子类型扩充：number、textarea、password
+- 交互表单新增Picker类型组件，子组件有: color、time、date类型
+- 交互表单Select类型组件新增segmented属性，为true时显示element-plus的segmented组件
+- (dev)枚举类型定义后自动注入脚本运行上下文同时枚举类型提供给编辑器
+
+#### Bug修复：
+
+- 修复rust侧调用dll时，dll中返回的指针没有与rust中的指针对齐导致的内存泄漏问题，dll需要升级到S8和PC3、PG3版本
+- 修复rust升级后，操作录制功能在生产环境无法使用的问题
+
+#### 重构：
+
+- 首屏动画使用获取窗口焦点代替窗口置顶
+- getFieldValue方法优化，表单组件类型由字符串改为枚举类型
+
 ### 2.0.6
 
 _2024.08.21_
