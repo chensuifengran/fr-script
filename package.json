@@ -8,6 +8,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "dev": "node .\\script\\switchEnv && vite",
+    "play":"vite --mode play",
+    "play:build":"vite build --mode play",
     "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",
     "build:debug": "vue-tsc --noEmit && node .\\script\\switchEnv DEBUG &&vite build",
     "preview": "vite preview",
