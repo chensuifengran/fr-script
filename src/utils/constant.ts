@@ -1,4 +1,8 @@
-export const SCRIPT_TEMPLATE = () => {
+export const SCRIPT_TEMPLATE = (
+  name: string = "newScript",
+  version: string = "v1.0",
+  description: string = "脚本描述"
+) => {
   const index = import.meta.glob<Record<string, any>>(
     "../invokes/Preludes/**/index.ts"
   );
@@ -8,9 +12,9 @@ export const SCRIPT_TEMPLATE = () => {
 /// <reference path="./lib/csfr.d.ts" />
 /*
  * 请勿删除，此声明会在脚本读取时用到！
- * @version:v1.0
- * @name:newScript
- * @description:脚本描述
+ * @version:${version}
+ * @name:${name}
+ * @description:${description}
  */
 const { ${preludes.join(", ")} } = Preludes;
 //脚本运行入口函数
