@@ -32,6 +32,9 @@ const resolve = async (path: string, addPath: string) => {
   return await pResolve(path, ...paths);
 };
 const getInstallDir = async () => {
+  if(import.meta.env.VITE_APP_ENV === "play"){
+    return "";
+  }
   return (await invoke("get_install_dir")) as string;
 };
 export const pathUtils = {

@@ -319,8 +319,8 @@ export const getApiModules = async (
   const apis: any[] = [];
   for (let i = 0; i < _apis.length; i++) {
     const [key, value] = _apis[i];
-    const apiNamePath = await pathUtils.join(key, "../");
-    const apiName = await pathUtils.basename(apiNamePath);
+    const paths = key.split("/");
+    const apiName = paths[paths.length - 2];
     const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
     if (!module) {
       console.error(`找不到${apiName}Api或${apiName}模块`);
@@ -346,7 +346,10 @@ export const getApiModules = async (
   return apis;
 };
 const registerAllInvokeApi = async () => {
-  const allModules = await getApiModules();
+  const allModules = await getApiModules(
+    true,
+    import.meta.env.VITE_APP_ENV === "play"
+  );
   if (!allModules) return;
   //注册所有api
   initBuiltInApi([...allModules]);

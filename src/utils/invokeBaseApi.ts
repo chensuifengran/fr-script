@@ -2,9 +2,12 @@ import { invoke } from "@tauri-apps/api";
 import { OCRResult } from "../invokes/ocr/exportFn";
 import { appWindow } from "@tauri-apps/api/window";
 import { useSessionStorageState } from "vue-hooks-plus";
-
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 let freeTimer: NodeJS.Timeout | null = null;
 const freeAllJson = () => {
+  if (isPlay) {
+    return;
+  }
   freeTimer && clearTimeout(freeTimer);
   freeTimer = setTimeout(() => {
     invoke<boolean>("free_all_json_string")
@@ -22,6 +25,12 @@ const freeAllJson = () => {
 };
 
 const getScreenSize = async () => {
+  if (isPlay) {
+    return {
+      width: 1920,
+      height: 1080,
+    };
+  }
   try {
     const res = await invoke<string>("get_screen_size");
     const jsonRes = JSON.parse(res) as {
@@ -40,6 +49,12 @@ const getScreenSize = async () => {
 };
 
 const getMousePos = async () => {
+  if (isPlay) {
+    return {
+      x: Math.floor(Math.random() * 1920),
+      y: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = await invoke<string>("mouse_get_pos");
     const mousePos = (JSON.parse(res) as any).message as {
@@ -64,6 +79,9 @@ const cropPicture = async (
   height: number,
   outPath: string
 ) => {
+  if (isPlay) {
+    return 1;
+  }
   try {
     const res = await invoke<string>("crop_picture", {
       path,
@@ -94,6 +112,9 @@ const imgSimilarity = async (
   width: number = -1,
   height: number = -1
 ) => {
+  if (isPlay) {
+    return 1;
+  }
   try {
     const res = await invoke<number>("get_similarity_value", {
       pathA,
@@ -116,6 +137,12 @@ const matchTemplate = async (
   exactValue = 0.0,
   scale = 0.0
 ) => {
+  if (isPlay) {
+    return {
+      x: Math.floor(Math.random() * 1920),
+      y: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = await invoke<string>("match_template", {
       imgPath,
@@ -146,6 +173,23 @@ const screenDiffTemplates = async (
   tempPaths: string,
   targetIndex: number
 ) => {
+  if (isPlay) {
+    return {
+      message: "success",
+      data: [
+        {
+          x: Math.floor(Math.random() * 1920),
+          y: Math.floor(Math.random() * 1080),
+          width: 100,
+          height: 100,
+          centerX: 50,
+          centerY: 50,
+          targetOffsetX: 0,
+          targetOffsetY: 0,
+        },
+      ],
+    };
+  }
   try {
     const res = await invoke<string>("screen_diff_templates", {
       x,
@@ -185,6 +229,12 @@ const screenMatchTemplate = async (
   exactValue = 0.0,
   scale = 0.0
 ) => {
+  if (isPlay) {
+    return {
+      x: Math.floor(Math.random() * 1920),
+      y: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = await invoke<string>("screen_match_template", {
       x,
@@ -208,6 +258,12 @@ const screenMatchTemplate = async (
 };
 
 const getImgSize = async (path: string) => {
+  if (isPlay) {
+    return {
+      width: Math.floor(Math.random() * 1920),
+      height: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = await invoke<string>("get_img_size", {
       path,
@@ -228,31 +284,70 @@ const getImgSize = async (path: string) => {
 };
 
 const getImgRectInfo = async (imgPath: string) => {
+  if (isPlay) {
+    return {
+      width: Math.floor(Math.random() * 1920),
+      height: Math.floor(Math.random() * 1080),
+      startX: Math.floor(Math.random() * 1920),
+      startY: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = await invoke<string>("get_img_rect_info", {
       imgPath,
     });
     const jsonRes = JSON.parse(res);
     freeAllJson();
-    return jsonRes;
+    return jsonRes as {
+      width: number;
+      height: number;
+      startX: number;
+      startY: number;
+    };
   } catch (error) {
     console.error("invokeBaseApi.getImgRectInfo error: ", error);
-    return null;
+    return {
+      width: -1,
+      height: -1,
+      startX: -1,
+      startY: -1,
+    };
   }
 };
 
 const getScreenRectInfo = async () => {
+  if (isPlay) {
+    return {
+      width: Math.floor(Math.random() * 1920),
+      height: Math.floor(Math.random() * 1080),
+      startX: Math.floor(Math.random() * 1920),
+      startY: Math.floor(Math.random() * 1080),
+    };
+  }
   try {
     const res = JSON.parse(await invoke<string>("get_screen_rect_info"));
     freeAllJson();
-    return res;
+    return res as {
+      width: number;
+      height: number;
+      startX: number;
+      startY: number;
+    };
   } catch (error) {
     console.error("invokeBaseApi.getScreenRectInfo error: ", error);
-    return null;
+    return {
+      width: -1,
+      height: -1,
+      startX: -1,
+      startY: -1,
+    };
   }
 };
 
 const combined = async (keys: Key[]) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     const res = await invoke<string>("press_keys", {
       keys,
@@ -274,6 +369,9 @@ const combined = async (keys: Key[]) => {
 };
 
 const keyDown = async (key: Key) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     const res = await invoke<string>("key_down", {
       key,
@@ -295,6 +393,9 @@ const keyDown = async (key: Key) => {
 };
 
 const keyUp = async (key: Key) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     const res = await invoke<string>("key_up", {
       key,
@@ -316,6 +417,9 @@ const keyUp = async (key: Key) => {
 };
 
 const pressKey = async (key: Key) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     const res = await invoke<string>("press_key", {
       key,
@@ -337,6 +441,9 @@ const pressKey = async (key: Key) => {
 };
 
 const inputText = async (text: string) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     const res = await invoke<string>("input_text", {
       text,
@@ -362,6 +469,9 @@ const click = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
+  if (isPlay) {
+    return true;
+  }
   x = Math.round(x);
   y = Math.round(y);
   const btn = button === "left" ? 0 : button === "middle" ? 1 : 2;
@@ -382,6 +492,9 @@ const mouseUp = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
+  if (isPlay) {
+    return true;
+  }
   x = Math.round(x);
   y = Math.round(y);
   const btn = button === "left" ? 0 : button === "middle" ? 1 : 2;
@@ -402,6 +515,9 @@ const mouseDown = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
+  if (isPlay) {
+    return true;
+  }
   x = Math.round(x);
   y = Math.round(y);
   const btn = button === "left" ? 0 : button === "middle" ? 1 : 2;
@@ -422,6 +538,9 @@ const startClicker = async (
   sleep: number = 50,
   buttonIndex: number
 ) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("start_clicker", {
       duration,
@@ -435,6 +554,9 @@ const startClicker = async (
   }
 };
 const stopClicker = async () => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("stop_clicker");
     return true;
@@ -450,6 +572,9 @@ const drag = async (
   toY: number,
   duration?: number
 ) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("mouse_drag", {
       x,
@@ -466,6 +591,9 @@ const drag = async (
 };
 
 const move = async (x: number, y: number, isRelative = false) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("move_mouse", {
       x,
@@ -480,6 +608,9 @@ const move = async (x: number, y: number, isRelative = false) => {
 };
 
 const wheel = async (delta: number) => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("mouse_wheel", {
       delta,
@@ -497,6 +628,12 @@ const ocr = async (
   height: number,
   imgPath?: string
 ) => {
+  if (isPlay) {
+    return {
+      code: 200,
+      result: [],
+    };
+  }
   try {
     const ocrRes = await invoke<string>(imgPath ? "ocr" : "screen_ocr", {
       x,
@@ -517,6 +654,16 @@ const ocr = async (
 };
 
 const screenColor = async (x: number = 0, y: number = 0) => {
+  if (isPlay) {
+    return {
+      message: "success",
+      data: [
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+      ] as const,
+    };
+  }
   try {
     const res = await invoke<string>("screen_color", {
       x,
@@ -537,6 +684,16 @@ const screenColor = async (x: number = 0, y: number = 0) => {
   }
 };
 const imgColor = async (path: string, x: number, y: number) => {
+  if (isPlay) {
+    return {
+      message: "success",
+      data: [
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+        Math.floor(Math.random() * 256),
+      ] as const,
+    };
+  }
   try {
     const res = await invoke<string>("img_color", {
       path,
@@ -564,6 +721,9 @@ const screenshot = async (
   width = -1,
   height = -1
 ) => {
+  if (isPlay) {
+    return true;
+  }
   if (path === "") {
     return false;
   }
@@ -592,6 +752,9 @@ const captureOperation = async (
   captureOptions?: CaptureOptions,
   generateComment: boolean = false
 ): Promise<string> => {
+  if (isPlay) {
+    return "//playground环境不支持此功能";
+  }
   try {
     const res = await invoke<string[]>("capture_operation", {
       captureOptions,
@@ -605,6 +768,9 @@ const captureOperation = async (
 };
 
 const stopCaptureOperation = async () => {
+  if (isPlay) {
+    return true;
+  }
   try {
     await invoke("qiut_capture_operation");
     return true;
@@ -615,6 +781,13 @@ const stopCaptureOperation = async () => {
 };
 
 const getSparkInfo = async () => {
+  if (isPlay) {
+    return {
+      APP_ID: "playground",
+      API_SECRET: "playground",
+      API_KEY: "playground",
+    };
+  }
   try {
     const res = await invoke<string>("get_spark_info");
     const info = res.split("-") as [string, string, string];
@@ -637,7 +810,7 @@ const [closeFlag, setCloseFlag] = useSessionStorageState<boolean>(
   { defaultValue: false }
 );
 const closeSplashscreen = async () => {
-  if (closeFlag.value) {
+  if (isPlay || closeFlag.value) {
     return;
   }
   try {

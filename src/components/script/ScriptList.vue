@@ -50,7 +50,10 @@
     </el-affix>
 
     <div class="list">
-      <el-empty v-if="scriptList.length === 0" description="暂无脚本" />
+      <el-empty
+        v-if="!isPlay && scriptList.length === 0"
+        description="暂无脚本"
+      />
       <VueDraggable
         ref="el"
         v-model="showList"
@@ -87,6 +90,7 @@ import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
 const el = ref<UseDraggableReturn>();
 let deleteConfirm: () => void = () => {};
 const listStore = useListStore();
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const { scriptList } = storeToRefs(listStore);
 const {
   openId,
@@ -113,7 +117,12 @@ const onEnd = () => {
 const deleteScriptDialog = ref(false);
 const deleteScript = (index: number) => {
   deleteConfirm = () => {
-    scriptList.value.splice(index, 1);
+    if (import.meta.env.VITE_APP_ENV === "play") {
+      //playground环境
+      usePlayMock().mockScriptList.value.splice(index, 1);
+    } else {
+      scriptList.value.splice(index, 1);
+    }
     ElNotification({
       title: "提示",
       message: "删除成功",
@@ -128,22 +137,36 @@ const editorScriptFile = (index: number) => {
   contentTransform.value = "translateX(-100%)";
   //路由跳转到编辑器
   router.replace("/script/editor");
-
-  if (scriptList.value[index].id === openId!.value) {
+  let id = scriptList.value[index]?.id;
+  let dir = "";
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    id = usePlayMock().mockScriptList.value[index]?.id;
+    dir = `E:\\playground`;
+  }
+  if (id === openId!.value) {
     //解决编辑器特殊场景下编辑脚本不会加载脚本
     openId!.value = "-1";
   }
   const t = setTimeout(async () => {
-    openId!.value = scriptList.value[index].id;
-    curScriptDir.value = await pathUtils.resolve(
-      scriptList.value[index].savePath,
-      "../"
-    );
+    openId!.value = id;
+    curScriptDir.value =
+      dir || (await pathUtils.resolve(scriptList.value[index].savePath, "../"));
     clearTimeout(t);
   }, 100);
   asideBarPos.value = "absolute";
 };
 const openFile = async (index: number) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    ElNotification({
+      title: "提示",
+      message: "playground环境不支持打开文件",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   const path = scriptList.value[index].savePath;
   try {
     await ElMessageBox.confirm(
@@ -166,6 +189,40 @@ const openFile = async (index: number) => {
 };
 
 const onAddItem = () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    const id = nanoid();
+    const version = "v1." + Math.floor(Math.random() * 10);
+    usePlayMock().mockScriptList.value.push({
+      id,
+      savePath: `内部存储`,
+      name: id,
+      version,
+      description: "playground环境测试脚本",
+      setting: {
+        autoImportLastRunConfig: true,
+        targetAdbDevice: "",
+        excludeDevice: [],
+        targetApp: "",
+        autoStartTargetApp: false,
+      },
+      content: SCRIPT_TEMPLATE(id, version, "playground环境测试脚本"),
+    });
+    ElNotification({
+      title: "提示",
+      message: "创建成功",
+      type: "success",
+      position: "bottom-right",
+    });
+    openId!.value = id;
+    //路由跳转到编辑器
+    router.replace({
+      path: "/script/editor",
+    });
+    contentTransform.value = "translateX(-100%)";
+    asideBarPos.value = "absolute";
+    return;
+  }
   openId!.value = "-1";
   //路由跳转到编辑器
   router.replace({
@@ -214,6 +271,33 @@ const checkDeclare = (editorValue: string) => {
   }
 };
 const imoprtScript = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    const id = nanoid();
+    const version = "v1." + Math.floor(Math.random() * 10);
+    usePlayMock().mockScriptList.value.push({
+      id,
+      savePath: `内部存储`,
+      name: id,
+      version,
+      description: "playground环境测试脚本",
+      setting: {
+        autoImportLastRunConfig: true,
+        targetAdbDevice: "",
+        excludeDevice: [],
+        targetApp: "",
+        autoStartTargetApp: false,
+      },
+      content: SCRIPT_TEMPLATE(id, version, "playground环境测试脚本"),
+    });
+    ElNotification({
+      title: "提示",
+      message: "导入成功",
+      type: "success",
+      position: "bottom-right",
+    });
+    return;
+  }
   const filePath = (await fsUtils.selectFile(false, [
     {
       name: "",
@@ -338,13 +422,23 @@ const imoprtScript = async () => {
 };
 
 const runScript = async (index: number) => {
-  openId!.value = scriptList.value[index].id;
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    openId!.value = usePlayMock().mockScriptList.value[index].id;
+  } else {
+    openId!.value = scriptList.value[index].id;
+  }
   //路由跳转到运行器
   router.replace("/script/run");
 };
 
 const setScript = (index: number) => {
-  openId!.value = scriptList.value[index].id;
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    openId!.value = usePlayMock().mockScriptList.value[index].id;
+  } else {
+    openId!.value = scriptList.value[index].id;
+  }
   //路由跳转到设置
   router.replace("/script/setting");
 };
@@ -357,8 +451,20 @@ const disableSort = computed(() => {
 const showList = computed({
   get: () => {
     if (search.value === "") {
+      if (import.meta.env.VITE_APP_ENV === "play") {
+        //playground环境
+        return usePlayMock().mockScriptList.value;
+      }
       return scriptList.value;
     } else {
+      if (import.meta.env.VITE_APP_ENV === "play") {
+        //playground环境
+        return usePlayMock().mockScriptList.value.filter(
+          (i) =>
+            i.name.toLowerCase().includes(search.value.toLowerCase()) ||
+            i.description.toLowerCase().includes(search.value.toLowerCase())
+        );
+      }
       return scriptList.value.filter(
         (i) =>
           i.name.toLowerCase().includes(search.value.toLowerCase()) ||
@@ -367,12 +473,16 @@ const showList = computed({
     }
   },
   set: (v) => {
+    if (import.meta.env.VITE_APP_ENV === "play") {
+      usePlayMock().mockScriptList.value = v;
+      return;
+    }
     scriptList.value = v;
   },
 });
-onMounted(()=>{
+onMounted(() => {
   invokeBaseApi.closeSplashscreen();
-})
+});
 </script>
 
 <style lang="scss" scoped>

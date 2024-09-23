@@ -35,8 +35,7 @@
       </template>
     </el-autocomplete>
     <div v-show="!pathExits" class="tip">
-      <el-icon color="red">
-        <span i-mdi-close></span> </el-icon
+      <el-icon color="red"> <span i-mdi-close></span> </el-icon
       ><el-tag type="danger"
         >该路径无效，请检查路径填写是否有误，请检查路径填写是否有误</el-tag
       >
@@ -46,6 +45,7 @@
 
 <script setup lang="ts">
 import { exists } from "@tauri-apps/api/fs";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const value = defineModel<string>({
   default: "",
 });
@@ -103,6 +103,9 @@ onMounted(async () => {
     label: "截图路径",
     value: screenshotPath,
   });
+  if (isPlay) {
+    return;
+  }
   suggestions.push({
     label: "安装目录",
     value: installDir,
@@ -116,6 +119,10 @@ watch(value, async () => {
   pathExits.value = await exists(value.value);
 });
 const selectFilePath = async () => {
+  if(isPlay){
+    value.value = "E:\\playground\\";
+    return;
+  }
   let filePath = (await fsUtils.selectFile(false)) as string | undefined;
   if (props.suffix && props.suffix.length > 0) {
     filePath += props.suffix;

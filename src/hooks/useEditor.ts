@@ -47,6 +47,7 @@ monaco.languages.typescript.typescriptDefaults.setExtraLibs([
     content: editorTsDeclaration(),
   },
 ]);
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const openOperationRecordDrawer = ref(false);
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
@@ -214,19 +215,21 @@ export const useEditor = () => {
     }
     if (genEditorTsDeclaration) {
       //将editorTsDeclaration写入到csfr.d.ts文件中
-      try {
-        if (
-          appGSStore.envSetting.workDir &&
-          appGSStore.envSetting.workDir.length
-        ) {
-          const targetPath = await pathUtils.join(
-            appGSStore.envSetting.workDir,
-            "./lib/csfr.d.ts"
-          );
-          await fsUtils.writeFile(targetPath, editorTsDeclaration());
+      if (!isPlay) {
+        try {
+          if (
+            appGSStore.envSetting.workDir &&
+            appGSStore.envSetting.workDir.length
+          ) {
+            const targetPath = await pathUtils.join(
+              appGSStore.envSetting.workDir,
+              "./lib/csfr.d.ts"
+            );
+            await fsUtils.writeFile(targetPath, editorTsDeclaration());
+          }
+        } catch (error) {
+          console.error("辅助声明文件写入失败：", error);
         }
-      } catch (error) {
-        console.error("辅助声明文件写入失败：", error);
       }
     }
     const usedEditor = editors.find((item) => item.domId === domId);
@@ -258,8 +261,11 @@ export const useEditor = () => {
       overviewRulerBorder: false, // 不要滚动条的边框
     });
     editors.push({ domId, instance: editor, value: editorValue });
-    onEditorMounted.forEach((cb) => {
-      editor && cb(editor);
+
+    setTimeout(() => {
+      onEditorMounted.forEach((cb) => {
+        editor && cb(editor);
+      });
     });
     // 监听值的变化
     editor.onDidChangeModelContent((_val: any) => {

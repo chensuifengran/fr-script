@@ -20,7 +20,12 @@ export const useListStore = defineStore<
   getters: {},
   actions: {
     async exportData() {
-      const obj: any = { version: await getVersion() };
+      const obj: any = {
+        version:
+          import.meta.env.VITE_APP_ENV === "play"
+            ? "playground"
+            : await getVersion(),
+      };
       Object.assign(obj, this.$state);
       return JSON.stringify(obj);
     },

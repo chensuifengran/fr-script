@@ -9,6 +9,16 @@ const depPkgList = ref<DepPkgItemType[]>([]);
 const { notify } = eventUtil;
 let depManagerWindow: WebviewWindow | null = null;
 const goInstallDeps = async (target?: string) => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    ElNotification({
+      title: "提示",
+      message: "playground环境不支持依赖管理",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   contentLoading.value = true;
   depManagerWindow = useWebviewWindow().createWindow(
     "depManager",
@@ -27,27 +37,36 @@ const goInstallDeps = async (target?: string) => {
 };
 
 let unlistenFn: UnlistenFn;
-notify
-  .listen((e) => {
-    if (e.windowLabel === "main") {
-      const { type, payload: data } = e.payload;
-      if (type === "message") {
-        if (data?.name === "sentDataToMain") {
-          syncMainData();
+if (import.meta.env.VITE_APP_ENV !== "play") {
+  //非playground环境
+  notify
+    .listen((e) => {
+      if (e.windowLabel === "main") {
+        const { type, payload: data } = e.payload;
+        if (type === "message") {
+          if (data?.name === "sentDataToMain") {
+            syncMainData();
+          }
+        }
+      } else {
+        const { type, payload: data } = e.payload;
+        if (type === "message") {
+          if (data?.name === "closeDepManager") {
+            closeDepManagerWindow();
+          }
         }
       }
-    } else {
-      const { type, payload: data } = e.payload;
-      if (type === "message") {
-        if (data?.name === "closeDepManager") {
-          closeDepManagerWindow();
-        }
-      }
-    }
-  })
-  .then((fn) => (unlistenFn = fn));
+    })
+    .then((fn) => (unlistenFn = fn));
+} else {
+  unlistenFn = () => {};
+}
 
 const syncMainData = () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   notify.send({
     name: "syncMainData",
     payload: {
@@ -61,22 +80,30 @@ const syncMainData = () => {
   });
 };
 const closeDepManagerWindow = () => {
-  if(!depManagerWindow){
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
+  if (!depManagerWindow) {
     const w = WebviewWindow.getByLabel("depManager");
     w && w.close();
-  }else{
+  } else {
     depManagerWindow?.close();
     depManagerWindow = null;
   }
   unlistenFn && unlistenFn();
 };
 const close = () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   notify.send({
     name: "closeDepManager",
   });
 };
 const syncData = (data: any) => {
-  if (!data) {
+  if(import.meta.env.VITE_APP_ENV === 'play' || !data){
     return;
   }
   const {

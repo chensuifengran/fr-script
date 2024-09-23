@@ -14,7 +14,8 @@ export const useAppGlobalSettings = defineStore<
       app: {
         latestVersion: "0.0.3",
         depHaveUpdate: false,
-        dependenceState: "不可用",
+        dependenceState:
+          import.meta.env.VITE_APP_ENV === "play" ? "完整版" : "不可用",
         state: {
           aside: {
             collapsed: false,
@@ -50,7 +51,12 @@ export const useAppGlobalSettings = defineStore<
   getters: {},
   actions: {
     async exportData() {
-      const obj: any = { version: await getVersion() };
+      const obj: any = {
+        version:
+          import.meta.env.VITE_APP_ENV === "play"
+            ? "playground"
+            : await getVersion(),
+      };
       Object.assign(obj, this.$state);
       delete obj.ocr.inited;
       return JSON.stringify(obj);
@@ -92,15 +98,24 @@ export const useAppGlobalSettings = defineStore<
       } else {
         //设置默认工作目录和截图保存路径
         if (this.envSetting.workDir === "") {
-          const workDir = await pathUtils.getInstallDir();
-          this.envSetting.workDir = workDir;
+          if (import.meta.env.VITE_APP_ENV !== "play") {
+            const workDir = await pathUtils.getInstallDir();
+            this.envSetting.workDir = workDir;
+          } else {
+            this.envSetting.workDir = "E:\\playground";
+          }
         }
         if (this.envSetting.screenshotSavePath) {
-          const screenshotSavePath = await pathUtils.resolve(
-            await pathUtils.getInstallDir(),
-            "screenshot.png"
-          );
-          this.envSetting.screenshotSavePath = screenshotSavePath;
+          if (import.meta.env.VITE_APP_ENV !== "play") {
+            const screenshotSavePath = await pathUtils.resolve(
+              await pathUtils.getInstallDir(),
+              "screenshot.png"
+            );
+            this.envSetting.screenshotSavePath = screenshotSavePath;
+          } else {
+            this.envSetting.screenshotSavePath =
+              "E:\\playground\\screenshot.png";
+          }
         }
       }
       this.isInited = true;

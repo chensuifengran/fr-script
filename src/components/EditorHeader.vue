@@ -3,51 +3,119 @@
     <template #content>
       <div class="header-content">
         <span>{{ fileInfo.name }}</span>
-        <span v-show="isDifferentValue">*</span><el-tag class="mgl-5" size="small" type="success"
-          v-show="fileInfo.declare">已声明</el-tag><el-tag class="mgl-5" size="small" type="warning"
-          v-show="!fileInfo.declare">未声明</el-tag>
-        <el-button class="tool-bar-item mgl-5" v-if="!fileInfo.declare" link size="small" type="primary"
-          @click="declareMod.visible = true">插入声明</el-button>
+        <span v-show="isDifferentValue">*</span
+        ><el-tag
+          class="mgl-5"
+          size="small"
+          type="success"
+          v-show="fileInfo.declare"
+          >已声明</el-tag
+        ><el-tag
+          class="mgl-5"
+          size="small"
+          type="warning"
+          v-show="!fileInfo.declare"
+          >未声明</el-tag
+        >
+        <el-button
+          class="tool-bar-item mgl-5"
+          v-if="!fileInfo.declare"
+          link
+          size="small"
+          type="primary"
+          @click="declareMod.visible = true"
+          >插入声明</el-button
+        >
       </div>
     </template>
     <template #extra>
       <div class="head-content">
         <div class="btns">
-          <div class="dragable" data-tauri-drag-region style="cursor: move"></div>
-          <el-tooltip class="box-item" effect="dark" content="显示操作录制面板" placement="bottom">
-            <el-button size="small" @click="showOperationRecord" circle><el-icon size="large">
-                <span i-solar-videocamera-record-outline></span>
-              </el-icon></el-button>
+          <div
+            class="dragable"
+            data-tauri-drag-region
+            style="cursor: move"
+          ></div>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="显示操作录制面板"
+            placement="bottom"
+          >
+            <el-button size="small" @click="showOperationRecord" circle
+              ><el-icon size="large">
+                <span i-solar-videocamera-record-outline></span> </el-icon
+            ></el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="打开鼠标工具" placement="bottom">
-            <el-button size="small" @click="openPointerUtil" circle><el-icon size="large">
-                <span i-solar-mouse-linear></span>
-              </el-icon></el-button>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="打开鼠标工具"
+            placement="bottom"
+          >
+            <el-button size="small" @click="openPointerUtil" circle
+              ><el-icon size="large">
+                <span i-solar-mouse-linear></span> </el-icon
+            ></el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="打开调试窗口" placement="bottom">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="打开调试窗口"
+            placement="bottom"
+          >
             <el-button size="small" @click="openApiTest" circle>
-              <el-icon size="large"><span i-mdi-function-variant></span></el-icon>
+              <el-icon size="large"
+                ><span i-mdi-function-variant></span
+              ></el-icon>
             </el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="前往脚本设置" placement="bottom">
-            <el-button size="small" @click="goSetScript" circle><el-icon size="large">
-                <span i-solar-settings-linear></span>
-              </el-icon></el-button>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="前往脚本设置"
+            placement="bottom"
+          >
+            <el-button size="small" @click="goSetScript" circle
+              ><el-icon size="large">
+                <span i-solar-settings-linear></span> </el-icon
+            ></el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="打开脚本" placement="bottom">
-            <el-button size="small" @click="openFile" circle><el-icon size="large">
-                <span i-mdi-folder-eye-outline></span>
-              </el-icon></el-button>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="打开脚本"
+            placement="bottom"
+          >
+            <el-button size="small" @click="openFile" circle
+              ><el-icon size="large">
+                <span i-mdi-folder-eye-outline></span> </el-icon
+            ></el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="运行脚本" placement="bottom">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="运行脚本"
+            placement="bottom"
+          >
             <el-button size="small" @click="runScript" circle>
               <el-icon size="large">
                 <span i-mdi-play-circle-outline></span>
               </el-icon>
             </el-button>
           </el-tooltip>
-          <el-tooltip class="box-item" effect="dark" content="[Ctrl+S]保存" placement="bottom">
-            <el-button size="small" type="primary" @click="saveScriptFile" circle>
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="[Ctrl+S]保存"
+            placement="bottom"
+          >
+            <el-button
+              size="small"
+              type="primary"
+              @click="saveScriptFile"
+              circle
+            >
               <el-icon size="large">
                 <span i-mdi-content-save-outline></span>
               </el-icon>
@@ -64,6 +132,7 @@ import { invoke } from "@tauri-apps/api";
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const appGSStore = useAppGlobalSettings();
 const {
   openId,
@@ -89,10 +158,28 @@ const isDifferentValue = computed(() => {
 });
 const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
+  if (isPlay) {
+    ElNotification({
+      title: "提示",
+      message: "playground环境下无法打开调试窗口,请前往API调试",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   const targetWindow = createWindow("apiTest", "/apiTest");
   targetWindow?.show();
 };
 const openPointerUtil = async () => {
+  if (isPlay) {
+    ElNotification({
+      title: "提示",
+      message: "playground环境下无法打开鼠标工具",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   const targetWindow = createWindow("pointerUtil", "/pointerUtil", {
     height: 140,
     width: 150,
@@ -102,7 +189,7 @@ const openPointerUtil = async () => {
 };
 const showOperationRecord = async () => {
   openOperationRecordDrawer.value = !openOperationRecordDrawer.value;
-}
+};
 const goSetScript = () => {
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
@@ -110,6 +197,15 @@ const goSetScript = () => {
   router.replace("/script/setting");
 };
 const openFile = async () => {
+  if (isPlay) {
+    ElNotification({
+      title: "提示",
+      message: "playground环境下无法打开脚本文件",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   const path = fileInfo.savePath;
   try {
     await ElMessageBox.confirm(
@@ -124,7 +220,9 @@ const openFile = async () => {
     execCommand.run(`code ${path}`);
   } catch (error: any) {
     if (error === "cancel") {
-      invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
+      invoke("open_file_explorer", {
+        path: await pathUtils.resolve(path, "../"),
+      });
     }
   }
 };
@@ -133,11 +231,12 @@ const runScript = () => {
   const unsaveRun = () => {
     tempEditorValue.value = editorValue?.value || "";
     autoSaveDialog.visible = false;
-    const testWindow = WebviewWindow.getByLabel("apiTest");
-    if (testWindow) {
-      testWindow.hide();
+    if (!isPlay) {
+      const testWindow = WebviewWindow.getByLabel("apiTest");
+      if (testWindow) {
+        testWindow.hide();
+      }
     }
-
     router.replace({
       path: "/script/run",
     });
@@ -177,7 +276,22 @@ const saveScriptFile = async () => {
     });
     return false;
   } else {
+    if (isPlay) {
+        const editorValue = getEditorValue("codeEditBox");
+        usePlayMock().mockScriptList.value.find(
+          (s) => s.id === openId!.value
+        )!.content = editorValue?.value || "";
+        fileInfo.originData = editorValue?.value || "";
+        ElNotification({
+          title: "提示",
+          message: "保存成功",
+          type: "success",
+          position: "bottom-right",
+        });
+        return true;
+      }
     if (fileInfo.savePath.trim().length) {
+
       //编辑的脚本，直接写入内容
       try {
         const editorValue = getEditorValue("codeEditBox");
@@ -270,6 +384,9 @@ const goBack = () => {
   preloadText.value = "";
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
+  if (isPlay) {
+    return;
+  }
   const testWindow = WebviewWindow.getByLabel("apiTest");
   if (testWindow) {
     testWindow.hide();

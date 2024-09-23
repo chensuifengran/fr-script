@@ -1,6 +1,7 @@
 import { storeToRefs } from "pinia";
 import { appWindow, WebviewWindow } from "@tauri-apps/api/window";
 import { ScriptTarget, transpile } from "typescript";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -365,11 +366,16 @@ const removeIntervals = () => {
   }, 300);
 };
 export const getFileInfo = (
-  type: "id" | "savePath" | "name" | "version" | "description"
+  type: "id" | "savePath" | "name" | "version" | "description" | "content"
 ) => {
   const listStore = useListStore();
   const { scriptList } = storeToRefs(listStore);
   const { openId } = useScriptInfo();
+  if (isPlay) {
+    return usePlayMock().mockScriptList.value.find(
+      (s) => s.id === openId!.value
+    )![type]!;
+  }
   const target = scriptList.value.find((s) => s.id === openId!.value)!;
   switch (type) {
     case "id":
@@ -396,7 +402,7 @@ const setEndBeforeCompletion = (status: boolean) => {
   endBeforeCompletion = status;
 };
 
-const hideWindow = ref(true);
+const hideWindow = ref(!isPlay);
 
 const name = computed(() => {
   return getFileInfo("name");
@@ -433,7 +439,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
         delete window[CORE_NAMESPACES][key];
       });
     }
-    if (hideWindow.value) {
+    if (hideWindow.value && !isPlay) {
       WebviewWindow.getByLabel("main")?.show();
       notify.done();
     }
@@ -458,7 +464,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       });
     }
     //显示当前窗口
-    if (hideWindow.value) {
+    if (hideWindow.value && !isPlay) {
       appWindow.show();
       appWindow.setFocus();
       notify.done();
@@ -472,7 +478,9 @@ export const useScriptApi = () => {
   const _buildForm = (buildFormList: BuildFormItems[]) => {
     buildForm(buildFormList);
     if (openId.value !== "-1") {
-      const target = scriptList.value.find((i) => i.id === openId.value);
+      const target = (
+        isPlay ? usePlayMock().mockScriptList : scriptList
+      ).value.find((i) => i.id === openId.value);
       if (!target?.setting.autoImportLastRunConfig) {
         return;
       } else if (target.setting.autoImportLastRunConfig) {
@@ -522,15 +530,13 @@ export const useBuiltInApi = () => {
   const { rendererList } = useListStore();
   const appGSStore = useAppGlobalSettings();
   const WORK_DIR = appGSStore.envSetting.workDir;
-  const SCREEN_SHOT_DIR = pathUtils.resolve(
-    appGSStore.envSetting.screenshotSavePath || "",
-    "../"
-  );
+  const SCREEN_SHOT_DIR = isPlay
+    ? "E:\\test\\screenshot"
+    : pathUtils.resolve(appGSStore.envSetting.screenshotSavePath || "", "../");
   const SCREEN_SHOT_PATH = appGSStore.envSetting.screenshotSavePath;
-  const SCRIPT_ROOT_DIR = pathUtils.resolve(
-    getFileInfo("savePath") || "",
-    "../"
-  );
+  const SCRIPT_ROOT_DIR = isPlay
+    ? "E:\\test\\root_dir"
+    : pathUtils.resolve(getFileInfo("savePath") || "", "../");
   return {
     WORK_DIR,
     copyText,

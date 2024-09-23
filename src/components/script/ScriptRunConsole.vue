@@ -23,6 +23,7 @@
             class="mgl-10"
             v-model="hideWindow"
             label="运行时隐藏窗口"
+            :disabled="isPlay"
           />
         </div>
       </template>
@@ -63,6 +64,7 @@
         <el-button
           @click="enableFloatWindow(false)"
           v-show="taskRunStatus === 'running'"
+          :disabled="isPlay"
           type="primary"
           plain
           >小窗运行</el-button
@@ -133,6 +135,7 @@ import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 import { useLog } from "../../hooks/useLog";
 import { TaskRunStatus } from "../../hooks/useScriptApi";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const { notify } = eventUtil;
 const { taskRunStatus, name, version, hideWindow, savePath } = useScriptView();
 const { logOutput } = useLog();
@@ -165,6 +168,9 @@ const goBack = () => {
   });
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
+  if (isPlay) {
+    return;
+  }
   const targetWindow = WebviewWindow.getByLabel("apiTest");
   if (targetWindow) {
     targetWindow.hide();
@@ -188,6 +194,9 @@ const run = (script: string, runId: string) => {
 };
 const { createWindow } = useWebviewWindow();
 const enableFloatWindow = async (isInit: boolean = false) => {
+  if (isPlay) {
+    return;
+  }
   appWindow.hide();
   const targetWindow = createWindow("notification", "/notification", {
     height: 40,
@@ -207,7 +216,9 @@ const enableFloatWindow = async (isInit: boolean = false) => {
   }
 };
 const invokeStartHandle = async () => {
-  const target = scriptList.value.find((s) => s.id === openId!.value);
+  const target = (
+    isPlay ? usePlayMock().mockScriptList : scriptList
+  ).value.find((s) => s.id === openId!.value);
   if (!target) {
     builtInApi.Preludes.log("目标脚本不存在", "danger");
     return;
@@ -218,7 +229,7 @@ const invokeStartHandle = async () => {
     await enableFloatWindow(true);
   }
   const targetDevice = target.setting.targetAdbDevice.trim();
-  if (targetDevice !== "") {
+  if (targetDevice !== "" && !isPlay) {
     //获得所有设备，取消非目标设备的连接
     const deviceList = (await devicesFn()) || [];
     const excludeDevices = [
@@ -262,7 +273,7 @@ const isInit = ref(false);
 const initScript = async (reinit: boolean = false) => {
   logOutput.splice(0, logOutput.length);
   builtInApi.Preludes.log("脚本初始化中", "loading");
-  if (reinit) {
+  if (reinit && !isPlay) {
     const targetWindow = createWindow("notification", "/notification", {
       height: 135,
       width: 200,
@@ -270,38 +281,46 @@ const initScript = async (reinit: boolean = false) => {
     });
     targetWindow?.hide();
   }
-  const fPath = getFileInfo("savePath");
+
   builtInApi.setTaskEndStatus(""); // 清空任务结束状态
   const taskId = nanoid();
   const appGSStore = useAppGlobalSettings();
   try {
     builtInApi.abortSignalInScript = new AbortController();
     let scriptStr = "";
-    if (!fPath) {
-      scriptStr = tempEditorValue!.value;
-    } else {
-      scriptStr = transpile(await fsUtils.readFile(fPath), {
-        target: ScriptTarget.ESNext,
-        removeComments: true,
-      });
-    }
-    const target = scriptList.value.find((s) => s.id === openId!.value);
-    if (
-      target &&
-      (target.setting.targetApp ?? "") !== "" &&
-      target.setting.autoStartTargetApp
-    ) {
-      const t = setTimeout(() => {
-        builtInApi.Preludes.log("启动目标应用中...", "loading");
-        cmdFn(target.setting.targetApp, true);
-        clearTimeout(t);
-      });
-    }
-    if (appGSStore.ocr.value === "GPU") {
-      if (await astWorker.methodIsInvoked(scriptStr, "ocr")) {
-        builtInApi.Preludes.log("[GPU]OCR服务预加载中，请耐心等待", "loading");
-        await ocrFn(0, 0, 1, 1);
+    if (!isPlay) {
+      const fPath = getFileInfo("savePath");
+      if (!fPath) {
+        scriptStr = tempEditorValue!.value;
+      } else {
+        scriptStr = transpile(await fsUtils.readFile(fPath), {
+          target: ScriptTarget.ESNext,
+          removeComments: true,
+        });
       }
+      const target = scriptList.value.find((s) => s.id === openId!.value);
+      if (
+        target &&
+        (target.setting.targetApp ?? "") !== "" &&
+        target.setting.autoStartTargetApp
+      ) {
+        const t = setTimeout(() => {
+          builtInApi.Preludes.log("启动目标应用中...", "loading");
+          cmdFn(target.setting.targetApp, true);
+          clearTimeout(t);
+        });
+      }
+      if (appGSStore.ocr.value === "GPU") {
+        if (await astWorker.methodIsInvoked(scriptStr, "ocr")) {
+          builtInApi.Preludes.log(
+            "[GPU]OCR服务预加载中，请耐心等待",
+            "loading"
+          );
+          await ocrFn(0, 0, 1, 1);
+        }
+      }
+    } else {
+      scriptStr = getFileInfo("content") || "";
     }
     run(scriptStr, "fn" + taskId)();
     isInit.value = true;
@@ -338,6 +357,9 @@ const GlobalShortcuts = [
 ];
 let timer: NodeJS.Timeout;
 const registerGlobalShortcuts = (status: TaskRunStatus) => {
+  if (isPlay) {
+    return;
+  }
   const targetIndex =
     status === "running" ? 2 : taskRunStatus.value === "done" ? 1 : 0;
   timer && clearTimeout(timer);
@@ -368,6 +390,9 @@ watchEffect(async () => {
   if (!isInit.value && taskRunStatus.value !== "done") {
     return;
   }
+  if (isPlay) {
+    return;
+  }
   registerGlobalShortcuts(taskRunStatus.value);
 });
 
@@ -375,6 +400,9 @@ const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
 onMounted(async () => {
   initScript();
+  if (isPlay) {
+    return;
+  }
   const targetWindow = createWindow("notification", "/notification", {
     height: 135,
     width: 200,
@@ -397,6 +425,9 @@ onUnmounted(() => {
       //@ts-ignore
       delete window[CORE_NAMESPACES][key];
     });
+  }
+  if (isPlay) {
+    return;
   }
   //取消注册所有快捷键
   GlobalShortcuts.forEach((s) => {

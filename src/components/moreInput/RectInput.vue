@@ -52,7 +52,6 @@
 </template>
 
 <script setup lang="ts">
-import { invoke } from "@tauri-apps/api";
 const { oppositeBgColor } = useAppTheme();
 const info = defineModel<
   | {
@@ -140,21 +139,17 @@ const useParam = async () => {
 const selectRect = async () => {
   try {
     if (props.targetSrc && props.targetSrc !== "") {
-      const imgInfo = await invoke<string>("get_img_rect_info", {
-        imgPath: props.targetSrc,
-      });
-      const json = JSON.parse(imgInfo);
-      info.value.x = json.startX;
-      info.value.y = json.startY;
-      info.value.width = json.width;
-      info.value.height = json.height;
+      const imgInfo = await invokeBaseApi.getImgRectInfo(props.targetSrc);
+      info.value.x = imgInfo.startX;
+      info.value.y = imgInfo.startY;
+      info.value.width = imgInfo.width;
+      info.value.height = imgInfo.height;
     } else {
-      const screenRectInfo = await invoke<string>("get_screen_rect_info");
-      const json = JSON.parse(screenRectInfo);
-      info.value.x = json.startX;
-      info.value.y = json.startY;
-      info.value.width = json.width;
-      info.value.height = json.height;
+      const screenRectInfo = await invokeBaseApi.getScreenRectInfo();
+      info.value.x = screenRectInfo.startX;
+      info.value.y = screenRectInfo.startY;
+      info.value.width = screenRectInfo.width;
+      info.value.height = screenRectInfo.height;
       return;
     }
   } catch (error) {

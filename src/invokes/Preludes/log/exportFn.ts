@@ -7,7 +7,6 @@ export const logFn = (
   type?: "success" | "danger" | "info" | "warning" | "loading",
   taskId?: string
 ) => {
-  const { notify } = eventUtil;
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return false;
@@ -27,11 +26,14 @@ export const logFn = (
     type: type ? type : "info",
     timestamp: Date.now(),
   });
-  notify.send({
-    type,
-    message: msg,
-    time: timeStr,
-  });
+  if (import.meta.env.VITE_APP_ENV !== "play") {
+    const { notify } = eventUtil;
+    notify.send({
+      type,
+      message: msg,
+      time: timeStr,
+    });
+  }
   if (type === "danger") {
     const name = getFileInfo("name");
     const version = getFileInfo("version");

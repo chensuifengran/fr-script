@@ -5,6 +5,10 @@ import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
 const renameLib = async (name: string, targetName: string) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   try {
     const installPath = await pathUtils.getInstallDir();
     const libPath = await pathUtils.join(installPath, name);
@@ -15,6 +19,10 @@ const renameLib = async (name: string, targetName: string) => {
   }
 };
 const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return [];
+  }
   if (!checkList) {
     checkList = await checkLibs();
   }
@@ -100,6 +108,10 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
   }
 };
 const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const currentVersionInfo = checkList
     .map((i) => {
       if (!i.exists) {
@@ -128,6 +140,10 @@ const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
   );
 };
 const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return [];
+  }
   if (!checkList) {
     checkList = await checkLibs();
   }
@@ -147,6 +163,10 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   return needUpdateInfo;
 };
 const syncOcrValue = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return "CPU";
+  }
   const info = await libExists("paddle_inference.dll");
   if (info) {
     const size = info.fileSize;
@@ -154,6 +174,10 @@ const syncOcrValue = async () => {
   }
 };
 const libExists = async (name: string, resolvePath = "") => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const installPath = await pathUtils.getInstallDir();
   let libPath = "";
   if (resolvePath) {
@@ -169,11 +193,19 @@ const libExists = async (name: string, resolvePath = "") => {
   }
 };
 const pushUpdateDep = async (path: string) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const installPath = await pathUtils.getInstallDir();
   const libPath = await pathUtils.join(installPath, ".wait_update");
   await fsUtils.copy(path, libPath, false, true);
 };
 const batchUpdateDep = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const installPath = await pathUtils.getInstallDir();
   const waitUpdateDeps = await pathUtils.join(installPath, ".wait_update");
   //判断.wait_update文件夹是否存在
@@ -188,6 +220,10 @@ const batchUpdateDep = async () => {
 };
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return resultList;
+  }
   for (const dep of depList) {
     if (dep.decompression) {
       let lackDep = false;
@@ -237,6 +273,10 @@ const checkDepList = async (depList: DependenceItemType[]) => {
  * children: 依赖库的子依赖库检查结果
  */
 const checkLibs = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return [];
+  }
   const libInfo = await appConfigApi.getDepInfo();
   const currentVersion = await getVersion();
   //找到适合当前版本的依赖
@@ -266,7 +306,10 @@ const checkLibs = async () => {
 //在checkLibs返回的结果中，提取出所有依赖库的名称
 const getAllLibsName = async (checkList: LibNameItemType[]) => {
   const libNames: string[] = [];
-
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return [];
+  }
   for (const item of checkList) {
     libNames.push(item.name);
     if (item.children) {
@@ -291,6 +334,10 @@ const getDepState = async (
   depName: string,
   childFiles?: string[]
 ) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return true;
+  }
   const dep = list.find((i) => i.name === depName);
   if (dep) {
     if (!dep.exists) {
@@ -334,7 +381,11 @@ const getDepState = async (
 const syncDepState = async (checkList: CheckDepItemType[]) => {
   //依赖名为screenOperation.dll的依赖库及子依赖库均存在时为：精简版
   //在精简版的基础上，依赖名为ppocr.dll的依赖库及子依赖库均存在时为：基础版
-  //在基础班的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
+  //在基础版的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const resultMap: Record<string, boolean> = {};
   for (const dep of checkList) {
     resultMap[dep.name] = await getDepState(
@@ -365,6 +416,10 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   app.value.dependenceState = version;
 };
 const checkDepUpdate = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   const checkList = await checkLibs();
   if (checkList.length === 0) {
     ElNotification({
@@ -390,6 +445,10 @@ const checkDepUpdate = async () => {
  * 根据当前状态检查距离后面的状态缺少哪些依赖库
  *  */
 const checkDepLack = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return [];
+  }
   const checkList = await checkLibs();
   const appGSStore = useAppGlobalSettings();
   const state = appGSStore.app.dependenceState;
@@ -555,6 +614,10 @@ const installDep = async (
   isFullVersionInstallBaseVersion = false,
   ocrValue: "CPU" | "GPU" = "CPU"
 ) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return true;
+  }
   const installPath = await pathUtils.getInstallDir();
   let result = false;
   if (dep.label.includes("7z")) {
@@ -598,6 +661,10 @@ const installDep = async (
   return result;
 };
 const syncDepPkgList = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   if (!lastDepPkg) {
     await checkLibs();
   }
@@ -607,6 +674,10 @@ const syncDepPkgList = async () => {
   }
 };
 export const getDepStateType = (state: string) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return "primary";
+  }
   switch (state) {
     case "完整版":
       return "primary";

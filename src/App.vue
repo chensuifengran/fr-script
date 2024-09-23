@@ -86,6 +86,12 @@ const init = async (listenResize = true) => {
   libUtil.checkDepUpdate();
 };
 onMounted(async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    init();
+    await registerAllInvokeApi();
+    return;
+  }
   try {
     shortcutsStore.init();
     if (appWindow.label === "main") {
@@ -118,6 +124,10 @@ onMounted(async () => {
   }
 });
 onUnmounted(() => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   if (appWindow.label === "main") {
     const showMainWindowShortcuts =
       shortcutsStore.getShortcuts("强制显示主窗口");
@@ -131,6 +141,10 @@ const collapsedAside = () => {
 };
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   libUtil.batchUpdateDep();
 });
 </script>

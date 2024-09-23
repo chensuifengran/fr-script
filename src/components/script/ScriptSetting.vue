@@ -5,7 +5,7 @@
         <div class="title-content">
           <span>设置</span>
           <el-tag type="info" class="ml-10" size="small">{{
-            targetIndex !== -1 ? scriptList[targetIndex].name : "出现问题，请联系开发者"
+            targetIndex !== -1 ? target.name : "出现问题，请联系开发者"
           }}</el-tag>
         </div>
       </template>
@@ -25,7 +25,9 @@
             content="运行脚本"
             placement="bottom"
           >
-            <el-icon class="icon" @click.stop="runScript"><span i-mdi-play-circle-outline></span></el-icon>
+            <el-icon class="icon" @click.stop="runScript"
+              ><span i-mdi-play-circle-outline></span
+            ></el-icon>
           </el-tooltip>
         </div>
       </template>
@@ -36,30 +38,28 @@
         label="自动导入上次运行配置"
         alert="开启后，在脚本初始化之后自动恢复上次运行脚本时各表单项的值或选项"
       >
-        <el-switch
-          v-model="scriptList[targetIndex].setting.autoImportLastRunConfig"
-        ></el-switch>
+        <el-switch v-model="target.setting.autoImportLastRunConfig"></el-switch>
       </ScriptSettingItem>
       <ScriptSettingItem
         label="自动启动目标应用"
         alert="开启后，在脚本初始化之后自动启动下方的【目标应用】（若有）"
       >
-        <el-switch
-          v-model="scriptList[targetIndex].setting.autoStartTargetApp"
-        ></el-switch>
+        <el-switch v-model="target.setting.autoStartTargetApp"></el-switch>
       </ScriptSettingItem>
       <ScriptSettingItem
-        v-show="scriptList[targetIndex].setting.autoStartTargetApp"
+        v-show="target.setting.autoStartTargetApp"
         label="目标应用"
         alert="选项【自动启动目标应用】启动的目标,填写指导请点击输入框右边问号"
       >
         <el-input
-          v-model="scriptList[targetIndex].setting.targetApp"
+          v-model="target.setting.targetApp"
           placeholder="输入目标应用启动的目标"
         >
           <template #append>
             <el-button size="small" circle class="question-button">
-              <el-icon :size="20" @click="drawer = true"><span i-mdi-help-circle-outline></span></el-icon>
+              <el-icon :size="20" @click="drawer = true"
+                ><span i-mdi-help-circle-outline></span
+              ></el-icon>
             </el-button>
           </template>
         </el-input>
@@ -70,7 +70,7 @@
         alert="选择后，运行脚本时，ADB将连接至该设备,并与其它设备断开连接"
       >
         <el-select
-          v-model="scriptList[targetIndex].setting.targetAdbDevice"
+          v-model="target.setting.targetAdbDevice"
           class="target-device"
           size="small"
           filterable
@@ -94,7 +94,7 @@
       >
         <div>
           <el-tag
-            v-for="tag in scriptList[targetIndex].setting.excludeDevice"
+            v-for="tag in target.setting.excludeDevice"
             :key="tag"
             class="mr-10"
             closable
@@ -113,14 +113,24 @@
             @keyup.enter="handleInputConfirm(true)"
             @blur="handleInputConfirm(false)"
           />
-          <el-button v-else class="button-new-tag" size="small" @click="showInput">
+          <el-button
+            v-else
+            class="button-new-tag"
+            size="small"
+            @click="showInput"
+          >
             + 排除的设备
           </el-button>
         </div>
       </ScriptSettingItem>
     </div>
   </div>
-  <el-drawer v-model="drawer" title="获取目标应用指南" direction="rtl" size="70%">
+  <el-drawer
+    v-model="drawer"
+    title="获取目标应用指南"
+    direction="rtl"
+    size="70%"
+  >
     <el-steps :active="active" finish-status="success">
       <el-step title="1.导出快捷方式" />
       <el-step title="2.复制目标" />
@@ -134,10 +144,13 @@
       <div v-show="active === 1">
         <h3>1.导出快捷方式</h3>
         <div>
-          打开模拟器，长按图标，点击 <el-tag size="default" type="info">发送到</el-tag>
+          打开模拟器，长按图标，点击
+          <el-tag size="default" type="info">发送到</el-tag>
         </div>
         <img src="../../assets/sendTo.png" alt="" srcset="" />
-        <div>选择 <el-tag size="default" type="info">添加电脑桌面快捷方式</el-tag></div>
+        <div>
+          选择 <el-tag size="default" type="info">添加电脑桌面快捷方式</el-tag>
+        </div>
         <img src="../../assets/exportApp.png" alt="" srcset="" />
       </div>
       <div v-show="active === 2">
@@ -150,7 +163,9 @@
             >快捷方式</el-tag
           >-<el-tag size="default" type="info">目标</el-tag>
         </div>
-        <div>全选<el-tag size="default" type="info">目标</el-tag>编辑框的内容，复制</div>
+        <div>
+          全选<el-tag size="default" type="info">目标</el-tag>编辑框的内容，复制
+        </div>
         <img src="../../assets/target.png" alt="" srcset="" />
         <div>复制完成后粘贴到本输入框即可完成设置</div>
       </div>
@@ -161,6 +176,7 @@
 import { ElInput } from "element-plus";
 import { storeToRefs } from "pinia";
 import { devicesFn } from "../../invokes/devices/exportFn";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const drawer = ref(false);
 const active = ref(1);
 const nextStep = () => {
@@ -176,6 +192,20 @@ const goBack = () => {
   });
 };
 const targetIndex = ref(-1);
+const target = computed({
+  get: () => {
+    return isPlay
+      ? usePlayMock().mockScriptList.value[targetIndex.value]
+      : scriptList.value[targetIndex.value];
+  },
+  set: (val) => {
+    if (isPlay) {
+      usePlayMock().mockScriptList.value[targetIndex.value] = val;
+    } else {
+      scriptList.value[targetIndex.value] = val;
+    }
+  },
+});
 const { openId, contentTransform, asideBarPos } = useScriptInfo();
 const listStore = useListStore();
 const { scriptList, deviceList } = storeToRefs(listStore);
@@ -184,11 +214,16 @@ const options = deviceList.value.map((item) => ({
   value: item,
 }));
 onMounted(() => {
-  devicesFn();
+  if (!isPlay) {
+    devicesFn();
+  }
 });
 watchEffect(() => {
   if (openId.value === "-1") return;
-  const target = scriptList.value.find((item) => item.id === openId.value);
+  const _target = isPlay
+    ? usePlayMock().mockScriptList.value
+    : scriptList.value;
+  const target = _target.find((item) => item.id === openId.value);
   if (!target?.setting) {
     target!.setting = {
       autoImportLastRunConfig: false,
@@ -198,13 +233,16 @@ watchEffect(() => {
       autoStartTargetApp: false,
     };
   }
-  targetIndex.value = scriptList.value.findIndex((item) => item.id === openId.value);
+  targetIndex.value = _target.findIndex((item) => item.id === openId.value);
 });
 const InputRef = ref<InstanceType<typeof ElInput>>();
 const inputVisible = ref(false);
 const inputValue = ref("");
 const handleClose = (tag: string) => {
-  const dynamicTags = scriptList.value[targetIndex.value].setting.excludeDevice;
+  const _target = isPlay
+    ? usePlayMock().mockScriptList.value
+    : scriptList.value;
+  const dynamicTags = _target[targetIndex.value].setting.excludeDevice;
   dynamicTags.splice(dynamicTags.indexOf(tag), 1);
 };
 const showInput = () => {
@@ -215,7 +253,10 @@ const showInput = () => {
 };
 
 const handleInputConfirm = (focus: boolean) => {
-  const dynamicTags = scriptList.value[targetIndex.value].setting;
+  const _target = isPlay
+    ? usePlayMock().mockScriptList.value
+    : scriptList.value;
+  const dynamicTags = _target[targetIndex.value].setting;
 
   if (inputValue.value) {
     if (dynamicTags.excludeDevice) {

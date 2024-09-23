@@ -8,29 +8,57 @@
         <el-icon class="icon" v-else size="large">
           <div i-solar-alt-arrow-down-line-duotone></div>
         </el-icon>
-        <span>{{ script.name }}</span><el-tag size="small" type="info">{{ script.version }}</el-tag>
+        <span>{{ script.name }}</span
+        ><el-tag size="small" type="info">{{ script.version }}</el-tag>
       </div>
       <div class="menu">
-        <el-tooltip class="box-item" effect="dark" content="从列表移除" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="从列表移除"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="deleteScript">
             <span i-mdi-playlist-remove></span>
           </el-icon>
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="编辑脚本" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="编辑脚本"
+          placement="bottom"
+        >
           <code-icon class="icon" @click.stop="editorScriptFile" />
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="打开脚本" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="打开脚本"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="openFIleDialog">
             <span i-mdi-folder-eye-outline></span>
           </el-icon>
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="脚本设置" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="脚本设置"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="goSetScript">
             <span i-solar-settings-linear></span>
           </el-icon>
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="运行脚本" placement="bottom">
-          <el-icon class="icon" @click.stop="runScript"><span i-mdi-play-circle-outline></span></el-icon>
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="运行脚本"
+          placement="bottom"
+        >
+          <el-icon class="icon" @click.stop="runScript"
+            ><span i-mdi-play-circle-outline></span
+          ></el-icon>
         </el-tooltip>
       </div>
     </div>
@@ -56,15 +84,15 @@ const props = defineProps({
   },
   showHover: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 const hoverBeforeWidth = computed(() => {
-  return props.showHover ? "4px" : "0px"
-})
+  return props.showHover ? "4px" : "0px";
+});
 const showAnimation = computed(() => {
-  return props.showHover ? "all 0.5s" : "none"
-})
+  return props.showHover ? "all 0.5s" : "none";
+});
 const emit = defineEmits<{
   (event: "editorScriptFile", index: number): void;
   (event: "openFile", index: number): void;
@@ -74,9 +102,21 @@ const emit = defineEmits<{
 }>();
 
 const script = computed(() => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return usePlayMock().mockScriptList.value.find(
+      (item) => item.id === props.id
+    )!;
+  }
   return scriptList.value.find((item) => item.id === props.id)!;
 });
 const scriptIndex = computed(() => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return usePlayMock().mockScriptList.value.findIndex(
+      (item) => item.id === props.id
+    )!;
+  }
   return scriptList.value.findIndex((item) => item.id === props.id)!;
 });
 
@@ -114,7 +154,6 @@ const itemHeight = computed(() => {
   }
   return "40px";
 });
-
 </script>
 
 <style lang="scss" scoped>

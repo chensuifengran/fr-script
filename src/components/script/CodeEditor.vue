@@ -3,23 +3,31 @@
     <OperationRecordPanel />
     <!-- 插入代码片段弹窗 -->
     <el-dialog v-model="showInsertCodeDialog" title="插入代码片段" width="60%">
-      <el-autocomplete v-model="searchSnippet" value-key="name" :fetch-suggestions="querySearch"
-        placeholder="搜索代码片段:名称、备注、前缀">
+      <el-autocomplete
+        v-model="searchSnippet"
+        value-key="name"
+        :fetch-suggestions="querySearch"
+        placeholder="搜索代码片段:名称、备注、前缀"
+      >
         <template #suffix>
           <el-icon>
             <span i-mdi-text-search></span>
           </el-icon>
         </template>
         <template #default="{ item }">
-          <div flex flex-row flex-items-center> <el-tag type="primary" size="small" mr-1>{{ item.prefix
-              }}</el-tag><el-text>{{ item.name }}</el-text></div>
+          <div flex flex-row flex-items-center>
+            <el-tag type="primary" size="small" mr-1>{{ item.prefix }}</el-tag
+            ><el-text>{{ item.name }}</el-text>
+          </div>
           <el-text>{{ item.description }}</el-text>
         </template>
       </el-autocomplete>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="showInsertCodeDialog = false">取消</el-button>
-          <el-button type="primary" @click="insertCodeSnippet"> 确定 </el-button>
+          <el-button type="primary" @click="insertCodeSnippet">
+            确定
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -57,11 +65,17 @@
     <!-- 运行未保存脚本弹窗 -->
     <el-dialog v-model="autoSaveDialog.visible" title="运行脚本">
       <div>检测到当前脚本已做更改，若不保存则运行最后一次保存的内容</div>
-      <el-checkbox v-model="appGSStore.editor.runAutoSave" label="不再提醒,下次运行自动保存,可在设置页关闭自动保存" size="large" />
+      <el-checkbox
+        v-model="appGSStore.editor.runAutoSave"
+        label="不再提醒,下次运行自动保存,可在设置页关闭自动保存"
+        size="large"
+      />
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="autoSaveDialog.close_cb">直接运行</el-button>
-          <el-button type="primary" @click="autoSaveDialog.cb"> 保存后运行 </el-button>
+          <el-button type="primary" @click="autoSaveDialog.cb">
+            保存后运行
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -70,10 +84,20 @@
       <Loading />
       <div>编辑器加载中...</div>
     </div>
-    <div class="auto-api-tip scrollbar" @wheel.stop="wheelHandle" ref="scrollbarRef">
-      <el-tag style="margin-right: 3px" size="small" type="success" v-show="fnInfo?.haveAuxiliary">Ctrl+Tab
-        ：快速填写/修改参数</el-tag>
-      <el-tag size="small" type="info" v-show="fnInfo?.name && fnInfo?.content">{{ fnInfo?.name }}:{{ fnInfo?.content }}
+    <div
+      class="auto-api-tip scrollbar"
+      @wheel.stop="wheelHandle"
+      ref="scrollbarRef"
+    >
+      <el-tag
+        style="margin-right: 3px"
+        size="small"
+        type="success"
+        v-show="fnInfo?.haveAuxiliary"
+        >Ctrl+Tab ：快速填写/修改参数</el-tag
+      >
+      <el-tag size="small" type="info" v-show="fnInfo?.name && fnInfo?.content"
+        >{{ fnInfo?.name }}:{{ fnInfo?.content }}
       </el-tag>
     </div>
   </div>
@@ -83,6 +107,8 @@ import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import * as monaco from "monaco-editor";
+import { MockScriptListItem } from "../../hooks/usePlayMock";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
@@ -107,22 +133,31 @@ const {
   declareMod,
   saveMod,
 } = useScriptInfo();
-const searchSnippet = ref('');
+const searchSnippet = ref("");
 const insertCodeSnippet = async () => {
-  const target = listStore.codeSnippets.find(i => i.name === searchSnippet.value);
+  const target = listStore.codeSnippets.find(
+    (i) => i.name === searchSnippet.value
+  );
   if (target) {
     const snippetContent = await fsUtils.readFile(target.filePath);
     insertText(EDITOR_DOM_ID, snippetContent.trim());
     ElMessage.success("代码片段插入成功");
   }
   showInsertCodeDialog.value = false;
-}
+};
 const { invokeDynamicDialog } = useCore();
 const fnInfo = AutoTipUtils.getFnInfo();
 const { apiAutoTip } = AutoTipUtils;
 const showEditor = ref(true);
-const getFileInfo = (type: "id" | "savePath" | "name" | "version" | "description") => {
-  const target = scriptList.value.find((s) => s.id === openId!.value);
+const getFileInfo = (
+  type: "id" | "savePath" | "name" | "version" | "description" | "content"
+) => {
+  const target = (
+    isPlay ? usePlayMock().mockScriptList : scriptList
+  ).value.find((s) => s.id === openId!.value);
+  if (isPlay) {
+    return (target as MockScriptListItem)[type];
+  }
   if (target === undefined) {
     console.error("未找到对应脚本");
     return "";
@@ -152,8 +187,8 @@ const wheelHandle = (event: any) => {
 };
 const autoSaveDialog = reactive({
   visible: false,
-  cb: <() => void>(() => { }),
-  close_cb: <() => void>(() => { }),
+  cb: <() => void>(() => {}),
+  close_cb: <() => void>(() => {}),
 });
 const saveScriptFile = async () => {
   if (!fileInfo.declare) {
@@ -165,6 +200,19 @@ const saveScriptFile = async () => {
     });
     return false;
   } else {
+    if (isPlay) {
+      usePlayMock().mockScriptList.value.find(
+        (s) => s.id === openId!.value
+      )!.content = editorValue.value;
+      fileInfo.originData = editorValue.value;
+      ElNotification({
+        title: "提示",
+        message: "保存成功",
+        type: "success",
+        position: "bottom-right",
+      });
+      return true;
+    }
     if (fileInfo.savePath.trim().length) {
       //编辑的脚本，直接写入内容
       try {
@@ -306,7 +354,7 @@ const auxiliaryActionCallback = () => {
       fnInfo.value.params
     );
   }
-}
+};
 let checkDeclareTimer: any = null;
 const checkDeclare = () => {
   if (router.currentRoute.value.name !== "scriptEditor") return;
@@ -348,13 +396,14 @@ const checkDeclare = () => {
         //声明不完整
         fileInfo.declare = false;
       } else {
-        const targetIndex = scriptList.value.findIndex((s) => {
+        const target = isPlay ? usePlayMock().mockScriptList : scriptList;
+        const targetIndex = target.value.findIndex((s) => {
           return s.id === openId?.value;
         });
         if (openId?.value !== "-1") {
-          scriptList.value[targetIndex].version = dm.version;
-          scriptList.value[targetIndex].name = dm.name;
-          scriptList.value[targetIndex].description = dm.description;
+          target.value[targetIndex].version = dm.version;
+          target.value[targetIndex].name = dm.name;
+          target.value[targetIndex].description = dm.description;
         }
         fileInfo.declare = true;
         fileInfo.version = dm.version;
@@ -376,6 +425,14 @@ const resizeHandle = () => {
 };
 let windowFocusHandle: UnlistenFn;
 const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
+  if (isPlay) {
+    const newContent = getFileInfo("content");
+    fileInfo.originData = newContent || "";
+    fileInfo.name = getFileInfo("name")!;
+    fileInfo.description = getFileInfo("description")!;
+    setText(EDITOR_DOM_ID, fileInfo.originData);
+    return;
+  }
   if (!path) {
     const p = getFileInfo("savePath");
     if (!p) {
@@ -388,20 +445,6 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
     return;
   }
   if (type === "focus" && editorValue.value !== fileInfo.originData) {
-    // try {
-    //   await ElMessageBox.confirm(
-    //     "检测到当前脚本源内容已改变，是否载入最新内容，此操作将覆盖当前编辑器内容！",
-    //     "同步数据",
-    //     {
-    //       confirmButtonText: "载入最新内容",
-    //       cancelButtonText: "保留当前内容",
-    //       type: "warning",
-    //       confirmButtonClass: "el-button--warning",
-    //     }
-    //   );
-    // } catch (error) {
-    //   return;
-    // }
     fileInfo.originData = newContent;
     return;
   }
@@ -414,48 +457,69 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   type === "focus" && ElMessage.info("已载入最新内容");
 };
 const { createWindow } = useWebviewWindow();
-const querySearch = (queryString: string, cb: (results: CodeSnippet[]) => void) => {
+const querySearch = (
+  queryString: string,
+  cb: (results: CodeSnippet[]) => void
+) => {
   const results = queryString
     ? listStore.codeSnippets.filter((i) => {
-      return i.name.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
-        i.description.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
-        i.prefix.toLowerCase().includes(searchSnippet.value.toLowerCase())
-    })
-    : listStore.codeSnippets
-  cb(results)
-}
+        return (
+          i.name.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
+          i.description
+            .toLowerCase()
+            .includes(searchSnippet.value.toLowerCase()) ||
+          i.prefix.toLowerCase().includes(searchSnippet.value.toLowerCase())
+        );
+      })
+    : listStore.codeSnippets;
+  cb(results);
+};
 onMounted(async () => {
-  createWindow("ORW", "/ORW", {
-    height: 40,
-    width: 180,
-    alwaysOnTop: true,
-  });
+  if (!isPlay) {
+    createWindow("ORW", "/ORW", {
+      height: 40,
+      width: 180,
+      alwaysOnTop: true,
+    });
+  }
+
   isEditing.value = true;
   showEditor.value = false;
   window.addEventListener("resize", resizeHandle);
   editorInit(EDITOR_DOM_ID);
   await getFile();
-  document.getElementById(EDITOR_DOM_ID)?.addEventListener("keydown", keydownHandle);
-  registerEditorEvent("mounted", (editor: monaco.editor.IStandaloneCodeEditor) => {
-    editorActions.auxiliaryActionRegister(editor, auxiliaryActionCallback);
-    editorActions.insertSnippetCodeActionRegister(editor, () => { showInsertCodeDialog.value = true });
-    editor.onDidChangeCursorPosition(cursorHandle);
-    setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE());
-    const t = setTimeout(() => {
-      checkDeclare();
-      showEditor.value = true;
-      clearTimeout(t);
-    }, 200);
-  });
-  windowFocusHandle = await listen("tauri://focus", () => {
-    loadContent("focus");
-  });
+  document
+    .getElementById(EDITOR_DOM_ID)
+    ?.addEventListener("keydown", keydownHandle);
+  registerEditorEvent(
+    "mounted",
+    (editor: monaco.editor.IStandaloneCodeEditor) => {
+      editorActions.auxiliaryActionRegister(editor, auxiliaryActionCallback);
+      editorActions.insertSnippetCodeActionRegister(editor, () => {
+        showInsertCodeDialog.value = true;
+      });
+      editor.onDidChangeCursorPosition(cursorHandle);
+      setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE());
+      const t = setTimeout(() => {
+        checkDeclare();
+        showEditor.value = true;
+        clearTimeout(t);
+      }, 200);
+    }
+  );
+  if (!isPlay) {
+    windowFocusHandle = await listen("tauri://focus", () => {
+      loadContent("focus");
+    });
+  }
 });
 onBeforeUnmount(() => {
   astWorker.clearCache();
   unRegisterEditorEvent("mounted");
   window.removeEventListener("resize", resizeHandle);
-  document.getElementById(EDITOR_DOM_ID)?.removeEventListener("keydown", keydownHandle);
+  document
+    .getElementById(EDITOR_DOM_ID)
+    ?.removeEventListener("keydown", keydownHandle);
   disposeEditor();
   isEditing.value = false;
   windowFocusHandle && windowFocusHandle();

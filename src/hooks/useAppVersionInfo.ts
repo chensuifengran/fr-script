@@ -19,6 +19,16 @@ const appVersionInfo = ref<{
   openDialog: false,
 });
 const goAppUpdate = async (haveUpdate: boolean) => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    ElNotification({
+      title: "提示",
+      message: "当前已是最新版本",
+      type: "success",
+      position: "bottom-right",
+    });
+    return;
+  }
   ElMessage({
     icon:DotLoader,
     dangerouslyUseHTMLString: true,

@@ -10,7 +10,9 @@ import SunIcon from "./Icons/SunIcon.vue";
 const { getDepStateType } = libUtil;
 const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
-const version = ref("获取版本失败");
+const version = ref(
+  import.meta.env.VITE_APP_ENV === "play" ? "playground" : "获取版本失败"
+);
 const loading = ref(false);
 const loadingText = ref("");
 const libDownloadDialog = ref(false);
@@ -18,9 +20,12 @@ const appGSStore = useAppGlobalSettings();
 const { app, envSetting, ocr, view, editor } = storeToRefs(appGSStore);
 const { isDark } = useAppTheme();
 const darkState = ref(false);
-getVersion().then((res) => {
-  version.value = res;
-});
+if (import.meta.env.VITE_APP_ENV !== "play") {
+  getVersion().then((res) => {
+    version.value = res;
+  });
+}
+
 darkState.value = isDark.value;
 let timer: any;
 watch(darkState, () => {
@@ -30,18 +35,32 @@ watch(darkState, () => {
   }, 300);
 });
 const chooseWorkDir = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    envSetting.value.workDir = "E:\\fr-script\\workdir";
+    return;
+  }
   const res = await selectDir();
   if (res) {
     envSetting.value.workDir = res;
   }
 };
 const chooseScreenshotSavePath = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    envSetting.value.screenshotSavePath = "E:\\fr-script\\workdir\\screenshot.png";
+    return;
+  }
   const res = (await selectFile(false)) as string | undefined;
   if (res) {
     envSetting.value.screenshotSavePath = res;
   }
 };
 const libCGSwitch = async (target: string, name: string) => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return true;
+  }
   try {
     const p_inference = await libUtil.libExists("paddle_inference.dll");
     const libInfo = await libUtil.libExists(name);
@@ -65,7 +84,10 @@ const libCGSwitch = async (target: string, name: string) => {
         } else {
           return true;
         }
-      } else if (p_inference.fileSize > 0 && p_inference.fileSize / 1024000 > 100) {
+      } else if (
+        p_inference.fileSize > 0 &&
+        p_inference.fileSize / 1024000 > 100
+      ) {
         //gpu
         if (target === "CPU") {
           const libExists = await libUtil.libExists("c_" + name);
@@ -112,6 +134,10 @@ const libCGSwitch = async (target: string, name: string) => {
   }
 };
 const checkTargetLib = async (target: "CPU" | "GPU") => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return true;
+  }
   if (target === "CPU") {
     const libInferExists = await libUtil.libExists("c_paddle_inference.dll");
     const libExists = await libUtil.libExists("c_ppocr.dll");
@@ -132,7 +158,10 @@ const switchOcrLib = async (target: "CPU" | "GPU", checkExists = true) => {
       return;
     }
     const switchPpocrLib = await libCGSwitch(target, "ppocr.dll");
-    const switchPaddleInferenceLib = await libCGSwitch(target, "paddle_inference.dll");
+    const switchPaddleInferenceLib = await libCGSwitch(
+      target,
+      "paddle_inference.dll"
+    );
     if (switchPpocrLib && switchPaddleInferenceLib) {
       if (showMessage) {
         ElNotification({
@@ -153,6 +182,10 @@ const switchOcrLib = async (target: "CPU" | "GPU", checkExists = true) => {
                   class: "notification-message-button",
                   type: "primary",
                   onClick: () => {
+                    if (import.meta.env.VITE_APP_ENV === "play") {
+                      //playground环境
+                      return;
+                    }
                     relaunch();
                   },
                 },
@@ -183,11 +216,20 @@ const switchOcrRunType = async () => {
   await switchOcrLib(ocr.value.value);
 };
 const haveUpdate = computed(() => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return false;
+  }
   return (
-    version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
+    version.value !== "获取版本失败" &&
+    version.value !== appGSStore.app.latestVersion
   );
 });
 const themeChangeHandler = () => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   const notifyWindow = WebviewWindow.getByLabel("notification");
   if (notifyWindow) {
     //主题切换时需关闭隐藏的通知窗口，否则主题切换会出现样式问题
@@ -199,19 +241,23 @@ const { notify } = eventUtil;
 let focusUnListenFn: UnlistenFn;
 let receiveUnListenFn: UnlistenFn;
 onMounted(async () => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   await libUtil.syncDependentVersion();
   const currentWindowLabel = appWindow.label;
-  if (currentWindowLabel === 'main') {
-    focusUnListenFn = await listen('tauri://focus', () => {
-      const depManagerWindow = WebviewWindow.getByLabel('depManager');
+  if (currentWindowLabel === "main") {
+    focusUnListenFn = await listen("tauri://focus", () => {
+      const depManagerWindow = WebviewWindow.getByLabel("depManager");
       if (depManagerWindow) {
         notify.send({
-          name: 'sentDataToMain'
+          name: "sentDataToMain",
         });
       }
     });
     receiveUnListenFn = await notify.listen((event) => {
-      if (event.windowLabel === 'depManager') {
+      if (event.windowLabel === "depManager") {
         const { payload } = event.payload;
         if (payload.name === "syncMainData") {
           const data = payload.payload;
@@ -223,48 +269,103 @@ onMounted(async () => {
   invokeBaseApi.closeSplashscreen();
 });
 onUnmounted(() => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   focusUnListenFn && focusUnListenFn();
   receiveUnListenFn && receiveUnListenFn();
 });
 </script>
 <template>
-  <div class="setting-div" v-loading="loading" :element-loading-text="loadingText">
+  <div
+    class="setting-div"
+    v-loading="loading"
+    :element-loading-text="loadingText"
+  >
     <el-dialog v-model="libDownloadDialog" title="未发现依赖库">
       <div class="dialog-content">
         <span>错误，依赖文件缺失!</span>
         <div class="btn-content">
-          <el-button type="info" @click="libDownloadDialog = false">取消</el-button>
-          <el-button type="primary" @click="goInstallDeps()">依赖管理</el-button>
+          <el-button type="info" @click="libDownloadDialog = false"
+            >取消</el-button
+          >
+          <el-button type="primary" @click="goInstallDeps()"
+            >依赖管理</el-button
+          >
         </div>
       </div>
     </el-dialog>
     <h3 class="setting-title">App</h3>
     <div class="setting-item">
       <span>版本</span>
-      <span><el-tag :type="haveUpdate ? 'info' : 'primary'" class="mr-5" size="small">{{
-        version
-          }}</el-tag><el-tag class="mr-5" size="small" v-if="haveUpdate">最新版本：{{ appGSStore.app.latestVersion
-          }}</el-tag><el-button link type="primary" @click="goAppUpdate(haveUpdate)">{{ haveUpdate ? "前往" : "检查"
-          }}更新</el-button></span>
+      <span
+        ><el-tag
+          :type="haveUpdate ? 'info' : 'primary'"
+          class="mr-5"
+          size="small"
+          >{{ version }}</el-tag
+        ><el-tag class="mr-5" size="small" v-if="haveUpdate"
+          >最新版本：{{ appGSStore.app.latestVersion }}</el-tag
+        ><el-button link type="primary" @click="goAppUpdate(haveUpdate)"
+          >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
+        ></span
+      >
     </div>
     <div class="setting-item">
       <span>依赖状态</span>
-      <span><el-tag :type="getDepStateType(app.dependenceState)" class="mr-5" size="small">{{
-        app.dependenceState
-          }}</el-tag><el-tag v-if="app.depHaveUpdate" type="warning" class="mr-5" size="small">可更新</el-tag><el-button
-          link type="primary"
-          @click="goInstallDeps(app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload')">依赖管理</el-button></span>
+      <span
+        ><el-tag
+          :type="getDepStateType(app.dependenceState)"
+          class="mr-5"
+          size="small"
+          >{{ app.dependenceState }}</el-tag
+        ><el-tag
+          v-if="app.depHaveUpdate"
+          type="warning"
+          class="mr-5"
+          size="small"
+          >可更新</el-tag
+        ><el-button
+          link
+          type="primary"
+          @click="
+            goInstallDeps(
+              app.depHaveUpdate ? 'haveUpdateDep' : 'lackDepDownload'
+            )
+          "
+          >依赖管理</el-button
+        ></span
+      >
     </div>
     <div class="setting-item">
       <span>全局主题</span>
-      <el-switch v-model="darkState" :active-icon="MoonIcon" :inactive-icon="SunIcon" @change="themeChangeHandler" />
+      <el-switch
+        v-model="darkState"
+        :active-icon="MoonIcon"
+        :inactive-icon="SunIcon"
+        @change="themeChangeHandler"
+      />
     </div>
-    <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">OCR服务</h3>
+    <h3 class="setting-title" v-if="app.dependenceState !== '不可用'">
+      OCR服务
+    </h3>
     <div v-if="app.dependenceState !== '不可用'" class="setting-item">
       <span>运行方式</span>
-      <el-select v-model="ocr.value" placeholder="OCR运行方式" size="small" class="w120" @change="switchOcrRunType"
-        :disabled="app.dependenceState !== '完整版'">
-        <el-option v-for="item in ocr.options" :key="item" :label="item" :value="item" />
+      <el-select
+        v-model="ocr.value"
+        placeholder="OCR运行方式"
+        size="small"
+        class="w120"
+        @change="switchOcrRunType"
+        :disabled="app.dependenceState !== '完整版'"
+      >
+        <el-option
+          v-for="item in ocr.options"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
       </el-select>
     </div>
     <div class="setting-item" v-show="ocr.value === 'GPU'">
@@ -274,19 +375,35 @@ onUnmounted(() => {
     <h3 class="setting-title">环境设置</h3>
     <div class="setting-item">
       <span>工作目录</span>
-      <span><el-tag type="info" class="mr-5" size="small">{{ envSetting.workDir }}</el-tag><el-button link
-          type="primary" @click="chooseWorkDir">选择</el-button></span>
+      <span
+        ><el-tag type="info" class="mr-5" size="small">{{
+          envSetting.workDir
+        }}</el-tag
+        ><el-button link type="primary" @click="chooseWorkDir"
+          >选择</el-button
+        ></span
+      >
     </div>
     <div class="setting-item">
       <span>截图保存路径</span>
-      <span><el-tag type="info" class="mr-5" size="small">{{
-        envSetting.screenshotSavePath
-          }}</el-tag><el-button link type="primary" @click="chooseScreenshotSavePath">选择</el-button></span>
+      <span
+        ><el-tag type="info" class="mr-5" size="small">{{
+          envSetting.screenshotSavePath
+        }}</el-tag
+        ><el-button link type="primary" @click="chooseScreenshotSavePath"
+          >选择</el-button
+        ></span
+      >
     </div>
     <h3 class="setting-title">显示</h3>
     <div class="setting-item">
       <span>在标题栏显示APP更新按钮</span>
-      <el-select v-model="view.showUpdateInTitleBar" placeholder="在标题栏显示APP更新按钮" size="small" class="w120">
+      <el-select
+        v-model="view.showUpdateInTitleBar"
+        placeholder="在标题栏显示APP更新按钮"
+        size="small"
+        class="w120"
+      >
         <el-option label="显示" :value="true" />
         <el-option label="不显示" :value="false" />
       </el-select>
@@ -294,8 +411,18 @@ onUnmounted(() => {
     <h3 class="setting-title">编辑器</h3>
     <div class="setting-item">
       <span>主题</span>
-      <el-select v-model="editor.theme.value" placeholder="编辑器主题" size="small" class="w120">
-        <el-option v-for="item in editor.theme.options" :key="item" :label="item" :value="item" />
+      <el-select
+        v-model="editor.theme.value"
+        placeholder="编辑器主题"
+        size="small"
+        class="w120"
+      >
+        <el-option
+          v-for="item in editor.theme.options"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
       </el-select>
     </div>
     <div class="setting-item">

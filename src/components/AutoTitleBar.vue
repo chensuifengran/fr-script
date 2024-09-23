@@ -5,41 +5,74 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="showQuitDialog = false">取消</el-button>
-        <el-button type="danger" @click="closeHandle">{{ isEditing ? "保存并" : "" }}退出</el-button>
+        <el-button type="danger" @click="closeHandle"
+          >{{ isEditing ? "保存并" : "" }}退出</el-button
+        >
       </span>
     </template>
   </el-dialog>
-  <transition enter-active-class="animate__animated animate__fadeInUp"
-    leave-active-class="animate__animated animate__fadeOutDown">
-    <div data-tauri-drag-region class="titlebar" v-if="!isEditing" style="cursor: move">
+  <transition
+    enter-active-class="animate__animated animate__fadeInUp"
+    leave-active-class="animate__animated animate__fadeOutDown"
+  >
+    <div
+      data-tauri-drag-region
+      class="titlebar"
+      v-if="!isEditing"
+      style="cursor: move"
+    >
       <div class="title" data-tauri-drag-region style="cursor: move">
         <div class="text">
           <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
             info.title
           }}</span>
         </div>
-        <transition enter-active-class="animate__animated animate__fadeInUp"
-          leave-active-class="animate__animated animate__fadeOutDown">
-          <div class="api-test-bar" data-tauri-drag-region v-if="showApiTestSearch" style="cursor: move">
-            <el-input class="search-ipt" v-model="info.apiTest.searchValue" clearable placeholder="可输入API的关键字对API进行筛选">
+        <transition
+          enter-active-class="animate__animated animate__fadeInUp"
+          leave-active-class="animate__animated animate__fadeOutDown"
+        >
+          <div
+            class="api-test-bar"
+            data-tauri-drag-region
+            v-if="showApiTestSearch"
+            style="cursor: move"
+          >
+            <el-input
+              class="search-ipt"
+              v-model="info.apiTest.searchValue"
+              clearable
+              placeholder="可输入API的关键字对API进行筛选"
+            >
             </el-input>
-            <el-button class="output-btn" @click="info.apiTest.openOutput = true" circle><el-icon>
-                <span i-mdi-square-rounded-badge-outline></span>
-              </el-icon></el-button>
+            <el-button
+              class="output-btn"
+              @click="info.apiTest.openOutput = true"
+              circle
+              ><el-icon>
+                <span i-mdi-square-rounded-badge-outline></span> </el-icon
+            ></el-button>
           </div>
         </transition>
       </div>
       <div class="btn">
-        <el-tooltip effect="light" content="基础功能不可用，点我安装依赖" placement="bottom"
-          v-if="appGSStore.app.dependenceState === '不可用'">
+        <el-tooltip
+          effect="light"
+          content="基础功能不可用，点我安装依赖"
+          placement="bottom"
+          v-if="appGSStore.app.dependenceState === '不可用'"
+        >
           <div class="titlebar-button warning-btn" @click="goInstallDeps()">
             <el-icon>
               <span i-mdi-tools></span>
             </el-icon>
           </div>
         </el-tooltip>
-        <el-tooltip effect="light" content="有新版本，点我更新" placement="bottom"
-          v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar">
+        <el-tooltip
+          effect="light"
+          content="有新版本，点我更新"
+          placement="bottom"
+          v-if="showSetupBtn && appGSStore.view.showUpdateInTitleBar"
+        >
           <div class="titlebar-button setup-btn" @click="openDownloadDialog">
             <el-icon>
               <span i-mdi-cloud-download-outline></span>
@@ -49,9 +82,12 @@
 
         <div class="titlebar-button" @click="!isEditing && toggleMostTop()">
           <el-icon>
-            <span i-solar-pin-bold-duotone :style="{
-              color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
-            }"></span>
+            <span
+              i-solar-pin-bold-duotone
+              :style="{
+                color: mostTop ? 'var(--el-color-primary)' : 'var(--color)',
+              }"
+            ></span>
           </el-icon>
         </div>
         <div class="titlebar-button" @click="!isEditing && minHandle()">
@@ -65,20 +101,31 @@
             <span v-else i-mdi-fullscreen-exit></span>
           </el-icon>
         </div>
-        <div class="titlebar-button danger" @click="!isEditing && (showQuitDialog = true)">
+        <div
+          class="titlebar-button danger"
+          @click="!isEditing && (showQuitDialog = true)"
+        >
           <el-icon>
             <span i-mdi-window-close></span>
           </el-icon>
         </div>
       </div>
     </div>
-    <div class="titlebar" data-tauri-drag-region v-else-if="isEditing" style="cursor: move">
+    <div
+      class="titlebar"
+      data-tauri-drag-region
+      v-else-if="isEditing"
+      style="cursor: move"
+    >
       <EditorHeader>
         <div class="btn-content">
           <div class="titlebar-button" @click="isEditing && toggleMostTop()">
-            <span i-solar-pin-bold-duotone :style="{
-              color: mostTop ? 'var(--el-color-primary)' : 'var(--color)'
-            }" />
+            <span
+              i-solar-pin-bold-duotone
+              :style="{
+                color: mostTop ? 'var(--el-color-primary)' : 'var(--color)',
+              }"
+            />
           </div>
           <div class="titlebar-button" @click="isEditing && minHandle()">
             <el-icon>
@@ -91,7 +138,10 @@
               <span v-else i-mdi-fullscreen-exit></span>
             </el-icon>
           </div>
-          <div class="titlebar-button danger" @click="isEditing && (showQuitDialog = true)">
+          <div
+            class="titlebar-button danger"
+            @click="isEditing && (showQuitDialog = true)"
+          >
             <el-icon>
               <span i-mdi-window-close></span>
             </el-icon>
@@ -113,6 +163,10 @@ const { getEditorValue } = useEditor();
 const mostTop = ref(false);
 const toggleMostTop = () => {
   mostTop.value = !mostTop.value;
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   if (mostTop.value) {
     appWindow.setAlwaysOnTop(true);
   } else {
@@ -125,9 +179,18 @@ const titleBarHeight = computed(() => {
 const showQuitDialog = ref(false);
 const minHandle = () => {
   clickMinimize.value = true;
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   appWindow.minimize();
 };
 const maxHandle = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    isFullScreen.value = !isFullScreen.value;
+    return;
+  }
   if (await appWindow.isMaximized()) {
     appWindow.unmaximize();
     isFullScreen.value = false;
@@ -137,6 +200,10 @@ const maxHandle = async () => {
   }
 };
 const closeHandle = async () => {
+  if (import.meta.env.VITE_APP_ENV === "play") {
+    //playground环境
+    return;
+  }
   if (isEditing.value) {
     const editorValue = getEditorValue("codeEditBox");
     if (!editorValue) {
@@ -151,9 +218,9 @@ const closeHandle = async () => {
   for (let i = 0; i < allWindow.length; i++) {
     const w = allWindow[i];
     if (w.label !== "main") {
-      try{
+      try {
         await w.close();
-      }catch{}
+      } catch {}
     }
   }
   await appWindow.close();
@@ -164,19 +231,34 @@ const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
   return isDark.value ? "#272727" : "#f6f6f6";
 });
-const version = ref("获取版本失败");
-getVersion().then((res) => {
-  version.value = res;
-});
+const version = ref(
+  import.meta.env.VITE_APP_ENV === "play" ? "playground" : "获取版本失败"
+);
+if (import.meta.env.VITE_APP_ENV !== "play") {
+  //playground环境
+  getVersion().then((res) => {
+    version.value = res;
+  });
+}
+
 const appGSStore = useAppGlobalSettings();
 const { appVersionInfo, goAppUpdate } = useAppVersionInfo();
 const openDownloadDialog = async () => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   await goAppUpdate(true);
   appVersionInfo.value.openDialog = true;
 };
 const showSetupBtn = computed(() => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return false;
+  }
   return (
-    version.value !== "获取版本失败" && version.value !== appGSStore.app.latestVersion
+    version.value !== "获取版本失败" &&
+    version.value !== appGSStore.app.latestVersion
   );
 });
 
@@ -191,6 +273,10 @@ const searchPosition = computed(() => {
   }
 });
 const resizeHandle = async () => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   if (await appWindow.isMaximized()) {
     isFullScreen.value = true;
   } else {
@@ -199,6 +285,10 @@ const resizeHandle = async () => {
 };
 let unListen: any;
 onMounted(async () => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   window.addEventListener("resize", resizeHandle);
   unListen = await listen("tauri://focus", (e: any) => {
     if (clickMinimize.value && e.windowLabel === getCurrent().label) {
@@ -211,6 +301,10 @@ onMounted(async () => {
   });
 });
 onUnmounted(() => {
+  if(import.meta.env.VITE_APP_ENV === 'play'){
+    //playground环境
+    return;
+  }
   window.removeEventListener("resize", resizeHandle);
   if (unListen) {
     unListen();
