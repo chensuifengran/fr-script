@@ -661,7 +661,7 @@ const screenColor = async (x: number = 0, y: number = 0) => {
         Math.floor(Math.random() * 256),
         Math.floor(Math.random() * 256),
         Math.floor(Math.random() * 256),
-      ] as const,
+      ] as [number, number, number],
     };
   }
   try {
