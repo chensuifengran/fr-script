@@ -10,6 +10,7 @@ import path from "path";
 import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
+import viteCompression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
@@ -54,6 +55,13 @@ export default defineConfig(({ mode }) => {
       Icons({
         autoInstall: true,
       }),
+      viteCompression({
+        ext: ".gz",
+        threshold: 1024 * 100,
+        algorithm: "gzip",
+        deleteOriginFile: true,
+        disable: mode !== "play",
+      }),
     ],
     resolve: {
       alias: {
@@ -88,7 +96,7 @@ export default defineConfig(({ mode }) => {
     // Tauri expects a fixed port, fail if that port is not available
     server: {
       strictPort: true,
-      port: mode === 'play' ? 5174 : 5173,
+      port: mode === "play" ? 5174 : 5173,
     },
     // to make use of `TAURI_PLATFORM`, `TAURI_ARCH`, `TAURI_FAMILY`,
     // `TAURI_PLATFORM_VERSION`, `TAURI_PLATFORM_TYPE` and `TAURI_DEBUG`
