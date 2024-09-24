@@ -8,8 +8,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "dev": "node .\\script\\switchEnv && vite",
-    "play":"vite --mode play",
-    "play:build":"vite build --mode play",
+    "play": "vite --mode play",
+    "play:build": "vite build --mode play",
     "build": "vue-tsc --noEmit && node .\\script\\switchEnv ERROR &&vite build",
     "build:debug": "vue-tsc --noEmit && node .\\script\\switchEnv DEBUG &&vite build",
     "preview": "vite preview",
@@ -65,6 +65,7 @@
     "unplugin-vue-components": "0.27.4",
     "unplugin-vue-macros": "^2.12.2",
     "vite": "^5.4.6",
+    "vite-plugin-compression": "^0.5.1",
     "vitest": "^2.1.1",
     "vue": "3.5.0",
     "vue-tsc": "2.1.6"
