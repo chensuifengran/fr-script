@@ -1,7 +1,13 @@
 <template>
   <div class="container-root">
-    <el-drawer v-model="showEditor" :title="targetName" :before-close="handleClose" direction="ltr" size="80%"
-      class="orp-drawer">
+    <el-drawer
+      v-model="showEditor"
+      :title="targetName"
+      :before-close="handleClose"
+      direction="ltr"
+      size="80%"
+      class="orp-drawer"
+    >
       <div id="snippet-editor" w-full h-full></div>
     </el-drawer>
     <div class="code-snippet-list-div">
@@ -34,7 +40,12 @@
         <div class="header">
           <span style="font-size: 18px">代码片段列表</span>
           <div class="header-right">
-            <el-input class="input" v-model="search" clearable placeholder="搜索代码片段:名称、备注、前缀" />
+            <el-input
+              class="input"
+              v-model="search"
+              clearable
+              placeholder="搜索代码片段:名称、备注、前缀"
+            />
             <el-button-group>
               <el-button @click="imoprtScript">导入</el-button>
               <el-button type="primary" @click="onAddItem">新建</el-button>
@@ -43,12 +54,37 @@
         </div>
       </el-affix>
       <div class="list" h-full>
-        <el-empty v-if="codeSnippets.length === 0" description="暂无代码片段" position-absolute top-0 bottom-0 right-0
-          left-0 />
-        <VueDraggable ref="el" v-model="showList" ghostClass="ghost" class="draggable-content" :disabled="disableSort"
-          :animation="200" handle=".drag-handle" @start="onStart" @update="onEnd" @end="onEnd">
-          <CodeSnippetListItem v-for="item in showList" :key="item.id" :id="item.id" @edit-file="editFile" @edit-info="editInfo"
-            :show-hover="showItemHover" @open-file="openFile" @del-code-snippets="delCodeSnippets" />
+        <el-empty
+          v-if="showList.length === 0"
+          description="暂无代码片段"
+          position-absolute
+          top-0
+          bottom-0
+          right-0
+          left-0
+        />
+        <VueDraggable
+          ref="el"
+          v-model="showList"
+          ghostClass="ghost"
+          class="draggable-content"
+          :disabled="disableSort"
+          :animation="200"
+          handle=".drag-handle"
+          @start="onStart"
+          @update="onEnd"
+          @end="onEnd"
+        >
+          <CodeSnippetListItem
+            v-for="item in showList"
+            :key="item.id"
+            :id="item.id"
+            @edit-file="editFile"
+            @edit-info="editInfo"
+            :show-hover="showItemHover"
+            @open-file="openFile"
+            @del-code-snippets="delCodeSnippets"
+          />
         </VueDraggable>
       </div>
     </div>
@@ -59,36 +95,55 @@
 import { invoke } from "@tauri-apps/api";
 import { DialogBeforeCloseFn } from "element-plus";
 import { storeToRefs } from "pinia";
-import { UseDraggableReturn, VueDraggable } from 'vue-draggable-plus'
+import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
+import { MockCodeSnippet } from "../hooks/usePlayMock";
+import { nanoid } from "nanoid";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const EDITOR_DOM_ID = "snippet-editor";
 const showEditor = ref(false);
 const targetId = ref("");
-const targetName = computed(() => {
-  return codeSnippets.value.find(i => i.id === targetId.value)?.name || ""
-})
-const el = ref<UseDraggableReturn>();
-let deleteConfirm: () => void = () => { };
 const listStore = useListStore();
 const { codeSnippets } = storeToRefs(listStore);
+const targetName = computed(() => {
+  return (
+    (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
+      (i) => i.id === targetId.value
+    )?.name || ""
+  );
+});
+const el = ref<UseDraggableReturn>();
+let deleteConfirm: () => void = () => {};
+
 const { saveDialog, saveConfig, showCopyBtn } = useCodeSnippetSave();
 const showItemHover = ref(true);
-const {
-  editorInit,
-  disposeEditor,
-  findEditor,
-  setText,
-  editorValue,
-} = useEditor();
+const { editorInit, disposeEditor, findEditor, setText, editorValue } =
+  useEditor();
 const onStart = () => {
   showItemHover.value = false;
 };
 const onEnd = () => {
   showItemHover.value = true;
-}
+};
 const deleteCodeSnippetDialog = ref(false);
 const delCodeSnippets = (index: number) => {
   deleteConfirm = async () => {
-    if (!await fsUtils.deleteFile(codeSnippets.value[index].filePath)) {
+    if (isPlay) {
+      usePlayMock().mockCodeSnippetList.value.splice(index, 1);
+      ElNotification({
+        title: "提示",
+        message: "删除成功",
+        type: "success",
+        position: "bottom-right",
+      });
+      deleteCodeSnippetDialog.value = false;
+      return;
+    }
+    if (
+      !(await fsUtils.deleteFile(
+        (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value[index]
+          .filePath
+      ))
+    ) {
       ElNotification({
         title: "提示",
         message: "删除失败",
@@ -112,69 +167,104 @@ const matchExportRegex = /export \{\s?\};?/g;
 const editFile = async (index: number) => {
   showEditor.value = true;
   await nextTick();
-  const target = codeSnippets.value[index];
+  const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+    .value[index] as MockCodeSnippet;
   targetId.value = target.id;
   const editorExists = findEditor(EDITOR_DOM_ID);
   if (!editorExists) {
     await editorInit(EDITOR_DOM_ID, false, false);
   }
-  const code = await fsUtils.readFile(target.filePath);
-  setText(EDITOR_DOM_ID, 'export {};\n' + code.trim());
+  const code = isPlay
+    ? target.content
+    : await fsUtils.readFile(target.filePath);
+  setText(EDITOR_DOM_ID, "export {};\n" + code?.trim() || "");
 };
 const editInfoDialog = ref(false);
 const editInfoDialogForm = reactive({
   name: "",
   description: "",
-  prefix: ""
+  prefix: "",
 });
-let editInfoDialogCb = ()=>{};
-const editInfo = async (index: number)=>{
-  const target = codeSnippets.value[index];
+let editInfoDialogCb = () => {};
+let lastTargetName = "";
+const editInfo = async (index: number) => {
+  const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+    .value[index] as MockCodeSnippet;
   editInfoDialogForm.name = target.name;
+  lastTargetName = target.name;
   editInfoDialogForm.description = target.description;
   editInfoDialogForm.prefix = target.prefix;
-  editInfoDialogCb = ()=>{
-    const existLikeName = codeSnippets.value.find(i => i.name === editInfoDialogForm.name);
-    if(existLikeName){
-      ElMessage.warning('已存在相同名称的代码片段，换个名字试试吧');
-      return
+  editInfoDialogCb = () => {
+    const existLikeName = (
+      isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+    ).value.find((i) => i.name === editInfoDialogForm.name);
+    if (existLikeName && lastTargetName !== editInfoDialogForm.name) {
+      ElMessage.warning("已存在相同名称的代码片段，换个名字试试吧");
+      return;
     }
-    const target = codeSnippets.value[index];
+    const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+      .value[index];
     target.name = editInfoDialogForm.name;
     target.description = editInfoDialogForm.description;
     target.prefix = editInfoDialogForm.prefix;
     editInfoDialog.value = false;
-    ElMessage.success('修改成功');
-  }
+    ElMessage.success("修改成功");
+  };
   editInfoDialog.value = true;
-}
+};
 const handleClose: DialogBeforeCloseFn = async (done) => {
   const newValue = editorValue.value.replace(matchExportRegex, "");
-  const target = codeSnippets.value.find(i => i.id === targetId.value);
+  const target = (
+    isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+  ).value.find((i) => i.id === targetId.value) as MockCodeSnippet;
   if (!target) {
     done();
     return;
   }
-  const code = (await fsUtils.readFile(target.filePath)).trim();
-  if (newValue.trim() !== code.trim()) {
+  const code = isPlay
+    ? target.content
+    : (await fsUtils.readFile(target.filePath)).trim();
+  if (newValue.trim() !== code?.trim()) {
     ElMessageBox.confirm("代码已经修改,是否保存?", "提示", {
       confirmButtonText: "保存",
       cancelButtonText: "不保存",
       distinguishCancelAndClose: true,
-    }).then(async () => {
-      await fsUtils.writeFile(target.filePath, newValue);
-      ElNotification({
-        title: "提示",
-        message: "保存成功",
-        type: "success",
-        position: "bottom-right",
-      });
-      done();
-    }).catch(done);
+    })
+      .then(async () => {
+        if (isPlay) {
+          target.content = newValue;
+          ElNotification({
+            title: "提示",
+            message: "保存成功",
+            type: "success",
+            position: "bottom-right",
+          });
+          done();
+          return;
+        }
+        await fsUtils.writeFile(target.filePath, newValue);
+        ElNotification({
+          title: "提示",
+          message: "保存成功",
+          type: "success",
+          position: "bottom-right",
+        });
+        done();
+      })
+      .catch(done);
   }
   done();
 };
 const openFile = async (index: number) => {
+  if (isPlay) {
+    ElNotification({
+      title: "提示",
+      message: "playground环境无法打开代码片段文件",
+      type: "warning",
+      position: "bottom-right",
+    });
+    return;
+  }
   const path = codeSnippets.value[index].filePath;
   try {
     await ElMessageBox.confirm(
@@ -189,7 +279,9 @@ const openFile = async (index: number) => {
     execCommand.run(`code ${path}`);
   } catch (error: any) {
     if (error === "cancel") {
-      invoke("open_file_explorer", { path: await pathUtils.resolve(path, "../") });
+      invoke("open_file_explorer", {
+        path: await pathUtils.resolve(path, "../"),
+      });
     }
   }
 };
@@ -204,6 +296,18 @@ const onAddItem = () => {
 };
 
 const imoprtScript = async () => {
+  if (isPlay) {
+    const target = usePlayMock().mockCodeSnippetList;
+    target.value.push({
+      id: nanoid(),
+      name: "操作记录" + target.value.length,
+      description: "操作记录" + target.value.length,
+      prefix: "test" + target.value.length,
+      content: "",
+      filePath: "playground",
+    });
+    return;
+  }
   const filePath = (await fsUtils.selectFile(false, [
     {
       name: "",
@@ -213,7 +317,9 @@ const imoprtScript = async () => {
   if (filePath) {
     try {
       const originData = await fsUtils.readFile(filePath);
-      if (codeSnippets.value.find((i) => i.filePath === filePath) !== undefined) {
+      if (
+        codeSnippets.value.find((i) => i.filePath === filePath) !== undefined
+      ) {
         //该文件已经导入
         ElNotification({
           title: "提示",
@@ -249,25 +355,30 @@ const imoprtScript = async () => {
 
 const search = ref("");
 const disableSort = computed(() => {
-  return search.value !== ""
-})
+  return search.value !== "";
+});
 
 const showList = computed({
   get: () => {
     if (search.value === "") {
-      return codeSnippets.value;
+      const list = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+        .value;
+      return list;
     } else {
-      return codeSnippets.value.filter(
+      const list = (
+        isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+      ).value.filter(
         (i) =>
           i.name.toLowerCase().includes(search.value.toLowerCase()) ||
           i.description.toLowerCase().includes(search.value.toLowerCase()) ||
           i.prefix.toLowerCase().includes(search.value.toLowerCase())
       );
+      return list;
     }
   },
   set: (v) => {
-    codeSnippets.value = v;
-  }
+    (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value = v;
+  },
 });
 const { appAsideBgColor, appBackground } = useAppTheme();
 const { isEditing } = useScriptInfo();
@@ -287,10 +398,10 @@ const mainBorderRadius = computed(() => {
 });
 onUnmounted(() => {
   disposeEditor();
-})
-onMounted(()=>{
+});
+onMounted(() => {
   invokeBaseApi.closeSplashscreen();
-})
+});
 </script>
 
 <style lang="scss" scoped>
