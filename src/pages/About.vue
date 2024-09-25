@@ -1,11 +1,11 @@
 <template>
   <div class="about-main">
     <!-- <el-button @click="toggleCapture">{{ running ? '停止录制' : '录制操作' }}</el-button> -->
-    <!-- <el-empty description="开发中..." /> -->
+    <el-empty description="开发中..." />
     <!-- <iframe src="http://114.132.79.162/tool/#/index" /> -->
-    <div class="answer">{{ answer }}</div>
+    <!-- <div class="answer">{{ answer }}</div>
     <el-input v-model="q" />
-    <el-button @click="send" v-loading="loading">发送</el-button>
+    <el-button @click="send" v-loading="loading">发送</el-button> -->
   </div>
 </template>
 
@@ -28,16 +28,16 @@
 //     console.log(res);
 //   }
 // }
-const q = ref('');
-const send = ()=>{
-  const ctx = '小明的爸爸叫王大明';
-  start(ctx, q.value);
-  q.value = '';
-}
-const [answer, loading, start] = useSpark();
-onMounted(()=>{
-  invokeBaseApi.closeSplashscreen();
-})
+// const q = ref('');
+// const send = ()=>{
+//   const ctx = '小明的爸爸叫王大明';
+//   start(ctx, q.value);
+//   q.value = '';
+// }
+// const [answer, loading, start] = useSpark();
+// onMounted(()=>{
+//   invokeBaseApi.closeSplashscreen();
+// })
 </script>
 
 <style lang="scss" scoped>
