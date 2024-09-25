@@ -15,7 +15,7 @@ export const useAppGlobalSettings = defineStore<
         latestVersion: "0.0.3",
         depHaveUpdate: false,
         dependenceState:
-          import.meta.env.VITE_APP_ENV === "play" ? "完整版" : "不可用",
+          IS_PLAYGROUND_ENV ? "完整版" : "不可用",
         state: {
           aside: {
             collapsed: false,
@@ -53,7 +53,7 @@ export const useAppGlobalSettings = defineStore<
     async exportData() {
       const obj: any = {
         version:
-          import.meta.env.VITE_APP_ENV === "play"
+          IS_PLAYGROUND_ENV
             ? "playground"
             : await getVersion(),
       };
@@ -98,7 +98,7 @@ export const useAppGlobalSettings = defineStore<
       } else {
         //设置默认工作目录和截图保存路径
         if (this.envSetting.workDir === "") {
-          if (import.meta.env.VITE_APP_ENV !== "play") {
+          if (!IS_PLAYGROUND_ENV) {
             const workDir = await pathUtils.getInstallDir();
             this.envSetting.workDir = workDir;
           } else {
@@ -106,7 +106,7 @@ export const useAppGlobalSettings = defineStore<
           }
         }
         if (this.envSetting.screenshotSavePath) {
-          if (import.meta.env.VITE_APP_ENV !== "play") {
+          if (!IS_PLAYGROUND_ENV) {
             const screenshotSavePath = await pathUtils.resolve(
               await pathUtils.getInstallDir(),
               "screenshot.png"

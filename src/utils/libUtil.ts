@@ -5,7 +5,7 @@ import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
 const renameLib = async (name: string, targetName: string) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -19,7 +19,7 @@ const renameLib = async (name: string, targetName: string) => {
   }
 };
 const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return [];
   }
@@ -108,7 +108,7 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
   }
 };
 const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -140,7 +140,7 @@ const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
   );
 };
 const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return [];
   }
@@ -163,7 +163,7 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   return needUpdateInfo;
 };
 const syncOcrValue = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return "CPU";
   }
@@ -174,7 +174,7 @@ const syncOcrValue = async () => {
   }
 };
 const libExists = async (name: string, resolvePath = "") => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -193,7 +193,7 @@ const libExists = async (name: string, resolvePath = "") => {
   }
 };
 const pushUpdateDep = async (path: string) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -202,7 +202,7 @@ const pushUpdateDep = async (path: string) => {
   await fsUtils.copy(path, libPath, false, true);
 };
 const batchUpdateDep = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -220,7 +220,7 @@ const batchUpdateDep = async () => {
 };
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return resultList;
   }
@@ -273,7 +273,7 @@ const checkDepList = async (depList: DependenceItemType[]) => {
  * children: 依赖库的子依赖库检查结果
  */
 const checkLibs = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return [];
   }
@@ -306,7 +306,7 @@ const checkLibs = async () => {
 //在checkLibs返回的结果中，提取出所有依赖库的名称
 const getAllLibsName = async (checkList: LibNameItemType[]) => {
   const libNames: string[] = [];
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return [];
   }
@@ -334,7 +334,7 @@ const getDepState = async (
   depName: string,
   childFiles?: string[]
 ) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return true;
   }
@@ -382,7 +382,7 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   //依赖名为screenOperation.dll的依赖库及子依赖库均存在时为：精简版
   //在精简版的基础上，依赖名为ppocr.dll的依赖库及子依赖库均存在时为：基础版
   //在基础版的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -416,7 +416,7 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   app.value.dependenceState = version;
 };
 const checkDepUpdate = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -445,7 +445,7 @@ const checkDepUpdate = async () => {
  * 根据当前状态检查距离后面的状态缺少哪些依赖库
  *  */
 const checkDepLack = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return [];
   }
@@ -614,7 +614,7 @@ const installDep = async (
   isFullVersionInstallBaseVersion = false,
   ocrValue: "CPU" | "GPU" = "CPU"
 ) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return true;
   }
@@ -661,7 +661,7 @@ const installDep = async (
   return result;
 };
 const syncDepPkgList = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -674,7 +674,7 @@ const syncDepPkgList = async () => {
   }
 };
 export const getDepStateType = (state: string) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return "primary";
   }

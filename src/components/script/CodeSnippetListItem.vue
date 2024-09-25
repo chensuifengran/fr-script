@@ -67,7 +67,7 @@
 </template>
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
+
 const listStore = useListStore();
 const { codeSnippets } = storeToRefs(listStore);
 const { appAsideBgColor, appBackground } = useAppTheme();
@@ -95,13 +95,13 @@ const emit = defineEmits<{
 }>();
 
 const codeSnippet = computed(() => {
-  return (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
+  return (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
     (item) => item.id === props.id
   )!;
 });
 const scriptIndex = computed(() => {
   return (
-    isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+    IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
   ).value.findIndex((item) => item.id === props.id)!;
 });
 

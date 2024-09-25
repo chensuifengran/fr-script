@@ -132,7 +132,6 @@ import { invoke } from "@tauri-apps/api";
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const appGSStore = useAppGlobalSettings();
 const {
   openId,
@@ -158,7 +157,7 @@ const isDifferentValue = computed(() => {
 });
 const { createWindow } = useWebviewWindow();
 const openApiTest = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     ElNotification({
       title: "提示",
       message: "playground环境下无法打开调试窗口,请前往API调试",
@@ -171,7 +170,7 @@ const openApiTest = async () => {
   targetWindow?.show();
 };
 const openPointerUtil = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     ElNotification({
       title: "提示",
       message: "playground环境下无法打开鼠标工具",
@@ -197,7 +196,7 @@ const goSetScript = () => {
   router.replace("/script/setting");
 };
 const openFile = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     ElNotification({
       title: "提示",
       message: "playground环境下无法打开脚本文件",
@@ -231,7 +230,7 @@ const runScript = () => {
   const unsaveRun = () => {
     tempEditorValue.value = editorValue?.value || "";
     autoSaveDialog.visible = false;
-    if (!isPlay) {
+    if (!IS_PLAYGROUND_ENV) {
       const testWindow = WebviewWindow.getByLabel("apiTest");
       if (testWindow) {
         testWindow.hide();
@@ -276,7 +275,7 @@ const saveScriptFile = async () => {
     });
     return false;
   } else {
-    if (isPlay) {
+    if (IS_PLAYGROUND_ENV) {
         const editorValue = getEditorValue("codeEditBox");
         usePlayMock().mockScriptList.value.find(
           (s) => s.id === openId!.value
@@ -384,7 +383,7 @@ const goBack = () => {
   preloadText.value = "";
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   const testWindow = WebviewWindow.getByLabel("apiTest");

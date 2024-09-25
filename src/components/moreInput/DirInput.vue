@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { exists } from "@tauri-apps/api/fs";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
+
 const value = defineModel<string>({
   default: "",
 });
@@ -103,7 +103,7 @@ onMounted(async () => {
     label: "截图路径",
     value: screenshotPath,
   });
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   suggestions.push({
@@ -119,7 +119,7 @@ watch(value, async () => {
   pathExits.value = await exists(value.value);
 });
 const selectFilePath = async () => {
-  if(isPlay){
+  if(IS_PLAYGROUND_ENV){
     value.value = "E:\\playground\\";
     return;
   }

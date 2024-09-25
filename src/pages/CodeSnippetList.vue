@@ -98,7 +98,6 @@ import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
 import { MockCodeSnippet } from "../hooks/usePlayMock";
 import { nanoid } from "nanoid";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const EDITOR_DOM_ID = "snippet-editor";
 const showEditor = ref(false);
 const targetId = ref("");
@@ -106,7 +105,7 @@ const listStore = useListStore();
 const { codeSnippets } = storeToRefs(listStore);
 const targetName = computed(() => {
   return (
-    (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
+    (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
       (i) => i.id === targetId.value
     )?.name || ""
   );
@@ -127,7 +126,7 @@ const onEnd = () => {
 const deleteCodeSnippetDialog = ref(false);
 const delCodeSnippets = (index: number) => {
   deleteConfirm = async () => {
-    if (isPlay) {
+    if (IS_PLAYGROUND_ENV) {
       usePlayMock().mockCodeSnippetList.value.splice(index, 1);
       ElNotification({
         title: "提示",
@@ -140,7 +139,7 @@ const delCodeSnippets = (index: number) => {
     }
     if (
       !(await fsUtils.deleteFile(
-        (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value[index]
+        (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value[index]
           .filePath
       ))
     ) {
@@ -167,14 +166,14 @@ const matchExportRegex = /export \{\s?\};?/g;
 const editFile = async (index: number) => {
   showEditor.value = true;
   await nextTick();
-  const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+  const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
     .value[index] as MockCodeSnippet;
   targetId.value = target.id;
   const editorExists = findEditor(EDITOR_DOM_ID);
   if (!editorExists) {
     await editorInit(EDITOR_DOM_ID, false, false);
   }
-  const code = isPlay
+  const code = IS_PLAYGROUND_ENV
     ? target.content
     : await fsUtils.readFile(target.filePath);
   setText(EDITOR_DOM_ID, "export {};\n" + code?.trim() || "");
@@ -188,7 +187,7 @@ const editInfoDialogForm = reactive({
 let editInfoDialogCb = () => {};
 let lastTargetName = "";
 const editInfo = async (index: number) => {
-  const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+  const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
     .value[index] as MockCodeSnippet;
   editInfoDialogForm.name = target.name;
   lastTargetName = target.name;
@@ -196,13 +195,13 @@ const editInfo = async (index: number) => {
   editInfoDialogForm.prefix = target.prefix;
   editInfoDialogCb = () => {
     const existLikeName = (
-      isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+      IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
     ).value.find((i) => i.name === editInfoDialogForm.name);
     if (existLikeName && lastTargetName !== editInfoDialogForm.name) {
       ElMessage.warning("已存在相同名称的代码片段，换个名字试试吧");
       return;
     }
-    const target = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+    const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
       .value[index];
     target.name = editInfoDialogForm.name;
     target.description = editInfoDialogForm.description;
@@ -215,13 +214,13 @@ const editInfo = async (index: number) => {
 const handleClose: DialogBeforeCloseFn = async (done) => {
   const newValue = editorValue.value.replace(matchExportRegex, "");
   const target = (
-    isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+    IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
   ).value.find((i) => i.id === targetId.value) as MockCodeSnippet;
   if (!target) {
     done();
     return;
   }
-  const code = isPlay
+  const code = IS_PLAYGROUND_ENV
     ? target.content
     : (await fsUtils.readFile(target.filePath)).trim();
   if (newValue.trim() !== code?.trim()) {
@@ -231,7 +230,7 @@ const handleClose: DialogBeforeCloseFn = async (done) => {
       distinguishCancelAndClose: true,
     })
       .then(async () => {
-        if (isPlay) {
+        if (IS_PLAYGROUND_ENV) {
           target.content = newValue;
           ElNotification({
             title: "提示",
@@ -256,7 +255,7 @@ const handleClose: DialogBeforeCloseFn = async (done) => {
   done();
 };
 const openFile = async (index: number) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     ElNotification({
       title: "提示",
       message: "playground环境无法打开代码片段文件",
@@ -296,7 +295,7 @@ const onAddItem = () => {
 };
 
 const imoprtScript = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     const target = usePlayMock().mockCodeSnippetList;
     target.value.push({
       id: nanoid(),
@@ -361,12 +360,12 @@ const disableSort = computed(() => {
 const showList = computed({
   get: () => {
     if (search.value === "") {
-      const list = (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets)
+      const list = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
         .value;
       return list;
     } else {
       const list = (
-        isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+        IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
       ).value.filter(
         (i) =>
           i.name.toLowerCase().includes(search.value.toLowerCase()) ||
@@ -377,7 +376,7 @@ const showList = computed({
     }
   },
   set: (v) => {
-    (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value = v;
+    (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value = v;
   },
 });
 const { appAsideBgColor, appBackground } = useAppTheme();

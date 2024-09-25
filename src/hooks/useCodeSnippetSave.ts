@@ -1,6 +1,5 @@
 import { FormInstance, FormRules } from "element-plus";
 import { nanoid } from "nanoid";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const saveDialog = ref(false);
 const showCopyBtn = ref(true);
 const saveConfig = reactive<SaveConfigForm>({
@@ -16,7 +15,7 @@ const nameValidator = (_rule: any, value: any, callback: any) => {
   } else {
     (async () => {
       const exist = (
-        isPlay
+        IS_PLAYGROUND_ENV
           ? usePlayMock().mockCodeSnippetList.value
           : useListStore().codeSnippets
       ).find((item) => item.name === value);
@@ -58,7 +57,7 @@ const saveCodeSnippets = () => {
     if(!r){
       return
     }
-    if (isPlay) {
+    if (IS_PLAYGROUND_ENV) {
       usePlayMock().mockCodeSnippetList.value.push({
         id: nanoid(),
         name: saveConfig.name,

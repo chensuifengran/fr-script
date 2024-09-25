@@ -19,7 +19,7 @@ const appVersionInfo = ref<{
   openDialog: false,
 });
 const goAppUpdate = async (haveUpdate: boolean) => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     ElNotification({
       title: "提示",

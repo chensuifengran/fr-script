@@ -11,7 +11,7 @@ const { getDepStateType } = libUtil;
 const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
 const version = ref(
-  import.meta.env.VITE_APP_ENV === "play" ? "playground" : "获取版本失败"
+  IS_PLAYGROUND_ENV ? "playground" : "获取版本失败"
 );
 const loading = ref(false);
 const loadingText = ref("");
@@ -20,7 +20,7 @@ const appGSStore = useAppGlobalSettings();
 const { app, envSetting, ocr, view, editor } = storeToRefs(appGSStore);
 const { isDark } = useAppTheme();
 const darkState = ref(false);
-if (import.meta.env.VITE_APP_ENV !== "play") {
+if (!IS_PLAYGROUND_ENV) {
   getVersion().then((res) => {
     version.value = res;
   });
@@ -35,7 +35,7 @@ watch(darkState, () => {
   }, 300);
 });
 const chooseWorkDir = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     envSetting.value.workDir = "E:\\fr-script\\workdir";
     return;
@@ -46,7 +46,7 @@ const chooseWorkDir = async () => {
   }
 };
 const chooseScreenshotSavePath = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     envSetting.value.screenshotSavePath = "E:\\fr-script\\workdir\\screenshot.png";
     return;
@@ -57,7 +57,7 @@ const chooseScreenshotSavePath = async () => {
   }
 };
 const libCGSwitch = async (target: string, name: string) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return true;
   }
@@ -134,7 +134,7 @@ const libCGSwitch = async (target: string, name: string) => {
   }
 };
 const checkTargetLib = async (target: "CPU" | "GPU") => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return true;
   }
@@ -182,7 +182,7 @@ const switchOcrLib = async (target: "CPU" | "GPU", checkExists = true) => {
                   class: "notification-message-button",
                   type: "primary",
                   onClick: () => {
-                    if (import.meta.env.VITE_APP_ENV === "play") {
+                    if (IS_PLAYGROUND_ENV) {
                       //playground环境
                       return;
                     }
@@ -216,7 +216,7 @@ const switchOcrRunType = async () => {
   await switchOcrLib(ocr.value.value);
 };
 const haveUpdate = computed(() => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return false;
   }
@@ -226,7 +226,7 @@ const haveUpdate = computed(() => {
   );
 });
 const themeChangeHandler = () => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }
@@ -241,7 +241,7 @@ const { notify } = eventUtil;
 let focusUnListenFn: UnlistenFn;
 let receiveUnListenFn: UnlistenFn;
 onMounted(async () => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }
@@ -269,7 +269,7 @@ onMounted(async () => {
   invokeBaseApi.closeSplashscreen();
 });
 onUnmounted(() => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }

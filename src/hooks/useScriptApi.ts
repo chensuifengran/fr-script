@@ -1,7 +1,6 @@
 import { storeToRefs } from "pinia";
 import { appWindow, WebviewWindow } from "@tauri-apps/api/window";
 import { ScriptTarget, transpile } from "typescript";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -371,7 +370,7 @@ export const getFileInfo = (
   const listStore = useListStore();
   const { scriptList } = storeToRefs(listStore);
   const { openId } = useScriptInfo();
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return usePlayMock().mockScriptList.value.find(
       (s) => s.id === openId!.value
     )![type]!;
@@ -402,7 +401,7 @@ const setEndBeforeCompletion = (status: boolean) => {
   endBeforeCompletion = status;
 };
 
-const hideWindow = ref(!isPlay);
+const hideWindow = ref(!IS_PLAYGROUND_ENV);
 
 const name = computed(() => {
   return getFileInfo("name");
@@ -439,7 +438,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
         delete window[CORE_NAMESPACES][key];
       });
     }
-    if (hideWindow.value && !isPlay) {
+    if (hideWindow.value && !IS_PLAYGROUND_ENV) {
       WebviewWindow.getByLabel("main")?.show();
       notify.done();
     }
@@ -464,7 +463,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       });
     }
     //显示当前窗口
-    if (hideWindow.value && !isPlay) {
+    if (hideWindow.value && !IS_PLAYGROUND_ENV) {
       appWindow.show();
       appWindow.setFocus();
       notify.done();
@@ -479,7 +478,7 @@ export const useScriptApi = () => {
     buildForm(buildFormList);
     if (openId.value !== "-1") {
       const target = (
-        isPlay ? usePlayMock().mockScriptList : scriptList
+        IS_PLAYGROUND_ENV ? usePlayMock().mockScriptList : scriptList
       ).value.find((i) => i.id === openId.value);
       if (!target?.setting.autoImportLastRunConfig) {
         return;
@@ -530,11 +529,11 @@ export const useBuiltInApi = () => {
   const { rendererList } = useListStore();
   const appGSStore = useAppGlobalSettings();
   const WORK_DIR = appGSStore.envSetting.workDir;
-  const SCREEN_SHOT_DIR = isPlay
+  const SCREEN_SHOT_DIR = IS_PLAYGROUND_ENV
     ? "E:\\test\\screenshot"
     : pathUtils.resolve(appGSStore.envSetting.screenshotSavePath || "", "../");
   const SCREEN_SHOT_PATH = appGSStore.envSetting.screenshotSavePath;
-  const SCRIPT_ROOT_DIR = isPlay
+  const SCRIPT_ROOT_DIR = IS_PLAYGROUND_ENV
     ? "E:\\test\\root_dir"
     : pathUtils.resolve(getFileInfo("savePath") || "", "../");
   return {

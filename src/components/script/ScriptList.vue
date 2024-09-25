@@ -87,10 +87,10 @@ import { invoke } from "@tauri-apps/api";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
+const isPlay = IS_PLAYGROUND_ENV;
 const el = ref<UseDraggableReturn>();
 let deleteConfirm: () => void = () => {};
 const listStore = useListStore();
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const { scriptList } = storeToRefs(listStore);
 const {
   openId,
@@ -117,7 +117,7 @@ const onEnd = () => {
 const deleteScriptDialog = ref(false);
 const deleteScript = (index: number) => {
   deleteConfirm = () => {
-    if (import.meta.env.VITE_APP_ENV === "play") {
+    if (IS_PLAYGROUND_ENV) {
       //playground环境
       usePlayMock().mockScriptList.value.splice(index, 1);
     } else {
@@ -139,7 +139,7 @@ const editorScriptFile = (index: number) => {
   router.replace("/script/editor");
   let id = scriptList.value[index]?.id;
   let dir = "";
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     id = usePlayMock().mockScriptList.value[index]?.id;
     dir = `E:\\playground`;
@@ -157,7 +157,7 @@ const editorScriptFile = (index: number) => {
   asideBarPos.value = "absolute";
 };
 const openFile = async (index: number) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     ElNotification({
       title: "提示",
@@ -189,7 +189,7 @@ const openFile = async (index: number) => {
 };
 
 const onAddItem = () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     const id = nanoid();
     const version = "v1." + Math.floor(Math.random() * 10);
@@ -271,7 +271,7 @@ const checkDeclare = (editorValue: string) => {
   }
 };
 const imoprtScript = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     const id = nanoid();
     const version = "v1." + Math.floor(Math.random() * 10);
@@ -422,7 +422,7 @@ const imoprtScript = async () => {
 };
 
 const runScript = async (index: number) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     openId!.value = usePlayMock().mockScriptList.value[index].id;
   } else {
@@ -433,7 +433,7 @@ const runScript = async (index: number) => {
 };
 
 const setScript = (index: number) => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     openId!.value = usePlayMock().mockScriptList.value[index].id;
   } else {
@@ -451,13 +451,13 @@ const disableSort = computed(() => {
 const showList = computed({
   get: () => {
     if (search.value === "") {
-      if (import.meta.env.VITE_APP_ENV === "play") {
+      if (IS_PLAYGROUND_ENV) {
         //playground环境
         return usePlayMock().mockScriptList.value;
       }
       return scriptList.value;
     } else {
-      if (import.meta.env.VITE_APP_ENV === "play") {
+      if (IS_PLAYGROUND_ENV) {
         //playground环境
         return usePlayMock().mockScriptList.value.filter(
           (i) =>
@@ -473,7 +473,7 @@ const showList = computed({
     }
   },
   set: (v) => {
-    if (import.meta.env.VITE_APP_ENV === "play") {
+    if (IS_PLAYGROUND_ENV) {
       usePlayMock().mockScriptList.value = v;
       return;
     }

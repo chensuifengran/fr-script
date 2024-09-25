@@ -348,7 +348,7 @@ export const getApiModules = async (
 const registerAllInvokeApi = async () => {
   const allModules = await getApiModules(
     true,
-    import.meta.env.VITE_APP_ENV === "play"
+    IS_PLAYGROUND_ENV
   );
   if (!allModules) return;
   //注册所有api

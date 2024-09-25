@@ -176,7 +176,6 @@
 import { ElInput } from "element-plus";
 import { storeToRefs } from "pinia";
 import { devicesFn } from "../../invokes/devices/exportFn";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const drawer = ref(false);
 const active = ref(1);
 const nextStep = () => {
@@ -194,12 +193,12 @@ const goBack = () => {
 const targetIndex = ref(-1);
 const target = computed({
   get: () => {
-    return isPlay
+    return IS_PLAYGROUND_ENV
       ? usePlayMock().mockScriptList.value[targetIndex.value]
       : scriptList.value[targetIndex.value];
   },
   set: (val) => {
-    if (isPlay) {
+    if (IS_PLAYGROUND_ENV) {
       usePlayMock().mockScriptList.value[targetIndex.value] = val;
     } else {
       scriptList.value[targetIndex.value] = val;
@@ -214,13 +213,13 @@ const options = deviceList.value.map((item) => ({
   value: item,
 }));
 onMounted(() => {
-  if (!isPlay) {
+  if (!IS_PLAYGROUND_ENV) {
     devicesFn();
   }
 });
 watchEffect(() => {
   if (openId.value === "-1") return;
-  const _target = isPlay
+  const _target = IS_PLAYGROUND_ENV
     ? usePlayMock().mockScriptList.value
     : scriptList.value;
   const target = _target.find((item) => item.id === openId.value);
@@ -239,7 +238,7 @@ const InputRef = ref<InstanceType<typeof ElInput>>();
 const inputVisible = ref(false);
 const inputValue = ref("");
 const handleClose = (tag: string) => {
-  const _target = isPlay
+  const _target = IS_PLAYGROUND_ENV
     ? usePlayMock().mockScriptList.value
     : scriptList.value;
   const dynamicTags = _target[targetIndex.value].setting.excludeDevice;
@@ -253,7 +252,7 @@ const showInput = () => {
 };
 
 const handleInputConfirm = (focus: boolean) => {
-  const _target = isPlay
+  const _target = IS_PLAYGROUND_ENV
     ? usePlayMock().mockScriptList.value
     : scriptList.value;
   const dynamicTags = _target[targetIndex.value].setting;

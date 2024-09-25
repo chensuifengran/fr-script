@@ -1,9 +1,8 @@
 import { invoke } from "@tauri-apps/api";
 const isProduction = import.meta.env.PROD;
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 let isSetReport = false;
 const setProductionErrorReport = () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   if (isProduction && !isSetReport) {
@@ -22,7 +21,7 @@ const setProductionErrorReport = () => {
   }
 };
 const scriptConsoleErrorReport = (msg: string, name?: string) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   if (isProduction) {
@@ -32,7 +31,7 @@ const scriptConsoleErrorReport = (msg: string, name?: string) => {
   }
 };
 const report = (msg: any) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   return invoke<void>("error_report", {

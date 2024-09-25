@@ -2,7 +2,6 @@ import * as monaco from "monaco-editor";
 import { useEditor } from "./useEditor";
 import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 import { MockCodeSnippet } from "./usePlayMock";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 type FnInfo = {
   name: string;
   scope?: string;
@@ -222,13 +221,13 @@ const createDependencyProposals = async (range: {
       }
     });
   const codeSnippetList = await Promise.all([
-    ...(isPlay
+    ...(IS_PLAYGROUND_ENV
       ? usePlayMock().mockCodeSnippetList.value
       : useListStore().codeSnippets
     ).map(async (item) => {
       const label = item.prefix;
       const detail = item.description || "";
-      const insertText = isPlay
+      const insertText = IS_PLAYGROUND_ENV
         ? (item as MockCodeSnippet).content
         : await fsUtils.readFile(item.filePath);
       return {

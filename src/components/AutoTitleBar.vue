@@ -163,7 +163,7 @@ const { getEditorValue } = useEditor();
 const mostTop = ref(false);
 const toggleMostTop = () => {
   mostTop.value = !mostTop.value;
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -179,14 +179,14 @@ const titleBarHeight = computed(() => {
 const showQuitDialog = ref(false);
 const minHandle = () => {
   clickMinimize.value = true;
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
   appWindow.minimize();
 };
 const maxHandle = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     isFullScreen.value = !isFullScreen.value;
     return;
@@ -200,7 +200,7 @@ const maxHandle = async () => {
   }
 };
 const closeHandle = async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -232,9 +232,9 @@ const titleBarColor = computed(() => {
   return isDark.value ? "#272727" : "#f6f6f6";
 });
 const version = ref(
-  import.meta.env.VITE_APP_ENV === "play" ? "playground" : "获取版本失败"
+  IS_PLAYGROUND_ENV ? "playground" : "获取版本失败"
 );
-if (import.meta.env.VITE_APP_ENV !== "play") {
+if (!IS_PLAYGROUND_ENV) {
   //playground环境
   getVersion().then((res) => {
     version.value = res;
@@ -244,7 +244,7 @@ if (import.meta.env.VITE_APP_ENV !== "play") {
 const appGSStore = useAppGlobalSettings();
 const { appVersionInfo, goAppUpdate } = useAppVersionInfo();
 const openDownloadDialog = async () => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }
@@ -252,7 +252,7 @@ const openDownloadDialog = async () => {
   appVersionInfo.value.openDialog = true;
 };
 const showSetupBtn = computed(() => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return false;
   }
@@ -273,7 +273,7 @@ const searchPosition = computed(() => {
   }
 });
 const resizeHandle = async () => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }
@@ -285,7 +285,7 @@ const resizeHandle = async () => {
 };
 let unListen: any;
 onMounted(async () => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }
@@ -301,7 +301,7 @@ onMounted(async () => {
   });
 });
 onUnmounted(() => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     return;
   }

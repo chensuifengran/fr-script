@@ -86,7 +86,7 @@ const init = async (listenResize = true) => {
   libUtil.checkDepUpdate();
 };
 onMounted(async () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     init();
     await registerAllInvokeApi();
@@ -124,7 +124,7 @@ onMounted(async () => {
   }
 });
 onUnmounted(() => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -141,7 +141,7 @@ const collapsedAside = () => {
 };
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }

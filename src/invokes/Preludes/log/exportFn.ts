@@ -26,7 +26,7 @@ export const logFn = (
     type: type ? type : "info",
     timestamp: Date.now(),
   });
-  if (import.meta.env.VITE_APP_ENV !== "play") {
+  if (!IS_PLAYGROUND_ENV) {
     const { notify } = eventUtil;
     notify.send({
       type,

@@ -135,12 +135,12 @@ import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 import { useLog } from "../../hooks/useLog";
 import { TaskRunStatus } from "../../hooks/useScriptApi";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const { notify } = eventUtil;
 const { taskRunStatus, name, version, hideWindow, savePath } = useScriptView();
 const { logOutput } = useLog();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
+const isPlay = IS_PLAYGROUND_ENV;
 
 const reInit = (): boolean => {
   if (isReInit.value) {
@@ -168,7 +168,7 @@ const goBack = () => {
   });
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   const targetWindow = WebviewWindow.getByLabel("apiTest");
@@ -194,7 +194,7 @@ const run = (script: string, runId: string) => {
 };
 const { createWindow } = useWebviewWindow();
 const enableFloatWindow = async (isInit: boolean = false) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   appWindow.hide();
@@ -217,7 +217,7 @@ const enableFloatWindow = async (isInit: boolean = false) => {
 };
 const invokeStartHandle = async () => {
   const target = (
-    isPlay ? usePlayMock().mockScriptList : scriptList
+    IS_PLAYGROUND_ENV ? usePlayMock().mockScriptList : scriptList
   ).value.find((s) => s.id === openId!.value);
   if (!target) {
     builtInApi.Preludes.log("目标脚本不存在", "danger");
@@ -229,7 +229,7 @@ const invokeStartHandle = async () => {
     await enableFloatWindow(true);
   }
   const targetDevice = target.setting.targetAdbDevice.trim();
-  if (targetDevice !== "" && !isPlay) {
+  if (targetDevice !== "" && !IS_PLAYGROUND_ENV) {
     //获得所有设备，取消非目标设备的连接
     const deviceList = (await devicesFn()) || [];
     const excludeDevices = [
@@ -273,7 +273,7 @@ const isInit = ref(false);
 const initScript = async (reinit: boolean = false) => {
   logOutput.splice(0, logOutput.length);
   builtInApi.Preludes.log("脚本初始化中", "loading");
-  if (reinit && !isPlay) {
+  if (reinit && !IS_PLAYGROUND_ENV) {
     const targetWindow = createWindow("notification", "/notification", {
       height: 135,
       width: 200,
@@ -288,7 +288,7 @@ const initScript = async (reinit: boolean = false) => {
   try {
     builtInApi.abortSignalInScript = new AbortController();
     let scriptStr = "";
-    if (!isPlay) {
+    if (!IS_PLAYGROUND_ENV) {
       const fPath = getFileInfo("savePath");
       if (!fPath) {
         scriptStr = tempEditorValue!.value;
@@ -357,7 +357,7 @@ const GlobalShortcuts = [
 ];
 let timer: NodeJS.Timeout;
 const registerGlobalShortcuts = (status: TaskRunStatus) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   const targetIndex =
@@ -390,7 +390,7 @@ watchEffect(async () => {
   if (!isInit.value && taskRunStatus.value !== "done") {
     return;
   }
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   registerGlobalShortcuts(taskRunStatus.value);
@@ -400,7 +400,7 @@ const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
 onMounted(async () => {
   initScript();
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   const targetWindow = createWindow("notification", "/notification", {
@@ -426,7 +426,7 @@ onUnmounted(() => {
       delete window[CORE_NAMESPACES][key];
     });
   }
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   //取消注册所有快捷键

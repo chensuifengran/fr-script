@@ -2,10 +2,9 @@ import { invoke } from "@tauri-apps/api";
 import { OCRResult } from "../invokes/ocr/exportFn";
 import { appWindow } from "@tauri-apps/api/window";
 import { useSessionStorageState } from "vue-hooks-plus";
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 let freeTimer: NodeJS.Timeout | null = null;
 const freeAllJson = () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   freeTimer && clearTimeout(freeTimer);
@@ -25,7 +24,7 @@ const freeAllJson = () => {
 };
 
 const getScreenSize = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       width: 1920,
       height: 1080,
@@ -49,7 +48,7 @@ const getScreenSize = async () => {
 };
 
 const getMousePos = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       x: Math.floor(Math.random() * 1920),
       y: Math.floor(Math.random() * 1080),
@@ -79,7 +78,7 @@ const cropPicture = async (
   height: number,
   outPath: string
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return 1;
   }
   try {
@@ -112,7 +111,7 @@ const imgSimilarity = async (
   width: number = -1,
   height: number = -1
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return 1;
   }
   try {
@@ -137,7 +136,7 @@ const matchTemplate = async (
   exactValue = 0.0,
   scale = 0.0
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       x: Math.floor(Math.random() * 1920),
       y: Math.floor(Math.random() * 1080),
@@ -173,7 +172,7 @@ const screenDiffTemplates = async (
   tempPaths: string,
   targetIndex: number
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       message: "success",
       data: [
@@ -229,7 +228,7 @@ const screenMatchTemplate = async (
   exactValue = 0.0,
   scale = 0.0
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       x: Math.floor(Math.random() * 1920),
       y: Math.floor(Math.random() * 1080),
@@ -258,7 +257,7 @@ const screenMatchTemplate = async (
 };
 
 const getImgSize = async (path: string) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       width: Math.floor(Math.random() * 1920),
       height: Math.floor(Math.random() * 1080),
@@ -284,7 +283,7 @@ const getImgSize = async (path: string) => {
 };
 
 const getImgRectInfo = async (imgPath: string) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       width: Math.floor(Math.random() * 1920),
       height: Math.floor(Math.random() * 1080),
@@ -316,7 +315,7 @@ const getImgRectInfo = async (imgPath: string) => {
 };
 
 const getScreenRectInfo = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       width: Math.floor(Math.random() * 1920),
       height: Math.floor(Math.random() * 1080),
@@ -345,7 +344,7 @@ const getScreenRectInfo = async () => {
 };
 
 const combined = async (keys: Key[]) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -369,7 +368,7 @@ const combined = async (keys: Key[]) => {
 };
 
 const keyDown = async (key: Key) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -393,7 +392,7 @@ const keyDown = async (key: Key) => {
 };
 
 const keyUp = async (key: Key) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -417,7 +416,7 @@ const keyUp = async (key: Key) => {
 };
 
 const pressKey = async (key: Key) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -441,7 +440,7 @@ const pressKey = async (key: Key) => {
 };
 
 const inputText = async (text: string) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -469,7 +468,7 @@ const click = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   x = Math.round(x);
@@ -492,7 +491,7 @@ const mouseUp = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   x = Math.round(x);
@@ -515,7 +514,7 @@ const mouseDown = async (
   y: number,
   button: "left" | "middle" | "right" = "left"
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   x = Math.round(x);
@@ -538,7 +537,7 @@ const startClicker = async (
   sleep: number = 50,
   buttonIndex: number
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -554,7 +553,7 @@ const startClicker = async (
   }
 };
 const stopClicker = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -572,7 +571,7 @@ const drag = async (
   toY: number,
   duration?: number
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -591,7 +590,7 @@ const drag = async (
 };
 
 const move = async (x: number, y: number, isRelative = false) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -608,7 +607,7 @@ const move = async (x: number, y: number, isRelative = false) => {
 };
 
 const wheel = async (delta: number) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -628,7 +627,7 @@ const ocr = async (
   height: number,
   imgPath?: string
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       code: 1,
       result: [],
@@ -654,7 +653,7 @@ const ocr = async (
 };
 
 const screenColor = async (x: number = 0, y: number = 0) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       message: "success",
       data: [
@@ -684,7 +683,7 @@ const screenColor = async (x: number = 0, y: number = 0) => {
   }
 };
 const imgColor = async (path: string, x: number, y: number) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       message: "success",
       data: [
@@ -721,7 +720,7 @@ const screenshot = async (
   width = -1,
   height = -1
 ) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   if (path === "") {
@@ -752,7 +751,7 @@ const captureOperation = async (
   captureOptions?: CaptureOptions,
   generateComment: boolean = false
 ): Promise<string> => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return "//playground环境不支持此功能";
   }
   try {
@@ -768,7 +767,7 @@ const captureOperation = async (
 };
 
 const stopCaptureOperation = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return true;
   }
   try {
@@ -781,7 +780,7 @@ const stopCaptureOperation = async () => {
 };
 
 const getSparkInfo = async () => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return {
       APP_ID: "playground",
       API_SECRET: "playground",
@@ -810,7 +809,7 @@ const [closeFlag, setCloseFlag] = useSessionStorageState<boolean>(
   { defaultValue: false }
 );
 const closeSplashscreen = async () => {
-  if (isPlay || closeFlag.value) {
+  if (IS_PLAYGROUND_ENV || closeFlag.value) {
     return;
   }
   try {

@@ -102,7 +102,7 @@ const emit = defineEmits<{
 }>();
 
 const script = computed(() => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return usePlayMock().mockScriptList.value.find(
       (item) => item.id === props.id
@@ -111,7 +111,7 @@ const script = computed(() => {
   return scriptList.value.find((item) => item.id === props.id)!;
 });
 const scriptIndex = computed(() => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return usePlayMock().mockScriptList.value.findIndex(
       (item) => item.id === props.id

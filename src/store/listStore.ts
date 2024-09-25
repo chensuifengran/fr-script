@@ -22,7 +22,7 @@ export const useListStore = defineStore<
     async exportData() {
       const obj: any = {
         version:
-          import.meta.env.VITE_APP_ENV === "play"
+          IS_PLAYGROUND_ENV
             ? "playground"
             : await getVersion(),
       };

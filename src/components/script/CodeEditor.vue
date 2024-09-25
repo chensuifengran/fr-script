@@ -112,7 +112,7 @@ import * as monaco from "monaco-editor";
 import { MockScriptListItem } from "../../hooks/usePlayMock";
 import { templateRef } from "@vueuse/core";
 const snippetSearchRef = templateRef("snippetSearchRef");
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
+const isPlay = IS_PLAYGROUND_ENV;
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
@@ -156,9 +156,9 @@ const getFileInfo = (
   type: "id" | "savePath" | "name" | "version" | "description" | "content"
 ) => {
   const target = (
-    isPlay ? usePlayMock().mockScriptList : scriptList
+    IS_PLAYGROUND_ENV ? usePlayMock().mockScriptList : scriptList
   ).value.find((s) => s.id === openId!.value);
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     return (target as MockScriptListItem)[type];
   }
   if (target === undefined) {
@@ -203,7 +203,7 @@ const saveScriptFile = async () => {
     });
     return false;
   } else {
-    if (isPlay) {
+    if (IS_PLAYGROUND_ENV) {
       usePlayMock().mockScriptList.value.find(
         (s) => s.id === openId!.value
       )!.content = editorValue.value;
@@ -399,7 +399,7 @@ const checkDeclare = () => {
         //声明不完整
         fileInfo.declare = false;
       } else {
-        const target = isPlay ? usePlayMock().mockScriptList : scriptList;
+        const target = IS_PLAYGROUND_ENV ? usePlayMock().mockScriptList : scriptList;
         const targetIndex = target.value.findIndex((s) => {
           return s.id === openId?.value;
         });
@@ -428,7 +428,7 @@ const resizeHandle = () => {
 };
 let windowFocusHandle: UnlistenFn;
 const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
-  if (isPlay) {
+  if (IS_PLAYGROUND_ENV) {
     const newContent = getFileInfo("content");
     fileInfo.originData = newContent || "";
     fileInfo.name = getFileInfo("name")!;
@@ -465,7 +465,7 @@ const querySearch = (
   cb: (results: CodeSnippet[]) => void
 ) => {
   const results = queryString
-    ? (isPlay
+    ? (IS_PLAYGROUND_ENV
         ? usePlayMock().mockCodeSnippetList.value
         : listStore.codeSnippets
       ).filter((i) => {
@@ -477,13 +477,13 @@ const querySearch = (
           i.prefix.toLowerCase().includes(searchSnippet.value.toLowerCase())
         );
       })
-    : isPlay
+    : IS_PLAYGROUND_ENV
     ? usePlayMock().mockCodeSnippetList.value
     : listStore.codeSnippets;
   cb(results);
 };
 onMounted(async () => {
-  if (!isPlay) {
+  if (!IS_PLAYGROUND_ENV) {
     createWindow("ORW", "/ORW", {
       height: 40,
       width: 180,
@@ -518,7 +518,7 @@ onMounted(async () => {
       }, 200);
     }
   );
-  if (!isPlay) {
+  if (!IS_PLAYGROUND_ENV) {
     windowFocusHandle = await listen("tauri://focus", () => {
       loadContent("focus");
     });

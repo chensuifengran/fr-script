@@ -9,7 +9,7 @@ const depPkgList = ref<DepPkgItemType[]>([]);
 const { notify } = eventUtil;
 let depManagerWindow: WebviewWindow | null = null;
 const goInstallDeps = async (target?: string) => {
-  if(import.meta.env.VITE_APP_ENV === 'play'){
+  if(IS_PLAYGROUND_ENV){
     //playground环境
     ElNotification({
       title: "提示",
@@ -37,7 +37,7 @@ const goInstallDeps = async (target?: string) => {
 };
 
 let unlistenFn: UnlistenFn;
-if (import.meta.env.VITE_APP_ENV !== "play") {
+if (!IS_PLAYGROUND_ENV) {
   //非playground环境
   notify
     .listen((e) => {
@@ -63,7 +63,7 @@ if (import.meta.env.VITE_APP_ENV !== "play") {
 }
 
 const syncMainData = () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -80,7 +80,7 @@ const syncMainData = () => {
   });
 };
 const closeDepManagerWindow = () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -94,7 +94,7 @@ const closeDepManagerWindow = () => {
   unlistenFn && unlistenFn();
 };
 const close = () => {
-  if (import.meta.env.VITE_APP_ENV === "play") {
+  if (IS_PLAYGROUND_ENV) {
     //playground环境
     return;
   }
@@ -103,7 +103,7 @@ const close = () => {
   });
 };
 const syncData = (data: any) => {
-  if(import.meta.env.VITE_APP_ENV === 'play' || !data){
+  if(IS_PLAYGROUND_ENV || !data){
     return;
   }
   const {

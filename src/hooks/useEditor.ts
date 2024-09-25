@@ -47,7 +47,6 @@ monaco.languages.typescript.typescriptDefaults.setExtraLibs([
     content: editorTsDeclaration(),
   },
 ]);
-const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const openOperationRecordDrawer = ref(false);
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
@@ -215,7 +214,7 @@ export const useEditor = () => {
     }
     if (genEditorTsDeclaration) {
       //将editorTsDeclaration写入到csfr.d.ts文件中
-      if (!isPlay) {
+      if (!IS_PLAYGROUND_ENV) {
         try {
           if (
             appGSStore.envSetting.workDir &&
