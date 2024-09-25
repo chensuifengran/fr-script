@@ -8,6 +8,7 @@
         value-key="name"
         :fetch-suggestions="querySearch"
         placeholder="搜索代码片段:名称、备注、前缀"
+        ref="snippetSearchRef"
       >
         <template #suffix>
           <el-icon>
@@ -94,8 +95,9 @@
         size="small"
         type="success"
         v-show="fnInfo?.haveAuxiliary"
-        >Ctrl+Tab ：快速填写/修改参数</el-tag
       >
+        {{ isPlay ? "[鼠标右键]" : "Ctrl+Tab ：" }}快速填写/修改参数
+      </el-tag>
       <el-tag size="small" type="info" v-show="fnInfo?.name && fnInfo?.content"
         >{{ fnInfo?.name }}:{{ fnInfo?.content }}
       </el-tag>
@@ -108,6 +110,8 @@ import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import * as monaco from "monaco-editor";
 import { MockScriptListItem } from "../../hooks/usePlayMock";
+import { templateRef } from "@vueuse/core";
+const snippetSearchRef = templateRef("snippetSearchRef");
 const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
@@ -123,7 +127,6 @@ const {
   registerEditorEvent,
   unRegisterEditorEvent,
 } = useEditor();
-
 const {
   openId,
   preloadText,
@@ -462,7 +465,10 @@ const querySearch = (
   cb: (results: CodeSnippet[]) => void
 ) => {
   const results = queryString
-    ? listStore.codeSnippets.filter((i) => {
+    ? (isPlay
+        ? usePlayMock().mockCodeSnippetList.value
+        : listStore.codeSnippets
+      ).filter((i) => {
         return (
           i.name.toLowerCase().includes(searchSnippet.value.toLowerCase()) ||
           i.description
@@ -471,6 +477,8 @@ const querySearch = (
           i.prefix.toLowerCase().includes(searchSnippet.value.toLowerCase())
         );
       })
+    : isPlay
+    ? usePlayMock().mockCodeSnippetList.value
     : listStore.codeSnippets;
   cb(results);
 };
@@ -497,6 +505,9 @@ onMounted(async () => {
       editorActions.auxiliaryActionRegister(editor, auxiliaryActionCallback);
       editorActions.insertSnippetCodeActionRegister(editor, () => {
         showInsertCodeDialog.value = true;
+        setTimeout(() => {
+          snippetSearchRef.value?.focus();
+        });
       });
       editor.onDidChangeCursorPosition(cursorHandle);
       setText(EDITOR_DOM_ID, fileInfo.originData || SCRIPT_TEMPLATE());
