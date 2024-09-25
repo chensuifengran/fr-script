@@ -40,3 +40,5 @@ const main = async () => {
 };
 `;
 };
+
+export const IS_PLAYGROUND_ENV = import.meta.env.MODE === "play";
