@@ -13,6 +13,7 @@ import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 import viteCompression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   return {
+    publicDir: mode === "play" ? "play" : undefined,
     plugins: [
       UnoCSS(),
       hotUpdatePlugin(),
