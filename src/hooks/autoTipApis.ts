@@ -1,6 +1,8 @@
 import * as monaco from "monaco-editor";
 import { useEditor } from "./useEditor";
 import { type AnalyzeFnInfoParams } from "../utils/astWorker";
+import { MockCodeSnippet } from "./usePlayMock";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 type FnInfo = {
   name: string;
   scope?: string;
@@ -14,7 +16,7 @@ type FnInfo = {
     endColumn: number;
   };
 };
-const { basename, resolve } = pathUtils;
+const { resolve } = pathUtils;
 
 const fnInfo = ref<FnInfo | null>(null);
 const getFnInfo = () => fnInfo;
@@ -184,8 +186,8 @@ const createDependencyProposals = async (range: {
   const res = Object.entries(allModulesAndFn);
   for (let index = 0; index < res.length; index++) {
     const [key, value] = res[index];
-    const apiNamePath = await resolve(key, "..");
-    const apiName = await basename(apiNamePath);
+    const paths = key.split("/");
+    const apiName = paths[paths.length - 2];
     const module = (value as any)[apiName + "Api"] || (value as any)[apiName];
     if (!module) {
       console.error(`找不到${apiName}Api或${apiName}模块`);
@@ -219,12 +221,16 @@ const createDependencyProposals = async (range: {
         };
       }
     });
-  const listStore = useListStore();
   const codeSnippetList = await Promise.all([
-    ...listStore.codeSnippets.map(async (item) => {
+    ...(isPlay
+      ? usePlayMock().mockCodeSnippetList.value
+      : useListStore().codeSnippets
+    ).map(async (item) => {
       const label = item.prefix;
       const detail = item.description || "";
-      const insertText = await fsUtils.readFile(item.filePath);
+      const insertText = isPlay
+        ? (item as MockCodeSnippet).content
+        : await fsUtils.readFile(item.filePath);
       return {
         label,
         kind: monaco.languages.CompletionItemKind.Snippet,
