@@ -630,7 +630,7 @@ const ocr = async (
 ) => {
   if (isPlay) {
     return {
-      code: 200,
+      code: 1,
       result: [],
     };
   }
