@@ -11,20 +11,40 @@
         <span>{{ codeSnippet.name }}</span>
       </div>
       <div class="menu">
-        <el-tooltip class="box-item" effect="dark" content="删除代码片段" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="删除代码片段"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="deleteCodeSnippet">
             <span i-mdi-file-document-remove-outline></span>
           </el-icon>
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="编辑代码片段" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="编辑代码片段"
+          placement="bottom"
+        >
           <code-icon class="icon" @click.stop="editFile" />
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="修改代码片段信息" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="修改代码片段信息"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="editInfo">
             <span i-mdi-playlist-edit></span>
           </el-icon>
         </el-tooltip>
-        <el-tooltip class="box-item" effect="dark" content="打开代码片段" placement="bottom">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="打开代码片段"
+          placement="bottom"
+        >
           <el-icon class="icon" @click.stop="openFIleDialog">
             <span i-mdi-folder-eye-outline></span>
           </el-icon>
@@ -39,12 +59,15 @@
       <div>保存路径：</div>
       <div class="text" @click.stop="">{{ codeSnippet.filePath }}</div>
       <div>代码片段描述(备注)：</div>
-      <div class="description" @click.stop="">{{ codeSnippet.description }}</div>
+      <div class="description" @click.stop="">
+        {{ codeSnippet.description }}
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
+const isPlay = import.meta.env.VITE_APP_ENV === "play";
 const listStore = useListStore();
 const { codeSnippets } = storeToRefs(listStore);
 const { appAsideBgColor, appBackground } = useAppTheme();
@@ -55,15 +78,15 @@ const props = defineProps({
   },
   showHover: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 const hoverBeforeWidth = computed(() => {
-  return props.showHover ? "4px" : "0px"
-})
+  return props.showHover ? "4px" : "0px";
+});
 const showAnimation = computed(() => {
-  return props.showHover ? "all 0.5s" : "none"
-})
+  return props.showHover ? "all 0.5s" : "none";
+});
 const emit = defineEmits<{
   (event: "editFile", index: number): void;
   (event: "openFile", index: number): void;
@@ -72,10 +95,14 @@ const emit = defineEmits<{
 }>();
 
 const codeSnippet = computed(() => {
-  return codeSnippets.value.find((item) => item.id === props.id)!;
+  return (isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
+    (item) => item.id === props.id
+  )!;
 });
 const scriptIndex = computed(() => {
-  return codeSnippets.value.findIndex((item) => item.id === props.id)!;
+  return (
+    isPlay ? usePlayMock().mockCodeSnippetList : codeSnippets
+  ).value.findIndex((item) => item.id === props.id)!;
 });
 
 const showDetails = ref(false);
@@ -92,8 +119,7 @@ const editFile = () => {
 const editInfo = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("editInfo", scriptIndex.value);
-
-}
+};
 const openFIleDialog = () => {
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("openFile", scriptIndex.value);
@@ -106,7 +132,6 @@ const itemHeight = computed(() => {
   }
   return "40px";
 });
-
 </script>
 
 <style lang="scss" scoped>
