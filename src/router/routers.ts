@@ -71,9 +71,9 @@ const routes = <RouteRecordRaw[]>[
       title: "工程",
       icon: ProjectIcon,
       position: "top",
+      disabled: import.meta.env.PROD || IS_PLAYGROUND_ENV,
     },
   },
-
   {
     path: "/setting",
     name: "setting",
@@ -94,7 +94,6 @@ const routes = <RouteRecordRaw[]>[
       position: "bottom",
     },
   },
-
   {
     path: "/scriptWindow",
     name: "scriptWindow",
@@ -144,9 +143,7 @@ const routes = <RouteRecordRaw[]>[
       title: "依赖管理器",
     },
   },
-];
-if (import.meta.env.DEV) {
-  const invokesManagerOption = {
+  {
     path: "/invokesManager",
     name: "invokesManager",
     component: () => import(`../pages/InvokesManager.vue`),
@@ -154,12 +151,26 @@ if (import.meta.env.DEV) {
       title: "API",
       icon: DevIcon,
       position: "top",
+      disabled: IS_PLAYGROUND_ENV || import.meta.env.PROD,
     },
-  };
-  routes.push(invokesManagerOption);
-}
-export const topRoutes = routes.filter((r) => r.meta?.position === "top");
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    component: () => import(`../pages/NotFound.vue`),
+  }
+].map((route) => {
+  if (route.meta?.disabled) {
+    return null;
+  }
+  return route;
+}).filter((r) => r);
 
-export const bottomRoutes = routes.filter((r) => r.meta?.position === "bottom");
+export const topRoutes = routes.filter(
+  (r) => r.meta?.position === "top" && !r.meta?.disabled
+);
+
+export const bottomRoutes = routes.filter(
+  (r) => r.meta?.position === "bottom" && !r.meta?.disabled
+);
 
 export default routes;
