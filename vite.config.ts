@@ -103,7 +103,7 @@ export default defineConfig(({ mode }) => {
     // env variables
     envPrefix: ["VITE_", "TAURI_"],
     build: {
-      base: mode === "play" ? "./" : undefined,
+      base: mode === "play" ? "/fr-script/play/" : undefined,
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
       target:
         mode === "play"
