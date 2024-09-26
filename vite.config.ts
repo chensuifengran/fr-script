@@ -110,7 +110,8 @@ export default defineConfig(({ mode }) => {
       minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
-      outDir: mode === "play" ? "docs" : "dist",
+      outDir: mode === "play" ? "public" : "dist",
+      emptyOutDir: mode !== "play", // 构建时不清空输出目录
     },
     // 强制预构建插件包
     optimizeDeps: {
