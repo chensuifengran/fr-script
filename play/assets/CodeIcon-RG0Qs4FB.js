@@ -1,0 +1,1 @@
+import{_ as o,o as s,g as t,w as _,m as c,E as a}from"./index-D767YE15.js";const r={};function i(l,e){const n=a;return s(),t(n,{size:"large"},{default:_(()=>e[0]||(e[0]=[c("span",{"i-mdi-code-tags":""},null,-1)])),_:1})}const m=o(r,[["render",i]]);export{m as _};
