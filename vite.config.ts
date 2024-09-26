@@ -13,7 +13,6 @@ import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
 import viteCompression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   return {
-    publicDir: mode === "play" ? "play" : undefined,
     plugins: [
       UnoCSS(),
       hotUpdatePlugin(),
@@ -111,7 +110,7 @@ export default defineConfig(({ mode }) => {
       minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
-      outDir: mode === "play" ? "play" : "dist",
+      outDir: mode === "play" ? "docs" : "dist",
     },
     // 强制预构建插件包
     optimizeDeps: {

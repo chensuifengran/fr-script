@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>风染脚本v2</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: transparent;
+      }
+      .container {
+        width: 400px;
+        height: 200px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        overflow: hidden;
+        user-select: none;
+        position: relative;
+      }
+      h1 {
+        display: flex;
+        align-items: center;
+        /* 文字渐变 */
+        background: linear-gradient(-55deg, #ff7b00, #24fa6b);
+        background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 1px #00000028;
+        font-size: 40px;
+        z-index: 999;
+      }
+      img {
+        width: 64px;
+        height: 64px;
+        margin-right: 10px;
+        z-index: 999;
+      }
+      .loading-text {
+        display: flex;
+        align-items: center;
+        color: #fff;
+        z-index: 999;
+      }
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+        z-index: 999;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .move-bg {
+        position: absolute;
+        width: 200%;
+        height: 100%;
+        left: 0;
+        background-image: linear-gradient(135deg, #fb06ff, #00dc79);
+        animation: move 5s linear infinite;
+      }
+      @keyframes move {
+        0% {
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(-50%);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="move-bg" data-tauri-drag-region></div>
+      <h1 data-tauri-drag-region>
+        <img src="./icon.ico" alt="Icon" />风染脚本v2
+      </h1>
+      <div class="loading-text">
+        <div class="spinner" data-tauri-drag-region></div>
+        <span data-tauri-drag-region>程序初始化中...</span>
+      </div>
+    </div>
+  </body>
+</html>
