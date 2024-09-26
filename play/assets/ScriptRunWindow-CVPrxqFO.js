@@ -1,1 +1,0 @@
-import{_ as e,o as t,a as c}from"./index-D767YE15.js";const n={},o={class:"message-content",ref:"content"};function s(a,r){return t(),c("div",o,null,512)}const d=e(n,[["render",s],["__scopeId","data-v-fad89811"]]);export{d as default};
