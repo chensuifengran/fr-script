@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
         ext: ".gz",
         threshold: 1024 * 100,
         algorithm: "gzip",
-        deleteOriginFile: true,
+        deleteOriginFile: false,
         disable: mode !== "play",
       }),
     ],
