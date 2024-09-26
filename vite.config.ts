@@ -103,15 +103,19 @@ export default defineConfig(({ mode }) => {
     // env variables
     envPrefix: ["VITE_", "TAURI_"],
     build: {
+      base: mode === "play" ? "./" : undefined,
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
       target:
-        process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
+        mode === "play"
+          ? "ESNext"
+          : process.env.TAURI_PLATFORM == "windows"
+          ? "chrome105"
+          : "safari13",
       // don't minify for debug builds
       minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
       outDir: mode === "play" ? "play" : "dist",
-      base: mode === "play" ? "/fr-script/" : undefined,
     },
     // 强制预构建插件包
     optimizeDeps: {
