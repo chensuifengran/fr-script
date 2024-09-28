@@ -5,6 +5,9 @@ export const adbScreenshotFn = async (
   reCount: number = 0,
   taskId?: string
 ): Promise<string> => {
+  if(IS_PLAYGROUND_ENV){
+    return "截图完成"
+  }
   const { notAllowedFnId, currentDevice } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return "";

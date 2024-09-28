@@ -1,4 +1,7 @@
 export const connectToFn = async (targetDevice: string, taskId?: string) => {
+  if(IS_PLAYGROUND_ENV){
+    return "already connected to XXX"
+  }
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;

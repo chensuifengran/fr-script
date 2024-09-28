@@ -3,9 +3,12 @@ export const cmdFn = async (
   onlyExec: boolean = false,
   taskId?: string
 ) => {
+  if(IS_PLAYGROUND_ENV){
+    return "The execution is complete"
+  }
   const { notAllowedFnId }  = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return"执行完成！";
+    return"The execution is complete";
   }
   try {
     if(onlyExec){

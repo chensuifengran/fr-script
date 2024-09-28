@@ -1,6 +1,9 @@
 import { disConnectToFn } from "../disConnectTo/exportFn";
 
 export const adbStateFn = async (taskId?: string) => {
+  if(IS_PLAYGROUND_ENV){
+    return "unLink"
+  }
   const { notAllowedFnId,currentDevice }  = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;

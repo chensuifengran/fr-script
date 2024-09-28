@@ -3,9 +3,12 @@ export const touchFn = async (
   targetY: number,
   taskId?: string
 ) => {
-  const { notAllowedFnId }  = useScriptRuntime();
+  if (IS_PLAYGROUND_ENV) {
+    return "touch ok";
+  }
+  const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return"";
+    return "";
   }
   try {
     await execCommand.adb(adbCommands.CLICK_PREVAL + targetX + " " + targetY);

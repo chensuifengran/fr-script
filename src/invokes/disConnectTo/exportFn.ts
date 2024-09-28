@@ -1,12 +1,16 @@
-
 export const disConnectToFn = async (targetDevice: string, taskId?: string) => {
-  const { notAllowedFnId }  = useScriptRuntime();
+  if (IS_PLAYGROUND_ENV) {
+    return "disconnected xxx";
+  }
+  const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;
   }
   let res = "出现异常";
   try {
-    res = (await execCommand.adb(adbCommands.DISCONNECT_PREVAL + targetDevice))!;
+    res = (await execCommand.adb(
+      adbCommands.DISCONNECT_PREVAL + targetDevice
+    ))!;
   } catch (e) {
     console.error(e);
     return JSON.stringify(e);
@@ -15,7 +19,7 @@ export const disConnectToFn = async (targetDevice: string, taskId?: string) => {
     const store = useListStore();
     store.deviceList = store.deviceList.filter((item) => item !== targetDevice);
     const { currentDevice } = useScriptRuntime();
-    currentDevice.value = '';
+    currentDevice.value = "";
   }
   return res;
 };

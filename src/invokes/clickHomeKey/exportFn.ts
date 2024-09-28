@@ -1,5 +1,8 @@
 // 定义一个函数，返回一个函数
 export const clickHomeKeyFn = async (taskId?: string) => {
+  if(IS_PLAYGROUND_ENV){
+    return "OK"
+  }
   const { notAllowedFnId }  = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return"";

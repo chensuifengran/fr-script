@@ -1,4 +1,3 @@
-
 export const slideToFn = async (
   fromX: number,
   fromY: number,
@@ -7,9 +6,12 @@ export const slideToFn = async (
   slideTime: number,
   taskId?: string
 ) => {
-  const { notAllowedFnId }  = useScriptRuntime();
+  if (IS_PLAYGROUND_ENV) {
+    return "滑动完成。";
+  }
+  const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
-    return"";
+    return "";
   }
   try {
     await execCommand.adb(
