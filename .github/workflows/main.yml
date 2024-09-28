@@ -32,7 +32,7 @@ jobs:
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
-        personal_token: ${{ secrets.sync-playground }}  # PERSONAL_ACCESS_TOKEN
+        personal_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # PERSONAL_ACCESS_TOKEN
         publish_dir: ./dist  # 指定要发布的目录
         external_repository: chensuifengran/chensuifengran.github.io  # 替换为你的目标仓库地址
         publish_branch: main  # 发布的目标分支
