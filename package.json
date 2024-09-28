@@ -58,7 +58,7 @@
     "chalk": "5.3.0",
     "jsdom": "25.0.1",
     "resize-observer-polyfill": "1.5.1",
-    "sass": "1.79.4",
+    "sass": "1.78.0",
     "unocss": "0.62.4",
     "unplugin-auto-import": "0.18.3",
     "unplugin-icons": "0.19.3",
