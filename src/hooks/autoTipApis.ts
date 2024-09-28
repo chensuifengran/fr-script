@@ -22,7 +22,7 @@ const getFnInfo = () => fnInfo;
 
 const pathStrProcess = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
-  return pathStr.replaceAll("\\", "\\\\");
+  return pathStr?.replaceAll("\\", "\\\\");
 };
 
 /**
@@ -50,7 +50,7 @@ const replaceConstantPath = (path: string) => {
 
 const pathStrReset = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
-  return pathStr.replaceAll("\\\\", "\\");
+  return pathStr?.replaceAll("\\\\", "\\");
 };
 
 const stringParamsProcess = async (
