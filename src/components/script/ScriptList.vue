@@ -31,23 +31,21 @@
         </span>
       </template>
     </el-dialog>
-    <el-affix target=".script-list-div" :offset="40">
-      <div class="header">
-        <span style="font-size: 18px">脚本列表</span>
-        <div class="header-right">
-          <el-input
-            class="input"
-            v-model="search"
-            clearable
-            placeholder="搜索脚本名称或备注"
-          />
-          <el-button-group>
-            <el-button @click="imoprtScript">导入</el-button>
-            <el-button type="primary" @click="onAddItem">新建</el-button>
-          </el-button-group>
-        </div>
+    <div class="header" ref="headerRef">
+      <span style="font-size: 18px">脚本列表</span>
+      <div class="header-right">
+        <el-input
+          class="input"
+          v-model="searchInfo.content"
+          clearable
+          placeholder="搜索脚本名称或备注"
+        />
+        <el-button-group>
+          <el-button @click="imoprtScript">导入</el-button>
+          <el-button type="primary" @click="onAddItem">新建</el-button>
+        </el-button-group>
       </div>
-    </el-affix>
+    </div>
 
     <div class="list">
       <el-empty
@@ -84,9 +82,11 @@
 
 <script lang="ts" setup>
 import { invoke } from "@tauri-apps/api";
+import { templateRef } from "@vueuse/core";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
+const headerRef = templateRef<HTMLElement>("headerRef");
 const isPlay = IS_PLAYGROUND_ENV;
 const el = ref<UseDraggableReturn>();
 let deleteConfirm: () => void = () => {};
@@ -443,14 +443,16 @@ const setScript = (index: number) => {
   router.replace("/script/setting");
 };
 
-const search = ref("");
+const { trueSearch, searchInfo } = useAutoTitleBar();
+
 const disableSort = computed(() => {
-  return search.value !== "";
+  return trueSearch.value !== "";
 });
 
 const showList = computed({
   get: () => {
-    if (search.value === "") {
+    const value = trueSearch.value;
+    if (value === "") {
       if (IS_PLAYGROUND_ENV) {
         //playground环境
         return usePlayMock().mockScriptList.value;
@@ -458,17 +460,16 @@ const showList = computed({
       return scriptList.value;
     } else {
       if (IS_PLAYGROUND_ENV) {
-        //playground环境
         return usePlayMock().mockScriptList.value.filter(
           (i) =>
-            i.name.toLowerCase().includes(search.value.toLowerCase()) ||
-            i.description.toLowerCase().includes(search.value.toLowerCase())
+            i.name.toLowerCase().includes(value.toLowerCase()) ||
+            i.description.toLowerCase().includes(value.toLowerCase())
         );
       }
       return scriptList.value.filter(
         (i) =>
-          i.name.toLowerCase().includes(search.value.toLowerCase()) ||
-          i.description.toLowerCase().includes(search.value.toLowerCase())
+          i.name.toLowerCase().includes(value.toLowerCase()) ||
+          i.description.toLowerCase().includes(value.toLowerCase())
       );
     }
   },
@@ -480,8 +481,26 @@ const showList = computed({
     scriptList.value = v;
   },
 });
+const observerCallback: IntersectionObserverCallback = (entries) => {
+  entries.forEach((entry) => {
+    searchInfo.show = !entry.isIntersecting;
+  });
+};
+let observer: IntersectionObserver;
+onUnmounted(() => {
+  searchInfo.show = false;
+  searchInfo.target = SearchTarget.None;
+  if (observer && headerRef.value) {
+    observer.unobserve(headerRef.value);
+  }
+});
 onMounted(() => {
   invokeBaseApi.closeSplashscreen();
+  observer = new IntersectionObserver(observerCallback, {});
+  if (headerRef.value) {
+    observer.observe(headerRef.value);
+  }
+  searchInfo.target = SearchTarget.ScriptList;
 });
 </script>
 

@@ -42,8 +42,7 @@
               v-model="info.apiTest.searchValue"
               clearable
               placeholder="可输入API的关键字对API进行筛选"
-            >
-            </el-input>
+            />
             <el-button
               class="output-btn"
               @click="info.apiTest.openOutput = true"
@@ -51,6 +50,27 @@
               ><el-icon>
                 <span i-mdi-square-rounded-badge-outline></span> </el-icon
             ></el-button>
+          </div>
+          <div v-else flex flex-1 flex-row items-center justify-center>
+            <el-input
+              v-if="
+                searchInfo.show && searchInfo.target === SearchTarget.ScriptList
+              "
+              class="search-ipt"
+              v-model="searchInfo.content"
+              clearable
+              placeholder="搜索脚本名称或备注"
+            />
+            <el-input
+              v-if="
+                searchInfo.show &&
+                searchInfo.target === SearchTarget.CodeSnippetList
+              "
+              class="search-ipt"
+              v-model="searchInfo.content"
+              clearable
+              placeholder="搜索代码片段:名称、备注、前缀"
+            />
           </div>
         </transition>
       </div>
@@ -156,7 +176,8 @@ import { appWindow, getAll, getCurrent } from "@tauri-apps/api/window";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
-const { info, windowInnerWidth, clickMinimize } = useAutoTitleBar();
+import { SearchTarget } from "../hooks/useAutoTitleBar";
+const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
 const { getEditorValue } = useEditor();
@@ -164,7 +185,6 @@ const mostTop = ref(false);
 const toggleMostTop = () => {
   mostTop.value = !mostTop.value;
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   if (mostTop.value) {
@@ -180,14 +200,18 @@ const showQuitDialog = ref(false);
 const minHandle = () => {
   clickMinimize.value = true;
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   appWindow.minimize();
 };
 const maxHandle = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
+    const { unmaximizeSize, maximizeSize } = useAppLayout();
+    if (isFullScreen.value) {
+      unmaximizeSize();
+    } else {
+      maximizeSize();
+    }
     isFullScreen.value = !isFullScreen.value;
     return;
   }
@@ -201,7 +225,6 @@ const maxHandle = async () => {
 };
 const closeHandle = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   if (isEditing.value) {
@@ -231,11 +254,8 @@ const isFullScreen = ref(false);
 const titleBarColor = computed(() => {
   return isDark.value ? "#272727" : "#f6f6f6";
 });
-const version = ref(
-  IS_PLAYGROUND_ENV ? "playground" : "获取版本失败"
-);
+const version = ref(IS_PLAYGROUND_ENV ? "playground" : "获取版本失败");
 if (!IS_PLAYGROUND_ENV) {
-  //playground环境
   getVersion().then((res) => {
     version.value = res;
   });
@@ -244,16 +264,14 @@ if (!IS_PLAYGROUND_ENV) {
 const appGSStore = useAppGlobalSettings();
 const { appVersionInfo, goAppUpdate } = useAppVersionInfo();
 const openDownloadDialog = async () => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   await goAppUpdate(true);
   appVersionInfo.value.openDialog = true;
 };
 const showSetupBtn = computed(() => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return false;
   }
   return (
@@ -273,8 +291,7 @@ const searchPosition = computed(() => {
   }
 });
 const resizeHandle = async () => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   if (await appWindow.isMaximized()) {
@@ -285,8 +302,7 @@ const resizeHandle = async () => {
 };
 let unListen: any;
 onMounted(async () => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   window.addEventListener("resize", resizeHandle);
@@ -301,8 +317,7 @@ onMounted(async () => {
   });
 });
 onUnmounted(() => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   window.removeEventListener("resize", resizeHandle);
@@ -319,7 +334,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed;
+  position: absolute;
   top: 1px;
   left: 1px;
   right: 1px;
@@ -358,15 +373,14 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
 
-    .search-ipt {
-      width: 500px;
-      position: v-bind(searchPosition);
-    }
-
     .output-btn {
       margin-left: 5px;
       position: v-bind(searchPosition);
     }
+  }
+  .search-ipt {
+    width: 500px;
+    position: v-bind(searchPosition);
   }
 
   .btn,

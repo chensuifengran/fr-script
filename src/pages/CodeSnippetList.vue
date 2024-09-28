@@ -36,23 +36,21 @@
           </span>
         </template>
       </el-dialog>
-      <el-affix target=".code-snippet-list-div" :offset="40">
-        <div class="header">
-          <span style="font-size: 18px">代码片段列表</span>
-          <div class="header-right">
-            <el-input
-              class="input"
-              v-model="search"
-              clearable
-              placeholder="搜索代码片段:名称、备注、前缀"
-            />
-            <el-button-group>
-              <el-button @click="imoprtScript">导入</el-button>
-              <el-button type="primary" @click="onAddItem">新建</el-button>
-            </el-button-group>
-          </div>
+      <div class="header" ref="headerRef">
+        <span style="font-size: 18px">代码片段列表</span>
+        <div class="header-right">
+          <el-input
+            class="input"
+            v-model="searchInfo.content"
+            clearable
+            placeholder="搜索代码片段:名称、备注、前缀"
+          />
+          <el-button-group>
+            <el-button @click="imoprtScript">导入</el-button>
+            <el-button type="primary" @click="onAddItem">新建</el-button>
+          </el-button-group>
         </div>
-      </el-affix>
+      </div>
       <div class="list" h-full>
         <el-empty
           v-if="showList.length === 0"
@@ -98,16 +96,20 @@ import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
 import { MockCodeSnippet } from "../hooks/usePlayMock";
 import { nanoid } from "nanoid";
+import { templateRef } from "@vueuse/core";
+import { SearchTarget } from "../hooks/useAutoTitleBar";
 const EDITOR_DOM_ID = "snippet-editor";
 const showEditor = ref(false);
 const targetId = ref("");
 const listStore = useListStore();
+const headerRef = templateRef<HTMLElement>("headerRef");
 const { codeSnippets } = storeToRefs(listStore);
 const targetName = computed(() => {
   return (
-    (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value.find(
-      (i) => i.id === targetId.value
-    )?.name || ""
+    (IS_PLAYGROUND_ENV
+      ? usePlayMock().mockCodeSnippetList
+      : codeSnippets
+    ).value.find((i) => i.id === targetId.value)?.name || ""
   );
 });
 const el = ref<UseDraggableReturn>();
@@ -139,8 +141,8 @@ const delCodeSnippets = (index: number) => {
     }
     if (
       !(await fsUtils.deleteFile(
-        (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value[index]
-          .filePath
+        (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
+          .value[index].filePath
       ))
     ) {
       ElNotification({
@@ -166,8 +168,9 @@ const matchExportRegex = /export \{\s?\};?/g;
 const editFile = async (index: number) => {
   showEditor.value = true;
   await nextTick();
-  const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
-    .value[index] as MockCodeSnippet;
+  const target = (
+    IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
+  ).value[index] as MockCodeSnippet;
   targetId.value = target.id;
   const editorExists = findEditor(EDITOR_DOM_ID);
   if (!editorExists) {
@@ -187,8 +190,9 @@ const editInfoDialogForm = reactive({
 let editInfoDialogCb = () => {};
 let lastTargetName = "";
 const editInfo = async (index: number) => {
-  const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
-    .value[index] as MockCodeSnippet;
+  const target = (
+    IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
+  ).value[index] as MockCodeSnippet;
   editInfoDialogForm.name = target.name;
   lastTargetName = target.name;
   editInfoDialogForm.description = target.description;
@@ -201,8 +205,9 @@ const editInfo = async (index: number) => {
       ElMessage.warning("已存在相同名称的代码片段，换个名字试试吧");
       return;
     }
-    const target = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
-      .value[index];
+    const target = (
+      IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
+    ).value[index];
     target.name = editInfoDialogForm.name;
     target.description = editInfoDialogForm.description;
     target.prefix = editInfoDialogForm.prefix;
@@ -351,32 +356,36 @@ const imoprtScript = async () => {
     });
   }
 };
+const { trueSearch, searchInfo } = useAutoTitleBar();
 
-const search = ref("");
 const disableSort = computed(() => {
-  return search.value !== "";
+  return trueSearch.value !== "";
 });
-
 const showList = computed({
   get: () => {
-    if (search.value === "") {
-      const list = (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets)
-        .value;
+    const value = trueSearch.value;
+    if (value === "") {
+      const list = (
+        IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
+      ).value;
       return list;
     } else {
       const list = (
         IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets
       ).value.filter(
         (i) =>
-          i.name.toLowerCase().includes(search.value.toLowerCase()) ||
-          i.description.toLowerCase().includes(search.value.toLowerCase()) ||
-          i.prefix.toLowerCase().includes(search.value.toLowerCase())
+          i.name.toLowerCase().includes(value.toLowerCase()) ||
+          i.description.toLowerCase().includes(value.toLowerCase()) ||
+          i.prefix.toLowerCase().includes(value.toLowerCase())
       );
       return list;
     }
   },
   set: (v) => {
-    (IS_PLAYGROUND_ENV ? usePlayMock().mockCodeSnippetList : codeSnippets).value = v;
+    (IS_PLAYGROUND_ENV
+      ? usePlayMock().mockCodeSnippetList
+      : codeSnippets
+    ).value = v;
   },
 });
 const { appAsideBgColor, appBackground } = useAppTheme();
@@ -395,11 +404,27 @@ const mainBorderRadius = computed(() => {
     return "10px 10px 10px 0";
   }
 });
+const observerCallback: IntersectionObserverCallback = (entries) => {
+  entries.forEach((entry) => {
+    searchInfo.show = !entry.isIntersecting;
+  });
+};
+let observer: IntersectionObserver;
 onUnmounted(() => {
   disposeEditor();
+  searchInfo.show = false;
+  searchInfo.target = SearchTarget.None;
+  if (observer && headerRef.value) {
+    observer.unobserve(headerRef.value);
+  }
 });
 onMounted(() => {
   invokeBaseApi.closeSplashscreen();
+  observer = new IntersectionObserver(observerCallback, {});
+  if (headerRef.value) {
+    observer.observe(headerRef.value);
+  }
+  searchInfo.target = SearchTarget.CodeSnippetList;
 });
 </script>
 
