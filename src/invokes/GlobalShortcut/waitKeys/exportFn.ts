@@ -1,6 +1,10 @@
 import { isRegistered, registerAll, unregister } from "@tauri-apps/api/globalShortcut";
 
 export const waitKeysFn = async (keys: string[], taskId?: string) => {
+  if(IS_PLAYGROUND_ENV){
+    console.warn("playground环境下无法使用快捷键！");
+    return;
+  }
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return;
