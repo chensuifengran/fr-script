@@ -38,7 +38,7 @@ jobs:
 
     - name: Remove assets folder from target repository
       run: |
-        git clone --mirror git@github.com:chensuifengran/chensuifengran.github.io.git target-repo
+        git clone git@github.com:chensuifengran/chensuifengran.github.io.git target-repo
         cd target-repo
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
