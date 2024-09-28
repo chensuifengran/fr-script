@@ -10,7 +10,6 @@ import path from "path";
 import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
-import viteCompression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
@@ -55,13 +54,6 @@ export default defineConfig(({ mode }) => {
       Icons({
         autoInstall: true,
       }),
-      viteCompression({
-        ext: ".gz",
-        threshold: 1024 * 100,
-        algorithm: "gzip",
-        deleteOriginFile: false,
-        disable: mode !== "play",
-      }),
     ],
     resolve: {
       alias: {
@@ -103,7 +95,6 @@ export default defineConfig(({ mode }) => {
     // env variables
     envPrefix: ["VITE_", "TAURI_"],
     build: {
-      base: mode === "play" ? "/fr-script/play/" : undefined,
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
       target:
         mode === "play"
@@ -115,7 +106,7 @@ export default defineConfig(({ mode }) => {
       minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
-      outDir: mode === "play" ? "play" : "dist",
+      outDir: "dist",
     },
     // 强制预构建插件包
     optimizeDeps: {
