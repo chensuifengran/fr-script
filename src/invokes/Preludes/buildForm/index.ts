@@ -11,7 +11,7 @@ export const buildFormApi = <InvokeApiMethodType>{
     fn: buildFormFn,
   },
   testModule: {
-    weight: 100,
+    weight: 1,
     dialog: dialogOptions,
     callback: modelCallback,
     document: apiDocument,
