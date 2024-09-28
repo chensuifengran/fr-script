@@ -19,21 +19,23 @@ export const SCRIPT_TEMPLATE = (
 const { ${preludes.join(", ")} } = Preludes;
 //脚本运行入口函数
 const main = async () => {
-
   //构建默认表单项并渲染表单
   buildForm([
     // {
-    //   type: "check",
+    //   id: 'checkItem',
+    //   type: FieldType.Check,
     //   label: '测试字段',
     //   targetGroupLabel: "测试组",
     //   checked: true
     // },
   ]);
-
-  //等待用户点击"开始"按钮，点击按钮时等待结束，后续可以通过getCustomizeForm获取表单数据
+  //使用getCustomizeForm等待用户点击"开始"按钮，点击后等待结束，可以通过getFieldValue或getFieldValueById方法获取表单数据
   const { getFieldValue, getFieldValueById } = await getCustomizeForm();
   //示例
-  //const testField = getFieldValue<boolean>('checkList', '测试字段', false, '测试组');
+  //通过组件类型、分组名称和字段名称获取表单项的值
+  //const testField = getFieldValue<boolean>(FieldType.Check, '测试字段', false, '测试组');
+  //或者通过id获取表单项的值
+  //const testField = getFieldValueById<boolean>('checkItem', false);
   //console.log(testField);//true
   //脚本运行逻辑
   
