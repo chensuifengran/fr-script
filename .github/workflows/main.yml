@@ -1,0 +1,40 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master  # 如果你使用的是 main 分支，请将这里改为 main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # 根据你的项目需求设置 Node.js 版本
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9  # 你可以指定具体的 pnpm 版本
+
+    - name: Install dependencies
+      run: pnpm install  # 使用 pnpm 安装依赖
+
+    - name: Build project
+      run: pnpm play:build  # 运行构建脚本，根据你的 package.json 配置调整此命令
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        personal_token: ${{ secrets.sync-playground }}  # PERSONAL_ACCESS_TOKEN
+        publish_dir: ./dist  # 指定要发布的目录
+        external_repository: chensuifengran/chensuifengran.github.io  # 替换为你的目标仓库地址
+        publish_branch: main  # 发布的目标分支
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
