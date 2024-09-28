@@ -42,7 +42,6 @@ jobs:
         cd target-repo
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git remote set-url origin git@github.com:chensuifengran/chensuifengran.github.io.git
         git fetch
         git checkout main
         rm -rf assets  # 删除 assets 文件夹
