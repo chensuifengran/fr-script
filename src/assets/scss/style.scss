@@ -21,6 +21,9 @@ img {
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 body{
   overflow: hidden;

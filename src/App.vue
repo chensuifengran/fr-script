@@ -147,6 +147,7 @@ onBeforeMount(() => {
   }
   libUtil.batchUpdateDep();
 });
+const { appWidth, appHeight } = useAppLayout();
 </script>
 <template>
   <div class="app">
@@ -276,8 +277,9 @@ onBeforeMount(() => {
 }
 
 .app {
-  width: 100%;
-  height: 100%;
+  width: v-bind(appWidth);
+  height: v-bind(appHeight);
+  position: relative;
   background: v-bind(appBackground);
   border-radius: v-bind(borderRadius);
   opacity: v-bind(appOpacity);
