@@ -15,8 +15,7 @@ declare namespace BuildFormItem {
   } & SelectListItem;
   type Check = Base & {
     type: FieldType.Check | "check";
-    checked: boolean;
-  };
+  } & CheckListItem;
   type Picker = Base & {
     type: FieldType.Picker | "picker";
   } & PickerListItem;
