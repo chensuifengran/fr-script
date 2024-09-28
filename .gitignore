@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+play
 *.local
 src-tauri/target/*
 src/types/auto_gen_types
