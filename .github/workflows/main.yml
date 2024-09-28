@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - master  # 如果你使用的是 main 分支，请将这里改为 main
+      - master
 
 jobs:
   build-and-deploy:
@@ -27,7 +27,28 @@ jobs:
       run: pnpm install  # 使用 pnpm 安装依赖
 
     - name: Build project
-      run: pnpm play:build  # 运行构建脚本，根据你的 package.json 配置调整此命令
+      run: pnpm play:build  # 运行构建脚本
+
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id-cnfig_file
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+    - name: Remove assets folder from target repository
+      run: |
+        git clone --mirror git@github.com:chensuifengran/chensuifengran.github.io.git target-repo
+        cd target-repo
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git remote set-url origin git@github.com:chensuifengran/chensuifengran.github.io.git
+        git fetch
+        git checkout main
+        rm -rf assets  # 删除 assets 文件夹
+        git add .
+        git commit -m "Remove assets folder" || true
+        git push origin main
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
