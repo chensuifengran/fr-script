@@ -1,18 +1,32 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { getVersion } from "@tauri-apps/api/app";
-import { relaunch } from "@tauri-apps/api/process";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { enable, isEnabled, disable } from "@tauri-apps/plugin-autostart";
 import { ElButton } from "element-plus";
-import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
+import {
+  WebviewWindow,
+  getCurrentWebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import MoonIcon from "./Icons/MoonIcon.vue";
 import SunIcon from "./Icons/SunIcon.vue";
+const autoStart = ref(false);
+watch(autoStart, async (value) => {
+  if(IS_PLAYGROUND_ENV){
+    return;
+  }
+  if (value) {
+    await enable();
+  } else {
+    await disable();
+  }
+});
+const appWindow = getCurrentWebviewWindow();
 const { getDepStateType } = libUtil;
 const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
-const version = ref(
-  IS_PLAYGROUND_ENV ? "playground" : "获取版本失败"
-);
+const version = ref(IS_PLAYGROUND_ENV ? "playground" : "获取版本失败");
 const loading = ref(false);
 const loadingText = ref("");
 const libDownloadDialog = ref(false);
@@ -25,7 +39,6 @@ if (!IS_PLAYGROUND_ENV) {
     version.value = res;
   });
 }
-
 darkState.value = isDark.value;
 let timer: any;
 watch(darkState, () => {
@@ -47,8 +60,8 @@ const chooseWorkDir = async () => {
 };
 const chooseScreenshotSavePath = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
-    envSetting.value.screenshotSavePath = "E:\\fr-script\\workdir\\screenshot.png";
+    envSetting.value.screenshotSavePath =
+      "E:\\fr-script\\workdir\\screenshot.png";
     return;
   }
   const res = (await selectFile(false)) as string | undefined;
@@ -135,7 +148,6 @@ const libCGSwitch = async (target: string, name: string) => {
 };
 const checkTargetLib = async (target: "CPU" | "GPU") => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return true;
   }
   if (target === "CPU") {
@@ -216,8 +228,7 @@ const switchOcrRunType = async () => {
   await switchOcrLib(ocr.value.value);
 };
 const haveUpdate = computed(() => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return false;
   }
   return (
@@ -225,12 +236,11 @@ const haveUpdate = computed(() => {
     version.value !== appGSStore.app.latestVersion
   );
 });
-const themeChangeHandler = () => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+const themeChangeHandler = async () => {
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
-  const notifyWindow = WebviewWindow.getByLabel("notification");
+  const notifyWindow = await WebviewWindow.getByLabel("notification");
   if (notifyWindow) {
     //主题切换时需关闭隐藏的通知窗口，否则主题切换会出现样式问题
     notifyWindow.close();
@@ -241,36 +251,33 @@ const { notify } = eventUtil;
 let focusUnListenFn: UnlistenFn;
 let receiveUnListenFn: UnlistenFn;
 onMounted(async () => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
+  autoStart.value = await isEnabled();
   await libUtil.syncDependentVersion();
   const currentWindowLabel = appWindow.label;
   if (currentWindowLabel === "main") {
-    focusUnListenFn = await listen("tauri://focus", () => {
-      const depManagerWindow = WebviewWindow.getByLabel("depManager");
+    focusUnListenFn = await listen("tauri://focus", async () => {
+      const depManagerWindow = await WebviewWindow.getByLabel("depManager");
       if (depManagerWindow) {
         notify.send({
           name: "sentDataToMain",
         });
       }
     });
-    receiveUnListenFn = await notify.listen((event) => {
-      if (event.windowLabel === "depManager") {
-        const { payload } = event.payload;
-        if (payload.name === "syncMainData") {
-          const data = payload.payload;
-          syncData(data);
-        }
+    receiveUnListenFn = await notify.listen(async (event) => {
+      const { payload } = event.payload;
+      if (payload.name === "syncMainData") {
+        const data = payload.payload;
+        syncData(data);
       }
-    });
+    }, "depManager");
   }
   invokeBaseApi.closeSplashscreen();
 });
 onUnmounted(() => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   focusUnListenFn && focusUnListenFn();
@@ -311,6 +318,10 @@ onUnmounted(() => {
           >{{ haveUpdate ? "前往" : "检查" }}更新</el-button
         ></span
       >
+    </div>
+    <div class="setting-item">
+      <span>开机自启</span>
+      <el-switch v-model="autoStart" />
     </div>
     <div class="setting-item">
       <span>依赖状态</span>
