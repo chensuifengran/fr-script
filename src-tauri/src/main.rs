@@ -1,21 +1,33 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use fr_script::{event::register_event_handler, export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools, web_driver}};
-use tauri::Manager;
+use fr_script::{
+    event::register_event_handler,
+    export_api::{cmd, file, image, init, input, mouse, request, screen, sys, tools, web_driver},
+};
+use tauri::{path::BaseDirectory, Manager};
+use tauri_plugin_autostart::MacosLauncher;
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,None
+        ))
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_process::init())
         .setup(|app: &mut tauri::App| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = app.get_window("main").unwrap();
+                let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
             }
             let resource_path = app
-                .path_resolver()
-                .resolve_resource("resources/log4rs.yml")
+                .path()
+                .resolve("resources/log4rs.yml", BaseDirectory::Resource)
                 .expect("failed to resolve resource");
             log4rs::init_file(resource_path, Default::default()).unwrap();
             register_event_handler(app);
-            let _ = app.get_window("splashscreen").unwrap().set_focus();
+            let _ = app.get_webview_window("splashscreen").unwrap().set_focus();
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

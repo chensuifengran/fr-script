@@ -1,5 +1,5 @@
-use tauri::Manager;
+use tauri::Listener;
 
 pub fn register_event_handler(app: &mut tauri::App) {
-    app.listen_global("notify", |_| {});
+    app.listen_any("notify", |_| {});
 }

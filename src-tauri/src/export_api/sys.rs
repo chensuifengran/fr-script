@@ -28,11 +28,11 @@ pub async fn error_report(msg: String) -> Result<(), ()> {
 #[tauri::command]
 pub async fn close_splashscreen(window: tauri::Window) {
     // 关闭初始屏幕
-    if let Some(splashscreen) = window.get_window("splashscreen") {
+    if let Some(splashscreen) = window.get_webview_window("splashscreen") {
         splashscreen.close().unwrap();
     }
     // 显示主窗口
-    window.get_window("main").unwrap().show().unwrap();
+    window.get_webview_window("main").unwrap().show().unwrap();
 }
 
 #[tauri::command]
@@ -42,7 +42,7 @@ pub async fn free_all_json_string() -> Result<bool, ()> {
         Ok(_) => {
             log::debug!("成功释放所有JSON字符串");
             Ok(true)
-        },
+        }
         Err(_) => {
             log::error!("[command]free_all_json_string:释放所有JSON字符串失败");
             Ok(false)
