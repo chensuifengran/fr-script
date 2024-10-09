@@ -107,6 +107,27 @@ const getCursorPosFnInfo = async (
   console.time("getCursorPosFnInfo");
   const position = editor.getPosition();
   const result = await astWorker.analyzeFnInfo(model, position);
+  if (result?.params?.length) {
+    result.params = result.params.map((p) => {
+      if (p.value) {
+        return p;
+      } else {
+        const STRING_QUOTATION_MARK_REGEX = /(^["'`]{1,2})|(["'`]{1,2}$)/g;
+        const contentEQType =
+          p.expression
+            .replace(STRING_QUOTATION_MARK_REGEX, "")
+            .replace(/\\/g, "") ===
+          p.type.replace(STRING_QUOTATION_MARK_REGEX, "").replace(/\\/g, "");
+        return {
+          ...p,
+          value: contentEQType
+            ? p.expression.replace(STRING_QUOTATION_MARK_REGEX, "")
+            : "",
+        };
+      }
+    });
+  }
+
   fnInfo.value = result;
   if (!fnInfo.value) {
     console.timeEnd("getCursorPosFnInfo");
