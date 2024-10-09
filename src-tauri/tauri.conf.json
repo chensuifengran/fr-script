@@ -1,37 +1,29 @@
 {
+  "productName": "fr-scrip",
+  "version": "2.1.0",
+  "identifier": "site.csfr",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "",
-    "devPath": "http://localhost:5173",
-    "distDir": "../dist",
-    "withGlobalTauri": false
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "fr-scrip",
-    "version": "2.0.7"
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon32x32.png",
+      "icons/icon64x64.png",
+      "icons/icon128x128.png",
+      "icons/icon256x256.png",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "resources": [
+      "resources/*"
+    ]
   },
-  "tauri": {
-    "allowlist": {
-      "all": true,
-      "fs": {
-        "all": true,
-        "scope": ["**"]
-      }
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "site.csfr",
-      "icon": [
-        "icons/icon32x32.png",
-        "icons/icon64x64.png",
-        "icons/icon128x128.png",
-        "icons/icon256x256.png",
-        "icons/icon.ico",
-        "icons/icon.png"
-      ],
-      "resources": ["resources/*"]
-    },
+  "app": {
     "security": {
       "csp": null
     },
@@ -45,8 +37,9 @@
         "width": 980,
         "height": 600,
         "minWidth": 700,
-        "fileDropEnabled": false,
-        "visible": false
+        "dragDropEnabled": false,
+        "visible": false,
+        "shadow": false
       },
       {
         "width": 400,
@@ -56,8 +49,10 @@
         "center": true,
         "url": "splashscreen.html",
         "label": "splashscreen",
-        "focus": true
+        "focus": true,
+        "shadow": false
       }
     ]
-  }
+  },
+  "plugins": {}
 }
