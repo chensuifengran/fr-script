@@ -100,83 +100,113 @@
           </div>
         </el-tooltip>
 
-        <div class="titlebar-button" @click="!isEditing && toggleMostTop()">
+        <el-button
+          link
+          class="titlebar-button"
+          @click="!isEditing && toggleMostTop()"
+        >
           <el-icon>
             <span
               i-solar-pin-bold-duotone
               :style="{
-                color: mostTop ? 'var(--el-color-primary)' : 'var(--color)',
+                color: mostTop
+                  ? 'var(--el-color-primary-dark-2)'
+                  : 'var(--color)',
               }"
             ></span>
           </el-icon>
-        </div>
-        <div class="titlebar-button" @click="!isEditing && minHandle()">
+        </el-button>
+        <el-button
+          link
+          class="titlebar-button"
+          @click="!isEditing && minHandle()"
+        >
           <el-icon>
             <span i-mdi-minus></span>
           </el-icon>
-        </div>
-        <div class="titlebar-button" @click="!isEditing && maxHandle()">
+        </el-button>
+        <el-button
+          link
+          class="titlebar-button"
+          @click="!isEditing && maxHandle()"
+        >
           <el-icon>
             <span v-if="!isFullScreen" i-mdi-fullscreen></span>
             <span v-else i-mdi-fullscreen-exit></span>
           </el-icon>
-        </div>
-        <div
+        </el-button>
+        <el-button
+          link
           class="titlebar-button danger"
           @click="!isEditing && (showQuitDialog = true)"
         >
           <el-icon>
             <span i-mdi-window-close></span>
           </el-icon>
-        </div>
+        </el-button>
       </div>
     </div>
-    <div
-      class="titlebar"
-      data-tauri-drag-region
-      v-else-if="isEditing"
-      style="cursor: move"
-    >
+    <div class="titlebar" data-tauri-drag-region v-else-if="isEditing">
       <EditorHeader>
         <div class="btn-content">
-          <div class="titlebar-button" @click="isEditing && toggleMostTop()">
-            <span
-              i-solar-pin-bold-duotone
-              :style="{
-                color: mostTop ? 'var(--el-color-primary)' : 'var(--color)',
-              }"
-            />
-          </div>
-          <div class="titlebar-button" @click="isEditing && minHandle()">
+          <el-button
+            link
+            class="titlebar-button"
+            @click="isEditing && toggleMostTop()"
+          >
+            <el-icon
+              ><span
+                i-solar-pin-bold-duotone
+                :style="{
+                  color: mostTop
+                    ? 'var(--el-color-primary-dark-2)'
+                    : 'var(--color)',
+                }"
+            /></el-icon>
+          </el-button>
+          <el-button
+            link
+            class="titlebar-button"
+            @click="isEditing && minHandle()"
+          >
             <el-icon>
               <span i-mdi-minus></span>
             </el-icon>
-          </div>
-          <div class="titlebar-button" @click="isEditing && maxHandle()">
+          </el-button>
+          <el-button
+            link
+            class="titlebar-button"
+            @click="isEditing && maxHandle()"
+          >
             <el-icon>
               <span v-if="!isFullScreen" i-mdi-fullscreen></span>
               <span v-else i-mdi-fullscreen-exit></span>
             </el-icon>
-          </div>
-          <div
+          </el-button>
+          <el-button
+            link
             class="titlebar-button danger"
             @click="isEditing && (showQuitDialog = true)"
           >
             <el-icon>
               <span i-mdi-window-close></span>
             </el-icon>
-          </div>
+          </el-button>
         </div>
       </EditorHeader>
     </div>
   </transition>
 </template>
 <script lang="ts" setup>
-import { appWindow, getAll, getCurrent } from "@tauri-apps/api/window";
+import {
+  getCurrentWebviewWindow,
+  getAllWebviewWindows,
+} from "@tauri-apps/api/webviewWindow";
 import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 import { SearchTarget } from "../hooks/useAutoTitleBar";
+const appWindow = getCurrentWebviewWindow();
 const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
@@ -237,7 +267,7 @@ const closeHandle = async () => {
       fileInfo.originData = editorValue.value;
     }
   }
-  const allWindow = getAll();
+  const allWindow = await getAllWebviewWindows();
   for (let i = 0; i < allWindow.length; i++) {
     const w = allWindow[i];
     if (w.label !== "main") {
@@ -307,11 +337,11 @@ onMounted(async () => {
   }
   window.addEventListener("resize", resizeHandle);
   unListen = await listen("tauri://focus", (e: any) => {
-    if (clickMinimize.value && e.windowLabel === getCurrent().label) {
+    if (
+      clickMinimize.value &&
+      e.windowLabel === getCurrentWebviewWindow().label
+    ) {
       clickMinimize.value = false;
-      // needSyncLastData.value = true;
-      //解决在编辑器最小化时编辑器被销毁导致当前编辑器内容丢失的问题，
-      //  此问题之前存在，但现在最小化时不会销毁编辑器，所以不需要处理
       goLastPath();
     }
   });
@@ -360,7 +390,6 @@ onUnmounted(() => {
 
   .text {
     color: var(--el-text-color-primary);
-    // margin-left: 5px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -385,47 +414,44 @@ onUnmounted(() => {
 
   .btn,
   .btn-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     .titlebar-button {
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       cursor: pointer;
+      border-radius: 0;
+      margin: 0;
 
       &.setup-btn {
         width: 22px;
         height: 22px;
         border-radius: 50%;
         background-color: var(--el-color-primary);
-        color: #fff;
+        color: var(--el-bg-color);
         margin-right: 10px;
-
-        &:hover {
-          background-color: rgb(3, 211, 89);
-        }
       }
-
       &.warning-btn {
         width: 22px;
         height: 22px;
         border-radius: 50%;
-        color: #fff;
+        color: var(--el-bg-color);
         margin-right: 10px;
-        background-color: rgb(219, 35, 25);
-        &:hover {
-          background-color: rgb(255, 13, 0);
-        }
+        background-color: var(--el-color-danger);
       }
-
-      &:hover {
-        background: var(--el-color-primary-light-7);
-      }
-
       &.danger {
+        color: var(--el-color-danger);
         &:hover {
-          background: rgb(255, 45, 34);
+          background-color: var(--el-color-danger);
         }
+      }
+      &:hover {
+        color: var(--el-text-color-primary);
+        background-color: var(--el-color-primary-light-7);
       }
     }
   }
