@@ -39,10 +39,7 @@ impl PPOCR {
                 match self.lib.get(b"getVersion") {
                     Ok(get_version) => get_version,
                     Err(e) => {
-                        log::error!(
-                            "[FFI][PPOCR::get_version]: 加载getVersion方法失败：{:?}",
-                            e
-                        );
+                        log::error!("[FFI][PPOCR::get_version]: 加载getVersion方法失败：{:?}", e);
                         return Err(Box::new(e));
                     }
                 };
@@ -152,10 +149,7 @@ impl PPOCR {
             let path_c = match CString::new(path) {
                 Ok(path_c) => path_c,
                 Err(e) => {
-                    log::error!(
-                        "[FFI][PPOCR::ocr_rect][path]: CString类型转换失败：{:?}",
-                        e
-                    );
+                    log::error!("[FFI][PPOCR::ocr_rect][path]: CString类型转换失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -171,10 +165,7 @@ impl PPOCR {
             let str_slice: &str = match c_str.to_str() {
                 Ok(str_slice) => str_slice,
                 Err(e) => {
-                    log::error!(
-                        "[FFI][PPOCR::ocr_rect][result]: CStr类型转换失败：{:?}",
-                        e
-                    );
+                    log::error!("[FFI][PPOCR::ocr_rect][result]: CStr类型转换失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -222,10 +213,7 @@ impl PPOCR {
             let img_path_c = match CString::new(img_path) {
                 Ok(img_path_c) => img_path_c,
                 Err(e) => {
-                    log::error!(
-                        "[FFI][PPOCR::ocr][img_path]: CString类型转换失败：{:?}",
-                        e
-                    );
+                    log::error!("[FFI][PPOCR::ocr][img_path]: CString类型转换失败：{:?}", e);
                     return Err(Box::new(e));
                 }
             };
@@ -354,7 +342,10 @@ impl PPOCR {
             > = match self.lib.get(b"screenOcrOnlyTexts") {
                 Ok(screen_ocr_only_texts) => screen_ocr_only_texts,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::screen_ocr_only_texts]: 加载screenOcrOnlyTexts方法失败：{:?}", e);
+                    log::error!(
+                        "[FFI][PPOCR::screen_ocr_only_texts]: 加载screenOcrOnlyTexts方法失败：{:?}",
+                        e
+                    );
                     return Err(Box::new(e));
                 }
             };
@@ -417,7 +408,10 @@ impl PPOCR {
             > = match self.lib.get(b"screenOcrFindTexts") {
                 Ok(screen_ocr_find_texts) => screen_ocr_find_texts,
                 Err(e) => {
-                    log::error!("[FFI][PPOCR::screen_ocr_find_texts]: 加载screenOcrFindTexts方法失败：{:?}", e);
+                    log::error!(
+                        "[FFI][PPOCR::screen_ocr_find_texts]: 加载screenOcrFindTexts方法失败：{:?}",
+                        e
+                    );
                     return Err(Box::new(e));
                 }
             };

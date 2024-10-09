@@ -6,7 +6,7 @@ pub struct MouseResult<T: Serialize> {
     message: T,
 }
 impl<T: Serialize> MouseResult<T> {
-    pub fn new(code: u32, message: T) -> Self { 
+    pub fn new(code: u32, message: T) -> Self {
         Self { code, message }
     }
 }

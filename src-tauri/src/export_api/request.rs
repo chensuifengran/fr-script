@@ -1,10 +1,12 @@
+use crate::{
+    constant::{API_KEY, API_SECRET, APP_ID},
+    types::generate_result,
+};
 use log::error;
 use reqwest::get;
-use crate::{constant::{API_KEY, API_SECRET, APP_ID}, types::generate_result};
-
 
 #[tauri::command]
-pub async fn request_get(url:String) -> Result<String, ()> {
+pub async fn request_get(url: String) -> Result<String, ()> {
     let resp = get(&url).await.unwrap().text().await;
     match resp {
         Ok(resp) => Ok(generate_result(format!("{}", resp), 200)),

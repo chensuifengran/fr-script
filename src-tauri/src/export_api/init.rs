@@ -1,6 +1,4 @@
-use crate::{
-    global::GPU_MEM, PPOCR_INSTANCE,
-};
+use crate::{global::GPU_MEM, PPOCR_INSTANCE};
 ///初始化DLL设置
 ///
 /// 参数
@@ -12,7 +10,7 @@ use crate::{
 /// {bool} 初始化是否成功
 #[tauri::command]
 pub async fn init(gpu_mem: Option<i32>) -> Result<bool, ()> {
-    let ppocr= PPOCR_INSTANCE.clone();
+    let ppocr = PPOCR_INSTANCE.clone();
     let gpu_mem: i32 = match gpu_mem {
         Some(gpu_mem) => gpu_mem,
         None => 1000,
@@ -25,4 +23,3 @@ pub async fn init(gpu_mem: Option<i32>) -> Result<bool, ()> {
     }
     Ok(res)
 }
-

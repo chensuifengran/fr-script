@@ -35,7 +35,7 @@ pub struct HookEvent {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct MergeKeyOptions{
+pub struct MergeKeyOptions {
     //合并重复按键
     pub merge_repeat: bool,
     //需要合并的重复按键按下时间最大间隔，超过该值则不进行合并
@@ -45,9 +45,9 @@ pub struct MergeKeyOptions{
     //需要合并的按下释放间隔，超过该值则不进行合并
     pub press_release_max_interval_ms: u128,
 }
-impl Default for MergeKeyOptions{
+impl Default for MergeKeyOptions {
     fn default() -> Self {
-        MergeKeyOptions{
+        MergeKeyOptions {
             merge_repeat: true,
             repeat_max_interval_ms: 50,
             merge_press_release: true,
@@ -61,7 +61,7 @@ impl MergeKeyOptions {
     }
 }
 #[derive(Debug, Clone, Deserialize)]
-pub struct MergeMouseOptions{
+pub struct MergeMouseOptions {
     //合并鼠标按下和释放
     pub merge: bool,
     //需要合并的按下释放间隔，超过该值则不进行合并
@@ -69,9 +69,9 @@ pub struct MergeMouseOptions{
     //按下释放坐标不一样则进行拖拽合并
     pub merge_drag: bool,
 }
-impl Default for MergeMouseOptions{
+impl Default for MergeMouseOptions {
     fn default() -> Self {
-        MergeMouseOptions{
+        MergeMouseOptions {
             merge: true,
             max_interval_ms: 300,
             merge_drag: true,
