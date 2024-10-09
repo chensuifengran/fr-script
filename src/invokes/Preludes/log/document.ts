@@ -5,7 +5,7 @@ export const apiDocument = <ApiDocumentType>{
       name: "msg",
       required: true,
       instructions: "要输出的日志信息",
-      type: "string",
+      type: "any",
       default: "",
     },
     {

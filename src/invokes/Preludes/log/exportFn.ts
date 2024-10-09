@@ -3,13 +3,18 @@ import { getFileInfo } from "../../../hooks/useScriptApi";
 import { useLog } from "../../../hooks/useLog";
 
 export const logFn = (
-  msg: string,
+  _msg: any,
   type?: "success" | "danger" | "info" | "warning" | "loading",
-  taskId?: string
+  taskId?: string,
+  force: boolean = false
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
+  const { taskRunStatus } = useScriptView();
   if (taskId && notAllowedFnId.value.includes(taskId)) {
     return false;
+  }
+  if (!force && taskRunStatus.value === "done") {
+    return;
   }
   const date = new Date(Date.now());
   //获取时分秒，时分秒不足两位补0
@@ -19,6 +24,7 @@ export const logFn = (
     })
     .join(":");
   const { logOutput } = useLog();
+  const msg = typeof _msg === "string" ? _msg : JSON.stringify(_msg);
   logOutput.push({
     id: nanoid(),
     time: timeStr,

@@ -1,6 +1,6 @@
 export const declaration = `
 function log(
-  msg: string,
+  msg: any,
   type?: "success" | "danger" | "info" | "warning" | "loading"
 ):void;
 `
