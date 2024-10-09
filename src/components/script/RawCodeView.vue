@@ -18,7 +18,7 @@
 <script lang="ts" setup>
 import { PropType } from 'vue';
 import { codeHighLight } from '../../utils/codeHighLight';
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 const props = defineProps({
   //未使用codeHighLight处理过的代码
   rawCode: {

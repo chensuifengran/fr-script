@@ -138,7 +138,8 @@
 import { nanoid } from "nanoid";
 import { SelectOption } from "../utils/dataStructure";
 import { InvokeTemplateOptions } from "../utils/invokeTemplate";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+const appWindow = getCurrentWebviewWindow()
 const linkTarget = ref("");
 const IMFRef = ref<any>();
 const IMFRef_manager = ref<any>();

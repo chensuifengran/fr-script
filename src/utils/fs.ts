@@ -1,7 +1,7 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 
-import { DialogFilter, open, save } from "@tauri-apps/api/dialog";
+import { DialogFilter, open, save } from "@tauri-apps/plugin-dialog";
 const getFileInfo = async (
   path: string
 ): Promise<
@@ -90,7 +90,7 @@ const selectFile = async (multiple = true, filters?: DialogFilter[]) => {
     directory: false,
     defaultPath: appGSStore.envSetting.workDir || (await appDataDir()),
   });
-  return result;
+  return result as string | string[] | null;
 };
 const selectDir = async () => {
   const appGSStore = useAppGlobalSettings();

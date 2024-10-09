@@ -406,9 +406,9 @@ import { CheckboxValueType } from "element-plus";
 import { SelectOption } from "../utils/dataStructure";
 import { InvokeTemplateOptions } from "../utils/invokeTemplate";
 import { nanoid } from "nanoid";
-import { exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/plugin-fs";
 import { listen } from "@tauri-apps/api/event";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 type ExtraProperties = {
   enabled?: boolean;
   disabled?: boolean;
@@ -570,11 +570,15 @@ onBeforeUnmount(() => {
   }
 });
 onMounted(async () => {
-  unListen = await listen("tauri://focus", (e: any) => {
-    if (e.windowLabel === getCurrent().label) {
+  unListen = await listen(
+    "tauri://focus",
+    (_) => {
       updateCodes();
+    },
+    {
+      target: getCurrentWebviewWindow().label,
     }
-  });
+  );
   await initData();
   updateCodes();
 });

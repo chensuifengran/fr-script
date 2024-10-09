@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/plugin-fs";
 
 const props = defineProps({
   label: {

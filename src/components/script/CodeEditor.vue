@@ -459,7 +459,7 @@ const loadContent = async (type: "focus" | "init" = "init", path?: string) => {
   setText(EDITOR_DOM_ID, fileInfo.originData);
   type === "focus" && ElMessage.info("已载入最新内容");
 };
-const { createWindow } = useWebviewWindow();
+const { open } = windowUtil;
 const querySearch = (
   queryString: string,
   cb: (results: CodeSnippet[]) => void
@@ -484,7 +484,7 @@ const querySearch = (
 };
 onMounted(async () => {
   if (!IS_PLAYGROUND_ENV) {
-    createWindow("ORW", "/ORW", {
+    open("ORW", "/ORW", {
       height: 40,
       width: 180,
       alwaysOnTop: true,

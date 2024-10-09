@@ -6,10 +6,14 @@
           安装成功：<el-tag size="small">{{ installInfo.success }}</el-tag>
         </div>
         <div>
-          安装失败：<el-tag type="danger" size="small">{{ installInfo.fail }}</el-tag>
+          安装失败：<el-tag type="danger" size="small">{{
+            installInfo.fail
+          }}</el-tag>
         </div>
         <div v-if="installInfo.failLabel.length">安装失败的依赖名：</div>
-        <el-tag v-for="f in installInfo.failLabel" :key="f" type="info">{{ f }}</el-tag>
+        <el-tag v-for="f in installInfo.failLabel" :key="f" type="info">{{
+          f
+        }}</el-tag>
       </div>
       <div v-else-if="!selectedDeps.length && !installInfo.installed">
         <el-empty
@@ -28,26 +32,38 @@
         {{ tag.label }}
       </el-tag>
     </div>
-    <div class="btns" v-loading="installInfo.loading" element-loading-text="安装中">
+    <div
+      class="btns"
+      v-loading="installInfo.loading"
+      element-loading-text="安装中"
+    >
       <el-button class="clear-btn" @click="clear" v-if="selectedDeps.length"
         >清空列表</el-button
       >
-      <el-button class="select-btn" @click="selectDeps()">选择本地依赖文件</el-button>
+      <el-button class="select-btn" @click="selectDeps()"
+        >选择本地依赖文件</el-button
+      >
       <el-button
         class="install-btn"
         @click="install"
         type="primary"
         :disabled="!selectedDeps.length"
-        >安装{{ selectedDeps.length ? `(${selectedDeps.length})` : "" }}</el-button
+        >安装{{
+          selectedDeps.length ? `(${selectedDeps.length})` : ""
+        }}</el-button
       >
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-import { FileDropEvent, appWindow } from "@tauri-apps/api/window";
+import {
+  DragDropEvent,
+  getCurrentWebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
 import { UnlistenFn } from "@tauri-apps/api/event";
-import { relaunch } from "@tauri-apps/api/process";
+import { relaunch } from "@tauri-apps/plugin-process";
+const appWindow = getCurrentWebviewWindow();
 
 const selectedDeps = ref<
   {
@@ -70,18 +86,18 @@ const installInfo = reactive({
 
 let unListenFileDrop: UnlistenFn;
 const fileDropHandle = (event: any) => {
-  const paths = event.payload;
+  const { paths } = event.payload;
   if (Array.isArray(paths)) {
     selectDeps(paths);
   }
 };
-//当组件出现在页面上时，计算content的最大高度
 onMounted(async () => {
-  unListenFileDrop = await appWindow.listen<FileDropEvent>(
-    "tauri://file-drop",
+  unListenFileDrop = await appWindow.listen<DragDropEvent>(
+    "tauri://drag-drop",
     fileDropHandle
   );
   await nextTick();
+  //当组件出现在页面上时，计算content的最大高度
   const { height } = contentRef.value!.getBoundingClientRect();
   contentMaxHeight.value = `${height}px`;
 });
@@ -124,7 +140,9 @@ const selectDeps = async (paths?: string[]) => {
     //如果新加入的依赖存在base_dep_pkg.7z则判断是否存在simple_dep_pkg.7z，若存在则删除simple_dep_pkg.7z
     const baseDep = res.find((item) => item.label.includes("base_dep_pkg.7z"));
     if (baseDep) {
-      const simpleDep = res.find((item) => item.label.includes("simple_dep_pkg.7z"));
+      const simpleDep = res.find((item) =>
+        item.label.includes("simple_dep_pkg.7z")
+      );
       if (simpleDep) {
         res.splice(res.indexOf(simpleDep), 1);
         ElNotification({
@@ -170,9 +188,8 @@ const startInstall = async (restart = false) => {
   installInfo.fail = 0;
   installInfo.failLabel = [];
   const copyArr = selectedDeps.value.slice(0);
-  const isFullVersionInstallBaseVersion = await checkFullVersionInstallBaseVersion(
-    copyArr
-  );
+  const isFullVersionInstallBaseVersion =
+    await checkFullVersionInstallBaseVersion(copyArr);
   for (let i = 0; i < copyArr.length; i++) {
     const dep = selectedDeps.value.pop();
     if (dep) {
@@ -226,7 +243,9 @@ const startInstall = async (restart = false) => {
 };
 const install = async () => {
   let needRestart = false;
-  const target = selectedDeps.value.find((i) => i.path.includes("screenOperation.dll"));
+  const target = selectedDeps.value.find((i) =>
+    i.path.includes("screenOperation.dll")
+  );
   if (target) {
     const isExist = await libUtil.libExists("screenOperation.dll");
     if (isExist) {
@@ -234,11 +253,15 @@ const install = async () => {
     }
   }
   if (needRestart) {
-    ElMessageBox.confirm("检测到存在文件更新后需要重启才能生效，是否继续？", "提示", {
-      confirmButtonText: "继续",
-      cancelButtonText: "取消",
-      type: "warning",
-    }).then(async () => {
+    ElMessageBox.confirm(
+      "检测到存在文件更新后需要重启才能生效，是否继续？",
+      "提示",
+      {
+        confirmButtonText: "继续",
+        cancelButtonText: "取消",
+        type: "warning",
+      }
+    ).then(async () => {
       await libUtil.pushUpdateDep(target!.path);
       await startInstall(true);
     });

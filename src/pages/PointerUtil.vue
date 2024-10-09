@@ -46,8 +46,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { isRegistered, register, unregister } from "@tauri-apps/api/globalShortcut";
-import { appWindow } from "@tauri-apps/api/window";
+import { isRegistered, register, unregister } from "@tauri-apps/plugin-global-shortcut";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+const appWindow = getCurrentWebviewWindow()
 const { appAsideBgColor, appBackground } = useAppTheme();
 const globalShortcutStore = useGlobalShortcutsStore();
 const copyRgb = (rgb: [number, number, number]) => {

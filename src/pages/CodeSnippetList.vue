@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts" setup>
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { DialogBeforeCloseFn } from "element-plus";
 import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";

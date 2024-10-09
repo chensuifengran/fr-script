@@ -2,8 +2,13 @@
 import { useRouter } from "vue-router";
 import { topRoutes, bottomRoutes } from "./router/routers";
 import { storeToRefs } from "pinia";
-import { appWindow } from "@tauri-apps/api/window";
-import { register, unregister } from "@tauri-apps/api/globalShortcut";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import {
+  isRegistered,
+  register,
+  unregister,
+} from "@tauri-apps/plugin-global-shortcut";
+const appWindow = getCurrentWebviewWindow();
 const { registerAllInvokeApi } = useCore();
 const { isMainWindow, menuKey } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
@@ -97,7 +102,9 @@ onMounted(async () => {
     if (appWindow.label === "main") {
       const showMainWindowShortcuts =
         shortcutsStore.getShortcuts("强制显示主窗口");
-      await unregister(showMainWindowShortcuts);
+      if (await isRegistered(showMainWindowShortcuts)) {
+        await unregister(showMainWindowShortcuts);
+      }
       register(showMainWindowShortcuts, () => appWindow.show());
     }
     const currentWindowLabel = appWindow.label;

@@ -5,21 +5,33 @@
     </div>
     <div class="header-r">
       <div data-tauri-drag-region style="cursor: move" class="move"></div>
-      <el-input @input="changeSearchValue(searchValue)" class="input" v-model="searchValue" clearable
-        placeholder="可输入API的关键字对API进行筛选">
+      <el-input
+        @input="changeSearchValue(searchValue)"
+        class="input"
+        v-model="searchValue"
+        clearable
+        placeholder="可输入API的关键字对API进行筛选"
+      >
       </el-input>
-      <el-button class="circle-btn" type="info" circle @click="openOutput"><el-icon>
-          <span i-solar-notification-unread-linear></span>
-        </el-icon></el-button>
-      <el-button class="circle-btn" type="info" circle @click="showApiTestButton"><el-icon>
-        <span i-mdi-minus></span>
-        </el-icon></el-button>
+      <el-button class="circle-btn" type="info" circle @click="openOutput"
+        ><el-icon> <span i-solar-notification-unread-linear></span> </el-icon
+      ></el-button>
+      <el-button
+        class="circle-btn"
+        type="info"
+        circle
+        @click="showApiTestButton"
+        ><el-icon> <span i-mdi-minus></span> </el-icon
+      ></el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getAll, getCurrent } from "@tauri-apps/api/window";
+import {
+  getAllWebviewWindows,
+  getCurrentWebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
 import { ElMessageBox } from "element-plus";
 
 const searchValue = ref("");
@@ -34,11 +46,11 @@ defineProps({
   },
 });
 const showApiTestButton = () => {
-  getCurrent().hide();
-  const mainWindow = getAll().find((w) => w.label === "main");
-  if (mainWindow) {
-    mainWindow.setFocus();
-  }
+  getCurrentWebviewWindow().hide();
+  getAllWebviewWindows().then((w) => {
+    const mainWindow = w.find((w) => w.label === "main");
+    mainWindow?.setFocus();
+  });
 };
 const { isMainWindow } = useAppLayout();
 const { appAsideBgColor, appBackground } = useAppTheme();

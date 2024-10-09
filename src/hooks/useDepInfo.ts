@@ -1,5 +1,5 @@
-import { WebviewWindow } from "@tauri-apps/api/window";
 import { UnlistenFn } from "@tauri-apps/api/event";
+import { type WebviewWindowUtil } from "../utils/windowUtil";
 const allLibsName = ref<string[]>([]);
 const lackDependence = reactive<NeedUpdateDepType[][]>([]);
 const activeDrewerName = ref("lackDepDownload");
@@ -7,10 +7,11 @@ const contentLoading = ref(false);
 const needUpdateDepList = ref<NeedUpdateDepType[]>([]);
 const depPkgList = ref<DepPkgItemType[]>([]);
 const { notify } = eventUtil;
-let depManagerWindow: WebviewWindow | null = null;
+let depManagerWindow: WebviewWindowUtil | null = null;
+let unlistenFn: UnlistenFn = () => {};
+const { open } = windowUtil;
 const goInstallDeps = async (target?: string) => {
-  if(IS_PLAYGROUND_ENV){
-    //playground环境
+  if (IS_PLAYGROUND_ENV) {
     ElNotification({
       title: "提示",
       message: "playground环境不支持依赖管理",
@@ -19,14 +20,23 @@ const goInstallDeps = async (target?: string) => {
     });
     return;
   }
+  notify
+    .listen((e) => {
+      const { type } = e.payload;
+      if (type === "message") {
+        const { payload: data } = e.payload;
+        if (data?.name === "sentDataToMain") {
+          syncMainData();
+        } else if (data?.name === "closeDepManager") {
+          closeDepManagerWindow();
+        }
+      }
+    })
+    .then((fn) => (unlistenFn = fn));
   contentLoading.value = true;
-  depManagerWindow = useWebviewWindow().createWindow(
-    "depManager",
-    "/depManager",
-    {
-      fileDropEnabled: true,
-    }
-  );
+  depManagerWindow = await open("depManager", "/depManager", {
+    dragDropEnabled: true,
+  });
   if (target && (typeof target === "string" || typeof target === "number")) {
     activeDrewerName.value = target;
   } else {
@@ -36,35 +46,8 @@ const goInstallDeps = async (target?: string) => {
   contentLoading.value = false;
 };
 
-let unlistenFn: UnlistenFn;
-if (!IS_PLAYGROUND_ENV) {
-  //非playground环境
-  notify
-    .listen((e) => {
-      if (e.windowLabel === "main") {
-        const { type, payload: data } = e.payload;
-        if (type === "message") {
-          if (data?.name === "sentDataToMain") {
-            syncMainData();
-          }
-        }
-      } else {
-        const { type, payload: data } = e.payload;
-        if (type === "message") {
-          if (data?.name === "closeDepManager") {
-            closeDepManagerWindow();
-          }
-        }
-      }
-    })
-    .then((fn) => (unlistenFn = fn));
-} else {
-  unlistenFn = () => {};
-}
-
 const syncMainData = () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   notify.send({
@@ -79,15 +62,11 @@ const syncMainData = () => {
     },
   });
 };
-const closeDepManagerWindow = () => {
+const closeDepManagerWindow = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
-  if (!depManagerWindow) {
-    const w = WebviewWindow.getByLabel("depManager");
-    w && w.close();
-  } else {
+  if (!depManagerWindow?.isClosed()) {
     depManagerWindow?.close();
     depManagerWindow = null;
   }
@@ -95,7 +74,6 @@ const closeDepManagerWindow = () => {
 };
 const close = () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   notify.send({
@@ -103,7 +81,7 @@ const close = () => {
   });
 };
 const syncData = (data: any) => {
-  if(IS_PLAYGROUND_ENV || !data){
+  if (IS_PLAYGROUND_ENV || !data) {
     return;
   }
   const {

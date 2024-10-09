@@ -75,8 +75,9 @@
   </el-drawer>
 </template>
 <script lang="ts" setup>
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useLocalStorageState } from "vue-hooks-plus";
+const appWindow = getCurrentWebviewWindow()
 
 const { saveDialog, saveConfig, showCopyBtn } = useCodeSnippetSave();
 const { openOperationRecordDrawer } = useEditor();

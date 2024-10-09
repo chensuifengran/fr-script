@@ -30,15 +30,19 @@
         type="danger"
         @click="stopRecording"
         circle
-        ><el-icon>
-          <span i-mdi-stop-circle-outline></span> </el-icon
+        ><el-icon> <span i-mdi-stop-circle-outline></span> </el-icon
       ></el-button>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
+import { LogicalSize } from "@tauri-apps/api/dpi";
 import { UnlistenFn } from "@tauri-apps/api/event";
-import { LogicalSize, WebviewWindow, appWindow } from "@tauri-apps/api/window";
+import {
+  WebviewWindow,
+  getCurrentWebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
+const appWindow = getCurrentWebviewWindow();
 const { borderRadius, appOpacity, oppositeBgColor } = useAppTheme();
 
 const loadingTime = ref(1);
@@ -83,7 +87,7 @@ onBeforeUnmount(() => {
 });
 const stopRecording = async () => {
   await invokeBaseApi.stopCaptureOperation();
-  WebviewWindow.getByLabel("main")?.show();
+  (await WebviewWindow.getByLabel("main"))?.show();
   currentInterval && clearInterval(currentInterval);
   appWindow.hide();
 };

@@ -1,4 +1,4 @@
-import { exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/plugin-fs";
 export const getImgRectInfoFn = async (imgPath: string, taskId?: string) => {
   const { notAllowedFnId } = useScriptRuntime();
   if (taskId && notAllowedFnId.value.includes(taskId)) {

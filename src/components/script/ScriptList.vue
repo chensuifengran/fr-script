@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts" setup>
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { templateRef } from "@vueuse/core";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";

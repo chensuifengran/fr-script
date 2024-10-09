@@ -1,6 +1,6 @@
 import { getVersion } from "@tauri-apps/api/app";
-import { exists, renameFile } from "@tauri-apps/api/fs";
-import { invoke } from "@tauri-apps/api";
+import { exists, rename } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import { storeToRefs } from "pinia";
 let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
@@ -13,7 +13,7 @@ const renameLib = async (name: string, targetName: string) => {
     const installPath = await pathUtils.getInstallDir();
     const libPath = await pathUtils.join(installPath, name);
     const targetPath = await pathUtils.join(installPath, targetName);
-    await renameFile(libPath, targetPath);
+    await rename(libPath, targetPath);
   } catch (error) {
     console.error("库文件重命名失败：", error);
   }

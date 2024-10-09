@@ -74,18 +74,22 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { UnlistenFn } from "@tauri-apps/api/event";
 import {
   LogicalSize,
   PhysicalPosition,
   PhysicalSize,
-  WebviewWindow,
-  appWindow,
-} from "@tauri-apps/api/window";
+} from "@tauri-apps/api/dpi";
+import { UnlistenFn } from "@tauri-apps/api/event";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { WebviewWindowUtil } from "../utils/windowUtil";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
+const appWindow = getCurrentWindow();
+const appWebview = getCurrentWebview();
 const { borderRadius, appOpacity, appTransform, oppositeBgColor } =
   useAppTheme();
-const { createWindow } = useWebviewWindow();
-let adsorptionPredictionWindow: WebviewWindow | null;
+const { open } = windowUtil;
+let adsorptionPredictionWindow: WebviewWindowUtil | null;
 const loadingTime = ref(1);
 const useTime = computed(() => {
   const hours = Math.floor(loadingTime.value / 3600);
@@ -118,8 +122,8 @@ const scriptInfo = reactive<{
   },
 });
 let leaveWindow = false;
-const home = () => {
-  WebviewWindow.getByLabel("main")?.show();
+const home = async () => {
+  (await WebviewWindow.getByLabel("main"))?.show();
   appWindow.hide();
   leaveWindow = true;
 };
@@ -140,18 +144,19 @@ let absorbTimer: NodeJS.Timeout | undefined;
 const fullWindow = ref(true);
 watch(fullWindow, async () => {
   absorbTimer && clearTimeout(absorbTimer);
-  const mirrorWindow =
-    adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
   if (fullWindow.value) {
     //恢复窗口
     appTransform.value = `none`;
     borderRadius.value = "20px";
     await appWindow?.setSize(new LogicalSize(300, 40));
+    await appWebview?.setSize(new LogicalSize(300, 40));
     appOpacity.value = 1;
     await nextTick();
     if (stateCache.lastMirrorPos === "right") {
       if (SCREEN_SIZE) {
-        const appPos = await mirrorWindow?.outerPosition();
+        const appPos = await adsorptionPredictionWindow
+          ?.getWindow()
+          .outerPosition();
         await appWindow?.setPosition(
           new PhysicalPosition(SCREEN_SIZE.width - 300, appPos?.y || 0)
         );
@@ -172,6 +177,9 @@ watch(fullWindow, async () => {
         appWindow?.setSize(
           new LogicalSize(shrinkWidthOrHeight, appSize.height)
         );
+        appWebview?.setSize(
+          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+        );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
       }, 1000);
@@ -183,6 +191,9 @@ watch(fullWindow, async () => {
       borderRadius.value = "10px 0px 0px 10px";
       absorbTimer = setTimeout(async () => {
         await appWindow?.setSize(
+          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+        );
+        await appWebview?.setSize(
           new LogicalSize(shrinkWidthOrHeight, appSize.height)
         );
         await appWindow.setPosition(
@@ -202,11 +213,14 @@ watch(fullWindow, async () => {
         await appWindow?.setSize(
           new LogicalSize(appSize.width, shrinkWidthOrHeight)
         );
+        await appWebview?.setSize(
+          new LogicalSize(appSize.width, shrinkWidthOrHeight)
+        );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
       }, 1000);
     }
-    await mirrorWindow?.hide();
+    await adsorptionPredictionWindow?.hide();
   }
 });
 const getMirrorPos = async (
@@ -264,14 +278,12 @@ const updateMirrorWindow = async (
   winSize: PhysicalSize,
   winPos: PhysicalPosition
 ) => {
-  const mirrorWindow =
-    adsorptionPredictionWindow || WebviewWindow.getByLabel("floatWindow");
   if (!fullWindow.value) {
-    mirrorWindow?.hide();
+    adsorptionPredictionWindow?.hide();
     return;
   }
   if (mirrorPos === "") {
-    mirrorWindow?.hide();
+    adsorptionPredictionWindow?.hide();
     return;
   }
   if (mirrorPos === "top") {
@@ -279,35 +291,35 @@ const updateMirrorWindow = async (
       name: "borderRadius",
       message: "0 0 10px 10px",
     });
-    await mirrorWindow?.setSize(
+    await adsorptionPredictionWindow?.setSize(
       new LogicalSize(winSize.width, shrinkWidthOrHeight)
     );
-    await mirrorWindow?.setPosition(new PhysicalPosition(winPos.x, 0));
+    await adsorptionPredictionWindow?.setPos(new PhysicalPosition(winPos.x, 0));
   } else if (mirrorPos === "left") {
     await notify.sendCustom({
       name: "borderRadius",
       message: "0px 10px 10px 0px",
     });
-    await mirrorWindow?.setSize(
+    await adsorptionPredictionWindow?.setSize(
       new LogicalSize(shrinkWidthOrHeight, winSize.height)
     );
-    await mirrorWindow?.setPosition(new PhysicalPosition(0, winPos.y));
+    await adsorptionPredictionWindow?.setPos(new PhysicalPosition(0, winPos.y));
   } else if (mirrorPos === "right") {
     await notify.sendCustom({
       name: "borderRadius",
       message: "10px 0px 0px 10px",
     });
-    await mirrorWindow?.setSize(
+    await adsorptionPredictionWindow?.setSize(
       new LogicalSize(shrinkWidthOrHeight, winSize.height)
     );
     if (!SCREEN_SIZE) {
       SCREEN_SIZE = await invokeBaseApi.getScreenSize();
     }
-    await mirrorWindow?.setPosition(
+    await adsorptionPredictionWindow?.setPos(
       new PhysicalPosition(SCREEN_SIZE.width - shrinkWidthOrHeight, winPos.y)
     );
   }
-  await mirrorWindow?.show();
+  await adsorptionPredictionWindow?.show();
 };
 let unlistenNotify: UnlistenFn;
 let currentInterval: NodeJS.Timeout;
@@ -357,7 +369,7 @@ onMounted(async () => {
       }
     }
   });
-  adsorptionPredictionWindow = createWindow("floatWindow", "/floatWindow", {
+  adsorptionPredictionWindow = await open("floatWindow", "/floatWindow", {
     height: 300,
     width: 40,
     alwaysOnTop: false,
@@ -366,14 +378,15 @@ onMounted(async () => {
     name: "opacity",
     message: "0.5",
   });
-  nextTick(() => {
-    WebviewWindow.getByLabel("floatWindow")?.hide();
+  nextTick(async () => {
+    (await WebviewWindow.getByLabel("floatWindow"))?.hide();
   });
-  const timer = setTimeout(() => {
-    WebviewWindow.getByLabel("floatWindow")?.hide();
+  const timer = setTimeout(async () => {
+    (await WebviewWindow.getByLabel("floatWindow"))?.hide();
     clearTimeout(timer);
   }, 500);
   appWindow.setSize(new LogicalSize(300, 40));
+  appWebview.setSize(new LogicalSize(300, 40));
   borderRadius.value = "20px";
   checkStateInterval = setInterval(async () => {
     if (leaveWindow || !(await appWindow.isVisible())) {
@@ -403,11 +416,11 @@ onMounted(async () => {
     await updateMirrorWindow(mirrorPos, winSize, winPos);
   }, 200);
 });
-onBeforeUnmount(() => {
+onBeforeUnmount(async () => {
   currentInterval && clearInterval(currentInterval);
   checkStateInterval && clearInterval(checkStateInterval);
   unlistenNotify();
-  WebviewWindow.getByLabel("floatWindow")?.hide();
+  (await WebviewWindow.getByLabel("floatWindow"))?.hide();
 });
 </script>
 <style lang="scss" scoped>

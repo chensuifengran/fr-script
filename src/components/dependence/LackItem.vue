@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 
 const props = defineProps({
   item: {

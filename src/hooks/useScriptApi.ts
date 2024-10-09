@@ -1,6 +1,10 @@
 import { storeToRefs } from "pinia";
-import { appWindow, WebviewWindow } from "@tauri-apps/api/window";
+import {
+  getCurrentWebviewWindow,
+  WebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
 import { ScriptTarget, transpile } from "typescript";
+const appWindow = getCurrentWebviewWindow();
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -439,8 +443,11 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
       });
     }
     if (hideWindow.value && !IS_PLAYGROUND_ENV) {
-      WebviewWindow.getByLabel("main")?.show();
-      notify.done();
+      WebviewWindow.getByLabel("main")
+        .then((w) => {
+          w?.show();
+        })
+        .finally(notify.done);
     }
   } else if (state) {
     // useLog().clearLogOutput();
@@ -450,9 +457,9 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     if (endBeforeCompletion) {
       return;
     }
-    taskRunStatus.value = "done";
-    useBuiltInApi().Preludes.log("脚本执行完成", "success");
+    useBuiltInApi().Preludes.log("脚本执行完成", "success", undefined, true);
     setTaskEndStatus("success", "脚本执行完成");
+    taskRunStatus.value = "done";
     if (window[CORE_NAMESPACES]) {
       Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
         if (notDelApi.includes(key)) {
@@ -520,9 +527,7 @@ export const useScriptView = () => {
 };
 
 /**
- * 脚本运行时的所有内置api,返回新增内置API后请
- * 前往../invokes/utilDeclareTypes.ts中添加类型声明，
- * 用于提供给编辑器进行代码提示。
+ * 脚本运行时的所有内置api,return的对象会被注入到脚本运行时的上下文中
  */
 export const useBuiltInApi = () => {
   const { exportAllFn } = useCore();

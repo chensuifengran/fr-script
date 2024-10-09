@@ -1,7 +1,8 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 import { OCRResult } from "../invokes/ocr/exportFn";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useSessionStorageState } from "vue-hooks-plus";
+const appWindow = getCurrentWebviewWindow()
 let freeTimer: NodeJS.Timeout | null = null;
 const freeAllJson = () => {
   if (IS_PLAYGROUND_ENV) {

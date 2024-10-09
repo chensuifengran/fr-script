@@ -1,4 +1,4 @@
-import { readText, writeText } from "@tauri-apps/api/clipboard";
+import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
 
 export const execCopy = (text: string) => {
   if(text === undefined || text === null || text === ""){
