@@ -1,12 +1,14 @@
 import {
   isRegistered,
-  registerAll,
+  register,
+  type ShortcutHandler,
   unregister,
-} from "@tauri-apps/api/globalShortcut";
+} from "@tauri-apps/plugin-global-shortcut";
+import { sleepFn } from "../../Preludes/sleep/exportFn";
 
 export const listenFn = async (
-  keys: string[],
-  handler: (key: string) => void,
+  shortcuts: string | string[],
+  handler: ShortcutHandler,
   taskId?: string
 ) => {
   const { notAllowedFnId } = useScriptRuntime();
@@ -14,19 +16,25 @@ export const listenFn = async (
     return;
   }
   try {
-    for (const key of keys) {
-      await unregister(key);
+    //尝试取消已注册的快捷键
+    for (const shortcut of shortcuts) {
+      if (await isRegistered(shortcut)) {
+        await unregister(shortcut);
+      }
     }
-    for (const key of keys) {
-      if (await isRegistered(key)) {
-        console.error(`快捷键:${key}被其他程序占用，无法继续使用！`);
+    for (const shortcut of shortcuts) {
+      if (await isRegistered(shortcut)) {
+        console.error(`快捷键:${shortcut}被其他程序占用，无法继续使用！`);
         return;
       }
     }
-    await registerAll(keys, handler);
+    await register(shortcuts, handler);
     return async () => {
-      for (const key of keys) {
-        await unregister(key);
+      await sleepFn(0);
+      for (const shortcut of shortcuts) {
+        if (await isRegistered(shortcut)) {
+          await unregister(shortcut);
+        }
       }
     };
   } catch (error) {

@@ -2,17 +2,17 @@ export const apiDocument = <ApiDocumentType>{
   howToUse: "监听快捷键触发，触发后调用回调函数。",
   params: [
     {
-      name: "keys",
+      name: "shortcuts",
       required: true,
       instructions: "等待触发的快捷键，如：['Alt+S','Alt+E']",
-      type: "string[]",
+      type: "string | string[]",
       default: "",
     },
     {
       name: "handler",
       required: true,
       instructions: "快捷键触发后的回调函数，参数key为触发的快捷键",
-      type: "(key:string)=>void",
+      type: `ShortcutHandler`,
       default: "",
     },
   ],
@@ -23,7 +23,7 @@ export const apiDocument = <ApiDocumentType>{
   example: {
     title: '该API在"测试调用"后会动态填入参数到示例',
     code: `//等待 Alt+S 或 Alt+R 被按下
-const unlisten = await GlobalShortcut.listen(["Alt+S","Alt+R"],(key)=>{console.log(key);});//监听快捷键
+const unlisten = await GlobalShortcut.listen(["Alt+S","Alt+R"],(event)=>{console.log(event);});//监听快捷键
 //取消监听
 if(unlisten){
   await unlisten();
@@ -31,5 +31,5 @@ if(unlisten){
   },
   searchKeys: ["unlisten", "listen", "触发", "快捷键"],
   codeSnippet:
-    "const unlisten = await GlobalShortcut.listen(['${1:key}'],(key)=>{${2:}});",
+    "const unlisten = await GlobalShortcut.listen(['${1:shortcut}'],(event)=>{${2:}});",
 };

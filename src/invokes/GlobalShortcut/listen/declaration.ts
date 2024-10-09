@@ -1,6 +1,12 @@
 export const declaration = `
+type ShortcutEvent = {
+  shortcut: string;
+  id: number;
+  state: 'Released' | 'Pressed';
+}
+type ShortcutHandler = (event: ShortcutEvent) => void;
 function listen(
-  keys:string[],
-  handler:(key:string)=>void,
+  shortcuts: string | string[],
+  handler: ShortcutHandler,
 ):Promise<(() => Promise<void>) | undefined>;
 `

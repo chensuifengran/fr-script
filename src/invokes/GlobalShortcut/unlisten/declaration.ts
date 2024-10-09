@@ -1,5 +1,3 @@
 export const declaration = `
-function unlisten(
-  keys:string[]
-):Promise<void>;
+function unlisten(shortcuts: string | string[]): Promise<void>;
 `
