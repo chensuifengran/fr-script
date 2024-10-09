@@ -1,9 +1,9 @@
 import { auxiliary } from "./auxiliary";
-import { waitKeysFn } from "./exportFn";
+import { waitShortcutsFn } from "./exportFn";
 
 export const modelCallback = async (
   options: {
-    keys: string[];
+    shortcuts: string[];
     delay: number;
     replaceCurFnArgs?: (targetArgs: string) => void;
   },
@@ -24,14 +24,14 @@ export const modelCallback = async (
       }, options.delay);
     });
   }
-  console.time("waitKeys耗时");
-  const res = await waitKeysFn(options.keys);
-  console.timeEnd("waitKeys耗时");
-  testModuleCtx.showDetails(JSON.stringify(res), "waitKeys");
+  console.time("waitShortcuts耗时");
+  const res = await waitShortcutsFn(options.shortcuts);
+  console.timeEnd("waitShortcuts耗时");
+  testModuleCtx.showDetails(JSON.stringify(res), "waitShortcuts");
   const selfModule = getInvokeApiMethods().find(
-    (i) => i.name === "waitKeys" && i.scope === "GlobalShortcut"
+    (i) => i.name === "waitShortcuts" && i.scope === "GlobalShortcut"
   )?.testModule!;
-  selfModule.document!.example!.code = `await Input.waitKeys([${options.keys
+  selfModule.document!.example!.code = `await Input.waitShortcuts([${options.shortcuts
     .map((key) => `"${key}"`)
     .join(", ")}]);`;
 };

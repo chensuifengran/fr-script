@@ -1,15 +1,15 @@
-import { waitKeysFn } from "./exportFn";
+import { waitShortcutsFn } from "./exportFn";
 import { modelCallback } from "./modelCallback";
 import { apiDocument } from "./document";
 import { dialogOptions } from "./dialog";
 import { declaration } from "./declaration";
 import { auxiliary } from "./auxiliary";
 
-export const waitKeysApi = <InvokeApiMethodType>{
-  name: "waitKeys",
+export const waitShortcutsApi = <InvokeApiMethodType>{
+  name: "waitShortcuts",
   scope: "GlobalShortcut",
   exportFn: {
-    fn: waitKeysFn,
+    fn: waitShortcutsFn,
   },
   testModule: {
     weight: 4,

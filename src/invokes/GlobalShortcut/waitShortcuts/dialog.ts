@@ -1,10 +1,10 @@
 export const dialogOptions = {
   title: "等待快捷键触发",
-  targetMethodName: "waitKeys",
+  targetMethodName: "waitShortcuts",
   content: "等待快捷键触发, 返回触发的快捷键名称, 若快捷键冲突则返回undefined",
   args: [
     {
-      name: "keys",
+      name: "shortcuts",
       componentType: "select",
       value: [],
       label: "等待触发的按键(可多选创建)",
