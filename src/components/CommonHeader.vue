@@ -52,18 +52,21 @@ const warpHeight = computed(() => {
 const pointerEvents = computed(() => (props.allowDrag ? "none" : "all"));
 const cursor = computed(() => (props.allowDrag ? "move" : "auto"));
 const emit = defineEmits(["back"]);
-const goBack = () => {
-  emit("back");
-};
+const goBack = () => emit("back");
 const updateContentWidth = () => {
   const ww = headerWarp.value?.offsetWidth || 0;
   const ew = extraRef.value?.offsetWidth || 0;
   contentWidth.value = Math.floor(ww - ew - 10) + "px";
 };
-onUpdated(()=>{
-  nextTick(()=>{
-    updateContentWidth();
-  });
+onUpdated(() => {
+  nextTick(updateContentWidth);
+});
+onMounted(() => {
+  updateContentWidth();
+  window.addEventListener("resize", updateContentWidth);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateContentWidth);
 });
 </script>
 
