@@ -74,11 +74,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {
-  LogicalSize,
-  PhysicalPosition,
-  PhysicalSize,
-} from "@tauri-apps/api/dpi";
+import { PhysicalPosition, PhysicalSize } from "@tauri-apps/api/dpi";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { WebviewWindowUtil } from "../utils/windowUtil";
@@ -148,8 +144,8 @@ watch(fullWindow, async () => {
     //恢复窗口
     appTransform.value = `none`;
     borderRadius.value = "20px";
-    await appWindow?.setSize(new LogicalSize(300, 40));
-    await appWebview?.setSize(new LogicalSize(300, 40));
+    await appWindow?.setSize(new PhysicalSize(300, 40));
+    await appWebview?.setSize(new PhysicalSize(300, 40));
     appOpacity.value = 1;
     await nextTick();
     if (stateCache.lastMirrorPos === "right") {
@@ -175,10 +171,10 @@ watch(fullWindow, async () => {
       borderRadius.value = "0px 10px 10px 0px";
       absorbTimer = setTimeout(() => {
         appWindow?.setSize(
-          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+          new PhysicalSize(shrinkWidthOrHeight, appSize.height)
         );
         appWebview?.setSize(
-          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+          new PhysicalSize(shrinkWidthOrHeight, appSize.height)
         );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
@@ -191,10 +187,10 @@ watch(fullWindow, async () => {
       borderRadius.value = "10px 0px 0px 10px";
       absorbTimer = setTimeout(async () => {
         await appWindow?.setSize(
-          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+          new PhysicalSize(shrinkWidthOrHeight, appSize.height)
         );
         await appWebview?.setSize(
-          new LogicalSize(shrinkWidthOrHeight, appSize.height)
+          new PhysicalSize(shrinkWidthOrHeight, appSize.height)
         );
         await appWindow.setPosition(
           new PhysicalPosition(
@@ -211,10 +207,10 @@ watch(fullWindow, async () => {
       borderRadius.value = "0px 0px 10px 10px";
       absorbTimer = setTimeout(async () => {
         await appWindow?.setSize(
-          new LogicalSize(appSize.width, shrinkWidthOrHeight)
+          new PhysicalSize(appSize.width, shrinkWidthOrHeight)
         );
         await appWebview?.setSize(
-          new LogicalSize(appSize.width, shrinkWidthOrHeight)
+          new PhysicalSize(appSize.width, shrinkWidthOrHeight)
         );
         appOpacity.value = 0.5;
         clearTimeout(absorbTimer);
@@ -292,7 +288,7 @@ const updateMirrorWindow = async (
       message: "0 0 10px 10px",
     });
     await adsorptionPredictionWindow?.setSize(
-      new LogicalSize(winSize.width, shrinkWidthOrHeight)
+      new PhysicalSize(winSize.width, shrinkWidthOrHeight)
     );
     await adsorptionPredictionWindow?.setPos(new PhysicalPosition(winPos.x, 0));
   } else if (mirrorPos === "left") {
@@ -301,7 +297,7 @@ const updateMirrorWindow = async (
       message: "0px 10px 10px 0px",
     });
     await adsorptionPredictionWindow?.setSize(
-      new LogicalSize(shrinkWidthOrHeight, winSize.height)
+      new PhysicalSize(shrinkWidthOrHeight, winSize.height)
     );
     await adsorptionPredictionWindow?.setPos(new PhysicalPosition(0, winPos.y));
   } else if (mirrorPos === "right") {
@@ -310,7 +306,7 @@ const updateMirrorWindow = async (
       message: "10px 0px 0px 10px",
     });
     await adsorptionPredictionWindow?.setSize(
-      new LogicalSize(shrinkWidthOrHeight, winSize.height)
+      new PhysicalSize(shrinkWidthOrHeight, winSize.height)
     );
     if (!SCREEN_SIZE) {
       SCREEN_SIZE = await invokeBaseApi.getScreenSize();
@@ -385,8 +381,8 @@ onMounted(async () => {
     (await WebviewWindow.getByLabel("floatWindow"))?.hide();
     clearTimeout(timer);
   }, 500);
-  appWindow.setSize(new LogicalSize(300, 40));
-  appWebview.setSize(new LogicalSize(300, 40));
+  appWindow.setSize(new PhysicalSize(300, 40));
+  appWebview.setSize(new PhysicalSize(300, 40));
   borderRadius.value = "20px";
   checkStateInterval = setInterval(async () => {
     if (leaveWindow || !(await appWindow.isVisible())) {
