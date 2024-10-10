@@ -43,6 +43,7 @@ watch(
     }, 300);
   }
 );
+const ingoreObserver = ref(true);
 export const useAutoTitleBar = () => {
   return {
     info,
@@ -52,5 +53,6 @@ export const useAutoTitleBar = () => {
     needSyncLastData,
     searchInfo,
     trueSearch,
+    ingoreObserver
   };
 };

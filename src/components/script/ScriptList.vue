@@ -443,7 +443,7 @@ const setScript = (index: number) => {
   router.replace("/script/setting");
 };
 
-const { trueSearch, searchInfo } = useAutoTitleBar();
+const { trueSearch, searchInfo, ingoreObserver } = useAutoTitleBar();
 
 const disableSort = computed(() => {
   return trueSearch.value !== "";
@@ -483,11 +483,15 @@ const showList = computed({
 });
 const observerCallback: IntersectionObserverCallback = (entries) => {
   entries.forEach((entry) => {
+    if (ingoreObserver.value) {
+      return;
+    }
     searchInfo.show = !entry.isIntersecting;
   });
 };
 let observer: IntersectionObserver;
 onUnmounted(() => {
+  ingoreObserver.value = true;
   searchInfo.show = false;
   searchInfo.target = SearchTarget.None;
   if (observer && headerRef.value) {

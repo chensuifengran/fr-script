@@ -1,5 +1,5 @@
 <template>
-  <div class="console-main">
+  <div class="console-main" @scroll="onScrollHandler">
     <router-view v-slot="{ Component }">
       <component :is="Component" />
     </router-view>
@@ -23,6 +23,12 @@ const mainBorderRadius = computed(() => {
     return "10px 10px 10px 0";
   }
 });
+const { ingoreObserver } = useAutoTitleBar();
+const onScrollHandler = () => {
+  if (ingoreObserver.value) {
+    ingoreObserver.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>

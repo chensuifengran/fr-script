@@ -1,5 +1,5 @@
 <template>
-  <div class="container-root">
+  <div class="container-root" @scroll="onScrollHandler">
     <el-drawer
       v-model="showEditor"
       :title="targetName"
@@ -356,7 +356,7 @@ const imoprtScript = async () => {
     });
   }
 };
-const { trueSearch, searchInfo } = useAutoTitleBar();
+const { trueSearch, searchInfo, ingoreObserver } = useAutoTitleBar();
 
 const disableSort = computed(() => {
   return trueSearch.value !== "";
@@ -406,12 +406,16 @@ const mainBorderRadius = computed(() => {
 });
 const observerCallback: IntersectionObserverCallback = (entries) => {
   entries.forEach((entry) => {
+    if (ingoreObserver.value) {
+      return;
+    }
     searchInfo.show = !entry.isIntersecting;
   });
 };
 let observer: IntersectionObserver;
 onUnmounted(() => {
   disposeEditor();
+  ingoreObserver.value = true;
   searchInfo.show = false;
   searchInfo.target = SearchTarget.None;
   if (observer && headerRef.value) {
@@ -426,6 +430,11 @@ onMounted(() => {
   }
   searchInfo.target = SearchTarget.CodeSnippetList;
 });
+const onScrollHandler = () => {
+  if (ingoreObserver.value) {
+    ingoreObserver.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
