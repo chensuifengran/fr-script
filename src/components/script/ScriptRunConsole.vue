@@ -44,9 +44,10 @@
       </el-tooltip>
     </common-header>
     <div v-show="taskRunStatus === 'running'" class="end-box">
-      <div>
-        <span class="s-name"
-          >{{ name || "未保存的临时脚本" }} : {{ version || "未知版本" }}</span
+      <div class="info">
+        <el-text truncated class="s-name"
+          >{{ name || "未保存的临时脚本" }} :
+          {{ version || "未知版本" }}</el-text
         >
         <el-tag class="mgl-5" size="small" type="info" v-show="savePath">{{
           savePath
@@ -54,7 +55,7 @@
         <el-tag class="mgl-5" size="small" type="success">运行中</el-tag>
         <DotLoader style="margin-left: 15px" />
       </div>
-      <div>
+      <div class="op">
         <el-button
           @click="enableFloatWindow(false)"
           v-show="taskRunStatus === 'running'"
@@ -481,6 +482,21 @@ onUnmounted(async () => {
     align-items: center;
     border-bottom: 1px #eee solid;
     padding: 5px;
+    position: relative;
+    width: 100%;
+    .info {
+      width: calc(100% - 180px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .op {
+      width: 180px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+    }
   }
 
   .console-log-div {
