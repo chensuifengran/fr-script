@@ -1,37 +1,32 @@
 <template>
   <div class="script-setting-div">
-    <el-page-header @back="goBack" class="header" title="脚本列表">
-      <template #content>
-        <div class="title-content">
-          <span>设置</span>
-          <el-tag type="info" class="ml-10" size="small">{{
-            targetIndex !== -1 ? target.name : "出现问题，请联系开发者"
-          }}</el-tag>
-        </div>
-      </template>
-      <template #extra>
-        <div class="title-end">
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="编辑脚本"
-            placement="bottom"
-          >
-            <code-icon class="icon" @click.stop="editorScriptFile" />
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="运行脚本"
-            placement="bottom"
-          >
-            <el-icon class="icon" @click.stop="runScript"
-              ><span i-mdi-play-circle-outline></span
-            ></el-icon>
-          </el-tooltip>
-        </div>
-      </template>
-    </el-page-header>
+    <common-header
+      @back="goBack"
+      class="header"
+      :title="targetIndex !== -1 ? target.name : '出现问题，请联系开发者'"
+      :allow-drag="false"
+    >
+      <div class="title-end">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="编辑脚本"
+          placement="bottom"
+        >
+          <code-icon class="icon" @click.stop="editorScriptFile" />
+        </el-tooltip>
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="运行脚本"
+          placement="bottom"
+        >
+          <el-icon class="icon" @click.stop="runScript"
+            ><span i-mdi-play-circle-outline></span
+          ></el-icon>
+        </el-tooltip>
+      </div>
+    </common-header>
     <div class="script-setting">
       <h4 class="ml-0">初始化表单后(运行脚本前)</h4>
       <ScriptSettingItem
