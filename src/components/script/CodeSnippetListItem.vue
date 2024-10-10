@@ -8,7 +8,7 @@
         <el-icon class="icon" v-else size="large">
           <div i-solar-alt-arrow-down-line-duotone></div>
         </el-icon>
-        <span>{{ codeSnippet.name }}</span>
+        <el-text truncated>{{ codeSnippet.name }}</el-text>
       </div>
       <div class="menu">
         <el-tooltip
@@ -193,11 +193,12 @@ const itemHeight = computed(() => {
     padding: 10px;
     box-sizing: border-box;
     background-color: v-bind(appAsideBgColor);
-
+    position: relative;
     .info {
       display: flex;
       flex-direction: row;
       align-items: center;
+      width: calc(100% - 100px);
 
       span {
         margin-right: 10px;
@@ -218,6 +219,7 @@ const itemHeight = computed(() => {
       display: flex;
       flex-direction: row;
       align-items: center;
+      width: 100px;
 
       .icon {
         margin-left: 10px;

@@ -8,8 +8,14 @@
         <el-icon class="icon" v-else size="large">
           <div i-solar-alt-arrow-down-line-duotone></div>
         </el-icon>
-        <span>{{ script.name }}</span
-        ><el-tag size="small" type="info">{{ script.version }}</el-tag>
+        <el-tag size="small" type="info"
+          ><el-text class="v-text" truncated size="small">{{
+            script.version
+          }}</el-text></el-tag
+        >
+        <div class="s-name">
+          <el-text truncated tag="Bold" size="large">{{ script.name }}</el-text>
+        </div>
       </div>
       <div class="menu">
         <el-tooltip
@@ -215,14 +221,24 @@ const itemHeight = computed(() => {
     padding: 10px;
     box-sizing: border-box;
     background-color: v-bind(appAsideBgColor);
+    position: relative;
 
     .info {
       display: flex;
       flex-direction: row;
       align-items: center;
-
-      span {
-        margin-right: 10px;
+      width: calc(100% - 125px);
+      position: relative;
+      .s-name {
+        width: calc(100% - 100px);
+        margin-left: 10px;
+      }
+      .v-text {
+        display: inline-block;
+        width: 35px;
+        padding-left: 1%;
+        padding-right: 1px;
+        text-align: center;
       }
 
       .icon {
@@ -241,6 +257,7 @@ const itemHeight = computed(() => {
       display: flex;
       flex-direction: row;
       align-items: center;
+      width: 125px;
 
       .icon {
         margin-left: 10px;
@@ -277,6 +294,7 @@ const itemHeight = computed(() => {
       height: 0;
       background-color: var(--el-color-primary-light-3);
       animation: forwards 0.5s heightChange;
+      z-index: 999;
     }
   }
 }
