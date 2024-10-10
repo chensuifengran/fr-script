@@ -51,7 +51,7 @@
                 <span i-mdi-square-rounded-badge-outline></span> </el-icon
             ></el-button>
           </div>
-          <div v-else flex flex-1 flex-row items-center justify-center>
+          <div v-else data-tauri-drag-region flex flex-1 flex-row items-center justify-center>
             <el-input
               v-if="
                 searchInfo.show && searchInfo.target === SearchTarget.ScriptList
