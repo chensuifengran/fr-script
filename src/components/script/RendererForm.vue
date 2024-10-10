@@ -51,77 +51,80 @@
         >
           <template v-if="!s.segmented">
             <div flex flex-row items-center>
-            <el-tag size="small" v-if="s.group"
-              >{{ getItemType(s.options[0]?.options[0])
-              }}{{ s.multiple ? "[]" : "" }}</el-tag
-            >
-            <el-tag size="small" v-else
-              >{{ getItemType(s.options[0])
-              }}{{ s.multiple ? "[]" : "" }}</el-tag
-            >
-            <el-text
-              ml-1
-              :style="{
-                alignSelf:
-                  disabledAll || (s.label.length && s.label.length > 6)
-                    ? 'self-start'
-                    : 'center',
-              }"
-              >{{ s.label }}</el-text
-            >
-          </div>
-          <el-select
-            class="select"
-            :style="{
-              minWidth:
-                disabledAll ||
-                s.multiple ||
-                (s.label.length && s.label.length > 6)
-                  ? '100%'
-                  : getSelectMinWidth(s.value),
-            }"
-            :multiple="s.multiple"
-            v-model="s.value"
-            :placeholder="s.label"
-            size="small"
-            :disabled="!g.enable || disabledAll"
-          >
-            <template v-if="s.group">
-              <el-option-group
-                v-for="g in s.options"
-                :key="g.groupLabel"
-                :label="g.groupLabel"
+              <el-tag size="small" v-if="s.group"
+                >{{ getItemType(s.options[0]?.options[0])
+                }}{{ s.multiple ? "[]" : "" }}</el-tag
               >
+              <el-tag size="small" v-else
+                >{{ getItemType(s.options[0])
+                }}{{ s.multiple ? "[]" : "" }}</el-tag
+              >
+              <el-text
+                ml-1
+                truncated
+                :style="{
+                  alignSelf:
+                    disabledAll || (s.label.length && s.label.length > 6)
+                      ? 'self-start'
+                      : 'center',
+                }"
+                >{{ s.label }}</el-text
+              >
+            </div>
+            <el-select
+              class="select"
+              :style="{
+                minWidth:
+                  disabledAll ||
+                  s.multiple ||
+                  (s.label.length && s.label.length > 6)
+                    ? '100%'
+                    : getSelectMinWidth(s.value),
+              }"
+              :multiple="s.multiple"
+              v-model="s.value"
+              :placeholder="s.label"
+              size="small"
+              :disabled="!g.enable || disabledAll"
+            >
+              <template v-if="s.group">
+                <el-option-group
+                  v-for="g in s.options"
+                  :key="g.groupLabel"
+                  :label="g.groupLabel"
+                >
+                  <el-option
+                    v-for="(item, index) in g.options"
+                    :key="optTransformer.transformKey(item, s.id || index)"
+                    :label="optTransformer.transformLabel(item)"
+                    :value="optTransformer.transformValue(item)"
+                  />
+                </el-option-group>
+              </template>
+              <template v-else>
                 <el-option
-                  v-for="(item, index) in g.options"
-                  :key="optTransformer.transformKey(item, s.id || index)"
+                  v-for="(item, index) in s.options"
+                  :key="index"
                   :label="optTransformer.transformLabel(item)"
-                  :value="optTransformer.transformValue(item)"
+                  :value="item"
                 />
-              </el-option-group>
-            </template>
-            <template v-else>
-              <el-option
-                v-for="(item, index) in s.options"
-                :key="index"
-                :label="optTransformer.transformLabel(item)"
-                :value="item"
-              />
-            </template>
-          </el-select>
+              </template>
+            </el-select>
           </template>
           <template v-else>
             <el-text
               ml-1
               :style="{
-                alignSelf:
-                  disabledAll || (s.label.length && s.label.length > 6)
-                    ? 'self-start'
-                    : 'center',
+                alignSelf: disabledAll ? 'self-start' : 'center',
               }"
+              truncated
               >{{ s.label }}</el-text
             >
-            <el-segmented v-model="s.value" :options="s.options" :disabled="disabledAll || !g.enable" />
+            <el-segmented
+              v-model="s.value"
+              :options="s.options"
+              :disabled="disabledAll || !g.enable"
+            />
           </template>
         </div>
         <div
@@ -142,7 +145,7 @@
           </template>
           <template v-else-if="i.inputType === 'number'">
             <div w-full flex flex-row items-center justify-between>
-              <el-text>{{ i.label }}</el-text>
+              <el-text truncated>{{ i.label }}</el-text>
               <el-input-number
                 size="small"
                 v-model="i.value"
@@ -176,6 +179,7 @@
                 i.mod === 'textarea' ||
                 (i.label.length && i.label.length > 6)
               "
+              truncated
               style="align-self: self-start"
               >{{ i.label }}</el-text
             >
@@ -215,7 +219,7 @@
         </div>
         <div class="picker-item" v-for="i in g.pickerList" :key="i.id">
           <template v-if="i.pickerType === 'color'">
-            <el-text>{{ i.label }}</el-text>
+            <el-text truncated>{{ i.label }}</el-text>
             <el-color-picker
               v-model="i.value"
               :disabled="!g.enable || disabledAll"
@@ -237,6 +241,7 @@
                 :style="{
                   alignSelf: i.isRange ? 'flex-start' : 'center',
                 }"
+                truncated
                 >{{ i.label }}</el-text
               >
               <template v-if="i.isRange">
@@ -283,6 +288,7 @@
                 :style="{
                   alignSelf: i.isRange ? 'flex-start' : 'center',
                 }"
+                truncated
                 >{{ i.label }}</el-text
               >
               <template v-if="i.isRange">
