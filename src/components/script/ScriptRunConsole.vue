@@ -133,7 +133,6 @@ import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 import { useLog } from "../../hooks/useLog";
 import { TaskRunStatus } from "../../hooks/useScriptApi";
-const appWindow = getCurrentWebviewWindow();
 const { notify } = eventUtil;
 const { taskRunStatus, name, version, hideWindow, savePath } = useScriptView();
 const { logOutput } = useLog();
@@ -199,6 +198,7 @@ const enableFloatWindow = async (isInit: boolean = false) => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   appWindow.hide();
   const targetWindow = await open("notification", "/notification", {
     height: 40,

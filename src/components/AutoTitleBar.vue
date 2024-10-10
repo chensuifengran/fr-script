@@ -51,7 +51,15 @@
                 <span i-mdi-square-rounded-badge-outline></span> </el-icon
             ></el-button>
           </div>
-          <div v-else data-tauri-drag-region flex flex-1 flex-row items-center justify-center>
+          <div
+            v-else
+            data-tauri-drag-region
+            flex
+            flex-1
+            flex-row
+            items-center
+            justify-center
+          >
             <el-input
               v-if="
                 searchInfo.show && searchInfo.target === SearchTarget.ScriptList
@@ -206,7 +214,6 @@ import icon from "../assets/icon64x64.png";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 import { SearchTarget } from "../hooks/useAutoTitleBar";
-const appWindow = getCurrentWebviewWindow();
 const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
@@ -217,6 +224,7 @@ const toggleMostTop = () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   if (mostTop.value) {
     appWindow.setAlwaysOnTop(true);
   } else {
@@ -232,6 +240,7 @@ const minHandle = () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   appWindow.minimize();
 };
 const maxHandle = async () => {
@@ -245,6 +254,7 @@ const maxHandle = async () => {
     isFullScreen.value = !isFullScreen.value;
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   if (await appWindow.isMaximized()) {
     appWindow.unmaximize();
     isFullScreen.value = false;
@@ -276,6 +286,7 @@ const closeHandle = async () => {
       } catch {}
     }
   }
+  const appWindow = getCurrentWebviewWindow();
   await appWindow.close();
 };
 
@@ -324,6 +335,7 @@ const resizeHandle = async () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   if (await appWindow.isMaximized()) {
     isFullScreen.value = true;
   } else {

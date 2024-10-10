@@ -8,7 +8,7 @@ import {
   register,
   unregister,
 } from "@tauri-apps/plugin-global-shortcut";
-const appWindow = getCurrentWebviewWindow();
+
 const { registerAllInvokeApi } = useCore();
 const { isMainWindow, menuKey } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
@@ -98,6 +98,7 @@ onMounted(async () => {
     return;
   }
   try {
+    const appWindow = getCurrentWebviewWindow();
     shortcutsStore.init();
     if (appWindow.label === "main") {
       const showMainWindowShortcuts =
@@ -135,6 +136,7 @@ onUnmounted(() => {
     //playground环境
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   if (appWindow.label === "main") {
     const showMainWindowShortcuts =
       shortcutsStore.getShortcuts("强制显示主窗口");

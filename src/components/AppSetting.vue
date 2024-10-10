@@ -13,7 +13,7 @@ import MoonIcon from "./Icons/MoonIcon.vue";
 import SunIcon from "./Icons/SunIcon.vue";
 const autoStart = ref(false);
 watch(autoStart, async (value) => {
-  if(IS_PLAYGROUND_ENV){
+  if (IS_PLAYGROUND_ENV) {
     return;
   }
   if (value) {
@@ -22,7 +22,6 @@ watch(autoStart, async (value) => {
     await disable();
   }
 });
-const appWindow = getCurrentWebviewWindow();
 const { getDepStateType } = libUtil;
 const { goInstallDeps, syncData } = useDepInfo();
 const { selectFile, selectDir } = fsUtils;
@@ -254,6 +253,7 @@ onMounted(async () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const appWindow = getCurrentWebviewWindow();
   autoStart.value = await isEnabled();
   await libUtil.syncDependentVersion();
   const currentWindowLabel = appWindow.label;

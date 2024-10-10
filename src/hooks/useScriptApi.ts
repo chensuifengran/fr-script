@@ -4,7 +4,6 @@ import {
   WebviewWindow,
 } from "@tauri-apps/api/webviewWindow";
 import { ScriptTarget, transpile } from "typescript";
-const appWindow = getCurrentWebviewWindow();
 //拷贝一份默认配置
 let curRendererList: RendererList[] = [];
 const importLastRunConfig = async (rendererList?: RendererList[]) => {
@@ -471,6 +470,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
     }
     //显示当前窗口
     if (hideWindow.value && !IS_PLAYGROUND_ENV) {
+      const appWindow = getCurrentWebviewWindow();
       appWindow.show();
       appWindow.setFocus();
       notify.done();

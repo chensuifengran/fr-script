@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { OCRResult } from "../invokes/ocr/exportFn";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useSessionStorageState } from "vue-hooks-plus";
-const appWindow = getCurrentWebviewWindow()
+
 let freeTimer: NodeJS.Timeout | null = null;
 const freeAllJson = () => {
   if (IS_PLAYGROUND_ENV) {
@@ -814,6 +814,7 @@ const closeSplashscreen = async () => {
     return;
   }
   try {
+    const appWindow = getCurrentWebviewWindow();
     await invoke("close_splashscreen");
     await appWindow.setFocus();
     setCloseFlag(true);
