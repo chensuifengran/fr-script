@@ -55,10 +55,15 @@ const emit = defineEmits(["back"]);
 const goBack = () => {
   emit("back");
 };
-onMounted(() => {
+const updateContentWidth = () => {
   const ww = headerWarp.value?.offsetWidth || 0;
   const ew = extraRef.value?.offsetWidth || 0;
   contentWidth.value = Math.floor(ww - ew - 10) + "px";
+};
+onUpdated(()=>{
+  nextTick(()=>{
+    updateContentWidth();
+  });
 });
 </script>
 
