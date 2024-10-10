@@ -77,8 +77,6 @@
 <script lang="ts" setup>
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useLocalStorageState } from "vue-hooks-plus";
-const appWindow = getCurrentWebviewWindow()
-
 const { saveDialog, saveConfig, showCopyBtn } = useCodeSnippetSave();
 const { openOperationRecordDrawer } = useEditor();
 const defaultFormValue = {
@@ -100,7 +98,6 @@ const form = ref<CaptureSettingForm>(defaultFormValue);
 const [settingForm, setSettingForm] = useLocalStorageState<CaptureSettingForm>(
   "operation-capture-setting-form"
 );
-
 onMounted(() => {
   if (settingForm.value) {
     form.value = JSON.parse(JSON.stringify(settingForm.value));
@@ -119,9 +116,14 @@ const resetForm = () => {
 
 const capturing = ref(false);
 const startCapture = async () => {
+  if (IS_PLAYGROUND_ENV) {
+    ElMessage.warning("当前环境不支持录制操作");
+    return;
+  }
   capturing.value = true;
   try {
     if (form.value.hiddenWindowBeforeRunning) {
+      const appWindow = getCurrentWebviewWindow();
       appWindow.hide();
       await eventUtil.notify.sendCustom({
         name: "init",
