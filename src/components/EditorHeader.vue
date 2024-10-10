@@ -1,137 +1,116 @@
 <template>
-  <el-page-header title="脚本列表" @back="goBack" className="editor-header">
-    <template #content>
-      <div class="header-content">
-        <span>{{ fileInfo.name }}</span>
-        <span v-show="isDifferentValue">*</span
-        ><el-tag
-          class="mgl-5"
-          size="small"
-          type="success"
-          v-show="fileInfo.declare"
-          >已声明</el-tag
-        ><el-tag
-          class="mgl-5"
-          size="small"
-          type="warning"
-          v-show="!fileInfo.declare"
-          >未声明</el-tag
-        >
-        <el-button
-          class="tool-bar-item mgl-5"
-          v-if="!fileInfo.declare"
-          link
-          size="small"
-          type="primary"
-          @click="declareMod.visible = true"
-          >插入声明</el-button
-        >
-      </div>
+  <common-header
+    :title="fileInfo.name"
+    :height="35"
+    allow-drag
+    @back="goBack"
+  >
+    <template #before>
+      <span v-show="isDifferentValue">*</span
+      ><el-tag size="small" :type="fileInfo.declare ? 'success' : 'warning'">{{
+        fileInfo.version
+      }}</el-tag>
+      <el-button
+        w-50px
+        mr-5px
+        v-if="!fileInfo.declare"
+        link
+        size="small"
+        type="primary"
+        @click="declareMod.visible = true"
+        style="pointer-events: all"
+        >插入声明</el-button
+      >
     </template>
-    <template #extra>
-      <div class="head-content">
-        <div class="btns">
-          <div
-            class="dragable"
-            data-tauri-drag-region
-            style="cursor: move"
-          ></div>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="显示操作录制面板"
-            placement="bottom"
-          >
-            <el-button size="small" @click="showOperationRecord" circle
-              ><el-icon size="large">
-                <span i-solar-videocamera-record-outline></span> </el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="打开鼠标工具"
-            placement="bottom"
-          >
-            <el-button size="small" @click="openPointerUtil" circle
-              ><el-icon size="large">
-                <span i-solar-mouse-linear></span> </el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="打开调试窗口"
-            placement="bottom"
-          >
-            <el-button size="small" @click="openApiTest" circle>
-              <el-icon size="large"
-                ><span i-mdi-function-variant></span
-              ></el-icon>
-            </el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="前往脚本设置"
-            placement="bottom"
-          >
-            <el-button size="small" @click="goSetScript" circle
-              ><el-icon size="large">
-                <span i-solar-settings-linear></span> </el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="打开脚本"
-            placement="bottom"
-          >
-            <el-button size="small" @click="openFile" circle
-              ><el-icon size="large">
-                <span i-mdi-folder-eye-outline></span> </el-icon
-            ></el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="运行脚本"
-            placement="bottom"
-          >
-            <el-button size="small" @click="runScript" circle>
-              <el-icon size="large">
-                <span i-mdi-play-circle-outline></span>
-              </el-icon>
-            </el-button>
-          </el-tooltip>
-          <el-tooltip
-            class="box-item"
-            effect="dark"
-            content="[Ctrl+S]保存"
-            placement="bottom"
-          >
-            <el-button
-              size="small"
-              type="primary"
-              @click="saveScriptFile"
-              circle
-            >
-              <el-icon size="large">
-                <span i-mdi-content-save-outline></span>
-              </el-icon>
-            </el-button>
-          </el-tooltip>
-        </div>
-        <slot className="title-btns" />
-      </div>
-    </template>
-  </el-page-header>
+    <div class="btns">
+      <div class="dragable" data-tauri-drag-region style="cursor: move"></div>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="显示操作录制面板"
+        placement="bottom"
+      >
+        <el-button size="small" @click="showOperationRecord" circle
+          ><el-icon size="large">
+            <span i-solar-videocamera-record-outline></span> </el-icon
+        ></el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="打开鼠标工具"
+        placement="bottom"
+      >
+        <el-button size="small" @click="openPointerUtil" circle
+          ><el-icon size="large"> <span i-solar-mouse-linear></span> </el-icon
+        ></el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="打开调试窗口"
+        placement="bottom"
+      >
+        <el-button size="small" @click="openApiTest" circle>
+          <el-icon size="large"><span i-mdi-function-variant></span></el-icon>
+        </el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="前往脚本设置"
+        placement="bottom"
+      >
+        <el-button size="small" @click="goSetScript" circle
+          ><el-icon size="large">
+            <span i-solar-settings-linear></span> </el-icon
+        ></el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="打开脚本"
+        placement="bottom"
+      >
+        <el-button size="small" @click="openFile" circle
+          ><el-icon size="large">
+            <span i-mdi-folder-eye-outline></span> </el-icon
+        ></el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="运行脚本"
+        placement="bottom"
+      >
+        <el-button size="small" @click="runScript" circle>
+          <el-icon size="large">
+            <span i-mdi-play-circle-outline></span>
+          </el-icon>
+        </el-button>
+      </el-tooltip>
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="[Ctrl+S]保存"
+        placement="bottom"
+      >
+        <el-button size="small" type="primary" @click="saveScriptFile" circle>
+          <el-icon size="large">
+            <span i-mdi-content-save-outline></span>
+          </el-icon>
+        </el-button>
+      </el-tooltip>
+    </div>
+    <slot />
+  </common-header>
 </template>
 <script lang="ts" setup>
-import { invoke } from "@tauri-apps/api";
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { invoke } from "@tauri-apps/api/core";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
+
 const appGSStore = useAppGlobalSettings();
 const {
   openId,
@@ -155,7 +134,7 @@ const isDifferentValue = computed(() => {
   const isDifferent = v.value !== fileInfo.originData;
   return isDifferent;
 });
-const { createWindow } = useWebviewWindow();
+const { open } = windowUtil;
 const openApiTest = async () => {
   if (IS_PLAYGROUND_ENV) {
     ElNotification({
@@ -166,7 +145,7 @@ const openApiTest = async () => {
     });
     return;
   }
-  const targetWindow = createWindow("apiTest", "/apiTest");
+  const targetWindow = await open("apiTest", "/apiTest");
   targetWindow?.show();
 };
 const openPointerUtil = async () => {
@@ -179,7 +158,7 @@ const openPointerUtil = async () => {
     });
     return;
   }
-  const targetWindow = createWindow("pointerUtil", "/pointerUtil", {
+  const targetWindow = await open("pointerUtil", "/pointerUtil", {
     height: 140,
     width: 150,
     alwaysOnTop: true,
@@ -232,9 +211,9 @@ const runScript = () => {
     autoSaveDialog.visible = false;
     if (!IS_PLAYGROUND_ENV) {
       const testWindow = WebviewWindow.getByLabel("apiTest");
-      if (testWindow) {
-        testWindow.hide();
-      }
+      testWindow.then((testWindow) => {
+        testWindow?.hide();
+      });
     }
     router.replace({
       path: "/script/run",
@@ -276,21 +255,20 @@ const saveScriptFile = async () => {
     return false;
   } else {
     if (IS_PLAYGROUND_ENV) {
-        const editorValue = getEditorValue("codeEditBox");
-        usePlayMock().mockScriptList.value.find(
-          (s) => s.id === openId!.value
-        )!.content = editorValue?.value || "";
-        fileInfo.originData = editorValue?.value || "";
-        ElNotification({
-          title: "提示",
-          message: "保存成功",
-          type: "success",
-          position: "bottom-right",
-        });
-        return true;
-      }
+      const editorValue = getEditorValue("codeEditBox");
+      usePlayMock().mockScriptList.value.find(
+        (s) => s.id === openId!.value
+      )!.content = editorValue?.value || "";
+      fileInfo.originData = editorValue?.value || "";
+      ElNotification({
+        title: "提示",
+        message: "保存成功",
+        type: "success",
+        position: "bottom-right",
+      });
+      return true;
+    }
     if (fileInfo.savePath.trim().length) {
-
       //编辑的脚本，直接写入内容
       try {
         const editorValue = getEditorValue("codeEditBox");
@@ -387,102 +365,17 @@ const goBack = () => {
     return;
   }
   const testWindow = WebviewWindow.getByLabel("apiTest");
-  if (testWindow) {
-    testWindow.hide();
-  }
+  testWindow.then((testWindow) => {
+    testWindow?.hide();
+  });
 };
 </script>
 
 <style lang="scss" scoped>
-.mgl-5 {
-  margin-left: 5px;
-}
-
-.head-content {
+.btns {
   display: flex;
   flex-direction: row;
   align-items: center;
-
-  .btns {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    position: relative;
-    margin-right: 10px;
-
-    .dragable {
-      flex: 1;
-      height: 100%;
-      height: 35px;
-    }
-  }
-}
-</style>
-<style lang="scss">
-.editor-header {
-  width: 100%;
-  height: 100%;
-  position: relative;
-
-  .header-content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .el-page-header__header {
-    width: 100%;
-    height: 100%;
-
-    .el-page-header__extra {
-      flex: 1;
-      position: relative;
-
-      .head-content {
-        width: 100%;
-        height: 100%;
-      }
-    }
-  }
-
-  .titlebar-button {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 100%;
-    cursor: pointer;
-
-    &.setup-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background-color: var(--el-color-primary);
-      color: #fff;
-      margin-right: 5px;
-
-      &:hover {
-        background-color: rgb(3, 211, 89);
-      }
-    }
-
-    &.warning-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background-color: rgb(255, 45, 34);
-      color: #fff;
-      margin-right: 5px;
-
-      &:hover {
-        background-color: rgb(255, 87, 34);
-      }
-    }
-  }
-
-  .titlebar-button:hover {
-    background: var(--el-color-primary-light-7);
-  }
+  margin-right: 5px;
 }
 </style>

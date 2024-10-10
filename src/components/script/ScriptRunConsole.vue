@@ -1,16 +1,14 @@
 <template>
   <div class="run-code-box">
-    <el-page-header
+    <common-header
+      :title="title"
+      :height="40"
+      :allow-drag="false"
       @back="goBack"
       v-show="taskRunStatus !== 'running'"
-      title="脚本列表"
     >
-      <template #content>
+      <template #after>
         <div class="head-content">
-          <span class="s-name"
-            >{{ name || "未保存的临时脚本" }} :
-            {{ version || "未知版本" }}</span
-          >
           <el-tooltip effect="dark" content="编辑脚本" placement="bottom">
             <code-icon class="icon" @click.stop="goEditor" />
           </el-tooltip>
@@ -27,28 +25,24 @@
           />
         </div>
       </template>
-      <template #extra>
-        <div>
-          <el-tooltip effect="dark" content="Ctrl+Shift+A" placement="bottom">
-            <el-button
-              @click="invokeStartHandle"
-              v-show="taskRunStatus === 'ready'"
-              plain
-              :disabled="isLoading"
-              >运行</el-button
-            >
-          </el-tooltip>
-          <el-tooltip effect="dark" content="Ctrl+Shift+D" placement="bottom">
-            <el-button
-              @click="() => initScript(true)"
-              v-show="taskRunStatus === 'done'"
-              plain
-              >重新初始化</el-button
-            >
-          </el-tooltip>
-        </div>
-      </template>
-    </el-page-header>
+      <el-tooltip effect="dark" content="Ctrl+Shift+A" placement="bottom">
+        <el-button
+          @click="invokeStartHandle"
+          v-show="taskRunStatus === 'ready'"
+          plain
+          :disabled="isLoading"
+          >运行</el-button
+        >
+      </el-tooltip>
+      <el-tooltip effect="dark" content="Ctrl+Shift+D" placement="bottom">
+        <el-button
+          @click="() => initScript(true)"
+          v-show="taskRunStatus === 'done'"
+          plain
+          >重新初始化</el-button
+        >
+      </el-tooltip>
+    </common-header>
     <div v-show="taskRunStatus === 'running'" class="end-box">
       <div>
         <span class="s-name"
@@ -122,8 +116,11 @@ import {
   isRegistered,
   register,
   unregister,
-} from "@tauri-apps/api/globalShortcut";
-import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
+} from "@tauri-apps/plugin-global-shortcut";
+import {
+  WebviewWindow,
+  getCurrentWebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
 import { nanoid } from "nanoid";
 import { storeToRefs } from "pinia";
 import { transpile, ScriptTarget } from "typescript";
@@ -135,13 +132,19 @@ import { UnlistenFn } from "@tauri-apps/api/event";
 import { ocrFn } from "../../invokes/ocr/exportFn";
 import { useLog } from "../../hooks/useLog";
 import { TaskRunStatus } from "../../hooks/useScriptApi";
+const appWindow = getCurrentWebviewWindow();
 const { notify } = eventUtil;
 const { taskRunStatus, name, version, hideWindow, savePath } = useScriptView();
 const { logOutput } = useLog();
 const { notAllowedFnId, runningFnId } = useScriptRuntime();
 const isReInit = ref(false);
 const isPlay = IS_PLAYGROUND_ENV;
-
+const title = computed(() => {
+  if (name.value) {
+    return `[${version.value}]${name.value}`;
+  }
+  return "未保存的临时脚本";
+});
 const reInit = (): boolean => {
   if (isReInit.value) {
     isReInit.value = false;
@@ -162,7 +165,7 @@ const goSetScript = () => {
 const { setEndBeforeCompletion, getFileInfo, getWillRunScript } =
   useScriptApi();
 
-const goBack = () => {
+const goBack = async () => {
   router.replace({
     path: "/script/list",
   });
@@ -171,10 +174,8 @@ const goBack = () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
-  const targetWindow = WebviewWindow.getByLabel("apiTest");
-  if (targetWindow) {
-    targetWindow.hide();
-  }
+  const targetWindow = await WebviewWindow.getByLabel("apiTest");
+  targetWindow?.hide();
 };
 const goEditor = () => {
   contentTransform.value = "translateX(-100%)";
@@ -192,13 +193,13 @@ const run = (script: string, runId: string) => {
   //参数列表为空
   return new Function("", runScript);
 };
-const { createWindow } = useWebviewWindow();
+const { open } = windowUtil;
 const enableFloatWindow = async (isInit: boolean = false) => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
   appWindow.hide();
-  const targetWindow = createWindow("notification", "/notification", {
+  const targetWindow = await open("notification", "/notification", {
     height: 40,
     width: 300,
     alwaysOnTop: true,
@@ -263,10 +264,10 @@ const stop = () => {
   isInit.value = false;
   setEndBeforeCompletion(true);
   notAllowedFnId.value.push(runningFnId.value);
-  builtInApi.changeScriptRunState("stop");
-  builtInApi.Preludes.log("脚本已强制结束", "warning");
-  builtInApi.setTaskEndStatus("warning", "脚本已强制结束");
   builtInApi.abortSignalInScript && builtInApi.abortSignalInScript.abort();
+  builtInApi.Preludes.log("脚本已强制结束", "warning", undefined, true);
+  builtInApi.changeScriptRunState("stop");
+  builtInApi.setTaskEndStatus("warning", "脚本已强制结束");
   console.log("脚本已停止，随着出现的报错为正常情况，不影响使用");
 };
 const isInit = ref(false);
@@ -274,7 +275,7 @@ const initScript = async (reinit: boolean = false) => {
   logOutput.splice(0, logOutput.length);
   builtInApi.Preludes.log("脚本初始化中", "loading");
   if (reinit && !IS_PLAYGROUND_ENV) {
-    const targetWindow = createWindow("notification", "/notification", {
+    const targetWindow = await open("notification", "/notification", {
       height: 135,
       width: 200,
       alwaysOnTop: true,
@@ -329,7 +330,12 @@ const initScript = async (reinit: boolean = false) => {
   } catch (e: any) {
     taskRunStatus.value = "ready";
     console.error(e);
-    builtInApi.Preludes.log("脚本初始化失败：" + JSON.stringify(e), "danger");
+    builtInApi.Preludes.log(
+      "脚本初始化失败：" + JSON.stringify(e),
+      "danger",
+      undefined,
+      true
+    );
   } finally {
     nextTick(() => {
       isLoading.value = false;
@@ -374,7 +380,9 @@ const registerGlobalShortcuts = (status: TaskRunStatus) => {
         const shortcuts = shortcutsStore.getShortcuts(
           GlobalShortcuts[i].onlyDescription
         );
-        await unregister(shortcuts);
+        if (await isRegistered(shortcuts)) {
+          await unregister(shortcuts);
+        }
       }
       if (!(await isRegistered(shortcuts))) {
         register(shortcuts, () => {
@@ -403,7 +411,7 @@ onMounted(async () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
-  const targetWindow = createWindow("notification", "/notification", {
+  const targetWindow = await open("notification", "/notification", {
     height: 135,
     width: 200,
     alwaysOnTop: true,
@@ -419,7 +427,7 @@ onMounted(async () => {
     }
   });
 });
-onUnmounted(() => {
+onUnmounted(async () => {
   if (window[CORE_NAMESPACES]) {
     Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
       //@ts-ignore
@@ -429,11 +437,12 @@ onUnmounted(() => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
-  //取消注册所有快捷键
-  GlobalShortcuts.forEach((s) => {
-    const shortcuts = shortcutsStore.getShortcuts(s.onlyDescription);
-    unregister(shortcuts);
-  });
+  for (const shortcut of GlobalShortcuts) {
+    const _s = shortcutsStore.getShortcuts(shortcut.onlyDescription);
+    if (await isRegistered(_s)) {
+      await unregister(_s);
+    }
+  }
   unlistenNotify();
 });
 </script>
