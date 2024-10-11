@@ -97,7 +97,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/scriptWindow",
     name: "scriptWindow",
-    component: () => import(`../pages/ScriptRunWindow.vue`),
+    component: () => import(`../pages/windows/ScriptRunWindow.vue`),
     meta: {
       title: "脚本运行窗口",
       icon: ScriptIcon,
@@ -106,7 +106,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/floatWindow",
     name: "floatWindow",
-    component: () => import(`../pages/FloatWindow.vue`),
+    component: () => import(`../pages/windows/FloatWindow.vue`),
     meta: {
       title: "悬浮窗口",
     },
@@ -114,7 +114,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/pointerUtil",
     name: "pointerUtil",
-    component: () => import(`../pages/PointerUtil.vue`),
+    component: () => import(`../pages/windows/PointerUtil.vue`),
     meta: {
       title: "鼠标工具",
     },
@@ -122,7 +122,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/notification",
     name: "notification",
-    component: () => import(`../pages/Notification.vue`),
+    component: () => import(`../pages/windows/Notification.vue`),
     meta: {
       title: "通知",
     },
@@ -130,7 +130,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/ORW",
     name: "ORW",
-    component: () => import(`../pages/OperationRecordWindow.vue`),
+    component: () => import(`../pages/windows/OperationRecordWindow.vue`),
     meta: {
       title: "操作录制悬浮窗口",
     },
@@ -157,13 +157,15 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/:pathMatch(.*)*",
     component: () => import(`../pages/NotFound.vue`),
-  }
-].map((route) => {
-  if (route.meta?.disabled) {
-    return null;
-  }
-  return route;
-}).filter((r) => r);
+  },
+]
+  .map((route) => {
+    if (route.meta?.disabled) {
+      return null;
+    }
+    return route;
+  })
+  .filter((r) => r);
 
 export const topRoutes = routes.filter(
   (r) => r.meta?.position === "top" && !r.meta?.disabled
