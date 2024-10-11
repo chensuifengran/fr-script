@@ -1,5 +1,34 @@
 ## Changelog
 
+### 2.1.0
+
+_2024.10.11_
+
+#### 新特性：
+
+- 设置面板添加自动启动开关，开启后软件将在系统启动时自动启动
+- API参数解析支持解析反引号字面量字符串的值
+
+#### 重构：
+
+- Preludes.log方法内容参数支持任意类型
+- (BREAKING CHANGE)GlobalShortcut.waitKeys方法重命名为GlobalShortcut.waitShortcuts
+- GlobalShortcut.listen、GlobalShortcut.unlisten方法参数：keys改为shortcuts
+
+#### Bug修复：
+
+- 标题太长导致操作区按钮被挤出视图
+- 脚本列表和代码片段列表的搜索框应该在滚动之后才能出现
+- 脚本运行日志在脚本结束运行后不再接收新的日志
+- 脚本运行浮窗的吸附辅助窗口调整大小时使用物理大小替代逻辑大小，避免大小与浮窗不一致
+
+#### 杂项：
+
+- tauri升级到2.0，并迁移对应的API
+- 组件存放目录调整，将非公共组件从components目录移动到views目录
+- 将窗口显示相关的page组件移动至windows子目录
+
+
 ### 2.0.7
 
 _2024.09.21_
