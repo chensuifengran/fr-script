@@ -1,10 +1,9 @@
 <template>
   <div class="api-test">
-    <APITestView />
+    <API-test-view />
   </div>
 </template>
 <script lang="ts" setup>
-import APITestView from '../views/APITestView.vue';
 </script>
 
 <style lang="scss" scoped>
