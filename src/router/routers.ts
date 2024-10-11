@@ -56,7 +56,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/codeSnippetList",
     name: "codeSnippetList",
-    component: () => import(`../pages/CodeSnippetList.vue`),
+    component: () => import(`../pages/CodeSnippet.vue`),
     meta: {
       title: "片段",
       icon: CodeSnippetIcon,
