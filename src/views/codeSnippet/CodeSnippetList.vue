@@ -73,8 +73,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { storeToRefs } from "pinia";
 import { UseDraggableReturn, VueDraggable } from "vue-draggable-plus";
-import { MockCodeSnippet } from "../hooks/usePlayMock";
-import { SearchTarget } from "../hooks/useAutoTitleBar";
+import { MockCodeSnippet } from "../../hooks/usePlayMock";
+import { SearchTarget } from "../../hooks/useAutoTitleBar";
 import { DialogBeforeCloseFn } from "element-plus";
 const EDITOR_DOM_ID = "snippet-editor";
 const showEditor = ref(false);
