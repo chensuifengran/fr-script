@@ -9,8 +9,8 @@ import {
   getCurrentWebviewWindow,
 } from "@tauri-apps/api/webviewWindow";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
-import MoonIcon from "./Icons/MoonIcon.vue";
-import SunIcon from "./Icons/SunIcon.vue";
+import MoonIcon from "../components/Icons/MoonIcon.vue";
+import SunIcon from "../components/Icons/SunIcon.vue";
 const autoStart = ref(false);
 watch(autoStart, async (value) => {
   if (IS_PLAYGROUND_ENV) {
