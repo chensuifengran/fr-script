@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
           }),
         ],
         dts: "./src/types/auto_gen_types/components.d.ts",
+        dirs: ["./src/components/**", "./src/pages/**", "./src/views/**"],
       }),
       Icons({
         autoInstall: true,
