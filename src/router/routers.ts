@@ -29,7 +29,7 @@ const routes = <RouteRecordRaw[]>[
       {
         path: "editor",
         name: "scriptEditor",
-        component: () => import(`../components/script/CodeEditor.vue`),
+        component: () => import(`../views/editor/CodeEditor.vue`),
       },
       {
         path: "setting",
