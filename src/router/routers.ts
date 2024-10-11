@@ -24,7 +24,7 @@ const routes = <RouteRecordRaw[]>[
       {
         path: "list",
         name: "scriptList",
-        component: () => import(`../components/script/ScriptList.vue`),
+        component: () => import(`../views/script/list/ScriptList.vue`),
       },
       {
         path: "editor",
@@ -34,12 +34,12 @@ const routes = <RouteRecordRaw[]>[
       {
         path: "setting",
         name: "scriptSetting",
-        component: () => import(`../components/script/ScriptSetting.vue`),
+        component: () => import(`../views/script/setting/ScriptSetting.vue`),
       },
       {
         path: "run",
         name: "scriptRunConsole",
-        component: () => import(`../components/script/ScriptRunConsole.vue`),
+        component: () => import(`../views/script/console/ScriptRunConsole.vue`),
       },
     ],
   },

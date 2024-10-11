@@ -170,7 +170,7 @@
 <script lang="ts" setup>
 import { ElInput } from "element-plus";
 import { storeToRefs } from "pinia";
-import { devicesFn } from "../../invokes/devices/exportFn";
+import { devicesFn } from "../../../invokes/devices/exportFn";
 const drawer = ref(false);
 const active = ref(1);
 const nextStep = () => {

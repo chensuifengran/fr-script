@@ -22,13 +22,13 @@
   </el-timeline>
 </template>
 <script lang="ts" setup>
-import type { LogOutputType } from "../../hooks/useLog";
-import DotLoader from "../Icons/DotLoader.vue";
-import MenuDots from "../Icons/MenuDots.vue";
-import CheekIcon from "../Icons/CheekIcon.vue";
-import AlertOutline from "../Icons/AlertOutline.vue";
-import AlertCircle from "../Icons/AlertCircle.vue";
-import InfoIcon from "../Icons/InfoIcon.vue";
+import type { LogOutputType } from "../../../hooks/useLog";
+import DotLoader from "../../../components/Icons/DotLoader.vue";
+import MenuDots from "../../../components/Icons/MenuDots.vue";
+import CheekIcon from "../../../components/Icons/CheekIcon.vue";
+import AlertOutline from "../../../components/Icons/AlertOutline.vue";
+import AlertCircle from "../../../components/Icons/AlertCircle.vue";
+import InfoIcon from "../../../components/Icons/InfoIcon.vue";
 const props = defineProps({
   data: {
     type: Array as PropType<LogOutputType[]>,
