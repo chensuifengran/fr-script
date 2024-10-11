@@ -230,7 +230,7 @@ const invokeStartHandle = async () => {
   if (hideWindow.value) {
     await enableFloatWindow(true);
   }
-  const targetDevice = target.setting.targetAdbDevice.trim();
+  const targetDevice = target.setting.targetAdbDevice?.trim() || "";
   if (targetDevice !== "" && !IS_PLAYGROUND_ENV) {
     //获得所有设备，取消非目标设备的连接
     const deviceList = (await devicesFn()) || [];
