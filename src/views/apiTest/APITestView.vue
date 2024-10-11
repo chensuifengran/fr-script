@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
 import { SortableEvent, VueDraggable } from "vue-draggable-plus";
-import Loading from "../components/Loading.vue";
+import Loading from "../../components/Loading.vue";
 import { storeToRefs } from "pinia";
 const showItemHover = ref(true);
 const pageContentRef = ref<HTMLElement>();
