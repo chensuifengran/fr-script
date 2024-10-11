@@ -138,7 +138,7 @@ const routes = <RouteRecordRaw[]>[
   {
     path: "/depManager",
     name: "depManager",
-    component: () => import(`../pages/DepManagerPage.vue`),
+    component: () => import(`../pages/windows/DepManagerPage.vue`),
     meta: {
       title: "依赖管理器",
     },

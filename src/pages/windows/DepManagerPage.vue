@@ -10,9 +10,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import Loading from "../components/Loading.vue";
+import Loading from "../../components/Loading.vue";
 const AsyncDepManager = defineAsyncComponent({
-  loader: () => import("../components/dependence/DepManager.vue"),
+  loader: () => import("../../views/dependence/DepManager.vue"),
   loadingComponent: Loading,
 })
 const { appBackground, appAsideBgColor } = useAppTheme();
