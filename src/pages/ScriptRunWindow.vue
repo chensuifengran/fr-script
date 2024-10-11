@@ -1,11 +1,7 @@
 <template>
-  <div class="message-content" ref="content">
-
-  </div>
+  <div class="message-content"></div>
 </template>
-<script lang="ts" setup>
-
-</script>
+<script lang="ts" setup></script>
 
 <style lang="scss" scoped>
 .message-content {
@@ -13,6 +9,5 @@
   height: 100%;
   position: relative;
   box-sizing: border-box;
-
 }
 </style>
