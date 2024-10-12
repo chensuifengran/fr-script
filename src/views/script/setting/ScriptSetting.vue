@@ -142,11 +142,11 @@
           打开模拟器，长按图标，点击
           <el-tag size="default" type="info">发送到</el-tag>
         </div>
-        <img src="../../assets/sendTo.png" alt="" srcset="" />
+        <img src="../../../assets/sendTo.png" alt="" srcset="" />
         <div>
           选择 <el-tag size="default" type="info">添加电脑桌面快捷方式</el-tag>
         </div>
-        <img src="../../assets/exportApp.png" alt="" srcset="" />
+        <img src="../../../assets/exportApp.png" alt="" srcset="" />
       </div>
       <div v-show="active === 2">
         <h3>2.复制目标</h3>
@@ -161,7 +161,7 @@
         <div>
           全选<el-tag size="default" type="info">目标</el-tag>编辑框的内容，复制
         </div>
-        <img src="../../assets/target.png" alt="" srcset="" />
+        <img src="../../../assets/target.png" alt="" srcset="" />
         <div>复制完成后粘贴到本输入框即可完成设置</div>
       </div>
     </div>
