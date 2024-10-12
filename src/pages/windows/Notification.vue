@@ -77,7 +77,7 @@
 import { PhysicalPosition, PhysicalSize } from "@tauri-apps/api/dpi";
 import { UnlistenFn } from "@tauri-apps/api/event";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { WebviewWindowUtil } from "../utils/windowUtil";
+import { WebviewWindowUtil } from "../../utils/windowUtil";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 const appWindow = getCurrentWindow();
