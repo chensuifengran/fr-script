@@ -7,24 +7,29 @@ export type TourSteps = {
 export const tourSteps: TourSteps = {
   scriptList: [
     {
-      title: "引导",
-      description: "第一次使用？下面为您简单介绍一下功能",
-    },
-    {
       target: "#script_route",
       title: "脚本列表(介绍)",
       description: "此处是脚本列表，支持对脚本进行管理、设置、运行",
+    },
+    {
+      target: "#search_script_input",
+      title: "脚本搜索",
+      description: "输入脚本名称或者备注可对显示的列表进行过滤",
     },
     {
       target: "#new_script_btn",
       title: "新建脚本(操作)",
       description: "点击此按钮新建一个演示用的脚本，新建完成后可进行下一步",
       preventNext: true,
+      onShow: () => {
+        const { searchInfo } = useAutoTitleBar();
+        searchInfo.content = "";
+      },
     },
     {
       target: "#DEMO_SCRIPT_ITEM .info",
       title: "演示脚本(介绍)",
-      description: "点击中间可展看查看脚本详情",
+      description: "点击中间可展看查看脚本详情，搜索栏为空时支持拖动排序",
     },
     {
       target: "#DEMO_SCRIPT_ITEM .menu",
