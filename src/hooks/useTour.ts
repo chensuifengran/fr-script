@@ -5,6 +5,7 @@ export type TourStep = {
   target?: string;
   preventNext?: boolean;
   preventPrevious?: boolean;
+  onShow?: () => void;
 };
 export type TourStepName = {
   scriptList: boolean;
@@ -109,6 +110,14 @@ const tourInfo = reactive<TourInfo>({
   },
 });
 const currentTourName = ref<TourStepNames>("scriptList");
+const showTour = () => {
+  if (tourInfo[currentTourName.value]?.steps.length) {
+    tourInfo[currentTourName.value].step = 0;
+    nextTick(() => (tourInfo[currentTourName.value].touring = true));
+  } else {
+    ElMessage.warning("当前页面暂未无引导");
+  }
+};
 
 export const useTour = () => {
   return {
@@ -116,5 +125,6 @@ export const useTour = () => {
     setfirstTime,
     tourInfo,
     currentTourName,
+    showTour,
   };
 };

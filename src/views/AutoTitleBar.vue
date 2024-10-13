@@ -107,7 +107,13 @@
             </el-icon>
           </div>
         </el-tooltip>
-
+        <el-button
+          link
+          class="titlebar-button"
+          @click="!isEditing && showTour()"
+        >
+          <el-icon><span i-mdi-lightbulb-question-outline /></el-icon>
+        </el-button>
         <el-button
           link
           class="titlebar-button"
@@ -157,6 +163,13 @@
     <div class="titlebar" data-tauri-drag-region v-else-if="isEditing">
       <EditorHeader>
         <div class="btn-content">
+          <el-button
+            link
+            class="titlebar-button"
+            @click="isEditing && showTour()"
+          >
+            <el-icon><span i-mdi-lightbulb-question-outline /></el-icon>
+          </el-button>
           <el-button
             link
             class="titlebar-button"
@@ -218,6 +231,7 @@ const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { isEditing, fileInfo } = useScriptInfo();
 const { getEditorValue } = useEditor();
+const { showTour } = useTour();
 const mostTop = ref(false);
 const toggleMostTop = () => {
   mostTop.value = !mostTop.value;

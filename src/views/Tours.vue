@@ -31,13 +31,12 @@ const tours = computed(() => {
   });
 });
 const stepChangeHandler = (_step: number) => {
+  const targetInfo = tourInfo[currentTourName.value];
   if (
-    (_step > tourInfo[currentTourName.value].step &&
-      tourInfo[currentTourName.value].preventNext) ||
-    (_step < tourInfo[currentTourName.value].step &&
-      tourInfo[currentTourName.value].preventPrevious)
+    (_step > targetInfo.step && targetInfo.preventNext) ||
+    (_step < targetInfo.step && targetInfo.preventPrevious)
   ) {
-    if (!tourInfo[currentTourName.value].doneSteps.includes(step.value)) {
+    if (!targetInfo.doneSteps.includes(step.value)) {
       ElMessage.warning("请先完成当前步骤");
       nextTick(() => {
         step.value--;
@@ -45,16 +44,20 @@ const stepChangeHandler = (_step: number) => {
       return;
     }
   }
-  tourInfo[currentTourName.value].step = _step;
-  tourInfo[currentTourName.value].preventNext =
-    tourInfo[currentTourName.value].steps[_step]?.preventNext || false;
-  tourInfo[currentTourName.value].preventPrevious =
-    tourInfo[currentTourName.value].steps[_step]?.preventPrevious || false;
+  const onShow = targetInfo.steps[_step]?.onShow;
+  if (onShow) {
+    onShow();
+  }
+  targetInfo.step = _step;
+  targetInfo.preventNext = targetInfo.steps[_step]?.preventNext || false;
+  targetInfo.preventPrevious =
+    targetInfo.steps[_step]?.preventPrevious || false;
 };
 const finishHandler = () => {
-  tourInfo[currentTourName.value].touring = false;
-  tourInfo[currentTourName.value].step = 0;
-  tourInfo[currentTourName.value].doneSteps.splice(0);
+  const target = tourInfo[currentTourName.value];
+  target.touring = false;
+  target.step = 0;
+  target.doneSteps.splice(0);
   if (!IS_PLAYGROUND_ENV) {
     const sl = useListStore().scriptList;
     const demoIndex = sl.findIndex((item) => item.id === DEMO_SCRIPT_ID);
@@ -64,12 +67,15 @@ const finishHandler = () => {
     }
   }
 };
-watchEffect(() => {
-  const s = tourInfo[currentTourName.value]?.step;
-  if(s){
-    nextTick(() => (step.value = s));
+watch(
+  () => tourInfo[currentTourName.value]?.step,
+  () => {
+    const s = tourInfo[currentTourName.value]?.step;
+    if (s) {
+      nextTick(() => (step.value = s));
+    }
   }
-});
+);
 onMounted(() => {
   tourInfo[currentTourName.value].preventNext =
     tourInfo[currentTourName.value].steps[0]?.preventNext || false;
