@@ -9,7 +9,7 @@ export const waitShortcutsFn = async (
   taskId?: string
 ) => {
   if (IS_PLAYGROUND_ENV) {
-    console.warn("playground环境下无法使用快捷键！");
+    console.error("playground环境下无法使用：waitShortcuts");
     return;
   }
   const { notAllowedFnId } = useScriptRuntime();
