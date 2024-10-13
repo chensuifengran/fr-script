@@ -36,6 +36,7 @@
       <div class="header-right">
         <el-input
           class="input"
+          id="search_script_input"
           v-model="searchInfo.content"
           clearable
           placeholder="搜索脚本名称或备注"
