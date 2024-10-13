@@ -21,10 +21,7 @@ export const useListStore = defineStore<
   actions: {
     async exportData() {
       const obj: any = {
-        version:
-          IS_PLAYGROUND_ENV
-            ? "playground"
-            : await getVersion(),
+        version: IS_PLAYGROUND_ENV ? "playground" : await getVersion(),
       };
       Object.assign(obj, this.$state);
       return JSON.stringify(obj);
@@ -50,14 +47,15 @@ export const useListStore = defineStore<
           *
           * */
           if (mutation.storeId === "listStore") {
-            // console.log(mutation.events)
             localStorage.setItem("listStore", await this.exportData());
           }
         },
         { detached: false }
       );
-      window.localStorage.getItem("listStore") &&
-        (await this.importData(window.localStorage.getItem("listStore")!));
+      const localData = window.localStorage.getItem("listStore");
+      if (localData) {
+        await this.importData(localData);
+      }
     },
   },
 });

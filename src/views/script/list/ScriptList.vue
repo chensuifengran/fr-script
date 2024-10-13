@@ -42,7 +42,9 @@
         />
         <el-button-group>
           <el-button @click="imoprtScript">导入</el-button>
-          <el-button type="primary" @click="onAddItem">新建</el-button>
+          <el-button id="new_script_btn" type="primary" @click="onAddItem"
+            >新建</el-button
+          >
         </el-button-group>
       </div>
     </div>
@@ -189,11 +191,35 @@ const openFile = async (index: number) => {
 };
 
 const onAddItem = () => {
+  const { tourInfo } = useTour();
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
+    const { mockScriptList } = usePlayMock();
+    if (tourInfo.scriptList.touring && tourInfo.scriptList.step === 2) {
+      mockScriptList.value.push({
+        id: DEMO_SCRIPT_ID,
+        name: "演示脚本",
+        savePath: "内部存储",
+        version: "v1.2",
+        description: "对脚本交互表单的渲染效果进行展示",
+        setting: {
+          autoImportLastRunConfig: true,
+          targetAdbDevice: "",
+          targetApp: "",
+          autoStartTargetApp: false,
+          excludeDevice: [],
+        },
+        content: DEMO_SCRIPT_TEMPLATE,
+      });
+      tourInfo.scriptList.preventNext = false;
+      if (!tourInfo.scriptList.doneSteps.includes(tourInfo.scriptList.step)) {
+        tourInfo.scriptList.doneSteps.push(tourInfo.scriptList.step);
+      }
+      tourInfo.scriptList.step++;
+      return;
+    }
     const id = nanoid();
     const version = "v1." + Math.floor(Math.random() * 10);
-    usePlayMock().mockScriptList.value.push({
+    mockScriptList.value.push({
       id,
       savePath: `内部存储`,
       name: id,
@@ -222,6 +248,29 @@ const onAddItem = () => {
     contentTransform.value = "translateX(-100%)";
     asideBarPos.value = "absolute";
     return;
+  } else {
+    if (tourInfo.scriptList.touring && tourInfo.scriptList.step === 2) {
+      scriptList.value.push({
+        id: DEMO_SCRIPT_ID,
+        name: "演示脚本",
+        savePath: "内部存储",
+        version: "v1.2",
+        description: "对脚本交互表单的渲染效果进行展示",
+        setting: {
+          autoImportLastRunConfig: true,
+          targetAdbDevice: "",
+          targetApp: "",
+          autoStartTargetApp: false,
+          excludeDevice: [],
+        },
+      });
+      tourInfo.scriptList.preventNext = false;
+      if (!tourInfo.scriptList.doneSteps.includes(tourInfo.scriptList.step)) {
+        tourInfo.scriptList.doneSteps.push(tourInfo.scriptList.step);
+      }
+      tourInfo.scriptList.step++;
+      return;
+    }
   }
   openId!.value = "-1";
   //路由跳转到编辑器

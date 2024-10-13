@@ -151,7 +151,6 @@ const collapsedAside = () => {
 const { appVersionInfo, goDownloadNewApp } = useAppVersionInfo();
 onBeforeMount(() => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   libUtil.batchUpdateDep();
@@ -160,6 +159,7 @@ const { appWidth, appHeight } = useAppLayout();
 </script>
 <template>
   <div class="app">
+    <tours/>
     <FillApiParamDialog />
     <code-snippet-save-dialog />
     <template v-if="isMainWindow">
@@ -211,6 +211,7 @@ const { appWidth, appHeight } = useAppLayout();
                   v-for="topRoute in topRoutes"
                   :index="topRoute.name as string"
                   :key="topRoute.path + '|' + topRoute.meta!.title"
+                  :id="topRoute.meta?.id"
                 >
                   <el-icon>
                     <component :is="topRoute.meta!.icon" />
@@ -224,6 +225,7 @@ const { appWidth, appHeight } = useAppLayout();
                   v-for="bottomRoute in bottomRoutes"
                   :index="bottomRoute.name as string"
                   :key="bottomRoute.path + '|' + bottomRoute.meta!.title"
+                  :id="bottomRoute.meta?.id"
                 >
                   <el-icon>
                     <component :is="bottomRoute.meta!.icon" />

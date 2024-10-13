@@ -19,6 +19,7 @@ const routes = <RouteRecordRaw[]>[
       title: "脚本",
       icon: ScriptIcon,
       position: "top",
+      id: "script_route",
     },
     children: [
       {
@@ -51,6 +52,7 @@ const routes = <RouteRecordRaw[]>[
       title: "调试",
       icon: InvokeIcon,
       position: "top",
+      id: "apiTest_route",
     },
   },
   {
@@ -61,6 +63,7 @@ const routes = <RouteRecordRaw[]>[
       title: "片段",
       icon: CodeSnippetIcon,
       position: "top",
+      id: "codeSnippetList_route",
     },
   },
   {
@@ -71,6 +74,7 @@ const routes = <RouteRecordRaw[]>[
       title: "工程",
       icon: ProjectIcon,
       position: "top",
+      id: "project_route",
       disabled: import.meta.env.PROD || IS_PLAYGROUND_ENV,
     },
   },
@@ -82,6 +86,7 @@ const routes = <RouteRecordRaw[]>[
       title: "设置",
       icon: SettingsIcon,
       position: "bottom",
+      id: "setting_route",
     },
   },
   {
@@ -92,6 +97,7 @@ const routes = <RouteRecordRaw[]>[
       title: "关于",
       icon: InfoIcon,
       position: "bottom",
+      id: "setting_route",
     },
   },
   {

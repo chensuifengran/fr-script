@@ -1,5 +1,5 @@
 <template>
-  <div class="script-item" @click="showDetails = !showDetails">
+  <div class="script-item" :id="props.id" @click="showDetails = !showDetails">
     <div class="content drag-handle">
       <div class="info">
         <el-icon class="icon" v-if="!showDetails" size="large">
@@ -24,7 +24,11 @@
           content="从列表移除"
           placement="bottom"
         >
-          <el-icon class="icon" @click.stop="deleteScript">
+          <el-icon
+            :id="props.id + '-DEL'"
+            class="icon"
+            @click.stop="deleteScript"
+          >
             <span i-mdi-playlist-remove></span>
           </el-icon>
         </el-tooltip>
@@ -34,7 +38,11 @@
           content="编辑脚本"
           placement="bottom"
         >
-          <code-icon class="icon" @click.stop="editorScriptFile" />
+          <code-icon
+            :id="props.id + '-EDIT'"
+            class="icon"
+            @click.stop="editorScriptFile"
+          />
         </el-tooltip>
         <el-tooltip
           class="box-item"
@@ -42,7 +50,11 @@
           content="打开脚本"
           placement="bottom"
         >
-          <el-icon class="icon" @click.stop="openFIleDialog">
+          <el-icon
+            :id="props.id + '-OPEN'"
+            class="icon"
+            @click.stop="openFIleDialog"
+          >
             <span i-mdi-folder-eye-outline></span>
           </el-icon>
         </el-tooltip>
@@ -52,7 +64,11 @@
           content="脚本设置"
           placement="bottom"
         >
-          <el-icon class="icon" @click.stop="goSetScript">
+          <el-icon
+            :id="props.id + '-SETTING'"
+            class="icon"
+            @click.stop="goSetScript"
+          >
             <span i-solar-settings-linear></span>
           </el-icon>
         </el-tooltip>
@@ -62,7 +78,7 @@
           content="运行脚本"
           placement="bottom"
         >
-          <el-icon class="icon" @click.stop="runScript"
+          <el-icon :id="props.id + '-RUN'" class="icon" @click.stop="runScript"
             ><span i-mdi-play-circle-outline></span
           ></el-icon>
         </el-tooltip>
@@ -126,29 +142,66 @@ const scriptIndex = computed(() => {
   return scriptList.value.findIndex((item) => item.id === props.id)!;
 });
 
+const { tourInfo } = useTour();
+
 const showDetails = ref(false);
 
 const deleteScript = () => {
+  if (
+    tourInfo.scriptList.touring &&
+    tourInfo.scriptList.step >= 3
+  ) {
+    ElMessage.warning("请先完成引导");
+    return;
+  }
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("deleteScript", scriptIndex.value);
 };
 
 const editorScriptFile = () => {
+  if (
+    tourInfo.scriptList.touring &&
+    tourInfo.scriptList.step >= 3
+  ) {
+    ElMessage.warning("请先完成引导");
+    return;
+  }
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("editorScriptFile", scriptIndex.value);
 };
 
 const openFIleDialog = () => {
+  if (
+    tourInfo.scriptList.touring &&
+    tourInfo.scriptList.step >= 3
+  ) {
+    ElMessage.warning("请先完成引导");
+    return;
+  }
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("openFile", scriptIndex.value);
 };
 
 const goSetScript = () => {
+  if (
+    tourInfo.scriptList.touring &&
+    tourInfo.scriptList.step >= 3
+  ) {
+    ElMessage.warning("请先完成引导");
+    return;
+  }
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("setScript", scriptIndex.value);
 };
 
 const runScript = () => {
+  if (
+    tourInfo.scriptList.touring &&
+    tourInfo.scriptList.step >= 3
+  ) {
+    ElMessage.warning("请先完成引导");
+    return;
+  }
   if (scriptIndex.value !== undefined && scriptIndex.value !== -1)
     emit("runScript", scriptIndex.value);
 };

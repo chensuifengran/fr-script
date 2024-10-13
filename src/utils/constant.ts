@@ -43,13 +43,13 @@ const main = async () => {
 `;
 };
 
-export const PLAY_MOCK_SCRIPT = `//引用类型推断文件，以便在vscode中获得内置api的类型推断
+export const DEMO_SCRIPT_TEMPLATE = `//引用类型推断文件，以便在vscode中获得内置api的类型推断
 //@ts-ignore
 /// <reference path="./lib/csfr.d.ts" />
 /*
  * 请勿删除，此声明会在脚本读取时用到！
- * @version:v12.2.0
- * @name: layout_test 超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超级超长的标题
+ * @version:v1.2
+ * @name: 演示脚本
  * @description:对脚本交互表单的渲染效果进行展示
  */
 const { buildForm, log, sleep } = Preludes;
@@ -338,6 +338,8 @@ const main = async () => {
   await sleep(1000 * 3000);
 };
 `;
+
+export const DEMO_SCRIPT_ID = "DEMO_SCRIPT_ITEM";
 
 export const IS_PLAYGROUND_ENV = import.meta.env.MODE === "play";
 
