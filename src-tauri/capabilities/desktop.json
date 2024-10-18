@@ -7,6 +7,14 @@
     "linux"
   ],
   "permissions": [
+    "os:allow-hostname",
+    "os:allow-arch",
+    "os:allow-exe-extension",
+    "os:allow-family",
+    "os:allow-locale",
+    "os:allow-platform",
+    "os:allow-os-type",
+    "os:allow-version",
     "global-shortcut:allow-is-registered",
     "global-shortcut:allow-register",
     "global-shortcut:allow-register-all",

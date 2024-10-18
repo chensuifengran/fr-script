@@ -7,8 +7,10 @@ use tauri::{path::BaseDirectory, Manager};
 use tauri_plugin_autostart::MacosLauncher;
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_autostart::init(
-            MacosLauncher::LaunchAgent,None
+            MacosLauncher::LaunchAgent,
+            None,
         ))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
