@@ -15,7 +15,7 @@ export type TourStepName = {
   apiTest: boolean;
   codeSnippetList: boolean;
   setting: boolean;
-  about: boolean;
+  account: boolean;
 };
 export type TourStepNames = keyof TourStepName;
 export type TourInfo = {
@@ -39,7 +39,7 @@ const [firstTime, setfirstTime] = useLocalStorageState<TourStepName>(
       apiTest: true,
       codeSnippetList: true,
       setting: true,
-      about: true,
+      account: true,
     },
   }
 );
@@ -100,10 +100,10 @@ const tourInfo = reactive<TourInfo>({
     preventNext: false,
     doneSteps: <number[]>[],
   },
-  about: {
+  account: {
     step: 0,
     touring: false,
-    steps: tourSteps.about,
+    steps: tourSteps.account,
     preventPrevious: false,
     preventNext: false,
     doneSteps: <number[]>[],

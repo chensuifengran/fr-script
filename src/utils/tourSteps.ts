@@ -69,5 +69,5 @@ export const tourSteps: TourSteps = {
   apiTest: [],
   codeSnippetList: [],
   setting: [],
-  about: [],
+  account: [],
 };

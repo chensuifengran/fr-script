@@ -2,7 +2,7 @@ import ScriptIcon from "../components/Icons/ScriptIcon.vue";
 import InvokeIcon from "../components/Icons/InvokeIcon.vue";
 import ProjectIcon from "../components/Icons/ProjectIcon.vue";
 import SettingsIcon from "../components/Icons/SettingsIcon.vue";
-import Account from "../components/Icons/Account.vue";
+import AccountIcon from "../components/Icons/AccountIcon.vue";
 import CodeSnippetIcon from "../components/Icons/CodeSnippetIcon.vue";
 import { type RouteRecordRaw } from "vue-router";
 import DevIcon from "../components/Icons/DevIcon.vue";
@@ -95,7 +95,7 @@ const routes = <RouteRecordRaw[]>[
     component: () => import(`../pages/Account.vue`),
     meta: {
       title: "账户",
-      icon: Account,
+      icon: AccountIcon,
       position: "bottom",
       id: "setting_route",
     },
