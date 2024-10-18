@@ -345,3 +345,6 @@ export const IS_PLAYGROUND_ENV = import.meta.env.MODE === "play";
 
 //code snippets
 export const HEADER_REF_INJECT_KEY = Symbol("headerRefInjectKey");
+
+export const API_BASE_HOST = "47.106.34.210:8711";
+// export const API_BASE_HOST = "localhost:8711";
