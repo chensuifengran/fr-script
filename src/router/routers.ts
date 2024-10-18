@@ -2,7 +2,7 @@ import ScriptIcon from "../components/Icons/ScriptIcon.vue";
 import InvokeIcon from "../components/Icons/InvokeIcon.vue";
 import ProjectIcon from "../components/Icons/ProjectIcon.vue";
 import SettingsIcon from "../components/Icons/SettingsIcon.vue";
-import InfoIcon from "../components/Icons/InfoIcon.vue";
+import Account from "../components/Icons/Account.vue";
 import CodeSnippetIcon from "../components/Icons/CodeSnippetIcon.vue";
 import { type RouteRecordRaw } from "vue-router";
 import DevIcon from "../components/Icons/DevIcon.vue";
@@ -90,12 +90,12 @@ const routes = <RouteRecordRaw[]>[
     },
   },
   {
-    path: "/about",
-    name: "about",
-    component: () => import(`../pages/About.vue`),
+    path: "/account",
+    name: "account",
+    component: () => import(`../pages/Account.vue`),
     meta: {
-      title: "关于",
-      icon: InfoIcon,
+      title: "账户",
+      icon: Account,
       position: "bottom",
       id: "setting_route",
     },
