@@ -155,7 +155,7 @@ const reInit = (): boolean => {
 const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
-
+const { controlDeviceInfo } = useControl();
 const { openId, tempEditorValue, contentTransform, asideBarPos } =
   useScriptInfo();
 const goSetScript = () => {
@@ -166,9 +166,7 @@ const { setEndBeforeCompletion, getFileInfo, getWillRunScript } =
   useScriptApi();
 
 const goBack = async () => {
-  router.replace({
-    path: "/script/list",
-  });
+  router.back();
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
   if (IS_PLAYGROUND_ENV) {
@@ -343,6 +341,18 @@ const initScript = async (reinit: boolean = false) => {
     });
   }
 };
+watch(
+  () => controlDeviceInfo.executeScript,
+  (v) => {
+    if (v === "execute") {
+      invokeStartHandle();
+    } else if (v === "stop") {
+      stop();
+    } else if (v === "reinit") {
+      initScript(true);
+    }
+  }
+);
 const GlobalShortcutActions: Record<string, () => Promise<void> | void> = {
   invokeStartHandle,
   initScript,
