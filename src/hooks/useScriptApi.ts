@@ -184,7 +184,9 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
 
 const updateWindowRendererList = () => {
   const { rendererList } = useListStore();
-  window[CORE_NAMESPACES].rendererList = rendererList;
+  setTimeout(() => {
+    window[CORE_NAMESPACES].rendererList = rendererList;
+  });
 };
 
 const replaceRendererList = (newRendererList: RendererList[]) => {
