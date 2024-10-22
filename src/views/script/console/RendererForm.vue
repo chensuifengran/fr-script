@@ -381,10 +381,24 @@ const getItemType = (item: any) => {
   }
   return typeof item;
 };
-const { importLastRunConfig } = useScriptApi();
+const { importLastRunConfig, replaceRendererList } = useScriptApi();
 const listStore = useListStore();
 const { rendererList } = storeToRefs(listStore);
+let syncFormTimer: NodeJS.Timeout | null = null;
+watch(
+  rendererList,
+  (val) => {
+    console.log("rendererList changed");
 
+    syncFormTimer && clearTimeout(syncFormTimer);
+    syncFormTimer = setTimeout(() => {
+      useWss().syncRendererList(val, true);
+    }, 500);
+  },
+  {
+    deep: true,
+  }
+);
 let isFirst = true;
 
 const configChangeHandle = async (label?: string) => {
@@ -393,7 +407,20 @@ const configChangeHandle = async (label?: string) => {
   }
 };
 let stopHandle: WatchStopHandle;
+let unlistenMsg: () => void = () => {};
 onMounted(() => {
+  const { syncRendererList, onMsg, existSyncId, deprecatedSyncId } = useWss();
+  unlistenMsg = onMsg((msg) => {
+    if (msg.type === "COMMAND") {
+      if (msg.command === "SYNC_FORM") {
+        if (!existSyncId(msg.syncId)) {
+          replaceRendererList(resetRListDate(msg.form));
+        }
+      } else if (msg.command === "DEPRECATED_SYNC_ID") {
+        deprecatedSyncId(msg.syncId);
+      }
+    }
+  });
   rendererList.value = RFormUtil.genId(rendererList.value);
   stopHandle = watchEffect(async () => {
     const reInit = props.reInit();
@@ -402,11 +429,16 @@ onMounted(() => {
     }
     if (!isFirst) return;
   });
+  const { controlDeviceInfo } = useControl();
+  if (controlDeviceInfo.willSyncForm) {
+    syncRendererList(rendererList.value);
+  }
 });
 onBeforeUnmount(() => {
   if (stopHandle) {
     stopHandle();
   }
+  unlistenMsg();
 });
 const getSelectMinWidth = (text: string | number | boolean | object) => {
   if (typeof text === "object") {
