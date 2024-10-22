@@ -548,13 +548,23 @@ onUnmounted(() => {
     observer.unobserve(headerRef.value);
   }
 });
-onMounted(() => {
+onMounted(async () => {
   invokeBaseApi.closeSplashscreen();
   observer = new IntersectionObserver(observerCallback, {});
   if (headerRef.value) {
     observer.observe(headerRef.value);
   }
   searchInfo.target = SearchTarget.ScriptList;
+  await nextTick();
+  const { controlDeviceInfo } = useControl();
+  if (controlDeviceInfo.willRunScriptId) {
+    const index = scriptList.value.findIndex(
+      (i) => i.id === controlDeviceInfo.willRunScriptId
+    );
+    if (index !== -1) {
+      runScript(index);
+    }
+  }
 });
 </script>
 
