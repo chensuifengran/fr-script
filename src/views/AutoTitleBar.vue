@@ -23,9 +23,20 @@
     >
       <div class="title" data-tauri-drag-region style="cursor: move">
         <div class="text">
-          <el-image style="width: 20px; height: 20px" :src="icon" /><span>{{
-            info.title
-          }}</span>
+          <el-image style="width: 20px; height: 20px" :src="icon" />
+          <el-text>{{ info.title }}</el-text>
+          <div
+            v-if="controlDeviceInfo.id.length"
+            ml-4
+            justify-center
+            flex
+            flex-row
+            items-center
+          >
+            <el-text>正在被</el-text>
+            <el-tag type="warning">{{ controlDeviceInfo.id }}</el-tag>
+            <el-text>控制</el-text>
+          </div>
         </div>
         <transition
           enter-active-class="animate__animated animate__fadeInUp"
@@ -229,6 +240,7 @@ import { listen } from "@tauri-apps/api/event";
 import { SearchTarget } from "../hooks/useAutoTitleBar";
 const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
+const { controlDeviceInfo } = useControl();
 const { isEditing, fileInfo } = useScriptInfo();
 const { getEditorValue } = useEditor();
 const { showTour } = useTour();
