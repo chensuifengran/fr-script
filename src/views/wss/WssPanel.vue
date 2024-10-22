@@ -31,19 +31,6 @@
           <el-text>无访问码时询问</el-text>
           <el-switch v-model="autoAsk" />
         </div>
-        <div
-          v-if="controlDeviceInfo.id.length"
-          mt-4
-          w-full
-          justify-center
-          flex
-          flex-row
-          items-center
-        >
-          <el-text>正在被</el-text>
-          <el-tag>{{ controlDeviceInfo.id }}</el-tag>
-          <el-text>控制</el-text>
-        </div>
       </el-card>
     </div>
     <el-empty
