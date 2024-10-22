@@ -1,7 +1,8 @@
 import { nanoid } from "nanoid";
 import { getFileInfo } from "../../../hooks/useScriptApi";
 import { useLog } from "../../../hooks/useLog";
-
+const { logOutput } = useLog();
+const { controlDeviceInfo } = useControl();
 export const logFn = (
   _msg: any,
   type?: "success" | "danger" | "info" | "warning" | "loading",
@@ -23,7 +24,6 @@ export const logFn = (
       return i < 10 ? "0" + i : i;
     })
     .join(":");
-  const { logOutput } = useLog();
   const msg = typeof _msg === "string" ? _msg : JSON.stringify(_msg);
   logOutput.push({
     id: nanoid(),
@@ -32,6 +32,9 @@ export const logFn = (
     type: type ? type : "info",
     timestamp: Date.now(),
   });
+  if (controlDeviceInfo.executeScript === "execute") {
+    useWss().syncLog(msg, timeStr, type ? type : "info");
+  }
   if (!IS_PLAYGROUND_ENV) {
     const { notify } = eventUtil;
     notify.send({
