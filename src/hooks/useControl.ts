@@ -1,3 +1,4 @@
+import { storeToRefs } from "pinia";
 import { useLocalStorageState } from "vue-hooks-plus";
 
 const [controlCode, setControlCode] = useLocalStorageState<string>(
@@ -52,9 +53,18 @@ const closeAutoOnline = () => {
     autoOnline: false,
   });
 };
-const controlDeviceInfo = reactive({
+const controlDeviceInfo = reactive<{
+  id: string;
+  accessToken: string;
+  willRunScriptId: string;
+  willSyncForm: boolean;
+  executeScript: "willExec" | "execute" | "stop" | "reinit";
+}>({
   id: "",
   accessToken: "",
+  willRunScriptId: "",
+  willSyncForm: false,
+  executeScript: "willExec",
 });
 let unlisten: () => void = () => {};
 watch(
@@ -72,10 +82,23 @@ watch(
               };
             });
             useWss().responseScriptList(scriptList);
-            unlisten();
+          } else if (msg.command === "RUN_SCRIPT") {
+            controlDeviceInfo.willSyncForm = true;
+            controlDeviceInfo.willRunScriptId = msg.scriptId;
+            const appGSStore = useAppGlobalSettings();
+            const { app } = storeToRefs(appGSStore);
+            router.replace("/script/list");
+            useAppLayout().menuKey.value++;
+            useAutoTitleBar().info.showContentType = "script";
+            app.value.state.aside.currentItem = "script";
+            controlDeviceInfo.willSyncForm = true;
+          }else if(msg.command === 'EXECUTE_SCRIPT'){
+            controlDeviceInfo.executeScript = msg.state;
           }
         }
       });
+    } else {
+      unlisten();
     }
   }
 );
