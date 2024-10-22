@@ -1,3 +1,4 @@
+import { dayjs } from "element-plus";
 import { nanoid } from "nanoid";
 
 export class RFormUtil {
@@ -95,3 +96,102 @@ export class RFormUtil {
     });
   };
 }
+
+export const processRList = (list: RendererList[]) => {
+  const newList = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+    (group) => {
+      return {
+        ...group,
+        pickerList: group.pickerList.map((item) => {
+          if (item.pickerType === "color") {
+            //目前仅支持rgb、hex、rgba、hexa格式的颜色，需要删除其他格式的颜色
+            if (item.predefine) {
+              item.predefine = item.predefine.filter((c) => {
+                if (c.includes("#") || c.includes("rgb")) {
+                  return true;
+                }
+                return false;
+              });
+            }
+          } else {
+            //date类型值无法被序列化，需要转换为字符串
+            if (item.isRange) {
+              item.value = item.value
+                .filter((i) => i)
+                .map((v) => {
+                  if ("valueFormat" in item) {
+                    const date = dayjs(v, item.valueFormat);
+                    if (!date.isValid()) {
+                      return new Date().toLocaleString();
+                    }
+                    return date.toLocaleString();
+                  }
+                  if (typeof v === "string") {
+                    return v;
+                  } else {
+                    return v.toLocaleString();
+                  }
+                }) as [string, string];
+            } else {
+              if ("valueFormat" in item) {
+                const date = dayjs(item.value, item.valueFormat);
+                if (!date.isValid()) {
+                  item.value = new Date().toLocaleString();
+                } else {
+                  item.value = date.toLocaleString();
+                }
+              } else {
+                if (typeof item.value !== "string" && item.value) {
+                  item.value = item.value.toLocaleString() as unknown as Date;
+                } else {
+                  item.value = new Date().toLocaleString() as unknown as Date;
+                }
+              }
+            }
+          }
+          return item;
+        }),
+      };
+    }
+  );
+  return newList;
+};
+
+export const resetRListDate = (list: RendererList[]) => {
+  const res = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+    (group) => {
+      return {
+        ...group,
+        pickerList: group.pickerList.map((item) => {
+          if (item.pickerType !== "color") {
+            if (item.isRange) {
+              if (!item.value.length) {
+                item.value = [new Date(), new Date()];
+              }
+              item.value = item.value.map((i) => {
+                i = new Date();
+                if ("valueFormat" in item) {
+                  const res = dayjs(i).format(item.valueFormat);
+                  return res;
+                }
+                return i;
+              }) as [Date, Date] | [string, string];
+            } else {
+              item.value = new Date(item.value);
+              if ("valueFormat" in item) {
+                item.value = dayjs(item.value).format(item.valueFormat);
+              }
+            }
+          }
+          return item;
+        }),
+      };
+    }
+  );
+  console.log(
+    "-----------res:",
+    JSON.parse(JSON.stringify(res.map((i) => i.pickerList)))
+  );
+
+  return res;
+};
