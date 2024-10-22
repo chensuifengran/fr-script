@@ -140,7 +140,6 @@ declare namespace PickerItem {
   type PTime = {
     pickerType: "time";
     clearable?: boolean;
-    format?: string;
     disabledHours?: (role: string, comparingDate?: any) => number[];
     disabledMinutes?: (
       hour: number,
@@ -157,7 +156,6 @@ declare namespace PickerItem {
   type PDate = {
     pickerType: "date";
     clearable?: boolean;
-    format?: string;
   } & DateTimeProp;
   type Color<Alpha extends boolean> = {
     pickerType: "color";
