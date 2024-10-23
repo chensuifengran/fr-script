@@ -12,7 +12,7 @@ export const useAppGlobalSettings = defineStore<
     return {
       isInited: false,
       app: {
-        latestVersion: "0.0.3",
+        latestVersion: "2.0.0",
         depHaveUpdate: false,
         dependenceState:
           IS_PLAYGROUND_ENV ? "完整版" : "不可用",
