@@ -341,10 +341,11 @@ const showSetupBtn = computed(() => {
   if (IS_PLAYGROUND_ENV) {
     return false;
   }
-  return (
-    version.value !== "获取版本失败" &&
-    version.value !== appGSStore.app.latestVersion
-  );
+  if(version.value === "获取版本失败"){
+    return false;
+  }
+  const res = compareVersions(version.value, appVersionInfo.value.version);
+  return res < 0;
 });
 
 const showApiTestSearch = computed(() => {

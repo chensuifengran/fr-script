@@ -230,10 +230,11 @@ const haveUpdate = computed(() => {
   if (IS_PLAYGROUND_ENV) {
     return false;
   }
-  return (
-    version.value !== "获取版本失败" &&
-    version.value !== appGSStore.app.latestVersion
-  );
+  if (version.value === "获取版本失败") {
+    return false;
+  }
+  const res = compareVersions(version.value, appGSStore.app.latestVersion);
+  return res < 0;
 });
 const themeChangeHandler = async () => {
   if (IS_PLAYGROUND_ENV) {
