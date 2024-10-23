@@ -172,6 +172,14 @@
               w-full
             />
           </template>
+          <template v-else-if="i.inputType === 'dir'">
+            <dir-input
+              v-model="i.value"
+              :label="i.label"
+              :disabled="!g.enable || disabledAll"
+              w-full
+            />
+          </template>
           <template v-else>
             <el-text
               v-if="

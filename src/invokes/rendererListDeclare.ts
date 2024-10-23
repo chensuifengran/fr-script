@@ -70,10 +70,15 @@ declare type FileInputItem<Multiple extends boolean> = {
   multiple: Multiple extends true ? true : false | undefined;
   value: Multiple extends true ? string[] : string;
 } & BaseListItem;
+declare type DirInputItem = {
+  inputType: "dir";
+  value: string;
+} & BaseListItem;
 declare type InputListItem =
   | TextInputItem
   | NumberInputItem
   | RangeInputItem
+  | DirInputItem
   | FileInputItem<true>
   | FileInputItem<false>;
 declare type BaseSelectItem<T extends string | number | boolean> =
@@ -187,5 +192,9 @@ declare type RendererList = {
   selectList: SelectListItem[];
   pickerList: PickerListItem[];
 };
-declare type RendererItem = CheckListItem | InputListItem | SelectListItem | PickerListItem;
+declare type RendererItem =
+  | CheckListItem
+  | InputListItem
+  | SelectListItem
+  | PickerListItem;
 `
