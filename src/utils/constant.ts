@@ -343,6 +343,8 @@ export const DEMO_SCRIPT_ID = "DEMO_SCRIPT_ITEM";
 
 export const IS_PLAYGROUND_ENV = import.meta.env.MODE === "play";
 
+export const ENABLE_ACCOUNT_MODE = import.meta.env.VITE_ENABLE_ACCOUNT_MODE === "true";
+
 //code snippets
 export const HEADER_REF_INJECT_KEY = Symbol("headerRefInjectKey");
 

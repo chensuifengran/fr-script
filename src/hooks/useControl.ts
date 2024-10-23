@@ -74,7 +74,11 @@ watch(
       unlisten = useWss().onMsg((msg) => {
         if (msg.type === "COMMAND") {
           if (msg.command === "REQUEST_SCRIPT_LIST") {
-            const scriptList = useListStore().scriptList.map((s) => {
+            const scriptList = (
+              IS_PLAYGROUND_ENV
+                ? usePlayMock().mockScriptList.value
+                : useListStore().scriptList
+            ).map((s) => {
               return {
                 id: s.id,
                 name: s.name,
@@ -92,7 +96,7 @@ watch(
             useAutoTitleBar().info.showContentType = "script";
             app.value.state.aside.currentItem = "script";
             controlDeviceInfo.willSyncForm = true;
-          }else if(msg.command === 'EXECUTE_SCRIPT'){
+          } else if (msg.command === "EXECUTE_SCRIPT") {
             controlDeviceInfo.executeScript = msg.state;
           }
         }

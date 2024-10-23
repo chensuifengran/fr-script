@@ -67,10 +67,12 @@ export const useAppGlobalSettings = defineStore<
       if (ocrValue) {
         obj.ocr.value = ocrValue;
       }
-      obj.envSetting._screenshotDir = await pathUtils.resolve(
-        obj.envSetting.screenshotSavePath,
-        "../"
-      );
+      if (!IS_PLAYGROUND_ENV) {
+        obj.envSetting._screenshotDir = await pathUtils.resolve(
+          obj.envSetting.screenshotSavePath,
+          "../"
+        );
+      }
       this.$patch(obj);
     },
     async init() {

@@ -558,9 +558,9 @@ onMounted(async () => {
   await nextTick();
   const { controlDeviceInfo } = useControl();
   if (controlDeviceInfo.willRunScriptId) {
-    const index = scriptList.value.findIndex(
-      (i) => i.id === controlDeviceInfo.willRunScriptId
-    );
+    const index = (
+      IS_PLAYGROUND_ENV ? usePlayMock().mockScriptList.value : scriptList.value
+    ).findIndex((i) => i.id === controlDeviceInfo.willRunScriptId);
     if (index !== -1) {
       runScript(index);
     }
