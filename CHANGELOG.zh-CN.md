@@ -8,12 +8,17 @@ _2024.10.11_
 
 - 设置面板添加自动启动开关，开启后软件将在系统启动时自动启动
 - API参数解析支持解析反引号字面量字符串的值
+- 新增invokeApi：FS(readFile、 writeFile、 readDir)
+- 关于界面改为账户界面，支持远程执行脚本
+- 添加脚本列表界面的引导，首次自动打开引导
 
 #### 重构：
 
 - Preludes.log方法内容参数支持任意类型
 - (BREAKING CHANGE)GlobalShortcut.waitKeys方法重命名为GlobalShortcut.waitShortcuts
 - GlobalShortcut.listen、GlobalShortcut.unlisten方法参数：keys改为shortcuts
+- 字符串常量以更优雅的方式注入
+- 未发布版本使用最新版的版本号进行更新和依赖检测
 
 #### Bug修复：
 
@@ -21,6 +26,9 @@ _2024.10.11_
 - 脚本列表和代码片段列表的搜索框应该在滚动之后才能出现
 - 脚本运行日志在脚本结束运行后不再接收新的日志
 - 脚本运行浮窗的吸附辅助窗口调整大小时使用物理大小替代逻辑大小，避免大小与浮窗不一致
+- 部分注入的字符串常量为promise，不符合预期类型
+- 文件夹选择组件使用了文件选择的API，导致无法选择文件夹
+- (dev)内置API管理: exportFn模板重复调用了两次console.time，第二次应该为console.timeEnd
 
 #### 杂项：
 
