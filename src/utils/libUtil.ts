@@ -6,7 +6,6 @@ let lastLiblist: LibNameItemType[] = [];
 let lastDepPkg: DepPkgItemType[] = [];
 const renameLib = async (name: string, targetName: string) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   try {
@@ -20,7 +19,6 @@ const renameLib = async (name: string, targetName: string) => {
 };
 const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return [];
   }
   if (!checkList) {
@@ -109,7 +107,6 @@ const diffLocalVersionConfig = async (checkList?: CheckDepItemType[]) => {
 };
 const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   const currentVersionInfo = checkList
@@ -141,7 +138,6 @@ const syncLocalDepVersion = async (checkList: CheckDepItemType[]) => {
 };
 const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return [];
   }
   if (!checkList) {
@@ -164,7 +160,6 @@ const syncDependentVersion = async (checkList?: CheckDepItemType[]) => {
 };
 const syncOcrValue = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return "CPU";
   }
   const info = await libExists("paddle_inference.dll");
@@ -175,7 +170,6 @@ const syncOcrValue = async () => {
 };
 const libExists = async (name: string, resolvePath = "") => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   const installPath = await pathUtils.getInstallDir();
@@ -194,7 +188,6 @@ const libExists = async (name: string, resolvePath = "") => {
 };
 const pushUpdateDep = async (path: string) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   const installPath = await pathUtils.getInstallDir();
@@ -203,7 +196,6 @@ const pushUpdateDep = async (path: string) => {
 };
 const batchUpdateDep = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   const installPath = await pathUtils.getInstallDir();
@@ -221,7 +213,6 @@ const batchUpdateDep = async () => {
 const checkDepList = async (depList: DependenceItemType[]) => {
   const resultList: LibNameItemType[] = [];
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return resultList;
   }
   for (const dep of depList) {
@@ -272,13 +263,12 @@ const checkDepList = async (depList: DependenceItemType[]) => {
  * downloadUrl: 依赖库下载地址
  * children: 依赖库的子依赖库检查结果
  */
-const checkLibs = async () => {
+const checkLibs = async (version?: string) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return [];
   }
   const libInfo = await appConfigApi.getDepInfo();
-  const currentVersion = await getVersion();
+  const currentVersion = version || (await getVersion());
   //找到适合当前版本的依赖
   const suitableDep = libInfo.find((i: any) => {
     return i.suitable_app_version.includes(currentVersion);
@@ -307,7 +297,6 @@ const checkLibs = async () => {
 const getAllLibsName = async (checkList: LibNameItemType[]) => {
   const libNames: string[] = [];
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return [];
   }
   for (const item of checkList) {
@@ -335,7 +324,6 @@ const getDepState = async (
   childFiles?: string[]
 ) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return true;
   }
   const dep = list.find((i) => i.name === depName);
@@ -383,7 +371,6 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
   //在精简版的基础上，依赖名为ppocr.dll的依赖库及子依赖库均存在时为：基础版
   //在基础版的基础上，依赖名为g_ppocr.dll的依赖库及子依赖库均存在时为：完整版
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   const resultMap: Record<string, boolean> = {};
@@ -417,10 +404,14 @@ const syncDepState = async (checkList: CheckDepItemType[]) => {
 };
 const checkDepUpdate = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
-  const checkList = await checkLibs();
+  const appGSStore = useAppGlobalSettings();
+  const res = compareVersions(await getVersion(), appGSStore.app.latestVersion);
+  //如果当前版本比最新版本高，则是未发布的新版本，使用最新版本依赖即可
+  const checkList = await checkLibs(
+    res === 1 ? appGSStore.app.latestVersion : undefined
+  );
   if (checkList.length === 0) {
     ElNotification({
       title: "获取依赖信息失败",
@@ -446,11 +437,14 @@ const checkDepUpdate = async () => {
  *  */
 const checkDepLack = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return [];
   }
-  const checkList = await checkLibs();
   const appGSStore = useAppGlobalSettings();
+  const res = compareVersions(await getVersion(), appGSStore.app.latestVersion);
+  //如果当前版本比最新版本高，则是未发布的新版本，使用最新版本依赖即可
+  const checkList = await checkLibs(
+    res === 1 ? appGSStore.app.latestVersion : undefined
+  );
   const state = appGSStore.app.dependenceState;
   const simpleStateLackDeps: NeedUpdateDepType[] = [];
   const baseStateLackDeps: NeedUpdateDepType[] = [];
@@ -615,7 +609,6 @@ const installDep = async (
   ocrValue: "CPU" | "GPU" = "CPU"
 ) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return true;
   }
   const installPath = await pathUtils.getInstallDir();
@@ -662,7 +655,6 @@ const installDep = async (
 };
 const syncDepPkgList = async () => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return;
   }
   if (!lastDepPkg) {
@@ -675,7 +667,6 @@ const syncDepPkgList = async () => {
 };
 export const getDepStateType = (state: string) => {
   if (IS_PLAYGROUND_ENV) {
-    //playground环境
     return "primary";
   }
   switch (state) {
