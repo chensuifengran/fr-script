@@ -422,6 +422,11 @@ onMounted(async () => {
   if (IS_PLAYGROUND_ENV) {
     return;
   }
+  const scriptRootDir = await pathUtils.resolve(
+    getFileInfo("savePath") || "",
+    "../"
+  );
+  useAppGlobalSettings().envSetting._scriptRootDir = scriptRootDir;
   const targetWindow = await open("notification", "/notification", {
     height: 135,
     width: 200,

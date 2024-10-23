@@ -14,8 +14,7 @@ export const useAppGlobalSettings = defineStore<
       app: {
         latestVersion: "2.0.0",
         depHaveUpdate: false,
-        dependenceState:
-          IS_PLAYGROUND_ENV ? "完整版" : "不可用",
+        dependenceState: IS_PLAYGROUND_ENV ? "完整版" : "不可用",
         state: {
           aside: {
             collapsed: false,
@@ -30,6 +29,8 @@ export const useAppGlobalSettings = defineStore<
       envSetting: {
         workDir: "",
         screenshotSavePath: "",
+        _screenshotDir: "",
+        _scriptRootDir: "E:\\test\\root_dir",
       },
       ocr: {
         value: "CPU",
@@ -52,10 +53,7 @@ export const useAppGlobalSettings = defineStore<
   actions: {
     async exportData() {
       const obj: any = {
-        version:
-          IS_PLAYGROUND_ENV
-            ? "playground"
-            : await getVersion(),
+        version: IS_PLAYGROUND_ENV ? "playground" : await getVersion(),
       };
       Object.assign(obj, this.$state);
       delete obj.ocr.inited;
@@ -69,6 +67,10 @@ export const useAppGlobalSettings = defineStore<
       if (ocrValue) {
         obj.ocr.value = ocrValue;
       }
+      obj.envSetting._screenshotDir = await pathUtils.resolve(
+        obj.envSetting.screenshotSavePath,
+        "../"
+      );
       this.$patch(obj);
     },
     async init() {
@@ -112,9 +114,14 @@ export const useAppGlobalSettings = defineStore<
               "screenshot.png"
             );
             this.envSetting.screenshotSavePath = screenshotSavePath;
+            this.envSetting._screenshotDir = await pathUtils.resolve(
+              screenshotSavePath,
+              "../"
+            );
           } else {
             this.envSetting.screenshotSavePath =
               "E:\\playground\\screenshot.png";
+            this.envSetting._screenshotDir = "E:\\playground";
           }
         }
       }

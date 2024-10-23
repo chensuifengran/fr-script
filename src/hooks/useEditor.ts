@@ -42,11 +42,7 @@ monaco.languages.registerCompletionItemProvider("typescript", {
     };
   },
 });
-monaco.languages.typescript.typescriptDefaults.setExtraLibs([
-  {
-    content: editorTsDeclaration(),
-  },
-]);
+let hasSetExtra = false;
 const openOperationRecordDrawer = ref(false);
 const languages = monaco.languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
@@ -203,6 +199,14 @@ export const useEditor = () => {
     genEditorTsDeclaration = true,
     showMiniMap = true
   ) => {
+    if (!hasSetExtra) {
+      monaco.languages.typescript.typescriptDefaults.setExtraLibs([
+        {
+          content: editorTsDeclaration(),
+        },
+      ]);
+      hasSetExtra = true;
+    }
     const appGSStore = useAppGlobalSettings();
     let editorTheme = "vs";
     const settingEditorTheme = appGSStore.editor.theme.value;

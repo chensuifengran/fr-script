@@ -1,4 +1,4 @@
-export const UTIL_DECLARE_STRING = `
+export const getCommanDeclareTypes = (constantSlot: string) => `
 declare class RFormUtil {
   constructor(form: RendererList[]);
   /**
@@ -34,11 +34,7 @@ declare class RFormUtil {
     failValue: T
   ): T;
 }
-declare const WORK_DIR: string;
-declare const SCREEN_SHOT_PATH: string;
-declare const SCREEN_SHOT_DIR: string;
-declare const __httpValue: string;
-declare const SCRIPT_ROOT_DIR: string;
+${constantSlot}
 declare const isStop: boolean;
 declare const SCRIPT_ID: string;
 

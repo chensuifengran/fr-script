@@ -37,6 +37,8 @@ declare type GlobalSettings = {
   envSetting: {
     workDir: string;
     screenshotSavePath: string;
+    _screenshotDir: string;
+    _scriptRootDir: string;
   };
   ocr: {
     value: "GPU" | "CPU";

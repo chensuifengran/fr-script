@@ -1,3 +1,4 @@
+import { getInjectConstantType } from "./constantInject";
 import { KeyOptions } from "./Input/KeyOptions";
 /**
  * 提供给编辑器的类型声明, 用于代码提示
@@ -53,6 +54,8 @@ export const editorTsDeclaration = (): string => {
   const INPUT_KEY_TYPE = `declare type Key = ${KeyOptions.map(
     (i) => `"${i.split(":")[1]}"`
   ).join("|")};`;
+  const constantSlotContent = getInjectConstantType();
+  const UTIL_DECLARE_STRING = getCommanDeclareTypes(constantSlotContent);
   return `
 ${ENUM_DECLARE.trim()}
 ${INPUT_KEY_TYPE.trim()}

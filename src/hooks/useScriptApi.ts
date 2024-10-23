@@ -297,6 +297,8 @@ const abortSignalInScript = ref<AbortController | undefined>();
 const getWillRunScript = (runId: string, script: string) => {
   const { genBuiltInApi } = useCore();
   const buildApiScript = genBuiltInApi(runId);
+  const appGSStore = useAppGlobalSettings();
+  const injectConstants = genInjectConstant(appGSStore);
   const scriptTemplate = `
     try{
       with(window['${CORE_NAMESPACES}']){
@@ -320,6 +322,7 @@ const getWillRunScript = (runId: string, script: string) => {
         signal.addEventListener('abort',signalHandle);
         const evalFunction = async()=>{
           ${ENUM_CODE}
+          ${injectConstants}
           ${script}
           main && await main();
           removeIntervals();
@@ -534,23 +537,9 @@ export const useScriptView = () => {
 export const useBuiltInApi = () => {
   const { exportAllFn } = useCore();
   const { rendererList } = useListStore();
-  const appGSStore = useAppGlobalSettings();
-  const WORK_DIR = appGSStore.envSetting.workDir;
-  const SCREEN_SHOT_DIR = IS_PLAYGROUND_ENV
-    ? "E:\\test\\screenshot"
-    : pathUtils.resolve(appGSStore.envSetting.screenshotSavePath || "", "../");
-  const SCREEN_SHOT_PATH = appGSStore.envSetting.screenshotSavePath;
-  const SCRIPT_ROOT_DIR = IS_PLAYGROUND_ENV
-    ? "E:\\test\\root_dir"
-    : pathUtils.resolve(getFileInfo("savePath") || "", "../");
   return {
-    WORK_DIR,
     copyText,
     readClipboardFirstText,
-    SCREEN_SHOT_PATH,
-    SCREEN_SHOT_DIR,
-    __httpValue: "http://",
-    SCRIPT_ROOT_DIR,
     isStop: false,
     SCRIPT_ID: getScriptId(),
     setAllTask,
