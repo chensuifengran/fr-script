@@ -108,6 +108,19 @@ export default defineConfig(({ mode }) => {
       // 为调试构建生成源代码映射 (sourcemap)
       sourcemap: !!process.env.TAURI_DEBUG,
       outDir: "dist",
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              return id
+                .toString()
+                .split("node_modules/")[1]
+                .split("/")[0]
+                .toString();
+            }
+          },
+        },
+      },
     },
     // 强制预构建插件包
     optimizeDeps: {
