@@ -25,7 +25,7 @@
         </el-text></template
       >
       <template #append>
-        <el-button @click="selectFilePath">选择路径</el-button>
+        <el-button @click="selectDirPath">选择路径</el-button>
       </template>
       <template #default="{ item }">
         <div class="suggestion-item">
@@ -118,12 +118,12 @@ watch(value, async () => {
   if (!props.verify) return;
   pathExits.value = await exists(value.value);
 });
-const selectFilePath = async () => {
-  if(IS_PLAYGROUND_ENV){
+const selectDirPath = async () => {
+  if (IS_PLAYGROUND_ENV) {
     value.value = "E:\\playground\\";
     return;
   }
-  let filePath = (await fsUtils.selectFile(false)) as string | undefined;
+  let filePath = await fsUtils.selectDir();
   if (props.suffix && props.suffix.length > 0) {
     filePath += props.suffix;
   }
