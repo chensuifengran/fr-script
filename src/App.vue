@@ -91,6 +91,7 @@ const init = async (listenResize = true) => {
   libUtil.checkDepUpdate();
 };
 onMounted(async () => {
+  initInjectConstantType();
   if (IS_PLAYGROUND_ENV) {
     //playground环境
     init();
