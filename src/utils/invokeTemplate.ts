@@ -336,7 +336,7 @@ export const modelCallback = async (
   const { ${this.genCBOptionNames()} } = options;
   console.time("${name}耗时");
   const res = await ${name}Fn(${this.genCBOptionNames()});
-  console.time("${name}耗时");
+  console.timeEnd("${name}耗时");
   const selfModule = getInvokeApiMethods().find((i) => i.name === "${name}"${
       scope.length ? ` && i.scope === "${scope}"` : ""
     })?.testModule!;
