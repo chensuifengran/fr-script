@@ -166,7 +166,7 @@ const { setEndBeforeCompletion, getFileInfo, getWillRunScript } =
   useScriptApi();
 
 const goBack = async () => {
-  router.back();
+  router.replace("/script/list");
   asideBarPos.value = "relative";
   contentTransform.value = "translateX(0)";
   if (IS_PLAYGROUND_ENV) {
