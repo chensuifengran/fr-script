@@ -15,7 +15,7 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
           //第一个参数为RectInput组件的值，刚好是函数前四个参数，故赋值如下
-          i.value = AutoTipUtils.pathStrReset(params[index].value || "");
+          i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
           break;
         default:
           break;

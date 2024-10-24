@@ -14,10 +14,10 @@ export const auxiliary = <AuxiliaryType>{
     dialog.args.forEach((i, index) => {
       switch (index) {
         case 0:
-          i.value = AutoTipUtils.pathStrReset(params[index].value || "");
+          i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
           break;
         case 1:
-          i.value = params[index].value;
+          i.value = params[index]?.value;
           break;
       }
     });

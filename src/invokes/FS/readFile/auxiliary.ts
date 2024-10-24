@@ -13,7 +13,7 @@ export const auxiliary = <AuxiliaryType>{
     //根据参数的位置给弹窗对应的组件进行回填赋值
     dialog.args.forEach((i, index) => {
       if (index === 0) {
-        i.value = AutoTipUtils.pathStrReset(params[index].value || "");
+        i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
       }
     });
   },
