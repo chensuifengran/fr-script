@@ -106,6 +106,7 @@
     "clipboard-manager:allow-clear",
     "clipboard-manager:allow-read-image",
     "clipboard-manager:allow-write-html",
+    "fs:allow-rename",
     {
       "identifier": "fs:scope",
       "allow": [
