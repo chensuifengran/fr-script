@@ -2,13 +2,15 @@
 
 ### 2.1.0
 
-_2024.10.23_
+_2024.10.24_
 
 #### 新特性：
 
 - 设置面板添加自动启动开关，开启后软件将在系统启动时自动启动
 - API参数解析支持解析反引号字面量字符串的值
-- 新增invokeApi：FS(readFile、 writeFile、 readDir)
+- 新增invokeApi：
+  - FS(readFile、writeFile、readDir、rename)
+  - Path(resolve、join、basename、dirname、extname)
 - 关于界面改为账户界面，支持远程执行脚本
 - 添加脚本列表界面的引导，首次进入自动打开引导
 - 交互表单Input类型组件的子类型扩充:dir
