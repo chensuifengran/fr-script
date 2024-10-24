@@ -1,7 +1,30 @@
 import { invoke } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
-
 import { DialogFilter, open, save } from "@tauri-apps/plugin-dialog";
+import { exists, rename as _rename } from "@tauri-apps/plugin-fs";
+
+/**
+ * 将旧路径的文件或文件夹移动到新路径
+ * 如果移动的是文件并且新路径已存在，则会覆盖
+ */
+const rename = async (
+  oldPath: string,
+  newPath: string
+) => {
+  try {
+    if (await exists(oldPath)) {
+      await _rename(oldPath, newPath);
+      return true;
+    } else {
+      console.error("源文件(夹)不存在", oldPath);
+      return false;
+    }
+  } catch (error) {
+    console.error("文件(夹)移动失败：", error);
+    return false;
+  }
+};
+
 const getFileInfo = async (
   path: string
 ): Promise<
@@ -190,4 +213,5 @@ export const fsUtils = {
   deleteFile,
   deleteDir,
   moveChildToNewDir,
+  rename
 };
