@@ -1,5 +1,6 @@
 import type { AppGSStore } from "../store/globalSettings";
 let typeConstant = "";
+let lastConstants: Record<string, string> = {};
 /**
  * 注入常量到脚本运行上下文，自动完成常量的注入和编辑器类型声明的提供
  * 如要新增常量，需要在此方法中的constants对象中添加对应的常量
@@ -24,6 +25,7 @@ export const genInjectConstant = (settingStore?: AppGSStore) => {
     SCREEN_SHOT_PATH,
     SCRIPT_ROOT_DIR,
   } as const;
+  lastConstants = constants;
   const keys = Object.keys(constants) as (keyof typeof constants)[];
   return keys
     .map((key) => {
@@ -43,3 +45,9 @@ export const initInjectConstantType = () => genInjectConstant();
  * @returns 常量的类型声明字符串
  */
 export const getInjectConstantType = () => typeConstant;
+
+export const getLastConstants = () => {
+  const appGSStore = useAppGlobalSettings();
+  genInjectConstant(appGSStore);
+  return lastConstants;
+};

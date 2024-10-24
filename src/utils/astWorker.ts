@@ -63,7 +63,11 @@ const analyzeFnInfo = (
         }
       }
     };
-    const code = editorModel?.getValue() || "";
+    let code = editorModel?.getValue() || "";
+    const constants = getLastConstants();
+    Object.keys(constants).forEach((key) => {
+      code = code.replaceAll(key, `"${constants[key]}"`);
+    });
     const cursorOffset = editorModel?.getOffsetAt(position!) || 0;
     worker.postMessage({
       type: "analyzeFnInfo",
