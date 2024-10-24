@@ -20,8 +20,13 @@ export const modelCallback = async (
   console.time("readFile耗时");
   const res = await readFileFn(path);
   console.timeEnd("readFile耗时");
-  const selfModule = getInvokeApiMethods().find((i) => i.name === "readFile" && i.scope === "FS")?.testModule!;
+  const selfModule = getInvokeApiMethods().find(
+    (i) => i.name === "readFile" && i.scope === "FS"
+  )?.testModule!;
   //修改示例代码
-  selfModule.document!.example!.code = `const content = await readFile(path);`;
+  selfModule.document!.example!.code = `const content = await readFile(${path.replace(
+    /\\/g,
+    "\\\\"
+  )});`;
   testModuleCtx.showDetails(JSON.stringify(res), "FS.readFile");
 };
