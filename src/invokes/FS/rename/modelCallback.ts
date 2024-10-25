@@ -28,6 +28,6 @@ export const modelCallback = async (
   selfModule.document!.example!.code = `const res = await rename("${oldPath.replace(
     /\\/g,
     "\\\\"
-  )}", "${newPath.replace(/\\/g, "\\\\")})"`;
+  )}", "${newPath.replace(/\\/g, "\\\\")}")`;
   testModuleCtx.showDetails(JSON.stringify(res), "FS.rename");
 };
