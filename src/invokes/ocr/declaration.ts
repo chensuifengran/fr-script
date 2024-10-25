@@ -21,7 +21,7 @@ declare class FindResult {
   );
   public click(): Promise<void>;
   public touch(): Promise<string>;
-};
+}
 declare class OcrUtil {
   result: OCRResult[];
   private reCall: () => Promise<OcrUtil | undefined>;
@@ -34,7 +34,7 @@ declare class OcrUtil {
   public searchText(text: string, offset?: [number, number]) : FindResult[];
   public findText(text: string, offset?: [number, number]) : FindResult | undefined;
   public waitText(text: string,adb?: boolean, sleepMs?: number, maxWaitCount?: number) : Promise<boolean>;
-};
+}
 declare function ocr(
   x: number,
   y: number,

@@ -93,7 +93,7 @@ declare class FindResult {
   );
   public click(): Promise<void>;
   public touch(): Promise<string>;
-};
+}
 `,
   },
   example: {
