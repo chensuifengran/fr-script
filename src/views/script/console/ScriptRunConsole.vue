@@ -36,7 +36,7 @@
       </el-tooltip>
       <el-tooltip effect="dark" content="Ctrl+Shift+D" placement="bottom">
         <el-button
-          @click="() => initScript(true)"
+          @click="initScript(true)"
           v-show="taskRunStatus === 'done'"
           plain
           >重新初始化</el-button
@@ -415,10 +415,28 @@ watchEffect(async () => {
   registerGlobalShortcuts(taskRunStatus.value);
 });
 
+watch(taskRunStatus, (s) => {
+  if(s === 'running'){
+    useWss().syncExecState('execute')
+  } else if(s === 'done'){
+    useWss().syncExecState('stop')
+  } else {
+    useWss().syncExecState('reinit')
+  }
+});
+
 const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
+let unlistenMsg: () => void;
 onMounted(async () => {
   initScript();
+  unlistenMsg = useWss().onMsg((msg) => {
+    if (msg.type === "COMMAND") {
+      if (msg.command === "CHANGE_HIDE_WINDOW_STATE") {
+        hideWindow.value = msg.hide;
+      }
+    }
+  });
   if (IS_PLAYGROUND_ENV) {
     return;
   }
@@ -444,6 +462,7 @@ onMounted(async () => {
   });
 });
 onUnmounted(async () => {
+  unlistenMsg();
   if (window[CORE_NAMESPACES]) {
     Object.keys(window[CORE_NAMESPACES]).forEach((key) => {
       //@ts-ignore
