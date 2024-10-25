@@ -24,9 +24,9 @@ export const modelCallback = async (
     (i) => i.name === "extname" && i.scope === "Path"
   )?.testModule!;
   //修改示例代码
-  selfModule.document!.example!.code = `const ext = await extname(${path.replace(
+  selfModule.document!.example!.code = `const ext = await extname("${path.replace(
     /\\/g,
     "\\\\"
-  )});`;
+  )}");`;
   testModuleCtx.showDetails(JSON.stringify(res), "Path.extname");
 };

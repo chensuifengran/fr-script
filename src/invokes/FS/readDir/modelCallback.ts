@@ -24,9 +24,9 @@ export const modelCallback = async (
     (i) => i.name === "readDir" && i.scope === "FS"
   )?.testModule!;
   //修改示例代码
-  selfModule.document!.example!.code = `const files = await readDir(${path.replace(
+  selfModule.document!.example!.code = `const files = await readDir("${path.replace(
     /\\/g,
     "\\\\"
-  )});`;
+  )}");`;
   testModuleCtx.showDetails(JSON.stringify(res), "FS.readDir");
 };

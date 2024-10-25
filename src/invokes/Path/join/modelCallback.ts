@@ -25,9 +25,9 @@ export const modelCallback = async (
     (i) => i.name === "join" && i.scope === "Path"
   )?.testModule!;
   //修改示例代码
-  selfModule.document!.example!.code = `const newPath = await resolve(${path.replace(
+  selfModule.document!.example!.code = `const newPath = await resolve("${path.replace(
     /\\/g,
     "\\\\"
-  )}, ${addPath.replace(/\\/g, "\\\\")})`;
+  )}", "${addPath.replace(/\\/g, "\\\\")}")`;
   testModuleCtx.showDetails(JSON.stringify(res), "Path.join");
 };

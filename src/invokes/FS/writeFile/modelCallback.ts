@@ -23,9 +23,9 @@ export const modelCallback = async (
   console.timeEnd("writeFile耗时");
   const selfModule = getInvokeApiMethods().find((i) => i.name === "writeFile" && i.scope === "FS")?.testModule!;
   //修改示例代码
-  selfModule.document!.example!.code = `const res = await writeFile(${path.replace(
+  selfModule.document!.example!.code = `const res = await writeFile("${path.replace(
     /\\/g,
     "\\\\"
-  )}, ${content.replace(/\\/g, "\\\\")});`;
+  )}", "${content.replace(/\\/g, "\\\\")}");`;
   testModuleCtx.showDetails(JSON.stringify(res), "FS.writeFile");
 };
