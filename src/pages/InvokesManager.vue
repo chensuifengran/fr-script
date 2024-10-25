@@ -139,7 +139,7 @@ import { nanoid } from "nanoid";
 import { SelectOption } from "../utils/dataStructure";
 import { InvokeTemplateOptions } from "../utils/invokeTemplate";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-const appWindow = getCurrentWebviewWindow()
+const appWindow = getCurrentWebviewWindow();
 const linkTarget = ref("");
 const IMFRef = ref<any>();
 const IMFRef_manager = ref<any>();
@@ -244,7 +244,9 @@ const reset = (showTip: boolean = true) => {
 };
 const save = async () => {
   const oldOptions = JSON.parse(beforeLocalForm);
-  const template = new InvokeTemplate(JSON.parse(beforeLocalForm));
+  const template = new InvokeTemplate(
+    JSON.parse(JSON.stringify(localForm.value.manager))
+  );
   const res = await template.apply(targetApiPath, oldOptions);
   if (res) {
     beforeLocalForm = JSON.stringify(localForm.value.manager);
