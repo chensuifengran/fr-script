@@ -50,7 +50,7 @@ export const tourSteps: TourSteps = {
       target: "#DEMO_SCRIPT_ITEM-OPEN",
       title: "打开脚本(介绍)",
       description:
-        "可选择使用VSCode打开脚本文件或者在文件管理器中打开脚本所在目录",
+        "可选择使用VSCode打开脚本文件或者在文件管理器中显示并选中",
     },
     {
       target: "#DEMO_SCRIPT_ITEM-SETTING",

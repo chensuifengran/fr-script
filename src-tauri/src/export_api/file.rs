@@ -131,7 +131,7 @@ pub async fn decompress_dep_file(
 #[tauri::command]
 pub async fn open_file_explorer(path: String) -> Result<(), String> {
     let path = path.replace("/", "\\");
-    if let Err(e) = std::process::Command::new("explorer.exe").arg(path).spawn() {
+    if let Err(e) = std::process::Command::new("explorer.exe").arg("/select,").arg(path).spawn() {
         return Err(format!("Failed to open file explorer: {}", e));
     }
     Ok(())

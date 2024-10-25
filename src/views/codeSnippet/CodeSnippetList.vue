@@ -259,9 +259,7 @@ const openFile = async (index: number) => {
     execCommand.run(`code ${path}`);
   } catch (error: any) {
     if (error === "cancel") {
-      invoke("open_file_explorer", {
-        path: await pathUtils.resolve(path, "../"),
-      });
+      invoke("open_file_explorer", { path });
     }
   }
 };

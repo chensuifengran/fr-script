@@ -1,10 +1,5 @@
 <template>
-  <common-header
-    :title="fileInfo.name"
-    :height="35"
-    allow-drag
-    @back="goBack"
-  >
+  <common-header :title="fileInfo.name" :height="35" allow-drag @back="goBack">
     <template #before>
       <span v-show="isDifferentValue">*</span
       ><el-tag size="small" :type="fileInfo.declare ? 'success' : 'warning'">{{
@@ -187,20 +182,18 @@ const openFile = async () => {
   const path = fileInfo.savePath;
   try {
     await ElMessageBox.confirm(
-      `打开脚本所在目录 或者 尝试使用vscode打开脚本文件`,
+      `在文件管理器显示并选中 或者 尝试使用vscode打开脚本文件`,
       "请选择打开方式",
       {
         confirmButtonText: "vscode",
-        cancelButtonText: "文件夹",
+        cancelButtonText: "文件管理器",
         distinguishCancelAndClose: true,
       }
     );
     execCommand.run(`code ${path}`);
   } catch (error: any) {
     if (error === "cancel") {
-      invoke("open_file_explorer", {
-        path: await pathUtils.resolve(path, "../"),
-      });
+      invoke("open_file_explorer", { path });
     }
   }
 };
