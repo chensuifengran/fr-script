@@ -804,24 +804,26 @@ export const modelCallback = async (
       } else {
         invokesDir = await pathUtils.resolve(apiIndexPath, "../../");
       }
-      const oldDirPath = await pathUtils.resolve(apiIndexPath, "../");
+      const oldDirPath = await pathUtils.dirname(apiIndexPath);
       const newDirPath = await pathUtils.resolve(
         invokesDir,
         `${this.options.scope.length ? this.options.scope + "/" : ""}${
           this.options.name
         }`
       );
-      //判断新目录是否存在其他API
-      const exist = await exists(
-        await pathUtils.resolve(newDirPath, "index.ts")
-      );
-      if (exist) {
-        ElMessage.error(
-          `${this.options.scope ? this.options.scope + "." : ""}${
-            this.options.name
-          } 已存在,无法完成修改！`
+      if(newDirPath !== oldDirPath){
+        //判断新目录是否存在其他API
+        const exist = await exists(
+          await pathUtils.resolve(newDirPath, "index.ts")
         );
-        return false;
+        if (exist) {
+          ElMessage.error(
+            `${this.options.scope ? this.options.scope + "." : ""}${
+              this.options.name
+            } 已存在,无法完成修改！`
+          );
+          return false;
+        }
       }
       const dialogFilePath = await pathUtils.resolve(
         apiIndexPath,
