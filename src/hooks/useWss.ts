@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import tempDeviceId from "./useOsInfo";
 
 export type WssState = "在线" | "离线";
@@ -19,22 +18,21 @@ export namespace Command {
   export type SyncForm = {
     command: "SYNC_FORM";
     form: RendererList[];
-    syncId: string;
-  };
-  export type DeprecatedSyncId = {
-    command: "DEPRECATED_SYNC_ID";
-    syncId: string;
   };
   export type ExecScript = {
     command: "EXECUTE_SCRIPT";
     state: "execute" | "stop" | "reinit";
   };
+  export type ChangeHideWindow = {
+    command: "CHANGE_HIDE_WINDOW_STATE",
+    hide: boolean
+  }
 }
 export type Commands =
   | Command.REQUEST_SCRIPT_LIST
   | Command.RUN_SCRIPT
   | Command.SyncForm
-  | Command.DeprecatedSyncId
+  | Command.ChangeHideWindow
   | Command.ExecScript;
 export type CommandMsg = {
   type: "COMMAND";
@@ -146,19 +144,9 @@ const responseScriptList = (
     })
   );
 };
-let syncId = "";
 const syncRendererList = (list: RendererList[] = [], useSyncForm?: boolean) => {
   const { controlDeviceInfo } = useControl();
-  let sid;
-  if (syncId === "") {
-    sid = nanoid();
-    syncId = sid;
-  } else {
-    sid = syncId;
-  }
-  if (!useSyncForm) {
-    console.log("RESPONSE_RUN_SCRIPT", syncId);
-  }
+
   ws?.send(
     JSON.stringify({
       type: "FORWARD",
@@ -169,7 +157,6 @@ const syncRendererList = (list: RendererList[] = [], useSyncForm?: boolean) => {
         type: "COMMAND",
         command: useSyncForm ? "SYNC_FORM" : "RESPONSE_RUN_SCRIPT",
         form: processRList(list),
-        syncId: sid,
       },
     })
   );
@@ -191,20 +178,7 @@ const sendDeprecatedSyncId = (syncId: string) => {
     })
   );
 };
-const existSyncId = (id: string) => {
-  if (syncId === id) {
-    syncId = "";
-    sendDeprecatedSyncId(id);
-    return true;
-  }
-  syncId = id;
-  return false;
-};
-const deprecatedSyncId = (_syncId: string) => {
-  if (syncId === _syncId) {
-    syncId = "";
-  }
-};
+
 const syncLog = (
   log: string,
   time: string,
@@ -227,6 +201,23 @@ const syncLog = (
     })
   );
 };
+
+const syncExecState = (state: "stop" | "reinit" | "execute") => {
+  const { controlDeviceInfo } = useControl();
+  ws?.send(
+    JSON.stringify({
+      type: "FORWARD",
+      token: getToken(),
+      accessToken: controlDeviceInfo.accessToken,
+      reverse: true,
+      data: {
+        type: "COMMAND",
+        command: "SYNC_EXEC_STATE",
+        state,
+      },
+    })
+  );
+};
 export const useWss = () => {
   return {
     wssState,
@@ -237,8 +228,7 @@ export const useWss = () => {
     responseScriptList,
     syncRendererList,
     sendDeprecatedSyncId,
-    deprecatedSyncId,
-    existSyncId,
-    syncLog
+    syncLog,
+    syncExecState,
   };
 };

@@ -417,15 +417,11 @@ const configChangeHandle = async (label?: string) => {
 let stopHandle: WatchStopHandle;
 let unlistenMsg: () => void = () => {};
 onMounted(() => {
-  const { syncRendererList, onMsg, existSyncId, deprecatedSyncId } = useWss();
+  const { syncRendererList, onMsg } = useWss();
   unlistenMsg = onMsg((msg) => {
     if (msg.type === "COMMAND") {
       if (msg.command === "SYNC_FORM") {
-        if (!existSyncId(msg.syncId)) {
-          replaceRendererList(resetRListDate(msg.form));
-        }
-      } else if (msg.command === "DEPRECATED_SYNC_ID") {
-        deprecatedSyncId(msg.syncId);
+        replaceRendererList(resetRListDate(msg.form));
       }
     }
   });
