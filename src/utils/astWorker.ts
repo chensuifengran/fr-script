@@ -68,6 +68,13 @@ const analyzeFnInfo = (
     Object.keys(constants).forEach((key) => {
       code = code.replaceAll(key, `"${constants[key]}"`);
     });
+    for (const enumKey in inject_enums) {
+      const enumConfig = inject_enums[enumKey];
+      for (const key in enumConfig) {
+        const item = enumConfig[key];
+        code = code.replaceAll(`${enumKey}.${key}`, `"${item.value}"`);
+      }
+    }
     const cursorOffset = editorModel?.getOffsetAt(position!) || 0;
     worker.postMessage({
       type: "analyzeFnInfo",
