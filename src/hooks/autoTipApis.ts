@@ -245,11 +245,11 @@ const createDependencyProposals = async (range: {
     ...(IS_PLAYGROUND_ENV
       ? usePlayMock().mockCodeSnippetList.value
       : useListStore().codeSnippets
-    ).map(async (item) => {
+    ).map(async (item: MockCodeSnippet) => {
       const label = item.prefix;
       const detail = item.description || "";
       const insertText = IS_PLAYGROUND_ENV
-        ? (item as MockCodeSnippet).content
+        ? item.content
         : await fsUtils.readFile(item.filePath);
       return {
         label,
