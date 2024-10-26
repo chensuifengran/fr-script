@@ -396,8 +396,6 @@ let syncFormTimer: NodeJS.Timeout | null = null;
 watch(
   rendererList,
   (val) => {
-    console.log("rendererList changed");
-
     syncFormTimer && clearTimeout(syncFormTimer);
     syncFormTimer = setTimeout(() => {
       useWss().syncRendererList(val, true);
