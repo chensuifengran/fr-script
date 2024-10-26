@@ -19,6 +19,9 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
   )?.checked;
   if (mergeConfig) {
     await nextTick();
+    scriptConfig!.checkList.find(
+      (i) => i.label === "导入上次运行配置"
+    )!.checked = false;
     const defaultObj: RendererList[] = JSON.parse(JSON.stringify(rendererList));
     curRendererList = JSON.parse(JSON.stringify(rendererList));
     const r = localStorage.getItem(
@@ -150,6 +153,9 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
       });
       rendererList.splice(0, rendererList.length, ...defaultObj);
     }
+    scriptConfig!.checkList.find(
+      (i) => i.label === "导入上次运行配置"
+    )!.checked = true;
     ElNotification.closeAll();
     ElNotification({
       title: "配置导入完成",
@@ -485,7 +491,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
 export const useScriptApi = () => {
   const { openId } = useScriptInfo();
   const listStore = useListStore();
-  const { scriptList } = storeToRefs(listStore);
+  const { scriptList, rendererList } = storeToRefs(listStore);
   const _buildForm = (buildFormList: BuildFormItems[]) => {
     buildForm(buildFormList);
     if (openId.value !== "-1") {
@@ -504,6 +510,10 @@ export const useScriptApi = () => {
           );
           if (importLastRunConfigItem) {
             importLastRunConfigItem.checked = true;
+            rendererList.value
+              .find((i) => i.groupLabel === "*脚本设置")!
+              .checkList.find((i) => i.label === "导入上次运行配置")!.checked =
+              true;
             importLastRunConfig();
           }
         }
