@@ -4,7 +4,7 @@
 @use 'element-plus/theme-chalk/src/dark/var' as *;
 @use 'element-plus/theme-chalk/src/mixins/_var.scss' as *;
 @use 'element-plus/theme-chalk/src/mixins/mixins.scss' as *;
-$menu: map-merge(common.$menu, (
+$menu: map.merge(common.$menu, (
   'bg-color': transparent,
 ));
 html.dark {

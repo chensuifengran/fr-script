@@ -64,9 +64,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `
-          @use "./src/assets/scss/theme.scss" as *;
-          `,
+          api: 'modern-compiler'
         },
       },
       postcss: {
