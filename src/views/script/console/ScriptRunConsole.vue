@@ -154,7 +154,7 @@ const reInit = (): boolean => {
 };
 const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
-const { scriptList } = storeToRefs(listStore);
+const { scriptList, rendererList } = storeToRefs(listStore);
 const { controlDeviceInfo } = useControl();
 const { openId, tempEditorValue, contentTransform, asideBarPos } =
   useScriptInfo();
@@ -416,12 +416,12 @@ watchEffect(async () => {
 });
 
 watch(taskRunStatus, (s) => {
-  if(s === 'running'){
-    useWss().syncExecState('execute')
-  } else if(s === 'done'){
-    useWss().syncExecState('stop')
+  if (s === "running") {
+    useWss().syncExecState("execute");
+  } else if (s === "done") {
+    useWss().syncExecState("stop");
   } else {
-    useWss().syncExecState('reinit')
+    useWss().syncExecState("reinit");
   }
 });
 
@@ -429,6 +429,7 @@ const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
 let unlistenMsg: () => void;
 onMounted(async () => {
+  rendererList.value.splice(0);
   initScript();
   unlistenMsg = useWss().onMsg((msg) => {
     if (msg.type === "COMMAND") {

@@ -1,334 +1,337 @@
 <template>
   <div class="renderer-form" id="renderer-form">
-    <ElCard
-      class="box-card"
-      v-for="g in rendererList"
-      :key="g.groupLabel"
-      :id="'renderer-form-g-' + g.groupLabel"
-    >
-      <template #header>
-        <div class="card-header">
-          <span>{{ g.groupLabel }}</span>
-          <el-switch
-            v-model="g.enable"
-            ml-5px
-            v-if="g.groupLabel !== '*脚本设置'"
-            style="--el-switch-off-color: #ff4949"
-            :disabled="disabledAll"
-          />
-        </div>
-      </template>
-      <div class="form-content">
-        <div class="check-content">
-          <el-checkbox
-            v-for="c in g.checkList"
-            :key="c.id"
-            :label="c.label"
-            class="check-item"
-            v-model="c.checked"
-            :disabled="!g.enable || disabledAll"
-            @change="configChangeHandle(c.label)"
-          />
-        </div>
-        <div
-          class="select-item"
-          v-for="s in g.selectList"
-          :key="s.id"
-          :style="{
-            flexDirection:
-              disabledAll ||
-              s.multiple ||
-              (s.label.length && s.label.length > 6 && !s.segmented)
-                ? 'column'
-                : 'row',
-            alignItems:
-              disabledAll ||
-              s.multiple ||
-              (s.label.length && s.label.length > 6 && !s.segmented)
-                ? 'flex-start'
-                : 'center',
-          }"
-        >
-          <template v-if="!s.segmented">
-            <div flex flex-row items-center>
-              <el-tag size="small" v-if="s.group"
-                >{{ getItemType(s.options[0]?.options[0])
-                }}{{ s.multiple ? "[]" : "" }}</el-tag
+    <loading v-if="!rendererList.length" />
+    <template v-else>
+      <ElCard
+        class="box-card"
+        v-for="g in rendererList"
+        :key="g.groupLabel"
+        :id="'renderer-form-g-' + g.groupLabel"
+      >
+        <template #header>
+          <div class="card-header">
+            <span>{{ g.groupLabel }}</span>
+            <el-switch
+              v-model="g.enable"
+              ml-5px
+              v-if="g.groupLabel !== '*脚本设置'"
+              style="--el-switch-off-color: #ff4949"
+              :disabled="disabledAll"
+            />
+          </div>
+        </template>
+        <div class="form-content">
+          <div class="check-content">
+            <el-checkbox
+              v-for="c in g.checkList"
+              :key="c.id"
+              :label="c.label"
+              class="check-item"
+              v-model="c.checked"
+              :disabled="!g.enable || disabledAll"
+              @change="configChangeHandle(c.label)"
+            />
+          </div>
+          <div
+            class="select-item"
+            v-for="s in g.selectList"
+            :key="s.id"
+            :style="{
+              flexDirection:
+                disabledAll ||
+                s.multiple ||
+                (s.label.length && s.label.length > 6 && !s.segmented)
+                  ? 'column'
+                  : 'row',
+              alignItems:
+                disabledAll ||
+                s.multiple ||
+                (s.label.length && s.label.length > 6 && !s.segmented)
+                  ? 'flex-start'
+                  : 'center',
+            }"
+          >
+            <template v-if="!s.segmented">
+              <div flex flex-row items-center>
+                <el-tag size="small" v-if="s.group"
+                  >{{ getItemType(s.options[0]?.options[0])
+                  }}{{ s.multiple ? "[]" : "" }}</el-tag
+                >
+                <el-tag size="small" v-else
+                  >{{ getItemType(s.options[0])
+                  }}{{ s.multiple ? "[]" : "" }}</el-tag
+                >
+                <el-text
+                  ml-1
+                  truncated
+                  :style="{
+                    alignSelf:
+                      disabledAll || (s.label.length && s.label.length > 6)
+                        ? 'self-start'
+                        : 'center',
+                  }"
+                  >{{ s.label }}</el-text
+                >
+              </div>
+              <el-select
+                class="select"
+                :style="{
+                  minWidth:
+                    disabledAll ||
+                    s.multiple ||
+                    (s.label.length && s.label.length > 6)
+                      ? '100%'
+                      : getSelectMinWidth(s.value),
+                }"
+                :multiple="s.multiple"
+                v-model="s.value"
+                :placeholder="s.label"
+                size="small"
+                :disabled="!g.enable || disabledAll"
               >
-              <el-tag size="small" v-else
-                >{{ getItemType(s.options[0])
-                }}{{ s.multiple ? "[]" : "" }}</el-tag
-              >
+                <template v-if="s.group">
+                  <el-option-group
+                    v-for="g in s.options"
+                    :key="g.groupLabel"
+                    :label="g.groupLabel"
+                  >
+                    <el-option
+                      v-for="(item, index) in g.options"
+                      :key="optTransformer.transformKey(item, s.id || index)"
+                      :label="optTransformer.transformLabel(item)"
+                      :value="optTransformer.transformValue(item)"
+                    />
+                  </el-option-group>
+                </template>
+                <template v-else>
+                  <el-option
+                    v-for="(item, index) in s.options"
+                    :key="index"
+                    :label="optTransformer.transformLabel(item)"
+                    :value="item"
+                  />
+                </template>
+              </el-select>
+            </template>
+            <template v-else>
               <el-text
                 ml-1
-                truncated
                 :style="{
-                  alignSelf:
-                    disabledAll || (s.label.length && s.label.length > 6)
-                      ? 'self-start'
-                      : 'center',
+                  alignSelf: disabledAll ? 'self-start' : 'center',
                 }"
+                truncated
                 >{{ s.label }}</el-text
               >
-            </div>
-            <el-select
-              class="select"
-              :style="{
-                minWidth:
-                  disabledAll ||
-                  s.multiple ||
-                  (s.label.length && s.label.length > 6)
-                    ? '100%'
-                    : getSelectMinWidth(s.value),
-              }"
-              :multiple="s.multiple"
-              v-model="s.value"
-              :placeholder="s.label"
-              size="small"
-              :disabled="!g.enable || disabledAll"
-            >
-              <template v-if="s.group">
-                <el-option-group
-                  v-for="g in s.options"
-                  :key="g.groupLabel"
-                  :label="g.groupLabel"
-                >
-                  <el-option
-                    v-for="(item, index) in g.options"
-                    :key="optTransformer.transformKey(item, s.id || index)"
-                    :label="optTransformer.transformLabel(item)"
-                    :value="optTransformer.transformValue(item)"
-                  />
-                </el-option-group>
-              </template>
-              <template v-else>
-                <el-option
-                  v-for="(item, index) in s.options"
-                  :key="index"
-                  :label="optTransformer.transformLabel(item)"
-                  :value="item"
+              <el-segmented
+                v-model="s.value"
+                :options="s.options"
+                :disabled="disabledAll || !g.enable"
+              />
+            </template>
+          </div>
+          <div
+            class="input-item"
+            v-for="i in g.inputList"
+            :key="i.id"
+            style="align-items: flex-start"
+          >
+            <template v-if="i.inputType === 'range'">
+              <range-input
+                w-full
+                v-model="i.value"
+                :limit="i.limit"
+                :disabled="!g.enable || disabledAll"
+                :label="i.label"
+                :controls="i.controls"
+              />
+            </template>
+            <template v-else-if="i.inputType === 'number'">
+              <div w-full flex flex-row items-center justify-between>
+                <el-text truncated>{{ i.label }}</el-text>
+                <el-input-number
+                  size="small"
+                  v-model="i.value"
+                  :min="i.min"
+                  :max="i.max"
+                  :step="i.step"
+                  :disabled="!g.enable || disabledAll"
+                  :controls="i.controls"
+                  :controls-position="i.controlsPosition"
+                  :step-strictly="i.stepStrictly"
+                  :precision="i.precision"
+                  :valueOnClear="i.valueOnClear"
                 />
-              </template>
-            </el-select>
-          </template>
-          <template v-else>
-            <el-text
-              ml-1
-              :style="{
-                alignSelf: disabledAll ? 'self-start' : 'center',
-              }"
-              truncated
-              >{{ s.label }}</el-text
-            >
-            <el-segmented
-              v-model="s.value"
-              :options="s.options"
-              :disabled="disabledAll || !g.enable"
-            />
-          </template>
-        </div>
-        <div
-          class="input-item"
-          v-for="i in g.inputList"
-          :key="i.id"
-          style="align-items: flex-start"
-        >
-          <template v-if="i.inputType === 'range'">
-            <range-input
-              w-full
-              v-model="i.value"
-              :limit="i.limit"
-              :disabled="!g.enable || disabledAll"
-              :label="i.label"
-              :controls="i.controls"
-            />
-          </template>
-          <template v-else-if="i.inputType === 'number'">
-            <div w-full flex flex-row items-center justify-between>
-              <el-text truncated>{{ i.label }}</el-text>
-              <el-input-number
+              </div>
+            </template>
+            <template v-else-if="i.inputType === 'file'">
+              <file-input
+                v-model="i.value"
+                :label="i.label"
+                :multiple="i.multiple"
+                :disabled="!g.enable || disabledAll"
+                :multiple-label-pos="disabledAll ? 'top' : 'left'"
+                label-pos="left"
+                w-full
+              />
+            </template>
+            <template v-else-if="i.inputType === 'dir'">
+              <dir-input
+                v-model="i.value"
+                :label="i.label"
+                :disabled="!g.enable || disabledAll"
+                w-full
+              />
+            </template>
+            <template v-else>
+              <el-text
+                v-if="
+                  disabledAll ||
+                  i.mod === 'textarea' ||
+                  (i.label.length && i.label.length > 6)
+                "
+                truncated
+                style="align-self: self-start"
+                >{{ i.label }}</el-text
+              >
+              <el-input
                 size="small"
                 v-model="i.value"
-                :min="i.min"
-                :max="i.max"
-                :step="i.step"
+                :placeholder="i.placeholder || i.label"
+                :type="i.mod ? i.mod : 'text'"
+                :clearable="i.clearable"
+                :show-password="i.showPassword"
                 :disabled="!g.enable || disabledAll"
-                :controls="i.controls"
-                :controls-position="i.controlsPosition"
-                :step-strictly="i.stepStrictly"
-                :precision="i.precision"
-                :valueOnClear="i.valueOnClear"
-              />
-            </div>
-          </template>
-          <template v-else-if="i.inputType === 'file'">
-            <file-input
-              v-model="i.value"
-              :label="i.label"
-              :multiple="i.multiple"
-              :disabled="!g.enable || disabledAll"
-              :multiple-label-pos="disabledAll ? 'top' : 'left'"
-              label-pos="left"
-              w-full
-            />
-          </template>
-          <template v-else-if="i.inputType === 'dir'">
-            <dir-input
-              v-model="i.value"
-              :label="i.label"
-              :disabled="!g.enable || disabledAll"
-              w-full
-            />
-          </template>
-          <template v-else>
-            <el-text
-              v-if="
-                disabledAll ||
-                i.mod === 'textarea' ||
-                (i.label.length && i.label.length > 6)
-              "
-              truncated
-              style="align-self: self-start"
-              >{{ i.label }}</el-text
-            >
-            <el-input
-              size="small"
-              v-model="i.value"
-              :placeholder="i.placeholder || i.label"
-              :type="i.mod ? i.mod : 'text'"
-              :clearable="i.clearable"
-              :show-password="i.showPassword"
-              :disabled="!g.enable || disabledAll"
-              :maxlength="i.maxlength"
-              :show-word-limit="i.showWordLimit"
-              :autosize="
-                typeof i.autosize === 'object'
-                  ? {
-                      minRows: i.autosize[0],
-                      maxRows: i.autosize[1],
-                    }
-                  : typeof i.autosize === 'number'
-                  ? { minRows: i.autosize, maxRows: i.autosize }
-                  : i.autosize
-              "
-            >
-              <template
-                #prepend
-                v-if="
-                  !disabledAll &&
-                  i.label.length &&
-                  i.label.length <= 6 &&
-                  i.mod !== 'textarea'
+                :maxlength="i.maxlength"
+                :show-word-limit="i.showWordLimit"
+                :autosize="
+                  typeof i.autosize === 'object'
+                    ? {
+                        minRows: i.autosize[0],
+                        maxRows: i.autosize[1],
+                      }
+                    : typeof i.autosize === 'number'
+                    ? { minRows: i.autosize, maxRows: i.autosize }
+                    : i.autosize
                 "
-                >{{ i.label }}</template
               >
-            </el-input>
-          </template>
-        </div>
-        <div class="picker-item" v-for="i in g.pickerList" :key="i.id">
-          <template v-if="i.pickerType === 'color'">
-            <el-text truncated>{{ i.label }}</el-text>
-            <el-color-picker
-              v-model="i.value"
-              :disabled="!g.enable || disabledAll"
-              size="small"
-              :show-alpha="enableAlpha(i.enableAlpha, i.colorFormat)"
-              :color-format="processFormat(i.colorFormat)"
-              :predefine="i.predefine"
-            />
-          </template>
-          <template v-else-if="i.pickerType === 'time'">
-            <div
-              class="time-picker-content"
-              :style="{
-                flexDirection: i.isRange ? 'column' : 'row',
-                justifyContent: i.isRange ? 'flex-start' : 'space-between',
-              }"
-            >
-              <el-text
+                <template
+                  #prepend
+                  v-if="
+                    !disabledAll &&
+                    i.label.length &&
+                    i.label.length <= 6 &&
+                    i.mod !== 'textarea'
+                  "
+                  >{{ i.label }}</template
+                >
+              </el-input>
+            </template>
+          </div>
+          <div class="picker-item" v-for="i in g.pickerList" :key="i.id">
+            <template v-if="i.pickerType === 'color'">
+              <el-text truncated>{{ i.label }}</el-text>
+              <el-color-picker
+                v-model="i.value"
+                :disabled="!g.enable || disabledAll"
+                size="small"
+                :show-alpha="enableAlpha(i.enableAlpha, i.colorFormat)"
+                :color-format="processFormat(i.colorFormat)"
+                :predefine="i.predefine"
+              />
+            </template>
+            <template v-else-if="i.pickerType === 'time'">
+              <div
+                class="time-picker-content"
                 :style="{
-                  alignSelf: i.isRange ? 'flex-start' : 'center',
+                  flexDirection: i.isRange ? 'column' : 'row',
+                  justifyContent: i.isRange ? 'flex-start' : 'space-between',
                 }"
-                truncated
-                >{{ i.label }}</el-text
               >
-              <template v-if="i.isRange">
-                <el-time-picker
-                  class="time-picker"
-                  v-model="i.value"
-                  :default-value="[new Date(), new Date()]"
-                  :is-range="i.isRange"
-                  :start-placeholder="i.startPlaceholder"
-                  :end-placeholder="i.endPlaceholder"
-                  :disabled="!g.enable || disabledAll"
-                  :range-separator="i.rangeSeparator"
-                  :disabled-hours="i.disabledHours"
-                  :disabled-minutes="i.disabledMinutes"
-                  :disabled-seconds="i.disabledSeconds"
-                  :value-format="getValueFormat(i)"
-                  size="small"
-                />
-              </template>
-              <template v-else>
-                <el-time-picker
-                  v-model="i.value"
-                  :default-value="new Date()"
-                  :disabled="!g.enable || disabledAll"
-                  :placeholder="i.placeholder"
-                  :disabled-hours="i.disabledHours"
-                  :disabled-minutes="i.disabledMinutes"
-                  :disabled-seconds="i.disabledSeconds"
-                  :value-format="getValueFormat(i)"
-                  size="small"
-                />
-              </template>
-            </div>
-          </template>
-          <template v-else-if="i.pickerType === 'date'">
-            <div
-              class="time-picker-content"
-              :style="{
-                flexDirection: i.isRange ? 'column' : 'row',
-                justifyContent: i.isRange ? 'flex-start' : 'space-between',
-              }"
-            >
-              <el-text
+                <el-text
+                  :style="{
+                    alignSelf: i.isRange ? 'flex-start' : 'center',
+                  }"
+                  truncated
+                  >{{ i.label }}</el-text
+                >
+                <template v-if="i.isRange">
+                  <el-time-picker
+                    class="time-picker"
+                    v-model="i.value"
+                    :default-value="[new Date(), new Date()]"
+                    :is-range="i.isRange"
+                    :start-placeholder="i.startPlaceholder"
+                    :end-placeholder="i.endPlaceholder"
+                    :disabled="!g.enable || disabledAll"
+                    :range-separator="i.rangeSeparator"
+                    :disabled-hours="i.disabledHours"
+                    :disabled-minutes="i.disabledMinutes"
+                    :disabled-seconds="i.disabledSeconds"
+                    :value-format="getValueFormat(i)"
+                    size="small"
+                  />
+                </template>
+                <template v-else>
+                  <el-time-picker
+                    v-model="i.value"
+                    :default-value="new Date()"
+                    :disabled="!g.enable || disabledAll"
+                    :placeholder="i.placeholder"
+                    :disabled-hours="i.disabledHours"
+                    :disabled-minutes="i.disabledMinutes"
+                    :disabled-seconds="i.disabledSeconds"
+                    :value-format="getValueFormat(i)"
+                    size="small"
+                  />
+                </template>
+              </div>
+            </template>
+            <template v-else-if="i.pickerType === 'date'">
+              <div
+                class="time-picker-content"
                 :style="{
-                  alignSelf: i.isRange ? 'flex-start' : 'center',
+                  flexDirection: i.isRange ? 'column' : 'row',
+                  justifyContent: i.isRange ? 'flex-start' : 'space-between',
                 }"
-                truncated
-                >{{ i.label }}</el-text
               >
-              <template v-if="i.isRange">
-                <el-date-picker
-                  class="time-picker"
-                  v-model="i.value"
-                  :default-value="[new Date(), new Date()]"
-                  type="datetimerange"
-                  :start-placeholder="i.startPlaceholder"
-                  :end-placeholder="i.endPlaceholder"
-                  :disabled="!g.enable || disabledAll"
-                  :range-separator="i.rangeSeparator"
-                  :value-format="getValueFormat(i)"
-                  size="small"
-                />
-              </template>
-              <template v-else>
-                <el-date-picker
-                  v-model="i.value"
-                  :default-value="new Date()"
-                  type="datetime"
-                  :disabled="!g.enable || disabledAll"
-                  :placeholder="i.placeholder"
-                  :value-format="getValueFormat(i)"
-                  size="small"
-                />
-              </template>
-            </div>
-          </template>
+                <el-text
+                  :style="{
+                    alignSelf: i.isRange ? 'flex-start' : 'center',
+                  }"
+                  truncated
+                  >{{ i.label }}</el-text
+                >
+                <template v-if="i.isRange">
+                  <el-date-picker
+                    class="time-picker"
+                    v-model="i.value"
+                    :default-value="[new Date(), new Date()]"
+                    type="datetimerange"
+                    :start-placeholder="i.startPlaceholder"
+                    :end-placeholder="i.endPlaceholder"
+                    :disabled="!g.enable || disabledAll"
+                    :range-separator="i.rangeSeparator"
+                    :value-format="getValueFormat(i)"
+                    size="small"
+                  />
+                </template>
+                <template v-else>
+                  <el-date-picker
+                    v-model="i.value"
+                    :default-value="new Date()"
+                    type="datetime"
+                    :disabled="!g.enable || disabledAll"
+                    :placeholder="i.placeholder"
+                    :value-format="getValueFormat(i)"
+                    size="small"
+                  />
+                </template>
+              </div>
+            </template>
+          </div>
         </div>
-      </div>
-    </ElCard>
+      </ElCard>
+    </template>
   </div>
 </template>
 
