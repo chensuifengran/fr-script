@@ -14,6 +14,7 @@ play
 *.local
 src-tauri/target/*
 src/types/auto_gen_types
+src/invokes/*.ag.ts
 src-tauri/gen/schemas/*
 TODO.md
 # Editor directories and files
