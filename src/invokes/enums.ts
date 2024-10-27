@@ -11,19 +11,19 @@ export const inject_enums: Record<
 > = {
   FieldType: {
     Check: {
-      description: 'BuildForm中，type为"check"的表单项',
+      description: 'BuildForm中,type为"check"的表单项',
       value: "check",
     },
     Input: {
-      description: 'BuildForm中，type为"input"的表单项',
+      description: 'BuildForm中,type为"input"的表单项',
       value: "input",
     },
     Select: {
-      description: 'BuildForm中，type为"select"的表单项',
+      description: 'BuildForm中,type为"select"的表单项',
       value: "select",
     },
     Picker: {
-      description: 'BuildForm中，type为"picker"的表单项',
+      description: 'BuildForm中,type为"picker"的表单项',
       value: "picker",
     },
     CheckList: {
@@ -43,23 +43,36 @@ export const inject_enums: Record<
       value: "pickerList",
     },
   },
+  // TestFieldType: {
+  //   Success: {
+  //     value: "success",
+  //     description: "测试成功",
+  //   },
+  //   Fail: {
+  //     value: "fail",
+  //     description: "测试失败",
+  //   },
+  // },
 };
 
 const genEnumDeclare = (removeDecalreWord?: boolean) => {
-  let declare = (!removeDecalreWord ? "declare " : "") + `enum FieldType {\n`;
-  for (const key in inject_enums.FieldType) {
-    const item = inject_enums.FieldType[key];
-    declare += `  /**\n`;
-    if (item.description) {
-      declare += `   * @description ${item.description}\n`;
+  let _declare = "";
+  for (const typeName in inject_enums) {
+    _declare += (!removeDecalreWord ? "declare " : "") + `enum ${typeName} {\n`;
+    for (const key in inject_enums[typeName]) {
+      const item = inject_enums[typeName][key];
+      _declare += `  /**\n`;
+      if (item.description) {
+        _declare += `   * @description ${item.description}\n`;
+      }
+      if (item.deprecated) {
+        _declare += `   * @deprecated ${item.deprecated}\n`;
+      }
+      _declare += `   */\n  ${key} = "${item.value}",\n`;
     }
-    if (item.deprecated) {
-      declare += `   * @deprecated ${item.deprecated}\n`;
-    }
-    declare += `   */\n  ${key} = "${item.value}",\n`;
+    _declare += `}\n`;
   }
-  declare += `}\n`;
-  return declare;
+  return _declare;
 };
 
 export const ENUM_DECLARE = genEnumDeclare();
