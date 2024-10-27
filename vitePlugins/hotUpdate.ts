@@ -14,33 +14,34 @@ export function hotUpdatePlugin(): Plugin {
       if (mode && mode.includes(":")) {
         const [_, logLevel] = mode.split(":");
         changeLogLevel(logLevel);
+      }else{
+        changeLogLevel();
       }
       genAllDTS();
     },
     handleHotUpdate({ file }) {
       if (file.endsWith(".ts")) {
-        const excludeFiles = [
-          "builtInApi.d.ts",
-          "core.d.ts",
-          "buildFormDeclare.ts",
-          "rendererListDeclare.ts",
-          "enums.d.ts",
-        ];
-        if (excludeFiles.find((e) => file.includes(e))) {
+        const excludeFiles = ["builtInApi.d.ts", "core.d.ts", "enums.d.ts"];
+        if (
+          excludeFiles.find((e) => file.includes(e) || file.includes(".ag.ts"))
+        ) {
           return;
         }
-        if (file.includes("invokes/")) {
-          genBuiltInApiDTS();
-        }
+
+        //hooks
         if (file.includes("useScriptApi.ts") || file.includes("useCore.ts")) {
           genBuiltInApiDTS("declare");
         }
+
+        //invokes
         if (file.includes("buildForm.d.ts")) {
           genBuildFormDTS("buildForm");
         } else if (file.includes("rendererList.d.ts")) {
           genBuildFormDTS("rendererList");
         } else if (file.includes("enums.ts")) {
           genEnumDTS();
+        } else if (file.includes("invokes/")) {
+          genBuiltInApiDTS();
         }
       }
     },
