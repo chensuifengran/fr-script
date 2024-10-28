@@ -1,6 +1,6 @@
 [package]
 name = "fr-script"
-version = "2.1.0"
+version = "2.1.1"
 description = "风染脚本"
 authors = ["chensuifengran"]
 license = "MIT"

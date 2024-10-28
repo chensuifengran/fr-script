@@ -1,6 +1,6 @@
 {
   "productName": "fr-script",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "identifier": "site.csfr",
   "build": {
     "beforeDevCommand": "pnpm dev",
