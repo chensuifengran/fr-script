@@ -18,6 +18,10 @@ src/invokes/*.ag.ts
 src-tauri/gen/schemas/*
 log4rs.yml
 TODO.md
+
+pnpm-lock.yaml
+cargo.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
