@@ -5,14 +5,14 @@ import {
 } from "@tauri-apps/api/webviewWindow";
 import { ScriptTarget, transpile } from "typescript";
 //拷贝一份默认配置
-let curRendererList: RendererList[] = [];
-const importLastRunConfig = async (rendererList?: RendererList[]) => {
+let curRenderList: RenderGroup[] = [];
+const importLastRunConfig = async (rendererList?: RenderGroup[]) => {
   if (!rendererList) {
     const { rendererList: r } = useListStore();
     rendererList = r;
   }
   const scriptConfig = rendererList.find(
-    (i: RendererList) => i.groupLabel === "*脚本设置"
+    (i: RenderGroup) => i.groupLabel === "*脚本设置"
   );
   const mergeConfig = scriptConfig?.checkList.find(
     (i) => i.label === "导入上次运行配置"
@@ -22,14 +22,14 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
     scriptConfig!.checkList.find(
       (i) => i.label === "导入上次运行配置"
     )!.checked = false;
-    const defaultObj: RendererList[] = JSON.parse(JSON.stringify(rendererList));
-    curRendererList = JSON.parse(JSON.stringify(rendererList));
+    const defaultObj: RenderGroup[] = JSON.parse(JSON.stringify(rendererList));
+    curRenderList = JSON.parse(JSON.stringify(rendererList));
     const r = localStorage.getItem(
       window[CORE_NAMESPACES].getScriptId!() + "-rendererList"
     );
     if (r) {
       //合并配置
-      const targetObj: RendererList[] = JSON.parse(r);
+      const targetObj: RenderGroup[] = JSON.parse(r);
       for (let i = 0; i < defaultObj.length; i++) {
         const defaultItem = defaultObj[i];
         const targetItem = targetObj.find(
@@ -173,39 +173,39 @@ const importLastRunConfig = async (rendererList?: RendererList[]) => {
       type: "info",
       position: "bottom-right",
     });
-    curRendererList.find((i) => {
+    curRenderList.find((i) => {
       if (i.groupLabel === "*脚本设置") {
         i.checkList.find((i) => i.label === "导入上次运行配置")!.checked =
           false;
         return;
       }
     });
-    if (curRendererList.length) {
-      rendererList.splice(0, rendererList.length, ...curRendererList);
+    if (curRenderList.length) {
+      rendererList.splice(0, rendererList.length, ...curRenderList);
     } else {
       rendererList.splice(0, rendererList.length, ...rendererList);
     }
   }
 };
 
-const updateWindowRendererList = () => {
+const updateWindowRenderList = () => {
   const { rendererList } = useListStore();
   setTimeout(() => {
     window[CORE_NAMESPACES].rendererList = rendererList;
   });
 };
 
-const replaceRendererList = (newRendererList: RendererList[]) => {
+const replaceRenderList = (newRenderList: RenderGroup[]) => {
   const { rendererList } = useListStore();
-  rendererList.splice(0, rendererList.length, ...newRendererList);
-  updateWindowRendererList();
+  rendererList.splice(0, rendererList.length, ...newRenderList);
+  updateWindowRenderList();
 };
 
 //给渲染列表动态添加元素
 const pushElement = (
   elem: BuildFormItems,
   //更新window对象中的rendererList
-  updateRendererList: boolean = true
+  updateRenderList: boolean = true
 ) => {
   const { rendererList } = useListStore();
 
@@ -227,7 +227,7 @@ const pushElement = (
   } else {
     (rendererList[idx] as any)[elem.type + "List"].push(elem);
   }
-  updateRendererList && updateWindowRendererList();
+  updateRenderList && updateWindowRenderList();
 };
 //渲染UI表单
 const buildForm = (buildFormList: BuildFormItems[]) => {
@@ -235,7 +235,7 @@ const buildForm = (buildFormList: BuildFormItems[]) => {
     const item = buildFormList[i];
     pushElement(item, false);
   }
-  updateWindowRendererList();
+  updateWindowRenderList();
 };
 
 const allTask = ref(1);
@@ -276,7 +276,7 @@ const setTaskEndStatus = (
 };
 
 const getCustomizeForm = async () => {
-  const rendererForm = await new Promise<RendererList[]>((resolve) => {
+  const rendererForm = await new Promise<RenderGroup[]>((resolve) => {
     let signal =
       window[CORE_NAMESPACES].startScriptSignal &&
       window[CORE_NAMESPACES].startScriptSignal.signal;
@@ -310,7 +310,7 @@ const getWillRunScript = (runId: string, script: string) => {
       with(window['${CORE_NAMESPACES}']){
         ${buildApiScript + "\n"}
         changeScriptRunState(true);
-        replaceRendererList([]);
+        replaceRenderList([]);
         pushElement({
           targetGroupLabel: "*脚本设置",
           label: "导入上次运行配置",
@@ -522,7 +522,7 @@ export const useScriptApi = () => {
   };
   return {
     importLastRunConfig,
-    replaceRendererList,
+    replaceRenderList,
     getWillRunScript,
     setEndBeforeCompletion,
     getEndBeforeCompletion: () => endBeforeCompletion,
@@ -570,7 +570,7 @@ export const useBuiltInApi = () => {
     getScriptId,
     changeScriptRunState,
     ...exportAllFn(),
-    replaceRendererList,
+    replaceRenderList,
     pushElement,
   };
 };

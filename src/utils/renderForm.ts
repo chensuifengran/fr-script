@@ -2,7 +2,7 @@ import { dayjs } from "element-plus";
 import { nanoid } from "nanoid";
 
 export class RFormUtil {
-  constructor(public form: RendererList[]) {}
+  constructor(public form: RenderGroup[]) {}
   /**
    * 获取表单项的值
    * @param fieldType 表单项的类型
@@ -23,8 +23,8 @@ export class RFormUtil {
     const key = fieldType.replace("List", "") + "List";
     if (group && group.enable && key in group) {
       const field = (group as any)[key].find(
-        (i: RendererItem) => i.label === label
-      ) as RendererItem;
+        (i: RenderItem) => i.label === label
+      ) as RenderItem;
       if (field) {
         if ("checked" in field) {
           return field.checked as T;
@@ -52,7 +52,7 @@ export class RFormUtil {
         const allItems = Object.keys(g)
           .map((gk) => {
             if (gk.includes("List")) {
-              return (g as any)[gk] as RendererItem[];
+              return (g as any)[gk] as RenderItem[];
             }
           })
           .filter((i) => !!i)
@@ -74,7 +74,7 @@ export class RFormUtil {
    * @param form 待生成id的渲染列表
    * @returns 生成id后的渲染列表
    */
-  static genId = (form: RendererList[]) => {
+  static genId = (form: RenderGroup[]) => {
     return form.map((group) => {
       const g = {
         id: "g_" + nanoid(),
@@ -97,8 +97,8 @@ export class RFormUtil {
   };
 }
 
-export const processRList = (list: RendererList[]) => {
-  const newList = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+export const processRList = (list: RenderGroup[]) => {
+  const newList = (JSON.parse(JSON.stringify(list)) as RenderGroup[]).map(
     (group) => {
       return {
         ...group,
@@ -157,8 +157,8 @@ export const processRList = (list: RendererList[]) => {
   return newList;
 };
 
-export const resetRListDate = (list: RendererList[]) => {
-  const res = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+export const resetRListDate = (list: RenderGroup[]) => {
+  const res = (JSON.parse(JSON.stringify(list)) as RenderGroup[]).map(
     (group) => {
       return {
         ...group,

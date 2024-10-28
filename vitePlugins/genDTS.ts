@@ -293,27 +293,27 @@ const syncBuildFormDeclare = (typesDir: string, invokesDir: string) => {
     chalk.blue(oPath)
   );
 };
-const syncRendererListDeclare = (typesDir: string, invokesDir: string) => {
+const syncRenderListDeclare = (typesDir: string, invokesDir: string) => {
   console.log(
     new Date().toLocaleTimeString().slice(0, 8),
     chalk.blue("[hot-update-plugin]"),
-    chalk.green("🚀", "开始同步rendererList的类型声明到编辑器")
+    chalk.green("🚀", "开始同步renderList的类型声明到编辑器")
   );
-  const rendererListContent = readFileSync(
-    resolve(typesDir, "rendererList.d.ts"),
+  const renderListContent = readFileSync(
+    resolve(typesDir, "renderList.d.ts"),
     "utf-8"
   );
   const res =
     AG_TITLE +
-    `export const RENDERER_LIST_DECLARE = \`\n${rendererListContent.trim()}\n\``;
-  const oPath = resolve(invokesDir, "rendererListDeclare.ag.ts");
+    `export const RENDER_LIST_DECLARE = \`\n${renderListContent.trim()}\n\``;
+  const oPath = resolve(invokesDir, "renderListDeclare.ag.ts");
   if (existsSync(oPath)) {
     const oldContent = readFileSync(oPath, "utf-8");
     if (oldContent.trim() === res.trim()) {
       console.log(
         "✨",
         "The",
-        chalk.green("rendererListDeclare.ag.ts"),
+        chalk.green("renderListDeclare.ag.ts"),
         "file is not changed"
       );
       return;
@@ -323,14 +323,14 @@ const syncRendererListDeclare = (typesDir: string, invokesDir: string) => {
   console.log(
     "✨",
     "The",
-    chalk.green("rendererListDeclare.ag.ts"),
+    chalk.green("renderListDeclare.ag.ts"),
     "file is generated in the:",
     chalk.blue(oPath)
   );
 };
 
 let genBFDTSTimer: NodeJS.Timeout | null = null;
-export const genBuildFormDTS = (target?: "buildForm" | "rendererList") => {
+export const genBuildFormDTS = (target?: "buildForm" | "renderList") => {
   genBFDTSTimer && clearTimeout(genBFDTSTimer);
   genBFDTSTimer = setTimeout(() => {
     console.time(chalk.green("sync type use time"));
@@ -339,11 +339,11 @@ export const genBuildFormDTS = (target?: "buildForm" | "rendererList") => {
       const invokesDir = resolve(__dirname, "../src/invokes");
       if (target === "buildForm") {
         syncBuildFormDeclare(typesDir, invokesDir);
-      } else if (target === "rendererList") {
-        syncRendererListDeclare(typesDir, invokesDir);
+      } else if (target === "renderList") {
+        syncRenderListDeclare(typesDir, invokesDir);
       } else {
         syncBuildFormDeclare(typesDir, invokesDir);
-        syncRendererListDeclare(typesDir, invokesDir);
+        syncRenderListDeclare(typesDir, invokesDir);
       }
       console.timeEnd(chalk.green("sync type use time"));
     } catch (error) {

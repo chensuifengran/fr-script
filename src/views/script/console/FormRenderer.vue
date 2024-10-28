@@ -392,7 +392,7 @@ const getItemType = (item: any) => {
   }
   return typeof item;
 };
-const { importLastRunConfig, replaceRendererList } = useScriptApi();
+const { importLastRunConfig, replaceRenderList } = useScriptApi();
 const listStore = useListStore();
 const { rendererList } = storeToRefs(listStore);
 let syncFormTimer: NodeJS.Timeout | null = null;
@@ -401,7 +401,7 @@ watch(
   (val) => {
     syncFormTimer && clearTimeout(syncFormTimer);
     syncFormTimer = setTimeout(() => {
-      useWss().syncRendererList(val, true);
+      useWss().syncRenderList(val, true);
     }, 500);
   },
   {
@@ -418,11 +418,11 @@ const configChangeHandle = async (label?: string) => {
 let stopHandle: WatchStopHandle;
 let unlistenMsg: () => void = () => {};
 onMounted(() => {
-  const { syncRendererList, onMsg } = useWss();
+  const { syncRenderList, onMsg } = useWss();
   unlistenMsg = onMsg((msg) => {
     if (msg.type === "COMMAND") {
       if (msg.command === "SYNC_FORM") {
-        replaceRendererList(resetRListDate(msg.form));
+        replaceRenderList(resetRListDate(msg.form));
       }
     }
   });
@@ -436,7 +436,7 @@ onMounted(() => {
   });
   const { controlDeviceInfo } = useControl();
   if (controlDeviceInfo.willSyncForm) {
-    syncRendererList(rendererList.value);
+    syncRenderList(rendererList.value);
   }
 });
 onBeforeUnmount(() => {

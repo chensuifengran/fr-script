@@ -76,7 +76,7 @@
       </div>
     </div>
     <div class="console-log-div">
-      <renderer-form
+      <form-renderer
         :reInit="reInit"
         flex-1
         h-full
@@ -92,7 +92,7 @@
           width: taskRunStatus !== 'ready' ? '65%' : '220px',
         }"
       >
-        <renderer-list-catalog
+        <render-list-catalog
           scroll-container-id="renderer-form"
           v-if="taskRunStatus === 'ready'"
           class="catalog-box"

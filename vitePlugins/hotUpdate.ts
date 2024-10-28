@@ -36,8 +36,8 @@ export function hotUpdatePlugin(): Plugin {
         //invokes
         if (file.includes("buildForm.d.ts")) {
           genBuildFormDTS("buildForm");
-        } else if (file.includes("rendererList.d.ts")) {
-          genBuildFormDTS("rendererList");
+        } else if (file.includes("renderList.d.ts")) {
+          genBuildFormDTS("renderList");
         } else if (file.includes("enums.ts")) {
           genEnumDTS();
         } else if (file.includes("invokes/")) {

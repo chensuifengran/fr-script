@@ -61,7 +61,7 @@ ${ENUM_DECLARE.trim()}
 ${INPUT_KEY_TYPE.trim()}
 ${UTIL_DECLARE_STRING.trim()}
 ${BUILD_FORM_DECLARE.trim()}
-${RENDERER_LIST_DECLARE.trim()}
+${RENDER_LIST_DECLARE.trim()}
 ${allDeclarationString.trim()}
 `.trim();
 };

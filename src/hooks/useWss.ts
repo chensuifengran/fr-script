@@ -17,7 +17,7 @@ export namespace Command {
   };
   export type SyncForm = {
     command: "SYNC_FORM";
-    form: RendererList[];
+    form: RenderGroup[];
   };
   export type ExecScript = {
     command: "EXECUTE_SCRIPT";
@@ -144,7 +144,7 @@ const responseScriptList = (
     })
   );
 };
-const syncRendererList = (list: RendererList[] = [], useSyncForm?: boolean) => {
+const syncRenderList = (list: RenderGroup[] = [], useSyncForm?: boolean) => {
   const { controlDeviceInfo } = useControl();
 
   ws?.send(
@@ -226,7 +226,7 @@ export const useWss = () => {
     onMsg,
     responseReq,
     responseScriptList,
-    syncRendererList,
+    syncRenderList,
     sendDeprecatedSyncId,
     syncLog,
     syncExecState,
