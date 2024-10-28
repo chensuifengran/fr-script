@@ -182,7 +182,7 @@ declare type PickerListItem = (
   | PickerItem.Color<false>
 ) &
   BaseListItem;
-declare type RendererList = {
+declare type RenderGroup = {
   id?: string;
   groupLabel: string;
   enable: boolean;
@@ -191,7 +191,7 @@ declare type RendererList = {
   selectList: SelectListItem[];
   pickerList: PickerListItem[];
 };
-declare type RendererItem =
+declare type RenderItem =
   | CheckListItem
   | InputListItem
   | SelectListItem
