@@ -93,7 +93,7 @@
         }"
       >
         <render-list-catalog
-          scroll-container-id="renderer-form"
+          scroll-container-id="form-renderer"
           v-if="taskRunStatus === 'ready'"
           class="catalog-box"
           w-full

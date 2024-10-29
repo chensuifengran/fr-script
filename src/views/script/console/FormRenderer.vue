@@ -1,12 +1,12 @@
 <template>
-  <div class="renderer-form" id="renderer-form">
+  <div class="form-renderer" id="form-renderer">
     <loading v-if="!renderList.length" />
     <template v-else>
       <ElCard
         class="box-card"
         v-for="g in renderList"
         :key="g.groupLabel"
-        :id="'renderer-form-g-' + g.groupLabel"
+        :id="'form-renderer-g-' + g.groupLabel"
       >
         <template #header>
           <div class="card-header">
@@ -485,7 +485,7 @@ const getValueFormat = (item: Record<string, any>) => {
 </script>
 
 <style lang="scss" scoped>
-.renderer-form {
+.form-renderer {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
@@ -581,7 +581,7 @@ const getValueFormat = (item: Record<string, any>) => {
 }
 </style>
 <style lang="scss">
-.renderer-form {
+.form-renderer {
   overflow-x: hidden;
 
   .el-card__body {
