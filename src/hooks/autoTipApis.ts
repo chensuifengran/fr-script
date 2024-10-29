@@ -135,7 +135,10 @@ const getCursorPosFnInfo = async (
     code,
     cursorOffset
   );
-  if (result?.params?.length) {
+  if (!result) {
+    return;
+  }
+  if (result.params?.length) {
     result.params = result.params.map((p) => {
       if (p.value) {
         return p;
@@ -154,14 +157,14 @@ const getCursorPosFnInfo = async (
         };
       }
     });
-    const oldResult = await astWorker.analyzeFnInfo(
-      model,
-      position,
-      oldCode,
-      oldCursorOffset
-    );
-    result.paramsRange = oldResult?.paramsRange || result.paramsRange;
   }
+  const oldResult = await astWorker.analyzeFnInfo(
+    model,
+    position,
+    oldCode,
+    oldCursorOffset
+  );
+  result!.paramsRange = oldResult?.paramsRange || result.paramsRange;
 
   fnInfo.value = result;
   if (!fnInfo.value) {
