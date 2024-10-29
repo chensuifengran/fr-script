@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "读取指定路径的文件内容",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

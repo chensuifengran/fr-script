@@ -9,7 +9,7 @@ export const auxiliary = <AuxiliaryType>{
     dialog.args!.forEach((i, index) => {
       switch (index) {
         case 0:
-          if (i.componentType === "RectInput") {
+          if (i.componentType === "rectInput") {
             i.value.x = +params[0]?.value || 0;
             i.value.y = +params[1]?.value || 0;
             i.value.width = +params[2]?.value || 0;
@@ -17,7 +17,7 @@ export const auxiliary = <AuxiliaryType>{
           }
           break;
         case 1:
-          if (i.componentType === "FileInput") {
+          if (i.componentType === "fileInput") {
             i.value = AutoTipUtils.pathStrReset(params[4]?.value || "");
           }
           break;

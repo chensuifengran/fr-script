@@ -6,7 +6,7 @@ export const dialogOptions = {
   args: [
     {
       name: "path",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "截图保存路径",
     },
@@ -20,7 +20,7 @@ export const dialogOptions = {
     },
     {
       name: "range",
-      componentType: "RectInput",
+      componentType: "rectInput",
       label: "截图区域",
       value: {
         x: -1,

@@ -1,4 +1,7 @@
-declare type ShowDetailsFn = (text: string | undefined, preStr?: string) => void;
+declare type ShowDetailsFn = (
+  text: string | undefined,
+  preStr?: string
+) => void;
 
 declare type ReturnMethods = {
   [methodName: string]: [returnType: string, argumentTypes: string[]];
@@ -53,6 +56,7 @@ declare namespace DialogArg {
 
   type ExtraAttr = {
     desc?: string /*用于DialogArgEditor组件*/;
+    disabledEdit?: boolean /*DialogArgEditor不允许添加此组件*/;
   };
   type Select<
     OPTION extends
@@ -75,7 +79,7 @@ declare namespace DialogArg {
     ExtraAttr;
 
   type FileInput<Multiple extends true | false = false> = {
-    componentType: "FileInput";
+    componentType: "fileInput";
     verifyPath?: boolean;
     suffix?: string;
   } & Combined<string, Multiple> &
@@ -87,7 +91,7 @@ declare namespace DialogArg {
   } & ExtraAttr;
 
   type RectInput = {
-    componentType: "RectInput";
+    componentType: "rectInput";
     value: {
       x: number;
       y: number;
@@ -112,7 +116,7 @@ declare namespace DialogArg {
     inactiveText?: string;
   } & ExtraAttr;
   type DirInput = {
-    componentType: "DirInput";
+    componentType: "dirInput";
     value: string;
     suffix?: string;
     verifyPath?: boolean;
@@ -126,8 +130,14 @@ declare namespace DialogArg {
     value: [number, number];
     limit?: [number, number];
   } & ExtraAttr;
+  type BuildFormEditor = {
+    componentType: "buildFormEditor";
+    value: BuildFormItems[];
+    disabledEdit: true;
+  } & ExtraAttr;
 }
 declare type ArgItems =
+  | DialogArg.BuildFormEditor
   | DialogArg.Select
   | DialogArg.FileInput<true>
   | DialogArg.FileInput<false>
@@ -148,6 +158,7 @@ declare type ArgItem<T extends ArgItems = ArgItems> = {
   placeholder?: string;
 } & T;
 declare type DialogDynamicArgItem =
+  | ArgItem<DialogArg.BuildFormEditor>
   | ArgItem<DialogArg.Select>
   | ArgItem<DialogArg.FileInput<true>>
   | ArgItem<DialogArg.FileInput<false>>
@@ -178,7 +189,7 @@ declare type AuxiliaryType = {
     /**
      * 用于特殊情况下主动关闭弹窗，一般情况用不上
      */
-    close:()=>void,
+    close: () => void,
     ...args: {
       type: string;
       expression: string;

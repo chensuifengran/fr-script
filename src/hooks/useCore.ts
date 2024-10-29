@@ -155,7 +155,7 @@ const invokeDynamicDialog = (
               currentParams &&
               arg.value !== currentParams[i + usedIndex]?.value
             ) {
-              if (arg.componentType === "RectInput") {
+              if (arg.componentType === "rectInput") {
                 const ev = JSON.stringify({
                   x: currentParams[i + usedIndex]?.value,
                   y: currentParams[i + usedIndex + 1]?.value,
@@ -168,8 +168,8 @@ const invokeDynamicDialog = (
                   needUpdate = true;
                 }
               } else if (
-                arg.componentType === "FileInput" ||
-                arg.componentType === "DirInput"
+                arg.componentType === "fileInput" ||
+                arg.componentType === "dirInput"
               ) {
                 if (
                   JSON.stringify(arg.value) !==

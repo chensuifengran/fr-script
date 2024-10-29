@@ -10,7 +10,7 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
         case 1:
-          if (i.componentType === "FileInput") {
+          if (i.componentType === "fileInput") {
             i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
           }
           break;

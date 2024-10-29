@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "获取文件夹的所有子文件或子文件夹",
   args: [
     {
-      componentType: "DirInput",
+      componentType: "dirInput",
       value: "",
       suffix: "",
       verifyPath: false,

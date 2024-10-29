@@ -56,7 +56,7 @@
         >
         </el-select>
       </template>
-      <template v-else-if="argItem && argItem.componentType === 'FileInput'">
+      <template v-else-if="argItem && argItem.componentType === 'fileInput'">
         <FileInput
           v-model="argItem.value"
           :label="argItem.label"
@@ -64,7 +64,7 @@
           :multiple="argItem.multiple"
         />
       </template>
-      <template v-else-if="argItem && argItem.componentType === 'RectInput'">
+      <template v-else-if="argItem && argItem.componentType === 'rectInput'">
         <RectInput v-model="argItem.value" />
       </template>
       <template v-else-if="argItem && argItem.componentType === 'slider'">
@@ -86,7 +86,7 @@
           size="small"
         />
       </template>
-      <template v-else-if="argItem && argItem.componentType === 'DirInput'">
+      <template v-else-if="argItem && argItem.componentType === 'dirInput'">
         <DirInput
           v-model="argItem.value"
           :label="argItem.label"
@@ -137,7 +137,7 @@ const itemClass = (componentType: string) => {
     return "arg-item";
   }
 };
-const notShowType = ["input", "FileInput", "DirInput", "slider"];
+const notShowType = ["input", "fileInput", "firInput", "slider"];
 const { appAsideBgColor } = useAppTheme();
 const maskBg = computed(() => {
   const appAsideBgColorReverse =

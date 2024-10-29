@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "返回路径的目录名",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "将文本写入文件",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

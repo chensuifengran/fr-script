@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "返回路径的最后一部分",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

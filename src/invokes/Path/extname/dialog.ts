@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "获取文件的扩展名",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

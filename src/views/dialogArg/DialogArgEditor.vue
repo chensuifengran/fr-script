@@ -58,7 +58,7 @@
           <el-form-item label="输入提示" prop="placeholder">
             <el-input v-model="editDialogForm.placeholder" />
           </el-form-item>
-          <template v-if="editDialogForm.componentType === 'DirInput'">
+          <template v-if="editDialogForm.componentType === 'dirInput'">
             <el-form-item label="后缀" prop="component.dirInput.suffix">
               <el-input v-model="editDialogForm.component.dirInput.suffix" />
             </el-form-item>
@@ -71,7 +71,7 @@
               <el-input v-model="editDialogForm.component.dirInput.value" />
             </el-form-item>
           </template>
-          <template v-if="editDialogForm.componentType === 'FileInput'">
+          <template v-if="editDialogForm.componentType === 'fileInput'">
             <el-form-item label="后缀" prop="component.fileInput.suffix">
               <el-input v-model="editDialogForm.component.fileInput.suffix" />
             </el-form-item>
@@ -109,7 +109,7 @@
               <el-input v-model="editDialogForm.component.input.value" />
             </el-form-item>
           </template>
-          <template v-if="editDialogForm.componentType === 'RectInput'">
+          <template v-if="editDialogForm.componentType === 'rectInput'">
             <el-form-item
               label="目标图片路径"
               prop="component.rectInput.targetSrc"
@@ -378,14 +378,15 @@ const props = defineProps({
 const editDialogForm = reactive({
   componentType: <
     | "input"
-    | "RectInput"
+    | "rectInput"
     | "slider"
     | "switch"
-    | "DirInput"
+    | "dirInput"
     | "numberInput"
     | "numberRangeInput"
     | "select"
-    | "FileInput"
+    | "fileInput"
+    | "buildFormEditor"
     | undefined
   >undefined,
   noTest: false, //此字段不在API调试中使用(展示)
@@ -488,7 +489,7 @@ const localArgs = [
     desc: "文本输入框",
   },
   <DialogArg.RectInput>{
-    componentType: "RectInput",
+    componentType: "rectInput",
     value: {
       x: 0,
       y: 0,
@@ -516,7 +517,7 @@ const localArgs = [
     desc: "切换按钮",
   },
   <DialogArg.DirInput>{
-    componentType: "DirInput",
+    componentType: "dirInput",
     value: "",
     suffix: "",
     verifyPath: false,
@@ -564,14 +565,14 @@ const localArgs = [
     multiple: true,
   },
   <DialogArg.FileInput>{
-    componentType: "FileInput",
+    componentType: "fileInput",
     value: "",
     suffix: "",
     verifyPath: false,
     desc: "单文件选择",
   },
   <DialogArg.FileInput<true>>{
-    componentType: "FileInput",
+    componentType: "fileInput",
     value: [],
     suffix: "",
     verifyPath: false,
@@ -637,7 +638,7 @@ const editArg = (id: string) => {
       } else {
         editDialogForm.component.select.value = t.value as any;
       }
-    } else if (target.componentType === "FileInput") {
+    } else if (target.componentType === "fileInput") {
       const t = target as DialogArg.FileInput;
       editDialogForm.component.fileInput.verifyPath = !!t.verifyPath;
       editDialogForm.component.fileInput.suffix = t.suffix || "";
@@ -650,7 +651,7 @@ const editArg = (id: string) => {
     } else if (target.componentType === "input") {
       const t = target as DialogArg.Input;
       editDialogForm.component.input.value = t.value;
-    } else if (target.componentType === "RectInput") {
+    } else if (target.componentType === "rectInput") {
       const t = target as DialogArg.RectInput;
       editDialogForm.component.rectInput.value = t.value;
       editDialogForm.component.rectInput.targetSrc = t.targetSrc || "";
@@ -663,7 +664,7 @@ const editArg = (id: string) => {
       editDialogForm.component.switch.value = t.value;
       editDialogForm.component.switch.activeText = t.activeText || "是";
       editDialogForm.component.switch.inactiveText = t.inactiveText || "否";
-    } else if (target.componentType === "DirInput") {
+    } else if (target.componentType === "dirInput") {
       const t = target as DialogArg.DirInput;
       editDialogForm.component.dirInput.value = t.value;
       editDialogForm.component.dirInput.suffix = t.suffix || "";
@@ -689,11 +690,11 @@ const editDialogCallback = () => {
       i.componentType === editDialogForm.componentType
   );
   if (target) {
-    if (target.componentType === "DirInput") {
+    if (target.componentType === "dirInput") {
       target.suffix = editDialogForm.component.dirInput.suffix;
       target.verifyPath = editDialogForm.component.dirInput.verifyPath;
       target.value = editDialogForm.component.dirInput.value;
-    } else if (target.componentType === "FileInput") {
+    } else if (target.componentType === "fileInput") {
       if (editDialogForm.component.fileInput.multiple) {
         const t = target as unknown as ArgItem<DialogArg.FileInput<true>>;
         t.multiple = true;
@@ -707,7 +708,7 @@ const editDialogCallback = () => {
       target.verifyPath = editDialogForm.component.fileInput.verifyPath;
     } else if (target.componentType === "input") {
       target.value = editDialogForm.component.input.value;
-    } else if (target.componentType === "RectInput") {
+    } else if (target.componentType === "rectInput") {
       target.value = editDialogForm.component.rectInput.value;
       target.targetSrc = editDialogForm.component.rectInput.targetSrc;
     } else if (target.componentType === "slider") {
@@ -722,7 +723,7 @@ const editDialogCallback = () => {
     } else if (target.componentType === "numberRangeInput") {
       target.value = editDialogForm.component.numberRangeInput.value;
       target.limit = editDialogForm.component.numberRangeInput.limit;
-    } else {
+    } else if (target.componentType === "select") {
       const { multiple } = editDialogForm.component.select;
       if (editDialogForm.component.select.optionType === "array") {
         target.options = editDialogForm.component.select.options;

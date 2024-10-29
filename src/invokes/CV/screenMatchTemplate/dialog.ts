@@ -7,7 +7,7 @@ export const dialogOptions = {
   args: [
     {
       name: "range",
-      componentType: "RectInput",
+      componentType: "rectInput",
       value: {
         x: -1,
         y: -1,
@@ -18,7 +18,7 @@ export const dialogOptions = {
     },
     {
       name: "tempPath",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "模板图片路径",
     },

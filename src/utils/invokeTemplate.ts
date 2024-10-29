@@ -111,7 +111,7 @@ export class InvokeTemplate {
           ];
           if (i.componentType === "switch") {
             type = "boolean";
-          } else if (i.componentType === "RectInput") {
+          } else if (i.componentType === "rectInput") {
             type = `{
       x: number;
       y: number;

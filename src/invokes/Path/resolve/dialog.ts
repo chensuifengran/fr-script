@@ -4,7 +4,7 @@ export const dialogOptions = <TestModuleDialogType>{
   content: "将路径或路径段序列解析为绝对路径",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,

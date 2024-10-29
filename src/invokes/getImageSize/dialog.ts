@@ -5,7 +5,7 @@ export const dialogOptions = {
   args: [
     {
       name: "path",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "图片路径",
     },

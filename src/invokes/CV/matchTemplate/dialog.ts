@@ -12,13 +12,13 @@ export const dialogOptions = {
   args: [
     {
       name: "imgPath",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "待匹配图片路径",
     },
     {
       name: "tempPath",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "模板图片路径",
     },

@@ -7,7 +7,7 @@ export const dialogOptions = <TestModuleType["dialog"]>{
   args: [
     {
       name: "range",
-      componentType: "RectInput",
+      componentType: "rectInput",
       value: {
         x: -1,
         y: -1,
@@ -18,7 +18,7 @@ export const dialogOptions = <TestModuleType["dialog"]>{
     },
     {
       name: "tempPaths",
-      componentType: "FileInput",
+      componentType: "fileInput",
       multiple: true,
       value: [],
       label: "模板图片路径",

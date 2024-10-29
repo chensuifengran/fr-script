@@ -332,7 +332,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
           ...item.testModule?.dialog,
           args: item.testModule?.dialog?.args?.map((i) => {
             const id = nanoid();
-            if (i.componentType === "DirInput") {
+            if (i.componentType === "dirInput") {
               return {
                 ...i,
                 id,
@@ -341,7 +341,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
                 suffix: i.suffix || "",
                 verifyPath: i.verifyPath || false,
               };
-            } else if (i.componentType === "FileInput") {
+            } else if (i.componentType === "fileInput") {
               return {
                 ...i,
                 id,
@@ -352,7 +352,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
                 multiple: i.multiple || false,
                 value: i.value || (i.multiple ? [] : ""),
               };
-            } else if (i.componentType === "RectInput") {
+            } else if (i.componentType === "rectInput") {
               return {
                 ...i,
                 id,
@@ -439,7 +439,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
               ...child.testModule?.dialog,
               args: child.testModule?.dialog?.args?.map((i) => {
                 const id = nanoid();
-                if (i.componentType === "DirInput") {
+                if (i.componentType === "dirInput") {
                   return {
                     ...i,
                     id,
@@ -448,7 +448,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
                     suffix: i.suffix || "",
                     verifyPath: i.verifyPath || false,
                   };
-                } else if (i.componentType === "FileInput") {
+                } else if (i.componentType === "fileInput") {
                   return {
                     ...i,
                     id,
@@ -459,7 +459,7 @@ const setDefaultValue = (options: SelectOption<ExtraProperties>[]) => {
                     multiple: i.multiple || false,
                     value: i.value || (i.multiple ? [] : ""),
                   };
-                } else if (i.componentType === "RectInput") {
+                } else if (i.componentType === "rectInput") {
                   return {
                     ...i,
                     id,

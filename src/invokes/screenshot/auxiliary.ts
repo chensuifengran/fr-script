@@ -26,7 +26,7 @@ export const auxiliary = <AuxiliaryType>{
             false;
           break;
         case 2:
-          if (i.componentType === "RectInput") {
+          if (i.componentType === "rectInput") {
             i.value.x = +params[0]?.value >= 0 ? +params[0]?.value : -1;
             i.value.y = +params[1]?.value >= 0 ? +params[1]?.value : -1;
             i.value.width = +params[2]?.value || -1;

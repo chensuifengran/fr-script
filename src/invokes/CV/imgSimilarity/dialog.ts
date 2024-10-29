@@ -5,19 +5,19 @@ export const dialogOptions = {
   args: [
     {
       name: "pathA",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "原图路径",
     },
     {
       name: "pathB",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "模板路径",
     },
     {
       name: "rect",
-      componentType: "RectInput",
+      componentType: "rectInput",
       value: { x: -1, y: -1, width: -1, height: -1 },
       label: "原图指定矩形区域",
       targetSrc: "imgPath",

@@ -6,7 +6,7 @@ export const dialogOptions = {
   args: [
     {
       name: "rect",
-      componentType: "RectInput",
+      componentType: "rectInput",
       value: {
         x: -1,
         y: -1,
@@ -18,7 +18,7 @@ export const dialogOptions = {
     },
     {
       name: "imgPath",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "图片路径",
     },
