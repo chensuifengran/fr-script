@@ -106,7 +106,35 @@ const getCursorPosFnInfo = async (
   }
   console.time("getCursorPosFnInfo");
   const position = editor.getPosition();
-  const result = await astWorker.analyzeFnInfo(model, position);
+  let cursorOffset = model.getOffsetAt(position!) || 0;
+  const oldCursorOffset = cursorOffset;
+  let code = model.getValue() || "";
+  const oldCode = code;
+  const beforePreCode = code.substring(0, cursorOffset);
+  let afterPreCode = beforePreCode;
+  const constants = getLastConstants();
+  Object.keys(constants).forEach((key) => {
+    code = code.replaceAll(key, `"${constants[key]}"`);
+    afterPreCode = afterPreCode.replaceAll(key, `"${constants[key]}"`);
+  });
+  for (const enumKey in inject_enums) {
+    const enumConfig = inject_enums[enumKey];
+    for (const key in enumConfig) {
+      const item = enumConfig[key];
+      code = code.replaceAll(`${enumKey}.${key}`, `"${item.value}"`);
+      afterPreCode = afterPreCode.replaceAll(
+        `${enumKey}.${key}`,
+        `"${item.value}"`
+      );
+    }
+  }
+  cursorOffset += afterPreCode.length - beforePreCode.length;
+  const result = await astWorker.analyzeFnInfo(
+    model,
+    position,
+    code,
+    cursorOffset
+  );
   if (result?.params?.length) {
     result.params = result.params.map((p) => {
       if (p.value) {
@@ -126,6 +154,13 @@ const getCursorPosFnInfo = async (
         };
       }
     });
+    const oldResult = await astWorker.analyzeFnInfo(
+      model,
+      position,
+      oldCode,
+      oldCursorOffset
+    );
+    result.paramsRange = oldResult?.paramsRange || result.paramsRange;
   }
 
   fnInfo.value = result;

@@ -22,7 +22,9 @@ const worker = new Worker(
 );
 const analyzeFnInfo = (
   editorModel: monaco.editor.ITextModel | null,
-  position: monaco.Position | null
+  position: monaco.Position | null,
+  code: string,
+  cursorOffset: number
 ) => {
   return new Promise<AnalyzeFnInfoType>((resolve) => {
     worker.onmessage = (e) => {
@@ -63,19 +65,6 @@ const analyzeFnInfo = (
         }
       }
     };
-    let code = editorModel?.getValue() || "";
-    const constants = getLastConstants();
-    Object.keys(constants).forEach((key) => {
-      code = code.replaceAll(key, `"${constants[key]}"`);
-    });
-    for (const enumKey in inject_enums) {
-      const enumConfig = inject_enums[enumKey];
-      for (const key in enumConfig) {
-        const item = enumConfig[key];
-        code = code.replaceAll(`${enumKey}.${key}`, `"${item.value}"`);
-      }
-    }
-    const cursorOffset = editorModel?.getOffsetAt(position!) || 0;
     worker.postMessage({
       type: "analyzeFnInfo",
       code,
