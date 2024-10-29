@@ -230,15 +230,10 @@ const pushElement = (
   updateRenderList && updateWindowRenderList();
 };
 //渲染UI表单
-const buildForm = (buildFormList: BuildFormItems[], transform?:boolean) => {
+const buildForm = (buildFormList: BuildFormItems[]) => {
   for (let i = 0; i < buildFormList.length; i++) {
     const item = buildFormList[i];
     pushElement(item, false);
-  }
-  if(transform){
-    const { renderList } = useListStore();
-    const res = JSON.parse(JSON.stringify(renderList))
-    return
   }
   updateWindowRenderList();
 };
