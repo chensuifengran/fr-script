@@ -6,12 +6,12 @@ import {
 import { ScriptTarget, transpile } from "typescript";
 //拷贝一份默认配置
 let curRenderList: RenderGroup[] = [];
-const importLastRunConfig = async (rendererList?: RenderGroup[]) => {
-  if (!rendererList) {
-    const { rendererList: r } = useListStore();
-    rendererList = r;
+const importLastRunConfig = async (renderList?: RenderGroup[]) => {
+  if (!renderList) {
+    const { renderList: r } = useListStore();
+    renderList = r;
   }
-  const scriptConfig = rendererList.find(
+  const scriptConfig = renderList.find(
     (i: RenderGroup) => i.groupLabel === "*脚本设置"
   );
   const mergeConfig = scriptConfig?.checkList.find(
@@ -22,10 +22,10 @@ const importLastRunConfig = async (rendererList?: RenderGroup[]) => {
     scriptConfig!.checkList.find(
       (i) => i.label === "导入上次运行配置"
     )!.checked = false;
-    const defaultObj: RenderGroup[] = JSON.parse(JSON.stringify(rendererList));
-    curRenderList = JSON.parse(JSON.stringify(rendererList));
+    const defaultObj: RenderGroup[] = JSON.parse(JSON.stringify(renderList));
+    curRenderList = JSON.parse(JSON.stringify(renderList));
     const r = localStorage.getItem(
-      window[CORE_NAMESPACES].getScriptId!() + "-rendererList"
+      window[CORE_NAMESPACES].getScriptId!() + "-renderList"
     );
     if (r) {
       //合并配置
@@ -151,7 +151,7 @@ const importLastRunConfig = async (rendererList?: RenderGroup[]) => {
           return;
         }
       });
-      rendererList.splice(0, rendererList.length, ...defaultObj);
+      renderList.splice(0, renderList.length, ...defaultObj);
     }
     scriptConfig!.checkList.find(
       (i) => i.label === "导入上次运行配置"
@@ -181,23 +181,23 @@ const importLastRunConfig = async (rendererList?: RenderGroup[]) => {
       }
     });
     if (curRenderList.length) {
-      rendererList.splice(0, rendererList.length, ...curRenderList);
+      renderList.splice(0, renderList.length, ...curRenderList);
     } else {
-      rendererList.splice(0, rendererList.length, ...rendererList);
+      renderList.splice(0, renderList.length, ...renderList);
     }
   }
 };
 
 const updateWindowRenderList = () => {
-  const { rendererList } = useListStore();
+  const { renderList } = useListStore();
   setTimeout(() => {
-    window[CORE_NAMESPACES].rendererList = rendererList;
+    window[CORE_NAMESPACES].renderList = renderList;
   });
 };
 
 const replaceRenderList = (newRenderList: RenderGroup[]) => {
-  const { rendererList } = useListStore();
-  rendererList.splice(0, rendererList.length, ...newRenderList);
+  const { renderList } = useListStore();
+  renderList.splice(0, renderList.length, ...newRenderList);
   updateWindowRenderList();
 };
 
@@ -207,9 +207,9 @@ const pushElement = (
   //更新window对象中的rendererList
   updateRenderList: boolean = true
 ) => {
-  const { rendererList } = useListStore();
+  const { renderList } = useListStore();
 
-  const idx = rendererList.findIndex(
+  const idx = renderList.findIndex(
     (g) => g.groupLabel === elem.targetGroupLabel
   );
   if (idx === -1) {
@@ -223,17 +223,22 @@ const pushElement = (
       pickerList: [],
     };
     group[elem.type + "List"] = [elem];
-    rendererList.push(group);
+    renderList.push(group);
   } else {
-    (rendererList[idx] as any)[elem.type + "List"].push(elem);
+    (renderList[idx] as any)[elem.type + "List"].push(elem);
   }
   updateRenderList && updateWindowRenderList();
 };
 //渲染UI表单
-const buildForm = (buildFormList: BuildFormItems[]) => {
+const buildForm = (buildFormList: BuildFormItems[], transform?:boolean) => {
   for (let i = 0; i < buildFormList.length; i++) {
     const item = buildFormList[i];
     pushElement(item, false);
+  }
+  if(transform){
+    const { renderList } = useListStore();
+    const res = JSON.parse(JSON.stringify(renderList))
+    return
   }
   updateWindowRenderList();
 };
@@ -290,10 +295,10 @@ const getCustomizeForm = async () => {
       signal!.removeEventListener("abort", signalHandle);
       //保存此次运行选择的配置选项
       localStorage.setItem(
-        window[CORE_NAMESPACES].getScriptId!() + "-rendererList",
-        JSON.stringify(window[CORE_NAMESPACES].rendererList)
+        window[CORE_NAMESPACES].getScriptId!() + "-renderList",
+        JSON.stringify(window[CORE_NAMESPACES].renderList)
       );
-      resolve(window[CORE_NAMESPACES].rendererList);
+      resolve(window[CORE_NAMESPACES].renderList);
     };
     signal!.addEventListener("abort", signalHandle);
   });
@@ -491,7 +496,7 @@ const changeScriptRunState = (state: boolean | "stop", taskId?: string) => {
 export const useScriptApi = () => {
   const { openId } = useScriptInfo();
   const listStore = useListStore();
-  const { scriptList, rendererList } = storeToRefs(listStore);
+  const { scriptList, renderList } = storeToRefs(listStore);
   const _buildForm = (buildFormList: BuildFormItems[]) => {
     buildForm(buildFormList);
     if (openId.value !== "-1") {
@@ -501,7 +506,7 @@ export const useScriptApi = () => {
       if (!target?.setting.autoImportLastRunConfig) {
         return;
       } else if (target.setting.autoImportLastRunConfig) {
-        const scriptConfig = window[CORE_NAMESPACES].rendererList?.find(
+        const scriptConfig = window[CORE_NAMESPACES].renderList?.find(
           (i) => i.groupLabel === "*脚本设置"
         );
         if (scriptConfig) {
@@ -510,7 +515,7 @@ export const useScriptApi = () => {
           );
           if (importLastRunConfigItem) {
             importLastRunConfigItem.checked = true;
-            rendererList.value
+            renderList.value
               .find((i) => i.groupLabel === "*脚本设置")!
               .checkList.find((i) => i.label === "导入上次运行配置")!.checked =
               true;
@@ -546,7 +551,7 @@ export const useScriptView = () => {
  */
 export const useBuiltInApi = () => {
   const { exportAllFn } = useCore();
-  const { rendererList } = useListStore();
+  const { renderList } = useListStore();
   return {
     copyText,
     readClipboardFirstText,
@@ -566,7 +571,7 @@ export const useBuiltInApi = () => {
     setInterval: _setInterval,
     clearInterval: _clearInterval,
     removeIntervals,
-    rendererList,
+    renderList,
     getScriptId,
     changeScriptRunState,
     ...exportAllFn(),

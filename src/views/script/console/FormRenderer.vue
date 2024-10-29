@@ -1,10 +1,10 @@
 <template>
   <div class="renderer-form" id="renderer-form">
-    <loading v-if="!rendererList.length" />
+    <loading v-if="!renderList.length" />
     <template v-else>
       <ElCard
         class="box-card"
-        v-for="g in rendererList"
+        v-for="g in renderList"
         :key="g.groupLabel"
         :id="'renderer-form-g-' + g.groupLabel"
       >
@@ -394,10 +394,10 @@ const getItemType = (item: any) => {
 };
 const { importLastRunConfig, replaceRenderList } = useScriptApi();
 const listStore = useListStore();
-const { rendererList } = storeToRefs(listStore);
+const { renderList } = storeToRefs(listStore);
 let syncFormTimer: NodeJS.Timeout | null = null;
 watch(
-  rendererList,
+  renderList,
   (val) => {
     syncFormTimer && clearTimeout(syncFormTimer);
     syncFormTimer = setTimeout(() => {
@@ -412,7 +412,7 @@ let isFirst = true;
 
 const configChangeHandle = async (label?: string) => {
   if (label === "导入上次运行配置") {
-    await importLastRunConfig(rendererList.value);
+    await importLastRunConfig(renderList.value);
   }
 };
 let stopHandle: WatchStopHandle;
@@ -426,7 +426,7 @@ onMounted(() => {
       }
     }
   });
-  rendererList.value = RFormUtil.genId(rendererList.value);
+  renderList.value = RFormUtil.genId(renderList.value);
   stopHandle = watchEffect(async () => {
     const reInit = props.reInit();
     if (reInit) {
@@ -436,7 +436,7 @@ onMounted(() => {
   });
   const { controlDeviceInfo } = useControl();
   if (controlDeviceInfo.willSyncForm) {
-    syncRenderList(rendererList.value);
+    syncRenderList(renderList.value);
   }
 });
 onBeforeUnmount(() => {

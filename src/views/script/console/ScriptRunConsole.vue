@@ -154,7 +154,7 @@ const reInit = (): boolean => {
 };
 const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
-const { scriptList, rendererList } = storeToRefs(listStore);
+const { scriptList, renderList } = storeToRefs(listStore);
 const { controlDeviceInfo } = useControl();
 const { openId, tempEditorValue, contentTransform, asideBarPos } =
   useScriptInfo();
@@ -429,7 +429,7 @@ const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
 let unlistenMsg: () => void;
 onMounted(async () => {
-  rendererList.value.splice(0);
+  renderList.value.splice(0);
   initScript();
   unlistenMsg = useWss().onMsg((msg) => {
     if (msg.type === "COMMAND") {

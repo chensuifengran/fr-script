@@ -10,7 +10,7 @@ export const useListStore = defineStore<
   // 其它配置项
   state: () => {
     return {
-      rendererList: [],
+      renderList: [],
       scriptList: [],
       projectList: [],
       deviceList: [],

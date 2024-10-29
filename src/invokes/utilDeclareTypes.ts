@@ -54,7 +54,7 @@ declare function getCustomizeForm(): Promise<RFormUtil>;
 declare const abortSignalInScript: AbortController;
 declare const startScriptSignal: AbortController;
 declare function removeIntervals(): void;
-declare const rendererList: RenderGroup[];
+declare const renderList: RenderGroup[];
 declare function getScriptId(): string;
 declare function changeScriptRunState(state: boolean | "stop", taskId?: string) : void;
 

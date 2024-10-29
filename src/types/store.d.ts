@@ -94,7 +94,7 @@ declare type CodeSnippet = {
 declare type ListState = {
   scriptList: ScriptItemType[];
   projectList: ProjectItemType[];
-  rendererList: RenderGroup[];
+  renderList: RenderGroup[];
   deviceList: string[];
   codeSnippets: CodeSnippet[];
 };

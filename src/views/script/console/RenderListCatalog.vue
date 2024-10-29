@@ -36,7 +36,7 @@ watch(linkTarget, () => {
   }, 100);
 });
 const rendererListLabel = computed(() =>
-  listStore.rendererList.map((i) => "renderer-form-g-" + i.groupLabel)
+  listStore.renderList.map((i) => "renderer-form-g-" + i.groupLabel)
 );
 const scrollTo = (id: string) => {
   clickScrollTo++;
