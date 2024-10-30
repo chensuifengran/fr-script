@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler'
+          api: "modern-compiler",
         },
       },
       postcss: {
@@ -87,7 +87,7 @@ export default defineConfig(({ mode }) => {
     // Tauri expects a fixed port, fail if that port is not available
     server: {
       strictPort: true,
-      port: mode === "play" ? 5174 : 5173,
+      port: mode.includes("play") ? 5174 : 5173,
     },
     // to make use of `TAURI_PLATFORM`, `TAURI_ARCH`, `TAURI_FAMILY`,
     // `TAURI_PLATFORM_VERSION`, `TAURI_PLATFORM_TYPE` and `TAURI_DEBUG`
@@ -95,12 +95,11 @@ export default defineConfig(({ mode }) => {
     envPrefix: ["VITE_", "TAURI_"],
     build: {
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
-      target:
-        mode === "play"
-          ? "ESNext"
-          : process.env.TAURI_PLATFORM == "windows"
-          ? "chrome105"
-          : "safari13",
+      target: mode.includes("play")
+        ? "ESNext"
+        : process.env.TAURI_PLATFORM == "windows"
+        ? "chrome105"
+        : "safari13",
       // don't minify for debug builds
       minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
       // 为调试构建生成源代码映射 (sourcemap)
