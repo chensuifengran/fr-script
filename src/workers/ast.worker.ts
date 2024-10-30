@@ -252,7 +252,9 @@ const parseNodeValue = (
       ? node.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
       : node.getText();
   }
-  if (node.isKind(ts.SyntaxKind.TemplateExpression)) {
+  if (
+    node.isKind(ts.SyntaxKind.TemplateExpression)
+  ) {
     const variables = node.getTemplateSpans().map((t) => {
       let value = parseNodeValue(t.getExpression(), nodeOffset, ss);
       try {
@@ -274,6 +276,9 @@ const parseNodeValue = (
       oriText = oriText.replace(`\$\{${v.expression}\}`, v.value);
     });
     return oriText;
+  }
+  if(node.isKind(ts.SyntaxKind.NoSubstitutionTemplateLiteral)){
+    return node.getText().replace(STRING_QUOTATION_MARK_REGEX, "");
   }
   if (node.isKind(ts.SyntaxKind.NumericLiteral)) {
     return +node.getText();
