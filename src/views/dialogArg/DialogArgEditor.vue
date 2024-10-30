@@ -400,7 +400,7 @@ const editDialogForm = reactive({
     select: {
       optionType: "array", //'array' | 'function 辅助字段
       options: <string[]>[], // optionType === 'array'
-      fnOptionsStr: '(store) => {return ["a1","a2"]}', // optionType === 'function' 辅助字段
+      fnOptionsStr: 'store => ["a1","a2"]', // optionType === 'function' 辅助字段
       selectOptionSeparator: "", // 选项分隔符
       notAllowCreate: false, // 是否允许创建新选项
       multiple: false, // 是否多选
@@ -603,7 +603,7 @@ const clone = (element: any) => {
 const { appAsideBgColor } = useAppTheme();
 const parseFnStr = (fnStr: string): string[] => {
   try {
-    const fn = eval(fnStr);
+    const fn = new Function("store", `return (${fnStr})(store)`);
     return fn(useListStore());
   } catch (error) {
     return [];
@@ -728,7 +728,10 @@ const editDialogCallback = () => {
       if (editDialogForm.component.select.optionType === "array") {
         target.options = editDialogForm.component.select.options;
       } else {
-        target.options = eval(editDialogForm.component.select.fnOptionsStr);
+        target.options = new Function(
+          "store",
+          `return (${editDialogForm.component.select.fnOptionsStr})(store)`
+        ) as (store: ListStore) => string[] | number[];
       }
       const t = target as any;
       if (multiple) {

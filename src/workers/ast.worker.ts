@@ -97,7 +97,7 @@ const processBinaryExpression = (
     right = parseNodeValue(n.getRight(), nodeOffset, ss, false);
   }
   const evalStr = `${left}${n.getOperatorToken().getText()}${right}`;
-  const res = eval(evalStr);
+  const res = new Function(`return ${evalStr}`)();
   return res;
 };
 //获得离变量节点最近的函数参数中包含指定变量名的函数作用域起点
@@ -159,7 +159,7 @@ const parseNodeValue = (
   }
   if (node.isKind(ts.SyntaxKind.CallExpression)) {
     try {
-      const res = eval(node.getText());
+      const res = new Function(`return ${node.getText()}`)();
       return res;
     } catch (error) {
       return;
@@ -209,13 +209,13 @@ const parseNodeValue = (
   }
   if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
     try {
-      const res = eval(
+      const res = new Function(
         ts.transpileModule(node.getText(), {
           compilerOptions: { module: ts.ModuleKind.ESNext },
         }).outputText +
           ";" +
           node.getName()
-      );
+      )();
       return res;
     } catch (error) {
       console.error("get Class fail:", error);
@@ -234,7 +234,7 @@ const parseNodeValue = (
         ";const target = " +
         node.getText() +
         ";target";
-      const res = eval(str);
+      const res = new Function(`return ${str}`)();
       return res;
     } catch (error) {
       console.error("get NewExpression instance fail:", error);
