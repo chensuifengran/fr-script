@@ -16,7 +16,6 @@ const fileInfo = reactive({
   savePath: "",
   declare: false,
 });
-const { insertText } = useEditor();
 const insertDeclare = () => {
   insertText(
     EDITOR_DOM_ID,
