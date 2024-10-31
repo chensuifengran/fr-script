@@ -195,3 +195,81 @@ export const resetRListDate = (list: RenderGroup[]) => {
 
   return res;
 };
+
+//移除key双引号
+export const removeKeyQuotes = <T = object>(target: any): T => {
+  if (target instanceof Array) {
+    return target.map((i) => {
+      return removeKeyQuotes(i);
+    }) as unknown as T;
+  } else if (typeof target === "object") {
+    if(!target){
+      return target;
+    }
+    const newTarget: Record<string, any> = {};
+    Object.keys(target).forEach((key) => {
+      const newKey = key.replace(/\"/g, "");
+      let val = target[key];
+      if (val) {
+        val = removeKeyQuotes(val);
+      }
+      newTarget[newKey] = val;
+    });
+    return newTarget as unknown as T;
+  } else {
+    return target;
+  }
+};
+
+export const buildForm2renderForm = (buildFormList: BuildFormItems[]) => {
+  const renderList: RenderGroup[] = [];
+  let index = 0;
+  for (let i = 0; i < buildFormList.length; i++) {
+    const item = buildFormList[i];
+    const idx = renderList.findIndex(
+      (g) => g.groupLabel === item.targetGroupLabel
+    );
+    if (idx === -1) {
+      //目标组不存在则新增目标组
+      const group: any = {
+        idx: index++,
+        groupLabel: item.targetGroupLabel,
+        enable: item.enable === undefined ? true : item.enable,
+        checkList: [],
+        selectList: [],
+        inputList: [],
+        pickerList: [],
+      };
+      group[item.type + "List"] = [item];
+      renderList.push(group);
+    } else {
+      (renderList[idx] as any)[item.type + "List"].push(item);
+    }
+  }
+  const res = JSON.parse(JSON.stringify(renderList)) as RenderGroup[];
+  return res;
+};
+
+export const renderForm2buildForm = (renderList: RenderGroup[]) => {
+  const buildFormList: BuildFormItems[] = [];
+  renderList.forEach((group) => {
+    Object.keys(group).forEach((key) => {
+      if (key.includes("List")) {
+        (group as any)[key].forEach((item: RenderItem) => {
+          const buildItem: any = {
+            ...item,
+            targetGroupLabel: group.groupLabel,
+            enable: group.enable,
+            type: key.replace("List", "") as
+              | "input"
+              | "select"
+              | "check"
+              | "picker",
+          };
+          buildFormList.push(buildItem);
+        });
+      }
+    });
+  });
+  return buildFormList;
+};
