@@ -118,11 +118,8 @@ const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const {
-  findEditor,
   editorInit,
   editorValue,
-  insertText,
-  setText,
   formatCode,
   disposeEditor,
   registerEditorEvent,
