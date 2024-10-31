@@ -120,7 +120,7 @@ const {
   autoSaveDialog,
   isEditing,
 } = useScriptInfo();
-const { getEditorValue, openOperationRecordDrawer } = useEditor();
+const { openOperationRecordDrawer } = useEditor();
 const isDifferentValue = computed(() => {
   const v = getEditorValue("codeEditBox");
   if (!v) {
