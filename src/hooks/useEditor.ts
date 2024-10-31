@@ -64,7 +64,7 @@ const editors: {
  * @param insertHead 是否插入脚本头部声明
  * @param range 范围参数
  */
-const insertText = (
+export const insertText = (
   domId: string,
   text: string,
   insertHead = false,
@@ -113,7 +113,7 @@ const insertText = (
   });
 };
 let setTextTimer: any = null;
-const setText = (domId: string, text: string) => {
+export const setText = (domId: string, text: string) => {
   setTextTimer && clearTimeout(setTextTimer);
   setTextTimer = setTimeout(() => {
     const editor = editors.find((item) => item.domId === domId)?.instance;
@@ -126,15 +126,14 @@ const setText = (domId: string, text: string) => {
     clearTimeout(setTextTimer);
   }, 200);
 };
-const findEditor = (domId: string) => {
+export const findEditor = (domId: string) => {
   return editors.find((item) => item.domId === domId)?.instance;
 };
-const getEditorValue = (domId: string) => {
+export const getEditorValue = (domId: string) => {
   return editors.find((item) => item.domId === domId)?.value;
 };
 
 export const useEditor = () => {
-  // @ts-ignore
   !self.MonacoEnvironment &&
     (self.MonacoEnvironment = {
       getWorker(_: string, label: string) {
@@ -282,12 +281,8 @@ export const useEditor = () => {
   return {
     editorInit,
     disposeEditor,
-    findEditor,
-    getEditorValue,
     registerEditorEvent,
     unRegisterEditorEvent,
-    insertText,
-    setText,
     formatCode,
     editorValue: readonly(editorValue),
     openOperationRecordDrawer,
