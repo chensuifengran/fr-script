@@ -1,5 +1,4 @@
 import * as monaco from "monaco-editor";
-import { useEditor } from "./useEditor";
 import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 import { MockCodeSnippet } from "./usePlayMock";
 type FnInfo = {
@@ -16,6 +15,8 @@ type FnInfo = {
   };
 };
 const { resolve } = pathUtils;
+
+const buildFormEditorVisible = ref(false);
 
 const fnInfo = ref<FnInfo | null>(null);
 const getFnInfo = () => fnInfo;
@@ -50,7 +51,7 @@ const replaceConstantPath = (path: string) => {
 
 const pathStrReset = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
-  return pathStr?.replaceAll("\\\\", "\\");
+  return pathStr?.replace(/\\\\/g, "\\");
 };
 
 const stringParamsProcess = async (
@@ -203,7 +204,6 @@ const getCursorPosFnInfo = async (
 let getCursorPosFnInfoTimer: NodeJS.Timeout | null = null;
 
 const apiAutoTip = async () => {
-  const { findEditor } = useEditor();
   // 获取编辑器实例
   const editor = findEditor("codeEditBox");
   if (!editor) {
@@ -323,4 +323,5 @@ export const AutoTipUtils = {
   pathStrReset,
   apiAutoTip,
   replaceConstantPath,
+  buildFormEditorVisible
 };
