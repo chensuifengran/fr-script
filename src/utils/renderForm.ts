@@ -188,11 +188,6 @@ export const resetRListDate = (list: RenderGroup[]) => {
       };
     }
   );
-  console.log(
-    "-----------res:",
-    JSON.parse(JSON.stringify(res.map((i) => i.pickerList)))
-  );
-
   return res;
 };
 
