@@ -198,12 +198,14 @@ export const resetRListDate = (list: RenderGroup[]) => {
 
 //移除key双引号
 export const removeKeyQuotes = <T = object>(target: any): T => {
-  if (target instanceof Array) {
+  if (target instanceof Date) {
+    return target as unknown as T;
+  } else if (target instanceof Array) {
     return target.map((i) => {
       return removeKeyQuotes(i);
     }) as unknown as T;
   } else if (typeof target === "object") {
-    if(!target){
+    if (!target) {
       return target;
     }
     const newTarget: Record<string, any> = {};
@@ -246,8 +248,7 @@ export const buildForm2renderForm = (buildFormList: BuildFormItems[]) => {
       (renderList[idx] as any)[item.type + "List"].push(item);
     }
   }
-  const res = JSON.parse(JSON.stringify(renderList)) as RenderGroup[];
-  return res;
+  return renderList;
 };
 
 export const renderForm2buildForm = (renderList: RenderGroup[]) => {
