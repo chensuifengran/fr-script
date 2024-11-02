@@ -166,6 +166,35 @@ const getCursorPosFnInfo = async (
     oldCursorOffset
   );
   result!.paramsRange = oldResult?.paramsRange || result.paramsRange;
+  result.params = result.params.map((p) => {
+    const v = p.value;
+    let expression: any;
+    try {
+      expression = new Function(`return ${p.expression}`)();
+      if (Array.isArray(v)) {
+        p.value = v.map((item, index) => {
+          if (typeof item === "object") {
+            Object.entries(item).forEach(([key, value]) => {
+              if (typeof value === "string") {
+                if (value.startsWith("__FUNC__")) {
+                  let funcStr = value.replace("__FUNC__", "");
+                  item[key] = new Function(`return ${funcStr}`)();
+                }
+              }
+              if (Array.isArray(expression)) {
+                const expressionItem = expression[index];
+                item[key] = item[key] || expressionItem[key];
+              }
+            });
+          }
+          return item;
+        });
+      }
+    } catch (error) {
+      console.error("new Function error:", p.expression, error);
+    }
+    return p;
+  });
 
   fnInfo.value = result;
   if (!fnInfo.value) {
@@ -323,5 +352,5 @@ export const AutoTipUtils = {
   pathStrReset,
   apiAutoTip,
   replaceConstantPath,
-  buildFormEditorVisible
+  buildFormEditorVisible,
 };
