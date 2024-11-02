@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { objectToString } from "../string";
+import { objectToString, processDate } from "../string";
 
 describe("objectToString", () => {
   it("should convert a simple object to string", () => {
@@ -57,5 +57,17 @@ describe("objectToString", () => {
   it("should handle arrow functions", () => {
     const obj = { a: 1, b: () => "test" };
     expect(objectToString(obj)).toBe('{\n  a: 1,\n  b: () => "test"\n}');
+  });
+});
+
+describe("processDate", () => {
+  it("should process Date object to string with prefix", () => {
+    const date = new Date("2023-01-01");
+    expect(processDate(date)).toBe("__D2S__2023/1/1");
+  });
+
+  it("should return the string as is if input is a string", () => {
+    const str = "test string";
+    expect(processDate(str)).toBe("test string");
   });
 });
