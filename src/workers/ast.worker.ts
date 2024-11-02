@@ -205,7 +205,7 @@ const parseNodeValue = (
     node.isKind(ts.SyntaxKind.FunctionDeclaration) ||
     node.isKind(ts.SyntaxKind.FunctionExpression)
   ) {
-    return node.getText();
+    return `__FUNC__` + node.getText();
   }
   if (node.isKind(ts.SyntaxKind.ClassDeclaration)) {
     try {
@@ -252,9 +252,7 @@ const parseNodeValue = (
       ? node.getText().replace(STRING_QUOTATION_MARK_REGEX, "")
       : node.getText();
   }
-  if (
-    node.isKind(ts.SyntaxKind.TemplateExpression)
-  ) {
+  if (node.isKind(ts.SyntaxKind.TemplateExpression)) {
     const variables = node.getTemplateSpans().map((t) => {
       let value = parseNodeValue(t.getExpression(), nodeOffset, ss);
       try {
@@ -277,7 +275,7 @@ const parseNodeValue = (
     });
     return oriText;
   }
-  if(node.isKind(ts.SyntaxKind.NoSubstitutionTemplateLiteral)){
+  if (node.isKind(ts.SyntaxKind.NoSubstitutionTemplateLiteral)) {
     return node.getText().replace(STRING_QUOTATION_MARK_REGEX, "");
   }
   if (node.isKind(ts.SyntaxKind.NumericLiteral)) {
