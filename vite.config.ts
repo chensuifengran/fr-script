@@ -5,7 +5,6 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
-import IconsResolver from "unplugin-icons/resolver";
 import path from "path";
 import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
@@ -19,10 +18,6 @@ export default defineConfig(({ mode }) => {
       AutoImport({
         resolvers: [
           ElementPlusResolver(),
-          // 自动导入图标组件
-          IconsResolver({
-            prefix: "Icon",
-          }),
           VueHooksPlusResolver(),
         ],
         imports: [
@@ -45,9 +40,6 @@ export default defineConfig(({ mode }) => {
       Components({
         resolvers: [
           ElementPlusResolver(), // 自动注册图标组件
-          IconsResolver({
-            enabledCollections: ["ep"],
-          }),
         ],
         dts: "./src/types/auto_gen_types/components.d.ts",
         dirs: ["./src/components/**", "./src/pages/**", "./src/views/**"],
