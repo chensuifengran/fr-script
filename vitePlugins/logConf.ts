@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import { writeFileSync, existsSync, readFileSync } from "fs";
+import { writeFileSync, existsSync, readFileSync, mkdirSync } from "fs";
 import chalk from "chalk";
 const LOG_4_RS_YML = `
 refresh_rate: 30 seconds
@@ -47,10 +47,19 @@ export const changeLogLevel = (level: string = "DEBUG") => {
     }
   }
   if (needUpdate) {
-    writeFileSync(logYmlPath, log4rsYml, {
-      encoding: "utf-8",
-    });
-    console.log("✨ 日志级别已设置为：", chalk.yellow(level));
+    try {
+      if (!existsSync(logYmlPath)) {
+        mkdirSync(resolve(__dirname, "../src-tauri/resources"), {
+          recursive: true,
+        });
+      }
+      writeFileSync(logYmlPath, log4rsYml, {
+        encoding: "utf-8",
+      });
+      console.log("✨ 日志级别已设置为：", chalk.yellow(level));
+    } catch (error) {
+      console.error("❌ 日志文件写入失败：", error);
+    }
   }
   console.log(
     "当前环境：",
