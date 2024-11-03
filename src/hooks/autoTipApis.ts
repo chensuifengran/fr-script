@@ -137,6 +137,8 @@ const getCursorPosFnInfo = async (
     cursorOffset
   );
   if (!result) {
+    fnInfo.value = null;
+    console.timeEnd("getCursorPosFnInfo");
     return;
   }
   if (result.params?.length) {
@@ -168,30 +170,28 @@ const getCursorPosFnInfo = async (
   result!.paramsRange = oldResult?.paramsRange || result.paramsRange;
   result.params = result.params.map((p) => {
     const v = p.value;
-    let expression: any;
+    let expression: any = null;
     try {
       expression = new Function(`return ${p.expression}`)();
-      if (Array.isArray(v)) {
-        p.value = v.map((item, index) => {
-          if (typeof item === "object") {
-            Object.entries(item).forEach(([key, value]) => {
-              if (typeof value === "string") {
-                if (value.startsWith("__FUNC__")) {
-                  let funcStr = value.replace("__FUNC__", "");
-                  item[key] = new Function(`return ${funcStr}`)();
-                }
+    } catch (error) {}
+    if (Array.isArray(v)) {
+      p.value = v.map((item, index) => {
+        if (typeof item === "object") {
+          Object.entries(item).forEach(([key, value]) => {
+            if (typeof value === "string") {
+              if (value.startsWith("__FUNC__")) {
+                let funcStr = value.replace("__FUNC__", "");
+                item[key] = new Function(`return ${funcStr}`)();
               }
-              if (Array.isArray(expression)) {
-                const expressionItem = expression[index];
-                item[key] = item[key] || expressionItem[key];
-              }
-            });
-          }
-          return item;
-        });
-      }
-    } catch (error) {
-      console.error("new Function error:", p.expression, error);
+            }
+            if (expression && Array.isArray(expression)) {
+              const expressionItem = expression[index];
+              item[key] = item[key] || expressionItem[key];
+            }
+          });
+        }
+        return item;
+      });
     }
     return p;
   });
