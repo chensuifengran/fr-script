@@ -1,5 +1,6 @@
 import { getInjectConstantType } from "./constantInject";
 import { KeyOptions } from "./Input/KeyOptions";
+import { BUILD_FORM_DECLARE } from "./buildFormDeclare.ag";
 /**
  * 提供给编辑器的类型声明, 用于代码提示
  * @returns {string}
