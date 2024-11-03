@@ -4,7 +4,6 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import vue from "@vitejs/plugin-vue";
-import Icons from "unplugin-icons/vite";
 import path from "path";
 import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
@@ -43,9 +42,6 @@ export default defineConfig(({ mode }) => {
         ],
         dts: "./src/types/auto_gen_types/components.d.ts",
         dirs: ["./src/components/**", "./src/pages/**", "./src/views/**"],
-      }),
-      Icons({
-        autoInstall: true,
       }),
     ],
     resolve: {
