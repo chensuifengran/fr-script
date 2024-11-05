@@ -1,5 +1,45 @@
 <template>
-  <div class="form-renderer" id="form-render-editor">
+  <div class="form-renderer">
+    <render-item-edit-dialog
+      :edit-item="ctxMenu.target"
+      :edit-target="ctxMenu.editTarget"
+      :groups="groupNames"
+      :is-edit="ctxMenu.isEdit"
+      v-model="dialogVisible"
+      :rules="rules"
+      @confirm="confirmHandle"
+    />
+    <context-menu v-model:show="ctxMenu.show" :options="ctxMenu.options">
+      <context-menu-item
+        v-if="ctxMenu.target.groupLabel !== '__ADD__'"
+        :label="`删除${ctxMenu.target.label.length ? '组件' : '分组'}`"
+        :clickClose="true"
+        @click="itemDeleteHandle"
+      >
+        <template #icon>
+          <puzzle-remove-icon />
+        </template>
+      </context-menu-item>
+      <context-menu-item
+        v-if="ctxMenu.target.groupLabel !== '__ADD__'"
+        :label="`编辑${ctxMenu.target.label.length ? '组件' : '分组'}`"
+        :clickClose="true"
+        @click="itemEditHandle"
+      >
+        <template #icon>
+          <puzzle-edit-icon />
+        </template>
+      </context-menu-item>
+      <context-menu-item
+        label="添加组件"
+        :clickClose="true"
+        @click="itemAddHandle"
+      >
+        <template #icon>
+          <puzzle-plus-icon />
+        </template>
+      </context-menu-item>
+    </context-menu>
     <VueDraggable
       ref="el"
       v-model="formData!"
@@ -7,6 +47,7 @@
       :animation="200"
       handle=".drag-handle"
       @end="onGroupDragEnd"
+      v-if="formData?.length"
     >
       <TransitionGroup type="transition" name="fade">
         <ElCard
@@ -16,7 +57,10 @@
           :id="'form-renderer-g-' + g.groupLabel"
         >
           <template #header>
-            <div class="card-header drag-handle">
+            <div
+              class="card-header drag-handle"
+              @contextmenu="(e:MouseEvent)=>openContextMenu(e, g.groupLabel)"
+            >
               <span>{{ g.groupLabel }}</span>
               <el-switch
                 v-model="g.enable"
@@ -41,6 +85,7 @@
                   class="check-item"
                   v-model="c.checked"
                   :disabled="!g.enable"
+                  @contextmenu="(e:MouseEvent)=>openContextMenu(e, g.groupLabel, c.label, 'checkList')"
               /></VueDraggable>
             </div>
             <VueDraggable
@@ -66,6 +111,7 @@
                       ? 'flex-start'
                       : 'center',
                 }"
+                @contextmenu="(e:MouseEvent)=>openContextMenu(e, g.groupLabel, s.label, 'selectList')"
               >
                 <template v-if="!s.segmented">
                   <div flex flex-row items-center>
@@ -158,6 +204,7 @@
                 v-for="i in g.inputList"
                 :key="i.id"
                 style="align-items: flex-start"
+                @contextmenu="(e:MouseEvent)=>openContextMenu(e, g.groupLabel, i.label, 'inputList')"
               >
                 <template v-if="i.inputType === 'range'">
                   <range-input
@@ -257,7 +304,12 @@
               handle=".picker-item"
               @end="(evt) => onDragEnd(evt, g.groupLabel, 'pickerList')"
             >
-              <div class="picker-item" v-for="i in g.pickerList" :key="i.id">
+              <div
+                class="picker-item"
+                v-for="i in g.pickerList"
+                :key="i.id"
+                @contextmenu="(e:MouseEvent)=>openContextMenu(e, g.groupLabel, i.label, 'pickerList')"
+              >
                 <template v-if="i.pickerType === 'color'">
                   <el-text truncated>{{ i.label }}</el-text>
                   <el-color-picker
@@ -368,12 +420,19 @@
         </ElCard>
       </TransitionGroup>
     </VueDraggable>
+    <el-empty
+      v-else
+      description="暂无组件，可通过右键菜单添加组件"
+      w-full
+      h-full
+      @contextmenu="(e:MouseEvent)=>openContextMenu(e, '__ADD__')"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { VueDraggable } from "vue-draggable-plus";
-const { appAsideBgColor } = useAppTheme();
+import { ContextMenu, ContextMenuItem } from "@imengyu/vue3-context-menu";
 type OIType =
   | string
   | number
@@ -381,6 +440,72 @@ type OIType =
   | OptionItem<string>
   | OptionItem<number>
   | OptionItem<boolean>;
+const { appAsideBgColor, isDark } = useAppTheme();
+const { ctxMenu } = useRenderItemEditForm();
+const dialogVisible = ref(false);
+
+const itemDeleteHandle = () => {
+  const { groupLabel, label, listName } = ctxMenu.target;
+  if (formData.value) {
+    const targetIndex = formData.value.findIndex(
+      (g) => g.groupLabel === groupLabel
+    );
+    if (label === "" || listName === "") {
+      ElMessageBox.confirm("是否删除整个分组?", {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+      })
+        .then(() => {
+          formData.value?.splice(targetIndex, 1);
+          ElMessage.success("分组删除完成");
+        })
+        .catch(() => {});
+      return;
+    }
+    const target = formData.value[targetIndex];
+    const key = listName as
+      | "checkList"
+      | "inputList"
+      | "selectList"
+      | "pickerList";
+    if (target && target[key]) {
+      target[key] = target[key].filter((item) => item.label !== label) as any;
+      ElMessage.success("删除完成");
+    } else {
+      ElMessage.error("删除失败");
+    }
+  }
+};
+
+const itemEditHandle = () => {
+  const targetItem = formData.value?.find(
+    (f) => f.groupLabel === ctxMenu.target.groupLabel
+  );
+  if (targetItem) {
+    const key = ctxMenu.target.listName;
+    if (key === "") {
+      ctxMenu.target.item = null;
+      ctxMenu.editTarget = "group";
+    } else {
+      const target = targetItem[key].find(
+        (item) => item.label === ctxMenu.target.label
+      );
+      if (target) {
+        ctxMenu.target.item = target;
+        ctxMenu.editTarget = "item";
+      }
+    }
+  }
+  ctxMenu.isEdit = true;
+  dialogVisible.value = true;
+};
+
+const itemAddHandle = () => {
+  ctxMenu.target.label = "";
+  ctxMenu.isEdit = false;
+  dialogVisible.value = true;
+};
+
 const optTransformer = {
   transformKey: (item: OIType, idx: number | string) => {
     if (typeof item === "object") {
@@ -453,6 +578,10 @@ const getValueFormat = (item: Record<string, any>) => {
 };
 const formData = defineModel<RenderGroup[]>();
 
+const groupNames = computed(() => {
+  return formData.value?.map((g) => g.groupLabel) || [];
+});
+
 const onDragEnd = (
   evt: any,
   groupLabel: string,
@@ -476,6 +605,156 @@ const onGroupDragEnd = (evt: any) => {
       g.idx = idx;
       return g;
     });
+  }
+};
+const openContextMenu = (
+  event: MouseEvent,
+  groupLabel: string,
+  label?: string,
+  listName?: "checkList" | "inputList" | "selectList" | "pickerList"
+) => {
+  event.preventDefault();
+  ctxMenu.show = true;
+  ctxMenu.options = {
+    x: event.clientX,
+    y: event.clientY,
+    zIndex: 9999,
+    theme: isDark.value ? "default dark" : "default",
+  };
+  ctxMenu.target = {
+    groupLabel,
+    label: label || "",
+    listName: listName || "",
+    item: null,
+  };
+};
+
+const { rules } = useRenderItemEditForm();
+
+const confirmHandle = (
+  item: RenderCodeItem,
+  isEdit: boolean,
+  oldGroupLabel: string,
+  oldLabel: string,
+  t: "checkList" | "inputList" | "selectList" | "pickerList",
+  validate: boolean
+) => {
+  if (!validate) {
+    return;
+  }
+  if (!formData.value) {
+    ElMessage.error("数据异常");
+    return;
+  }
+  if (ctxMenu.editTarget === "group") {
+    if (item.targetGroupLabel === oldGroupLabel) {
+      return;
+    } else {
+      const newGroup = formData.value.find(
+        (g) => g.groupLabel === item.targetGroupLabel
+      );
+      if (!newGroup) {
+        formData.value.find((g) => g.groupLabel === oldGroupLabel)!.groupLabel =
+          item.targetGroupLabel;
+        dialogVisible.value = false;
+        ElMessage.success("修改成功");
+      } else {
+        ElMessageBox.confirm("新分组已存在，是否合并分组？", {
+          confirmButtonText: "合并",
+          cancelButtonText: "取消",
+        })
+          .then(() => {
+            const oldGroupIndex = formData.value!.findIndex(
+              (g) => g.groupLabel === oldGroupLabel
+            );
+            const oldGroup = formData.value![oldGroupIndex];
+            const newGroup = formData.value!.find(
+              (g) => g.groupLabel === item.targetGroupLabel
+            );
+            newGroup?.checkList.push(...(oldGroup?.checkList || []));
+            newGroup?.inputList.push(...(oldGroup?.inputList || []));
+            newGroup?.selectList.push(...(oldGroup?.selectList || []));
+            newGroup?.pickerList.push(...(oldGroup?.pickerList || []));
+            if (oldGroup) {
+              formData.value!.splice(oldGroupIndex, 1);
+            }
+            dialogVisible.value = false;
+            ElMessage.success("修改成功");
+          })
+          .catch(() => {});
+      }
+    }
+  } else {
+    if (!isEdit) {
+      let targetGroup = formData.value!.find(
+        (g) => g.groupLabel === oldGroupLabel
+      );
+      if (!targetGroup) {
+        formData.value.push({
+          groupLabel: oldGroupLabel,
+          enable: true,
+          checkList: [],
+          inputList: [],
+          selectList: [],
+          pickerList: [],
+        });
+        targetGroup = formData.value[formData.value.length - 1];
+      }
+      let targetList = targetGroup[t];
+      targetList.push(item as any);
+      dialogVisible.value = false;
+      ElMessage.success("添加成功");
+    } else {
+      const newGroup = item.targetGroupLabel;
+      if (newGroup === oldGroupLabel) {
+        const targetGroup = formData.value.find(
+          (g) => g.groupLabel === oldGroupLabel
+        );
+        if (targetGroup) {
+          const targetIndex = targetGroup[t].findIndex(
+            (i) => i.label === oldLabel
+          );
+          if (targetIndex !== -1) {
+            targetGroup[t][targetIndex] = item as any;
+            dialogVisible.value = false;
+            ElMessage.success("修改成功");
+          } else {
+            ElMessage.error("数据异常");
+            return;
+          }
+        } else {
+          ElMessage.error("数据异常");
+          return;
+        }
+      } else {
+        let targetGroup = formData.value.find((g) => g.groupLabel === newGroup);
+        if (!targetGroup) {
+          formData.value.push({
+            groupLabel: newGroup,
+            enable: true,
+            checkList: [],
+            inputList: [],
+            selectList: [],
+            pickerList: [],
+          });
+          targetGroup = formData.value[formData.value.length - 1];
+        }
+        const oldGroup = formData.value.find(
+          (g) => g.groupLabel === oldGroupLabel
+        );
+        if (oldGroup) {
+          const targetIndex = oldGroup[t].findIndex(
+            (i) => i.label === oldLabel
+          );
+          if (targetIndex !== -1) {
+            oldGroup[t].splice(targetIndex, 1);
+          }
+        }
+        targetGroup[t].push(item as any);
+        dialogVisible.value = false;
+        ElMessage.success("修改成功");
+      }
+    }
   }
 };
 </script>
