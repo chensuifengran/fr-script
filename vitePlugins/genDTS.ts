@@ -19,9 +19,9 @@ export const genEnumDTS = () => {
     console.log(
       new Date().toLocaleTimeString().slice(0, 8),
       chalk.blue("[hot-update-plugin]"),
-      chalk.green("🚀", "同步enums.ts的ENUM_DECLARE到types")
+      chalk.green("🚀", "同步enums.ts的ENUM_CODE到utils")
     );
-    const output = resolve(__dirname, "../src/types/auto_gen_types/enums.d.ts");
+    const output = resolve(__dirname, "../src/utils/enums.ag.ts");
     const enumsTsPath = resolve(__dirname, "../src/invokes/enums.ts");
     const enumsTsContent = readFileSync(enumsTsPath, "utf-8");
     const enumsJs = typescript
@@ -33,28 +33,26 @@ export const genEnumDTS = () => {
       })
       .outputText.replace(/export /g, "");
     try {
-      const genEnumDeclare = new Function(
-        "",
-        enumsJs + ";return ENUM_DECLARE"
-      )().trim();
+      const genEnumCode =
+        "export " + new Function("", enumsJs + ";return ENUM_CODE")().trim();
       if (existsSync(output)) {
         const outputContent = readFileSync(output, "utf-8").trim();
-        if (genEnumDeclare === outputContent) {
+        if (genEnumCode === outputContent) {
           console.log(
             "✨",
             "The",
-            chalk.green("enums.d.ts"),
+            chalk.green("enums.ag.ts"),
             "file is not changed"
           );
           console.timeEnd(chalk.green("generate use time"));
           return;
         }
       }
-      writeFileSync(output, genEnumDeclare);
+      writeFileSync(output, genEnumCode);
       console.log(
         "✨",
         "The",
-        chalk.green("enums.d.ts"),
+        chalk.green("enums.ag.ts"),
         "file is generated in the:",
         chalk.blue(output)
       );

@@ -21,7 +21,7 @@ export function hotUpdatePlugin(): Plugin {
     },
     handleHotUpdate({ file }) {
       if (file.endsWith(".ts")) {
-        const excludeFiles = ["builtInApi.d.ts", "core.d.ts", "enums.d.ts"];
+        const excludeFiles = ["builtInApi.d.ts", "core.d.ts"];
         if (
           excludeFiles.find((e) => file.includes(e) || file.includes(".ag.ts"))
         ) {
