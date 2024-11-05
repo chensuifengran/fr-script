@@ -196,3 +196,6 @@ declare type RenderItem =
   | InputListItem
   | SelectListItem
   | PickerListItem;
+declare type RenderCodeItem = {
+  targetGroupLabel: string;
+} & (CheckListItem | InputListItem | SelectListItem | PickerListItem);
