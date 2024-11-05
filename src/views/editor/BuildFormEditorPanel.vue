@@ -1,18 +1,27 @@
 <template>
   <el-drawer
     v-model="visible"
-    title="表单编辑器"
+    title="表单编辑器(右键分组或组件增删改,左键长按拖动进行排序)"
     direction="rtl"
     size="70%"
     :before-close="handleClose"
   >
-    <form-render-editor v-model="formData" />
+    <async-form-render-editor v-model="formData" />
   </el-drawer>
 </template>
 <script lang="ts" setup>
+import Loading from "../../components/Loading.vue";
+const AsyncFormRenderEditor = defineAsyncComponent({
+  loader: () => import("./FormRenderEditor.vue"),
+  loadingComponent: Loading,
+});
+const { formData } = useRenderItemEditForm();
 const visible = AutoTipUtils.buildFormEditorVisible;
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm("是否应用修改?")
+  ElMessageBox.confirm("是否应用修改?", {
+    confirmButtonText: "应用",
+    cancelButtonText: "取消",
+  })
     .then(() => {
       const { dynamicDialog } = useCore();
       dynamicDialog.callback();
@@ -22,7 +31,6 @@ const handleClose = (done: () => void) => {
       done();
     });
 };
-const formData = ref<RenderGroup[]>([]);
 watch(
   () => formData.value,
   (newData) => {
