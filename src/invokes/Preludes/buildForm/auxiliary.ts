@@ -34,7 +34,7 @@ export const auxiliary = <AuxiliaryType>{
               string,
               string
             ];
-          }else{
+          } else {
             item.value = processDate(item.value);
           }
         }
@@ -46,7 +46,10 @@ export const auxiliary = <AuxiliaryType>{
       const constants = getLastConstants();
       //replace constants
       Object.keys(constants).forEach((key) => {
-        res = res.replaceAll(`"${constants[key]}"`, key);
+        const value = constants[key];
+        if (typeof value !== "string" || value !== "") {
+          res = res.replaceAll(`"${constants[key]}"`, key);
+        }
       });
       //reset enums
       for (const enumKey in inject_enums) {
