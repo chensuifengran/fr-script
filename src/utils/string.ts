@@ -5,7 +5,10 @@ import type {
 } from "element-plus";
 
 const DATE_PREFIX = "__D2S__";
-export const processDate = (strOrDate: string | Date) => {
+export const processDate = (strOrDate?: string | Date | null) => {
+  if (!strOrDate) {
+    return strOrDate;
+  }
   if (strOrDate instanceof Date) {
     return `${DATE_PREFIX}${strOrDate.toLocaleString()}`;
   }
@@ -104,13 +107,13 @@ export const transformFnStr = <
   fnStr?: string
 ): T | undefined => {
   if (!fnStr) {
-    return undefined;
+    return;
   }
   try {
     const res = new Function(`return ${fnStr}`)();
     return res;
   } catch (e) {
-    console.error(fnStr + "转换失败", e);
-    return undefined;
+    console.warn(`字符串"${fnStr}"无法转为函数`, e);
+    return;
   }
 };
