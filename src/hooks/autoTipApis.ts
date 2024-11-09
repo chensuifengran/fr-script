@@ -186,7 +186,17 @@ const getCursorPosFnInfo = async (
             }
             if (expression && Array.isArray(expression)) {
               const expressionItem = expression[index];
-              item[key] = item[key] || expressionItem[key];
+              if (
+                Array.isArray(item[key]) &&
+                Array.isArray(expressionItem[key]) &&
+                !item[key].filter((i) => i !== undefined || i !== null).length
+              ) {
+                item[key] = expressionItem[key];
+              } else {
+                if (item[key] === undefined) {
+                  item[key] = expressionItem[key];
+                }
+              }
             }
           });
         }
