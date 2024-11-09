@@ -11,6 +11,28 @@ export type RenderFormInstance = {
     check: {
       checked: boolean;
     };
+    picker: {
+      pickerType: "color" | "date" | "time";
+      colorFields: {
+        alpha: boolean;
+        value: string;
+        predefine: string[];
+        colorFormat: string;
+      };
+      dtFields: {
+        isRange: boolean;
+        valueFormat: string;
+        value: string | Date;
+        rangeValue: [string, string] | [Date, Date];
+        placeholder?: string;
+        startPlaceholder?: string;
+        endPlaceholder?: string;
+        rangeSeparator?: string;
+        disabledHours?: string;
+        disabledMinutes?: string;
+        disabledSeconds?: string;
+      };
+    };
   };
 };
 const ctxMenu = reactive({
@@ -34,6 +56,28 @@ const form = reactive<RenderFormInstance>({
   cForm: {
     check: {
       checked: true,
+    },
+    picker: {
+      pickerType: "color",
+      colorFields: {
+        alpha: false,
+        value: "#000000",
+        predefine: [],
+        colorFormat: "hex",
+      },
+      dtFields: {
+        isRange: false,
+        valueFormat: "",
+        value: new Date(),
+        rangeValue: [new Date(), new Date()],
+        placeholder: "请选择日期时间",
+        startPlaceholder: "开始日期",
+        endPlaceholder: "结束日期",
+        rangeSeparator: "至",
+        disabledHours: "",
+        disabledMinutes: "",
+        disabledSeconds: "",
+      },
     },
   },
 });
@@ -114,11 +158,96 @@ const rules = <FormRules<RenderFormInstance>>{
   label: [{ validator: validateLabel, trigger: "blur" }],
   groupLabel: [{ validator: validateGroupLabel, trigger: "blur" }],
 };
+
+const fieldTypeOptions = [
+  {
+    label: "Check",
+    value: FieldType.Check,
+  },
+  {
+    label: "Input",
+    value: FieldType.Input,
+  },
+  {
+    label: "Select",
+    value: FieldType.Select,
+  },
+  {
+    label: "Picker",
+    value: FieldType.Picker,
+  },
+];
+
+const pickerTypeOptions = [
+  {
+    label: "Color",
+    value: "color",
+  },
+  {
+    label: "Date",
+    value: "date",
+  },
+  {
+    label: "Time",
+    value: "time",
+  },
+];
+
+const colorOptions = [
+  {
+    label: "red",
+    value: "#ff4500",
+  },
+  {
+    label: "green",
+    value: "#32cd32",
+  },
+  {
+    label: "blue",
+    value: "#1e90ff",
+  },
+  {
+    label: "yellow",
+    value: "#ffd700",
+  },
+  {
+    label: "black",
+    value: "#000000",
+  },
+  {
+    label: "white",
+    value: "#ffffff",
+  },
+];
+
+const colorFormatOptions = [
+  {
+    label: "hex(a)",
+    value: "hex",
+  },
+  {
+    label: "rgb(a)",
+    value: "rgb",
+  },
+  {
+    label: "hsl(a)",
+    value: "hsl",
+  },
+  {
+    label: "hsv(a)",
+    value: "hsv",
+  },
+];
+
 export const useRenderItemEditForm = () => {
   return {
     form,
     formData,
     rules,
     ctxMenu,
+    fieldTypeOptions,
+    pickerTypeOptions,
+    colorOptions,
+    colorFormatOptions
   };
 };
