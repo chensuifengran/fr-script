@@ -29,20 +29,20 @@ export const auxiliary = <AuxiliaryType>{
       //把date类型的值转为带有前缀的字符串
       const items = options.formItems.map((item) => {
         if (item.type === "picker") {
-          if (Array.isArray(item.value)) {
-            item.value = item.value.map((d) => processDate(d)) as [
-              string,
-              string
-            ];
-          } else {
-            item.value = processDate(item.value);
+          if (item.pickerType !== "color") {
+            if (Array.isArray(item.value)) {
+              item.value = item.value.map((d) => processDate(d)) as [
+                string,
+                string
+              ];
+            } else {
+              item.value = processDate(item.value);
+            }
           }
         }
         return item;
       });
-      const parseVal = JSON.stringify(items);
-      let res = JSON.parse(parseVal);
-      res = objectToString(res, 2, 0, true);
+      let res = objectToString(items, 2, 0, true);
       const constants = getLastConstants();
       //replace constants
       Object.keys(constants).forEach((key) => {
