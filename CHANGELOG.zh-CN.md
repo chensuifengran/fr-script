@@ -2,33 +2,33 @@
 
 ### 2.1.1(unreleased)
 
-_2024.xx.xx_ 
+_2024.xx.xx_
 
 #### 新特性：
 
-- 编辑器中buildForm方法支持打开快捷填写参数弹窗
+- 编辑器中 buildForm 方法支持打开快捷填写参数弹窗
   - 同类型组件可以拖拽排序
   - 修改后的参数可以直接应用到代码中
-  - (TODO)组件的添加、删除、修改
+  - Check、Picker组件的添加、删除、修改
 
 #### 重构：
 
 - 在脚本表单加载完成之前显示加载动画
-- eval使用new Function代替
-- ast分析支持获取NoSubstitutionTemplateLiteral节点的值
+- eval 使用 new Function 代替
+- ast 分析支持获取 NoSubstitutionTemplateLiteral 节点的值
 
-#### Bug修复：
+#### Bug 修复：
 
 - 修复编辑器快速填写参数弹窗替换参数是，替换范围不正确的问题
-- 修复枚举常量在打开快速填写/修改参数时为undefined的问题
+- 修复枚举常量在打开快速填写/修改参数时为 undefined 的问题
 - 脚本表单：自动导入上次选项失效
-- (dev)修复内置API管理模块无法正常保存，以及未正确传入最新选项
+- (dev)修复内置 API 管理模块无法正常保存，以及未正确传入最新选项
 
 #### 杂项：
 
 - 依赖升级
-- 自定义vite插件优化：添加内容相同检测、将js脚本修改为ts模块
-- (git)取消跟踪一些由vite插件自动生成的文件
+- 自定义 vite 插件优化：添加内容相同检测、将 js 脚本修改为 ts 模块
+- (git)取消跟踪一些由 vite 插件自动生成的文件
 
 ### 2.1.0
 
@@ -37,38 +37,37 @@ _2024.10.24_
 #### 新特性：
 
 - 设置面板添加自动启动开关，开启后软件将在系统启动时自动启动
-- API参数解析支持解析反引号字面量字符串的值
-- 新增invokeApi：
+- API 参数解析支持解析反引号字面量字符串的值
+- 新增 invokeApi：
   - FS(readFile、writeFile、readDir、rename)
   - Path(resolve、join、basename、dirname、extname)
 - 关于界面改为账户界面，支持远程执行脚本
 - 添加脚本列表界面的引导，首次进入自动打开引导
-- 交互表单Input类型组件的子类型扩充:dir
+- 交互表单 Input 类型组件的子类型扩充:dir
 
 #### 重构：
 
-- Preludes.log方法内容参数支持任意类型
-- (BREAKING CHANGE)GlobalShortcut.waitKeys方法重命名为GlobalShortcut.waitShortcuts
-- GlobalShortcut.listen、GlobalShortcut.unlisten方法参数：keys改为shortcuts
+- Preludes.log 方法内容参数支持任意类型
+- (BREAKING CHANGE)GlobalShortcut.waitKeys 方法重命名为 GlobalShortcut.waitShortcuts
+- GlobalShortcut.listen、GlobalShortcut.unlisten 方法参数：keys 改为 shortcuts
 - 字符串常量以更优雅的方式注入
 - 未发布版本使用最新版的版本号进行更新和依赖检测
 
-#### Bug修复：
+#### Bug 修复：
 
 - 标题太长导致操作区按钮被挤出视图
 - 脚本列表和代码片段列表的搜索框应该在滚动之后才能出现
 - 脚本运行日志在脚本结束运行后不再接收新的日志
 - 脚本运行浮窗的吸附辅助窗口调整大小时使用物理大小替代逻辑大小，避免大小与浮窗不一致
-- 部分注入的字符串常量为promise，不符合预期类型
-- 文件夹选择组件使用了文件选择的API，导致无法选择文件夹
-- (dev)内置API管理: exportFn模板重复调用了两次console.time，第二次应该为console.timeEnd
+- 部分注入的字符串常量为 promise，不符合预期类型
+- 文件夹选择组件使用了文件选择的 API，导致无法选择文件夹
+- (dev)内置 API 管理: exportFn 模板重复调用了两次 console.time，第二次应该为 console.timeEnd
 
 #### 杂项：
 
-- tauri升级到2.0，并迁移对应的API
-- 组件存放目录调整，将非公共组件从components目录移动到views目录
-- 将窗口显示相关的page组件移动至windows子目录
-
+- tauri 升级到 2.0，并迁移对应的 API
+- 组件存放目录调整，将非公共组件从 components 目录移动到 views 目录
+- 将窗口显示相关的 page 组件移动至 windows 子目录
 
 ### 2.0.7
 
@@ -76,20 +75,20 @@ _2024.09.21_
 
 #### 新特性：
 
-- 交互表单Input类型组件的子类型扩充：number、textarea、password
-- 交互表单新增Picker类型组件，子组件有: color、time、date类型
-- 交互表单Select类型组件新增segmented属性，为true时显示element-plus的segmented组件
+- 交互表单 Input 类型组件的子类型扩充：number、textarea、password
+- 交互表单新增 Picker 类型组件，子组件有: color、time、date 类型
+- 交互表单 Select 类型组件新增 segmented 属性，为 true 时显示 element-plus 的 segmented 组件
 - (dev)枚举类型定义后自动注入脚本运行上下文同时枚举类型提供给编辑器
 
-#### Bug修复：
+#### Bug 修复：
 
-- 修复rust侧调用dll时，dll中返回的指针没有与rust中的指针对齐导致的内存泄漏问题，dll需要升级到S8和PC3、PG3版本
-- 修复rust升级后，操作录制功能在生产环境无法使用的问题
+- 修复 rust 侧调用 dll 时，dll 中返回的指针没有与 rust 中的指针对齐导致的内存泄漏问题，dll 需要升级到 S8 和 PC3、PG3 版本
+- 修复 rust 升级后，操作录制功能在生产环境无法使用的问题
 
 #### 重构：
 
 - 首屏动画使用获取窗口焦点代替窗口置顶
-- getFieldValue方法优化，表单组件类型由字符串改为枚举类型
+- getFieldValue 方法优化，表单组件类型由字符串改为枚举类型
 
 ### 2.0.6
 
@@ -98,27 +97,26 @@ _2024.08.21_
 #### 新特性：
 
 - 新增启动首屏动画
-- 获取交互表单的类支持通过id获取对应组件的值
-- 添加内置API管理模块(仅开发环境)，用于管理内置API、创建内置API模板
+- 获取交互表单的类支持通过 id 获取对应组件的值
+- 添加内置 API 管理模块(仅开发环境)，用于管理内置 API、创建内置 API 模板
 
-#### Bug修复：
+#### Bug 修复：
 
 - 修复脚本中字符串存在//时被当成注释删除导致脚本语法错误的问题
-- 修复screenshotColor方法识别指定位置颜色时由于通道数没有对齐导致获取到的颜色值不准确的问题
+- 修复 screenshotColor 方法识别指定位置颜色时由于通道数没有对齐导致获取到的颜色值不准确的问题
 
 #### 重构：
 
-- 动态链接库优化：不再需要临时盘符参数，移除部分API的drive参数
+- 动态链接库优化：不再需要临时盘符参数，移除部分 API 的 drive 参数
 - 重构交互表单样式与布局，右边添加分组名称锚点，支持快速定位到对应的组件
-- 交互表单组件的三种select类型的组件合并为一个组件
-- 优化交互表单select组件的显示逻辑以及优化了其类型声明，使得在编辑器中有更好的类型提示
-- API文档参数表格支持树形结构，支持多级参数显示
+- 交互表单组件的三种 select 类型的组件合并为一个组件
+- 优化交互表单 select 组件的显示逻辑以及优化了其类型声明，使得在编辑器中有更好的类型提示
+- API 文档参数表格支持树形结构，支持多级参数显示
 - 快速填写/修改参数：
-  - 支持获取解构出来的API的scope
-  - 支持API嵌套的识别
+  - 支持获取解构出来的 API 的 scope
+  - 支持 API 嵌套的识别
   - 识别的参数类型由原来的字符串或字符串数组改为值为任意类型的对象，对象中存在参数的一些其他信息
-  - 内置API的scope匹配需要完全匹配才能使用快速填写/修改参数功能
-
+  - 内置 API 的 scope 匹配需要完全匹配才能使用快速填写/修改参数功能
 
 ### 2.0.5
 
@@ -126,23 +124,22 @@ _2024.07.02_
 
 #### 新特性：
 
-- OcrUtil添加searchText方法
+- OcrUtil 添加 searchText 方法
 - 编辑器内部添加操作录制面板，可对鼠标、键盘操作进行录制，生成代码片段
 - 新增代码片段仓库，操作录制生成的代码可以保存到仓库中，也可以新建自己的代码片段
-- Mouse命名空间提供设置基础分辨率和当前分辨率的方法对当前点击的位置进行等比调整
-- Mouse命名空间提供启用随机偏移设置，使得点击位置可以在一定范围内随机偏移
-- 编辑器右键菜单添加插入代码片段的Action，用来快捷插入代码片段仓库中的代码片段
-- 编辑器输入相关代码片段的prefix可以有补全提示
+- Mouse 命名空间提供设置基础分辨率和当前分辨率的方法对当前点击的位置进行等比调整
+- Mouse 命名空间提供启用随机偏移设置，使得点击位置可以在一定范围内随机偏移
+- 编辑器右键菜单添加插入代码片段的 Action，用来快捷插入代码片段仓库中的代码片段
+- 编辑器输入相关代码片段的 prefix 可以有补全提示
 - 代码仓库列表中每一个代码片段支持修改名称、前缀、备注
 
-#### Bug修复：
+#### Bug 修复：
 
 - 修复错误的回车键键名"Enter"，应为"Return"
-- 修复Input命名空间下面几个API由于参数回填错误在测试窗口无法显示"延迟执行时间(ms)【仅测试】"的输入框
-- screenOperation.dll的getScreenSize方法在1920*1080的屏幕能够正常输出1920x1080（dll升级）
+- 修复 Input 命名空间下面几个 API 由于参数回填错误在测试窗口无法显示"延迟执行时间(ms)【仅测试】"的输入框
+- screenOperation.dll 的 getScreenSize 方法在 1920\*1080 的屏幕能够正常输出 1920x1080（dll 升级）
 
 #### 重构：
 
-- ocr方法的使用文档返回值处添加OcrUtil类的声明
-- 从API文档中抽离成代码展示组件，代码太长显示横向滚动条
-
+- ocr 方法的使用文档返回值处添加 OcrUtil 类的声明
+- 从 API 文档中抽离成代码展示组件，代码太长显示横向滚动条
