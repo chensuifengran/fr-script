@@ -1,3 +1,9 @@
+import type {
+  GetDisabledHours,
+  GetDisabledMinutes,
+  GetDisabledSeconds,
+} from "element-plus";
+
 const DATE_PREFIX = "__D2S__";
 export const processDate = (strOrDate: string | Date) => {
   if (strOrDate instanceof Date) {
@@ -86,4 +92,25 @@ export const objectToString = (
     .filter(Boolean);
   const result = `{\n${space}${entries.join(`,\n${space}`)}\n${closingSpace}}`;
   return result;
+};
+
+export const transformFnStr = <
+  T extends
+    | GetDisabledHours
+    | GetDisabledMinutes
+    | GetDisabledSeconds
+    | Function = Function
+>(
+  fnStr?: string
+): T | undefined => {
+  if (!fnStr) {
+    return undefined;
+  }
+  try {
+    const res = new Function(`return ${fnStr}`)();
+    return res;
+  } catch (e) {
+    console.error(fnStr + "转换失败", e);
+    return undefined;
+  }
 };
