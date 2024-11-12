@@ -1,13 +1,14 @@
 <template>
   <general-dialog
-    :callback="confirm"
-    :title="`${isEdit ? '编辑' : '添加'}${
-      editTarget === 'group' ? '分组' : '组件'
-    }`"
+    :callback="dialogOptions.ok"
+    :cancel="dialogOptions.cancel"
+    :title="title"
+    :cancel-text="dialogOptions.cancelText"
+    :confirm-text="dialogOptions.confirmText"
     v-model="visible"
   >
     <template #element>
-      <div class="edit-form">
+      <div class="edit-form" v-show="!useInnerDialog">
         <el-form
           label-position="left"
           label-width="140px"
@@ -23,7 +24,6 @@
               default-first-option
               :reserve-keyword="false"
               placeholder="*脚本设置"
-              size="small"
             >
               <el-option
                 v-for="(item, idx) in props.groups"
@@ -34,7 +34,6 @@
               <template #label="{ label }">
                 <div flex flex-row flex-items-center>
                   <el-tag
-                    size="small"
                     type="success"
                     mr-1
                     v-if="!props.groups?.includes(label)"
@@ -47,9 +46,9 @@
           </el-form-item>
           <template v-if="props.editTarget === 'item'">
             <el-form-item label="ID(选填)" prop="id">
-              <el-input v-model="form.id" clearable size="small">
+              <el-input v-model="form.id" clearable>
                 <template #append>
-                  <el-button link size="small" @click="randomId" type="primary">
+                  <el-button link @click="randomId" type="primary">
                     <random-icon />
                   </el-button>
                 </template>
@@ -59,16 +58,15 @@
               <el-segmented
                 :options="fieldTypeOptions"
                 v-model="form.componentType"
-                size="small"
                 :disabled="isEdit"
               />
             </el-form-item>
             <el-form-item label="组件标签" prop="label">
-              <el-input v-model="form.label" size="small" clearable />
+              <el-input v-model="form.label" clearable />
             </el-form-item>
             <template v-if="form.componentType === FieldType.Check">
               <el-form-item label="是否默认选中" prop="cForm.check.checked">
-                <el-switch v-model="form.cForm.check.checked" size="small" />
+                <el-switch v-model="form.cForm.check.checked" />
               </el-form-item>
             </template>
             <template v-else-if="form.componentType === FieldType.Picker">
@@ -79,7 +77,6 @@
                 <el-segmented
                   :options="pickerTypeOptions"
                   v-model="form.cForm.picker.pickerType"
-                  size="small"
                   :disabled="isEdit"
                 />
               </el-form-item>
@@ -89,10 +86,7 @@
                   label="启用alpha通道"
                   prop="cForm.picker.colorFields.alpha"
                 >
-                  <el-switch
-                    v-model="form.cForm.picker.colorFields.alpha"
-                    size="small"
-                  />
+                  <el-switch v-model="form.cForm.picker.colorFields.alpha" />
                 </el-form-item>
                 <el-form-item
                   label="预定义的颜色"
@@ -113,11 +107,7 @@
                       :value="item.value"
                     >
                       <div class="flex items-center">
-                        <el-tag
-                          :color="item.value"
-                          style="margin-right: 8px"
-                          size="small"
-                        />
+                        <el-tag :color="item.value" style="margin-right: 8px" />
                         <span :style="{ color: item.value }">{{
                           item.label
                         }}</span>
@@ -166,19 +156,13 @@
                   label="范围选择"
                   prop="cForm.picker.dtFields.isRange"
                 >
-                  <el-switch
-                    v-model="form.cForm.picker.dtFields.isRange"
-                    size="small"
-                  />
+                  <el-switch v-model="form.cForm.picker.dtFields.isRange" />
                 </el-form-item>
                 <el-form-item
                   label="值的格式(选填)"
                   prop="cForm.picker.dtFields.valueFormat"
                 >
-                  <el-input
-                    v-model="form.cForm.picker.dtFields.valueFormat"
-                    size="small"
-                  />
+                  <el-input v-model="form.cForm.picker.dtFields.valueFormat" />
                 </el-form-item>
                 <!-- 范围选择 -->
                 <template v-if="form.cForm.picker.dtFields.isRange">
@@ -188,7 +172,6 @@
                   >
                     <el-input
                       v-model="form.cForm.picker.dtFields.startPlaceholder"
-                      size="small"
                     />
                   </el-form-item>
                   <el-form-item
@@ -197,7 +180,6 @@
                   >
                     <el-input
                       v-model="form.cForm.picker.dtFields.endPlaceholder"
-                      size="small"
                     />
                   </el-form-item>
                   <el-form-item
@@ -206,7 +188,6 @@
                   >
                     <el-input
                       v-model="form.cForm.picker.dtFields.rangeSeparator"
-                      size="small"
                     />
                   </el-form-item>
                   <!-- time子组件 -->
@@ -217,7 +198,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledHours"
-                        size="small"
                         placeholder="函数表达式 例如：()=>[1,2,3,5]"
                       />
                     </el-form-item>
@@ -227,7 +207,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledMinutes"
-                        size="small"
                         placeholder="函数表达式,如：(hour)=>(hour===10?[25,45]:[])"
                       />
                     </el-form-item>
@@ -237,7 +216,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledSeconds"
-                        size="small"
                         placeholder="函数表达式,如：(h,m)=>((h>10&&m<=30)?[1,15]:[])"
                       />
                     </el-form-item>
@@ -247,7 +225,6 @@
                     >
                       <el-time-picker
                         v-model="form.cForm.picker.dtFields.rangeValue"
-                        size="small"
                         :default-value="[new Date(), new Date()]"
                         :is-range="true"
                         :start-placeholder="
@@ -274,7 +251,6 @@
                     >
                       <el-date-picker
                         v-model="form.cForm.picker.dtFields.rangeValue"
-                        size="small"
                         type="datetimerange"
                         :default-value="[new Date(), new Date()]"
                         :start-placeholder="
@@ -299,7 +275,6 @@
                   >
                     <el-input
                       v-model="form.cForm.picker.dtFields.placeholder"
-                      size="small"
                     />
                   </el-form-item>
                   <!-- time子组件 -->
@@ -310,7 +285,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledHours"
-                        size="small"
                         placeholder="函数表达式 例如：()=>[1,2,3,5]"
                       />
                     </el-form-item>
@@ -320,7 +294,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledMinutes"
-                        size="small"
                         placeholder="函数表达式,如：(hour)=>(hour===10?[25,45]:[])"
                       />
                     </el-form-item>
@@ -330,7 +303,6 @@
                     >
                       <el-input
                         v-model="form.cForm.picker.dtFields.disabledSeconds"
-                        size="small"
                         placeholder="函数表达式,如：(h,m)=>((h>10&&m<=30)?[1,15]:[])"
                       />
                     </el-form-item>
@@ -340,7 +312,6 @@
                     >
                       <el-time-picker
                         v-model="form.cForm.picker.dtFields.value"
-                        size="small"
                         :default-value="new Date()"
                         :is-range="false"
                         :value-format="form.cForm.picker.dtFields.valueFormat"
@@ -359,7 +330,6 @@
                     >
                       <el-date-picker
                         v-model="form.cForm.picker.dtFields.value"
-                        size="small"
                         type="datetime"
                         :default-value="new Date()"
                         :value-format="form.cForm.picker.dtFields.valueFormat"
@@ -370,7 +340,119 @@
                 </template>
               </template>
             </template>
+            <template v-else-if="form.componentType === FieldType.Select">
+              <el-form-item label="组件值类型" prop="cForm.select.valueType">
+                <el-segmented
+                  :options="valueTypeOptions"
+                  v-model="form.cForm.select.valueType"
+                />
+              </el-form-item>
+              <el-form-item label="选项模式" prop="cForm.select.segmented">
+                <el-segmented
+                  :options="[
+                    {
+                      label: '普通',
+                      value: false,
+                    },
+                    {
+                      label: '分段',
+                      value: true,
+                    },
+                  ]"
+                  v-model="form.cForm.select.segmented"
+                  :disabled="isEdit"
+                />
+              </el-form-item>
+              <template v-if="form.cForm.select.segmented">
+                <el-form-item
+                  label="保留的选项"
+                  prop="cForm.select.segmentedOptions"
+                >
+                  <el-select
+                    v-model="form.cForm.select.validOptions"
+                    multiple
+                    filterable
+                    placeholder="请选择要保留的选项"
+                    style="width: 240px"
+                  >
+                    <el-option
+                      v-for="(item, index) in segmentedOptions"
+                      :key="index"
+                      :label="typeof item === 'object' ? item.label : item + ''"
+                      :value="typeof item === 'object' ? item.value : item"
+                    >
+                      <div flex flex-row items-center>
+                        <el-tag size="small">{{ typeof item }}</el-tag>
+                        <el-text
+                          >{{ typeof item === "object" ? item.label : item
+                          }}{{
+                            typeof item === "object" ? `(${item.value})` : ""
+                          }}</el-text
+                        >
+                      </div>
+                    </el-option>
+                  </el-select>
+                  <el-button link type="primary" @click="openAddOptionDialog"
+                    >添加选项</el-button
+                  >
+                </el-form-item>
+                <el-form-item label="组件值" prop="cForm.select.segmented">
+                  <el-segmented
+                    v-if="form.cForm.select.validOptions.length"
+                    :options="form.cForm.select.validOptions"
+                    v-model="form.cForm.select.segmentedValue"
+                  />
+                  <el-text v-else>暂无选项，请添加选项以调整组件值</el-text>
+                </el-form-item>
+              </template>
+              <template v-else>
+                <!-- TODO -->
+              </template>
+            </template>
+            <template v-else-if="form.componentType === FieldType.Input">
+              <!-- TODO -->
+            </template>
           </template>
+        </el-form>
+      </div>
+      <div v-show="useInnerDialog">
+        <el-form
+          :model="innerDialogForm"
+          label-position="left"
+          label-width="140px"
+        >
+          <el-form-item label="选项类型" prop="opType">
+            <el-segmented
+              :options="['常量', '对象']"
+              v-model="innerDialogForm.opType"
+            />
+          </el-form-item>
+          <template v-if="innerDialogForm.opType === '对象'">
+            <el-form-item label="标签" prop="label">
+              <el-input v-model="innerDialogForm.label" />
+            </el-form-item>
+          </template>
+          <el-form-item
+            v-if="form.cForm.select.valueType === 'string'"
+            :label="innerDialogForm.opType + '值'"
+            prop="stringValue"
+          >
+            <el-input v-model="innerDialogForm.stringValue" />
+          </el-form-item>
+          <el-form-item
+            v-if="form.cForm.select.valueType === 'number'"
+            :label="innerDialogForm.opType + '值'"
+            prop="numberValue"
+          >
+            <el-input-number v-model="innerDialogForm.numberValue" />
+          </el-form-item>
+          <el-form-item
+            v-if="form.cForm.select.valueType === 'boolean'"
+            :label="innerDialogForm.opType + '值'"
+            prop="booleanValue"
+          >
+            <el-switch v-model="innerDialogForm.booleanValue" />
+          </el-form-item>
         </el-form>
       </div>
     </template>
@@ -391,6 +473,7 @@ import { templateRef } from "@vueuse/core";
 const {
   form,
   fieldTypeOptions,
+  valueTypeOptions,
   pickerTypeOptions,
   colorOptions,
   colorFormatOptions,
@@ -443,6 +526,32 @@ const emit = defineEmits<{
 const visible = defineModel({
   required: true,
   type: Boolean,
+});
+
+const useInnerDialog = ref(false);
+
+const title = computed(() => {
+  if (useInnerDialog.value) {
+    return `添加分段选择选项`;
+  } else {
+    return `${props.isEdit ? "编辑" : "添加"}${
+      props.editTarget === "group" ? "分组" : "组件"
+    }`;
+  }
+});
+
+const innerDialogForm = reactive<{
+  opType: "常量" | "对象";
+  stringValue: string;
+  numberValue: number;
+  booleanValue: boolean;
+  label: string;
+}>({
+  opType: "对象",
+  stringValue: "",
+  numberValue: 0,
+  booleanValue: false,
+  label: "",
 });
 
 const randomId = () => {
@@ -559,6 +668,35 @@ watch(visible, (val) => {
           }
         }
       }
+    } else if (props.editItem.listName === "selectList") {
+      const item = props.editItem.item as SelectListItem;
+      if (item.segmented) {
+        form.cForm.select.segmented = true;
+        form.cForm.select.multiple = false;
+        form.cForm.select.validOptions = item.options.map((item) => {
+          if (typeof item === "object") {
+            return item.value;
+          }
+          return item;
+        });
+        form.cForm.select.segmentedOptions = item.options;
+        form.cForm.select.segmentedValue = item.value;
+        if (typeof item.options[0] === "object") {
+          innerDialogForm.opType = "对象";
+          form.cForm.select.valueType = typeof item.options[0].value as
+            | "string"
+            | "number"
+            | "boolean";
+        } else {
+          innerDialogForm.opType = "常量";
+          form.cForm.select.valueType = typeof item.options[0] as
+            | "string"
+            | "number"
+            | "boolean";
+        }
+      } else {
+        //TODO
+      }
     } else {
       if (props.editItem.item) {
         (form.cForm as any)[props.editItem.listName.replace("List", "")] = (
@@ -607,11 +745,23 @@ const confirm = () => {
     //     value: (form.cForm as any).input.value,
     //   };
     //   break;
-    // case FieldType.Select:
-    //   item = {
-    //     value: (form.cForm as any).select.value,
-    //   };
-    //   break;
+    case FieldType.Select:
+      if (form.cForm.select.segmented) {
+        let otherFields = {
+          segmented: true,
+          value: form.cForm.select.segmentedValue,
+          options: form.cForm.select.validOptions,
+        };
+        item = {
+          targetGroupLabel: form.groupLabel,
+          label: form.label,
+          id: form.id,
+          ...otherFields,
+        } as unknown as RenderCodeItem;
+      } else {
+        //TODO
+      }
+      break;
     case FieldType.Picker:
       let otherFields = {};
       if (form.cForm.picker.pickerType === "color") {
@@ -713,6 +863,130 @@ const confirm = () => {
     );
   });
 };
+
+const dialogOptions = reactive({
+  confirmText: "确定",
+  cancelText: "取消",
+  cancel: () => {
+    visible.value = false;
+  },
+  ok: confirm,
+});
+
+const openAddOptionDialog = () => {
+  useInnerDialog.value = true;
+  dialogOptions.confirmText = "添加";
+  dialogOptions.cancelText = "返回";
+  dialogOptions.cancel = () => {
+    useInnerDialog.value = false;
+    dialogOptions.confirmText = "确定";
+    dialogOptions.cancelText = "取消";
+    dialogOptions.cancel = () => {
+      visible.value = false;
+    };
+    dialogOptions.ok = confirm;
+  };
+  dialogOptions.ok = () => {
+    let item;
+    if (form.cForm.select.valueType === "string") {
+      item = innerDialogForm.stringValue;
+    } else if (form.cForm.select.valueType === "number") {
+      item = innerDialogForm.numberValue;
+    } else {
+      item = innerDialogForm.booleanValue;
+    }
+    const existValue = form.cForm.select.segmentedOptions.find((o) => {
+      if (typeof o === "object") {
+        return o.value === item;
+      } else {
+        return o === item;
+      }
+    });
+    if (existValue) {
+      ElMessage.error("请确保该选项的值唯一");
+      console.error("请确保该选项的值唯一", existValue);
+      return;
+    }
+    if (innerDialogForm.opType === "常量") {
+      form.cForm.select.segmentedOptions.unshift(item);
+    } else {
+      form.cForm.select.segmentedOptions.unshift({
+        label: innerDialogForm.label,
+        value: item,
+      });
+    }
+    form.cForm.select.validOptions.push(item);
+    if (["", false, 0].includes(form.cForm.select.segmentedValue)) {
+      form.cForm.select.segmentedValue = item;
+    }
+    ElMessage.success("选项添加成功，选中以生效");
+    dialogOptions.cancel();
+  };
+};
+
+const segmentedOptions = computed(() => {
+  if (!form.cForm.select.validOptions.length) {
+    return form.cForm.select.segmentedOptions.filter((o) => {
+      if (typeof o === "object") {
+        return typeof o.value === form.cForm.select.valueType;
+      } else {
+        return typeof o === form.cForm.select.valueType;
+      }
+    });
+  } else {
+    const firstElement = form.cForm.select.segmentedOptions.find((s) => {
+      if (typeof s === "object") {
+        return s.value === form.cForm.select.validOptions[0];
+      } else {
+        return s === form.cForm.select.validOptions[0];
+      }
+    });
+    return form.cForm.select.segmentedOptions.filter((o) => {
+      if (typeof o === "object") {
+        if (typeof firstElement !== "object") {
+          return false;
+        }
+        return typeof o.value === form.cForm.select.valueType;
+      } else {
+        if (typeof firstElement === "object") {
+          return false;
+        }
+        return typeof o === form.cForm.select.valueType;
+      }
+    });
+  }
+});
+
+watch(
+  () => form.cForm.select.valueType,
+  (valueType) => {
+    if (!form.cForm.select.validOptions.length) {
+      return;
+    }
+    const firstElement = form.cForm.select.segmentedOptions.find((s) => {
+      if (typeof s === "object") {
+        return s.value === form.cForm.select.validOptions[0];
+      } else {
+        return s === form.cForm.select.validOptions[0];
+      }
+    });
+    if (firstElement) {
+      if (typeof firstElement === "object") {
+        if (typeof firstElement.value !== valueType) {
+          form.cForm.select.validOptions = [];
+          form.cForm.select.segmentedValue =
+            valueType === "string" ? "" : valueType === "number" ? 0 : false;
+        }
+      } else {
+        if (typeof firstElement !== valueType) {
+          form.cForm.select.validOptions = [];
+          form.cForm.select.segmentedValue =
+            valueType === "string" ? "" : valueType === "number" ? 0 : false;
+        }
+      }
+    }
+  }
+);
 </script>
 
 <style lang="scss" scoped>

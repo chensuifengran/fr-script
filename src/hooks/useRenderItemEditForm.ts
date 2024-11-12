@@ -33,6 +33,14 @@ export type RenderFormInstance = {
         disabledSeconds?: string;
       };
     };
+    select: {
+      segmented: boolean;
+      valueType: "string" | "number" | "boolean";
+      segmentedOptions: SegmentedOption<string | number | boolean>[];
+      validOptions: SegmentedOption<string | number | boolean>[];
+      segmentedValue: string | number | boolean;
+      multiple: boolean;
+    };
   };
 };
 const ctxMenu = reactive({
@@ -78,6 +86,14 @@ const form = reactive<RenderFormInstance>({
         disabledMinutes: "",
         disabledSeconds: "",
       },
+    },
+    select: {
+      segmented: true,
+      valueType: "string",
+      segmentedOptions: [],
+      validOptions: [],
+      segmentedValue: "",
+      multiple: false,
     },
   },
 });
@@ -153,10 +169,24 @@ const validateId = (
   }
 };
 
+const validateSegmentedOptions = (
+  _: any,
+  value: string,
+  callback: (error?: string | Error) => void
+) => {
+  if (!value.length) {
+    callback(new Error("保留选项不能为空"));
+  }
+  callback();
+};
+
 const rules = <FormRules<RenderFormInstance>>{
   id: [{ validator: validateId, trigger: "blur" }],
   label: [{ validator: validateLabel, trigger: "blur" }],
   groupLabel: [{ validator: validateGroupLabel, trigger: "blur" }],
+  "cForm.select.segmentedOptions": [
+    { validator: validateSegmentedOptions, trigger: "blur" },
+  ],
 };
 
 const fieldTypeOptions = [
@@ -239,6 +269,21 @@ const colorFormatOptions = [
   },
 ];
 
+const valueTypeOptions = [
+  {
+    label: "String",
+    value: "string",
+  },
+  {
+    label: "Number",
+    value: "number",
+  },
+  {
+    label: "Boolean",
+    value: "boolean",
+  },
+];
+
 export const useRenderItemEditForm = () => {
   return {
     form,
@@ -248,6 +293,7 @@ export const useRenderItemEditForm = () => {
     fieldTypeOptions,
     pickerTypeOptions,
     colorOptions,
-    colorFormatOptions
+    colorFormatOptions,
+    valueTypeOptions,
   };
 };
