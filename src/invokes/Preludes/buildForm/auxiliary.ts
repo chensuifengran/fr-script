@@ -36,7 +36,10 @@ export const auxiliary = <AuxiliaryType>{
                 string
               ];
             } else {
-              item.value = processDate(item.value);
+              const res = processDate(item.value);
+              if (res) {
+                item.value = res;
+              }
             }
           }
         }
