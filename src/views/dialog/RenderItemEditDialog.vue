@@ -366,7 +366,7 @@
               <template v-if="form.cForm.select.segmented">
                 <el-form-item
                   label="保留的选项"
-                  prop="cForm.select.segmentedOptions"
+                  prop="cForm.select.validOptions"
                 >
                   <el-select
                     v-model="form.cForm.select.validOptions"
@@ -396,7 +396,7 @@
                     >添加选项</el-button
                   >
                 </el-form-item>
-                <el-form-item label="组件值" prop="cForm.select.segmented">
+                <el-form-item label="组件值" prop="cForm.select.segmentedValue">
                   <el-segmented
                     v-if="form.cForm.select.validOptions.length"
                     :options="form.cForm.select.validOptions"
@@ -670,7 +670,7 @@ watch(visible, (val) => {
       }
     } else if (props.editItem.listName === "selectList") {
       const item = props.editItem.item as SelectListItem;
-      if (item.segmented) {
+      if (item?.segmented) {
         form.cForm.select.segmented = true;
         form.cForm.select.multiple = false;
         form.cForm.select.validOptions = item.options.map((item) => {
@@ -750,7 +750,19 @@ const confirm = () => {
         let otherFields = {
           segmented: true,
           value: form.cForm.select.segmentedValue,
-          options: form.cForm.select.validOptions,
+          options: form.cForm.select.validOptions.map(value=>{
+            const targetOption = form.cForm.select.segmentedOptions.find((o) => {
+              if (typeof o === "object") {
+                return o.value === value;
+              } else {
+                return o === value;
+              }
+            });
+            if(targetOption){
+              return targetOption
+            }
+            return value
+          }),
         };
         item = {
           targetGroupLabel: form.groupLabel,
