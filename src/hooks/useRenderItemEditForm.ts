@@ -180,12 +180,26 @@ const validateSegmentedOptions = (
   callback();
 };
 
+const validateSegmentedValue = (
+  _: any,
+  value: string | number | boolean,
+  callback: (error?: string | Error) => void
+) => {
+  if (!form.cForm.select.validOptions.includes(value)) {
+    callback(new Error("无效的组件值，请从选项中选择一个选项作为组件值"));
+  }
+  callback();
+};
+
 const rules = <FormRules<RenderFormInstance>>{
   id: [{ validator: validateId, trigger: "blur" }],
   label: [{ validator: validateLabel, trigger: "blur" }],
   groupLabel: [{ validator: validateGroupLabel, trigger: "blur" }],
-  "cForm.select.segmentedOptions": [
+  "cForm.select.validOptions": [
     { validator: validateSegmentedOptions, trigger: "blur" },
+  ],
+  "cForm.select.segmentedValue": [
+    { validator: validateSegmentedValue, trigger: "blur" },
   ],
 };
 
