@@ -6,15 +6,17 @@ import {
   genAllDTS,
 } from "./genDTS";
 import { changeLogLevel } from "./logConf";
+import { LOGO_TEXT } from "./constants";
 export function hotUpdatePlugin(): Plugin {
   return {
     name: "hot-update-plugin",
     configResolved(config) {
+      console.log(LOGO_TEXT);
       const mode = config.env.MODE;
       if (mode && mode.includes(":")) {
         const [_, logLevel] = mode.split(":");
         changeLogLevel(logLevel);
-      }else{
+      } else {
         changeLogLevel();
       }
       genAllDTS();
