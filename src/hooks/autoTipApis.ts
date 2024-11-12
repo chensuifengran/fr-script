@@ -189,7 +189,7 @@ const getCursorPosFnInfo = async (
               if (
                 Array.isArray(item[key]) &&
                 Array.isArray(expressionItem[key]) &&
-                !item[key].filter((i) => i !== undefined || i !== null).length
+                !item[key].filter((i) => i !== undefined && i !== null).length
               ) {
                 item[key] = expressionItem[key];
               } else {
