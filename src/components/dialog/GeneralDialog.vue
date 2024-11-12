@@ -2,11 +2,11 @@
   <el-dialog
     v-model="model"
     :title="props.title"
-    @close="closeDialog"
+    @close="closeHandle"
     @keyup.enter="props.callback"
-    draggable
-    top="10vh"
-    width="70%"
+    :draggable="draggable"
+    :top="top"
+    :width="width"
     class="general-dialog"
   >
     <div v-if="props.content">
@@ -25,8 +25,10 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="closeDialog">取消</el-button>
-        <el-button type="primary" @click="props.callback"> 确定 </el-button>
+        <el-button @click="closeHandle">{{ cancelText }}</el-button>
+        <el-button type="primary" @click="props.callback">{{
+          confirmText
+        }}</el-button>
       </span>
     </template>
   </el-dialog>
@@ -36,6 +38,7 @@
 const model = defineModel<boolean>({
   default: false,
 });
+
 const props = defineProps({
   isTestModule: {
     type: Boolean,
@@ -43,10 +46,40 @@ const props = defineProps({
   },
   title: { type: String },
   content: { type: String },
-  callback: { type: Function as PropType<(e?: any) => Promise<void> | void> },
+  callback: {
+    type: Function as PropType<(e?: MouseEvent) => Promise<void> | void>,
+  },
+  cancel: {
+    type: Function as PropType<(e?: MouseEvent) => Promise<void> | void>,
+  },
+  cancelText: {
+    type: String,
+    default: "取消",
+  },
+  confirmText: {
+    type: String,
+    default: "确定",
+  },
+  width: {
+    type: String,
+    default: "70%",
+  },
+  top: {
+    type: String,
+    default: "10vh",
+  },
+  draggable: {
+    type: Boolean,
+    default: true,
+  },
 });
-const closeDialog = () => {
-  model.value = false;
+
+const closeHandle = (e: MouseEvent) => {
+  if (!props.cancel) {
+    model.value = false;
+  } else {
+    props.cancel(e);
+  }
 };
 </script>
 
