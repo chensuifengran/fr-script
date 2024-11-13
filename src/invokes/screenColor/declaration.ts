@@ -47,13 +47,15 @@ declare class ColorUtil {
    * @param sleepMs 检测间隔，默认1000ms
    * @param maxWaitCount 最大检测次数,默认10次
    * @param allowOffsetRange rgb值允许的偏移范围，默认[0,0,0]
+   * @param mismatchCallback 颜色未消失时的回调
    * @returns 是否消失
   */
   waitNotColor: (
     color: string,
     sleepMs?: number,
     maxWaitCount?: number,
-    allowOffsetRange?:[number, number, number]
+    allowOffsetRange?:[number, number, number],
+    mismatchCallback?: () => void
   ) => Promise<boolean>;
 }
 declare function screenColor(
