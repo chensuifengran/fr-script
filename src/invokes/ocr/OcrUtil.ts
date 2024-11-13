@@ -98,10 +98,13 @@ export class OcrUtil {
     text: string,
     adb = false,
     sleepMs: number = 1000,
-    maxWaitCount: number = 10
+    maxWaitCount: number = 10,
+    mismatchCallback?: (curText: OCRResult[], expectText: string) => void
   ) => {
     if (this.findText(text)) {
       return true;
+    } else {
+      mismatchCallback && mismatchCallback(this.result, text);
     }
     let result = false;
     while (maxWaitCount--) {
@@ -112,6 +115,8 @@ export class OcrUtil {
       if (reCallRes && reCallRes.includes([text])) {
         result = true;
         break;
+      } else {
+        reCallRes && mismatchCallback && mismatchCallback(this.result, text);
       }
       await timeUtil.sleep(sleepMs);
     }
