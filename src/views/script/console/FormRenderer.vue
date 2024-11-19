@@ -108,7 +108,7 @@
                     v-for="(item, index) in s.options"
                     :key="index"
                     :label="optTransformer.transformLabel(item)"
-                    :value="item"
+                    :value="optTransformer.transformValue(item)"
                   />
                 </template>
               </el-select>
