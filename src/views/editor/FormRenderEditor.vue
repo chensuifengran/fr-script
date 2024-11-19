@@ -116,7 +116,7 @@
                 <template v-if="!s.segmented">
                   <div flex flex-row items-center>
                     <el-tag size="small" v-if="s.group"
-                      >{{ getItemType(s.options[0]?.options[0])
+                      >{{ getItemType(s.options[0]?.options?.[0])
                       }}{{ s.multiple ? "[]" : "" }}</el-tag
                     >
                     <el-tag size="small" v-else
@@ -170,7 +170,7 @@
                         v-for="(item, index) in s.options"
                         :key="index"
                         :label="optTransformer.transformLabel(item)"
-                        :value="item"
+                        :value="optTransformer.transformValue(item)"
                       />
                     </template>
                   </el-select>
@@ -478,23 +478,11 @@ const itemDeleteHandle = () => {
 };
 
 const itemEditHandle = () => {
-  const targetItem = formData.value?.find(
-    (f) => f.groupLabel === ctxMenu.target.groupLabel
-  );
-  if (targetItem) {
-    const key = ctxMenu.target.listName;
-    if (key === "") {
-      ctxMenu.target.item = null;
-      ctxMenu.editTarget = "group";
-    } else {
-      const target = targetItem[key].find(
-        (item) => item.label === ctxMenu.target.label
-      );
-      if (target) {
-        ctxMenu.target.item = target;
-        ctxMenu.editTarget = "item";
-      }
-    }
+  const key = ctxMenu.target.listName;
+  if (key === "") {
+    ctxMenu.editTarget = "group";
+  } else {
+    ctxMenu.editTarget = "item";
   }
   ctxMenu.isEdit = true;
   dialogVisible.value = true;
@@ -621,11 +609,23 @@ const openContextMenu = (
     zIndex: 9999,
     theme: isDark.value ? "default dark" : "default",
   };
+  
+  let item = null;
+  const targetItem = formData.value?.find((f) => f.groupLabel === groupLabel);
+  if (targetItem) {
+    const key = listName || "";
+    if (key) {
+      const target = targetItem[key].find((i) => i.label === label);
+      if (target) {
+        item = target;
+      }
+    }
+  }
   ctxMenu.target = {
     groupLabel,
     label: label || "",
     listName: listName || "",
-    item: null,
+    item,
   };
 };
 
