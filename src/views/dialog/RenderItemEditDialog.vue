@@ -364,19 +364,21 @@
                 />
               </el-form-item>
               <template v-if="form.cForm.select.segmented">
-                <el-form-item
-                  label="保留的选项"
-                  prop="cForm.select.validOptions"
-                >
+                <el-form-item label="选项" prop="cForm.select.validOptions">
                   <el-select
                     v-model="form.cForm.select.validOptions"
                     multiple
+                    :value-key="
+                      typeof form.cForm.select.validOptions[0] === 'object'
+                        ? 'value'
+                        : undefined
+                    "
                     filterable
-                    placeholder="请选择要保留的选项"
+                    placeholder="请选择生效的选项"
                     style="width: 240px"
                   >
                     <el-option
-                      v-for="(item, index) in segmentedOptions"
+                      v-for="(item, index) in baseOptions"
                       :key="index"
                       :label="typeof item === 'object' ? item.label : item + ''"
                       :value="typeof item === 'object' ? item.value : item"
@@ -393,7 +395,7 @@
                     </el-option>
                   </el-select>
                   <el-button link type="primary" @click="openAddOptionDialog"
-                    >添加选项</el-button
+                    >添加备选选项</el-button
                   >
                 </el-form-item>
                 <el-form-item label="组件值" prop="cForm.select.segmentedValue">
@@ -406,7 +408,226 @@
                 </el-form-item>
               </template>
               <template v-else>
-                <!-- TODO -->
+                <el-form-item label="多选" prop="cForm.select.multiple">
+                  <el-switch v-model="form.cForm.select.multiple" />
+                </el-form-item>
+                <el-form-item
+                  label="选项分组"
+                  prop="cForm.select.enabledGroupOption"
+                >
+                  <el-switch v-model="form.cForm.select.enabledGroupOption" @change="handleEnabledGroupOption"/>
+                </el-form-item>
+                <el-form-item label="选项" prop="cForm.select.validOptions">
+                  <el-select
+                    v-model="form.cForm.select.validOptions"
+                    multiple
+                    filterable
+                    placeholder="请选择生效的选项"
+                    style="width: 400px"
+                    @change="handleSelectChange"
+                  >
+                    <template #label="item">
+                      <span
+                        >{{
+                          typeof item === "object"
+                            ? typeof item.value === "object"
+                              ? item.label + ":" + item.value?.value
+                              : item.label + ":" + item.value
+                            : item
+                        }}
+                      </span>
+                    </template>
+                    <template v-if="form.cForm.select.enabledGroupOption">
+                      <el-option-group
+                        v-for="(group, groupIndex) in groupOptions"
+                        :key="groupIndex"
+                        :label="group.groupLabel"
+                      >
+                        <el-option
+                          v-for="(item, index) in group.options"
+                          :key="index"
+                          :label="
+                            typeof item === 'object' ? item.label : item + ''
+                          "
+                          :value="typeof item === 'object' ? item.value : item"
+                        >
+                          <div flex flex-row items-center>
+                            <el-tag size="small">{{ typeof item }}</el-tag>
+                            <el-text
+                              >{{ typeof item === "object" ? item.label : item
+                              }}{{
+                                typeof item === "object"
+                                  ? `(${item.value})`
+                                  : ""
+                              }}</el-text
+                            >
+                          </div>
+                        </el-option>
+                      </el-option-group>
+                    </template>
+                    <template v-else>
+                      <el-option
+                        v-for="(item, index) in baseOptions"
+                        :key="index"
+                        :label="
+                          typeof item === 'object' ? item.label : item + ''
+                        "
+                        :value="typeof item === 'object' ? item.value : item"
+                      >
+                        <div flex flex-row items-center>
+                          <el-tag size="small">{{ typeof item }}</el-tag>
+                          <el-text
+                            >{{ typeof item === "object" ? item.label : item
+                            }}{{
+                              typeof item === "object" ? `(${item.value})` : ""
+                            }}</el-text
+                          >
+                        </div>
+                      </el-option>
+                    </template>
+                  </el-select>
+                  <el-button link type="primary" @click="openAddOptionDialog"
+                    >添加备选选项</el-button
+                  >
+                </el-form-item>
+                <el-form-item label="组件值" prop="cForm.select.msValue">
+                  <template v-if="form.cForm.select.multiple">
+                    <el-select
+                      v-model="form.cForm.select.mValue"
+                      multiple
+                      filterable
+                      placeholder="请选择组件的默认值"
+                      style="width: 240px"
+                    >
+                      <template #label="item">
+                        <span
+                          >{{
+                            typeof item === "object"
+                              ? typeof item.value === "object"
+                                ? item.label + ":" + item.value?.value
+                                : item.label + ":" + item.value
+                              : item
+                          }}
+                        </span>
+                      </template>
+                      <template v-if="form.cForm.select.enabledGroupOption">
+                        <el-option-group
+                          v-for="g in validGroupOptions"
+                          :label="g.groupLabel"
+                          :key="g.groupLabel"
+                        >
+                          <el-option
+                            v-for="(item, index) in g.options"
+                            :key="index"
+                            :label="
+                              typeof item === 'object' ? item.label : item + ''
+                            "
+                            :value="
+                              typeof item === 'object' ? item.value : item
+                            "
+                          >
+                            <div flex flex-row items-center>
+                              <el-tag size="small">{{ typeof item }}</el-tag>
+                              <el-text
+                                >{{
+                                  typeof item === "object" ? item.label : item
+                                }}{{
+                                  typeof item === "object"
+                                    ? `(${item.value})`
+                                    : ""
+                                }}</el-text
+                              >
+                            </div>
+                          </el-option>
+                        </el-option-group>
+                      </template>
+                      <template v-else>
+                        <el-option
+                          v-for="(item, index) in validOptions"
+                          :key="index"
+                          :label="
+                            typeof item === 'object' ? item.label : item + ''
+                          "
+                          :value="typeof item === 'object' ? item.value : item"
+                        >
+                          <div flex flex-row items-center>
+                            <el-tag size="small">{{ typeof item }}</el-tag>
+                            <el-text
+                              >{{ typeof item === "object" ? item.label : item
+                              }}{{
+                                typeof item === "object"
+                                  ? `(${item.value})`
+                                  : ""
+                              }}</el-text
+                            >
+                          </div>
+                        </el-option>
+                      </template>
+                    </el-select>
+                  </template>
+                  <template v-else>
+                    <el-select
+                      v-model="form.cForm.select.sValue"
+                      filterable
+                      placeholder="请选择组件默认选择的值"
+                      style="width: 240px"
+                    >
+                      <template v-if="form.cForm.select.enabledGroupOption">
+                        <el-option-group
+                          v-for="g in validGroupOptions"
+                          :label="g.groupLabel"
+                          :key="g.groupLabel"
+                        >
+                          <el-option
+                            v-for="(item, index) in g.options"
+                            :key="index"
+                            :label="
+                              typeof item === 'object' ? item.label : item + ''
+                            "
+                            :value="
+                              typeof item === 'object' ? item.value : item
+                            "
+                          >
+                            <div flex flex-row items-center>
+                              <el-tag size="small">{{ typeof item }}</el-tag>
+                              <el-text
+                                >{{
+                                  typeof item === "object" ? item.label : item
+                                }}{{
+                                  typeof item === "object"
+                                    ? `(${item.value})`
+                                    : ""
+                                }}</el-text
+                              >
+                            </div>
+                          </el-option>
+                        </el-option-group>
+                      </template>
+                      <template v-else>
+                        <el-option
+                          v-for="(item, index) in validOptions"
+                          :key="index"
+                          :label="
+                            typeof item === 'object' ? item.label : item + ''
+                          "
+                          :value="typeof item === 'object' ? item.value : item"
+                        >
+                          <div flex flex-row items-center>
+                            <el-tag size="small">{{ typeof item }}</el-tag>
+                            <el-text
+                              >{{ typeof item === "object" ? item.label : item
+                              }}{{
+                                typeof item === "object"
+                                  ? `(${item.value})`
+                                  : ""
+                              }}</el-text
+                            >
+                          </div>
+                        </el-option>
+                      </template>
+                    </el-select>
+                  </template>
+                </el-form-item>
               </template>
             </template>
             <template v-else-if="form.componentType === FieldType.Input">
@@ -430,6 +651,16 @@
           <template v-if="innerDialogForm.opType === '对象'">
             <el-form-item label="标签" prop="label">
               <el-input v-model="innerDialogForm.label" />
+            </el-form-item>
+          </template>
+          <template v-if="form.cForm.select.enabledGroupOption">
+            <el-form-item label="分组标签" prop="group">
+              <el-autocomplete
+                v-model="innerDialogForm.group"
+                :fetch-suggestions="queryGroupLabels"
+                placeholder="请输入分组标签"
+                clearable
+              />
             </el-form-item>
           </template>
           <el-form-item
@@ -464,6 +695,7 @@ import { FieldType } from "../../utils/enums.ag";
 import { nanoid } from "nanoid";
 import { type RenderFormInstance } from "../../hooks/useRenderItemEditForm";
 import type {
+  dayjs,
   FormRules,
   GetDisabledHours,
   GetDisabledMinutes,
@@ -545,6 +777,7 @@ const innerDialogForm = reactive<{
   stringValue: string;
   numberValue: number;
   booleanValue: boolean;
+  group: string;
   label: string;
 }>({
   opType: "对象",
@@ -552,6 +785,7 @@ const innerDialogForm = reactive<{
   numberValue: 0,
   booleanValue: false,
   label: "",
+  group: "",
 });
 
 const randomId = () => {
@@ -679,7 +913,7 @@ watch(visible, (val) => {
           }
           return item;
         });
-        form.cForm.select.segmentedOptions = item.options;
+        form.cForm.select.baseOptions = item.options;
         form.cForm.select.segmentedValue = item.value;
         if (typeof item.options[0] === "object") {
           innerDialogForm.opType = "对象";
@@ -695,7 +929,59 @@ watch(visible, (val) => {
             | "boolean";
         }
       } else {
-        //TODO
+        form.cForm.select.segmented = false;
+        if (!item) {
+          return;
+        }
+        form.cForm.select.multiple = item.multiple || false;
+        form.cForm.select.validOptions = item.options.flatMap((o) => {
+          if (typeof o === "object") {
+            if ("groupLabel" in o) {
+              return o.options.map((o_) => {
+                if (typeof o_ === "object") {
+                  return o_.value;
+                }
+                return o_;
+              });
+            }
+            if (typeof o === "object") {
+              return o.value;
+            }
+          }
+          return o;
+        });
+        let targetOption;
+        if (item.group) {
+          form.cForm.select.enabledGroupOption = true;
+          form.cForm.select.groupOptions = item.options;
+          targetOption = item.options[0]?.options[0];
+        } else {
+          form.cForm.select.enabledGroupOption = false;
+          form.cForm.select.baseOptions = item.options;
+          targetOption = item.options[0];
+        }
+        if (typeof targetOption === "object") {
+          innerDialogForm.opType = "对象";
+          form.cForm.select.valueType = typeof targetOption.value as
+            | "string"
+            | "number"
+            | "boolean";
+        } else {
+          innerDialogForm.opType = "常量";
+          if (targetOption === undefined) {
+            form.cForm.select.valueType = "string";
+          } else {
+            form.cForm.select.valueType = typeof targetOption as
+              | "string"
+              | "number"
+              | "boolean";
+          }
+        }
+        if (item.multiple) {
+          form.cForm.select.mValue = item.value;
+        } else {
+          form.cForm.select.sValue = item.value;
+        }
       }
     } else {
       if (props.editItem.item) {
@@ -706,27 +992,50 @@ watch(visible, (val) => {
     }
   }
 });
-
-const disabledHours = computed(() => {
+const disabledHours_ = computed(() => {
   const res = transformFnStr<GetDisabledHours>(
     form.cForm.picker.dtFields.disabledHours
   );
   return res;
 });
 
-const disabledMinutes = computed(() => {
+const disabledHours: GetDisabledHours = (
+  role: string,
+  comparingDate?: dayjs.Dayjs
+) => {
+  return disabledHours_.value?.(role, comparingDate) || [];
+};
+
+const disabledMinutes_ = computed(() => {
   const res = transformFnStr<GetDisabledMinutes>(
     form.cForm.picker.dtFields.disabledMinutes
   );
   return res;
 });
 
-const disabledSeconds = computed(() => {
+const disabledMinutes: GetDisabledMinutes = (
+  hour: number,
+  role: string,
+  comparingDate?: dayjs.Dayjs
+) => {
+  return disabledMinutes_.value?.(hour, role, comparingDate) || [];
+};
+
+const disabledSeconds_ = computed(() => {
   const res = transformFnStr<GetDisabledSeconds>(
     form.cForm.picker.dtFields.disabledSeconds
   );
   return res;
 });
+
+const disabledSeconds: GetDisabledSeconds = (
+  hour: number,
+  minute: number,
+  role: string,
+  comparingDate?: dayjs.Dayjs
+) => {
+  return disabledSeconds_.value?.(hour, minute, role, comparingDate) || [];
+};
 
 const confirm = () => {
   let item: RenderCodeItem;
@@ -746,38 +1055,66 @@ const confirm = () => {
     //   };
     //   break;
     case FieldType.Select:
+      let selectFields = {};
       if (form.cForm.select.segmented) {
-        let otherFields = {
+        selectFields = {
           segmented: true,
           value: form.cForm.select.segmentedValue,
-          options: form.cForm.select.validOptions.map(value=>{
-            const targetOption = form.cForm.select.segmentedOptions.find((o) => {
+          options: form.cForm.select.baseOptions.filter((o) => {
+            return form.cForm.select.validOptions.find((v) => {
               if (typeof o === "object") {
-                return o.value === value;
+                return v === o.value;
               } else {
-                return o === value;
+                return v === o;
               }
             });
-            if(targetOption){
-              return targetOption
-            }
-            return value
           }),
         };
-        item = {
-          targetGroupLabel: form.groupLabel,
-          label: form.label,
-          id: form.id,
-          ...otherFields,
-        } as unknown as RenderCodeItem;
       } else {
-        //TODO
+        selectFields = {
+          segmented: false,
+          multiple: form.cForm.select.multiple,
+          value: form.cForm.select.multiple
+            ? form.cForm.select.mValue
+            : form.cForm.select.sValue,
+          group: form.cForm.select.enabledGroupOption,
+          options: form.cForm.select.enabledGroupOption
+            ? form.cForm.select.groupOptions
+                .map((g) => {
+                  const options = g.options.filter((o) => {
+                    if (typeof o === "object") {
+                      return form.cForm.select.validOptions.includes(o.value);
+                    }
+                    return form.cForm.select.validOptions.includes(o);
+                  });
+                  if (options.length) {
+                    return {
+                      groupLabel: g.groupLabel,
+                      options,
+                    };
+                  }
+                  return null;
+                })
+                .filter((g) => g !== null)
+            : form.cForm.select.baseOptions.filter((o) => {
+                if (typeof o === "object") {
+                  return form.cForm.select.validOptions.includes(o.value);
+                }
+                return form.cForm.select.validOptions.includes(o);
+              }),
+        };
       }
+      item = {
+        targetGroupLabel: form.groupLabel,
+        label: form.label,
+        id: form.id,
+        ...selectFields,
+      } as unknown as RenderCodeItem;
       break;
     case FieldType.Picker:
-      let otherFields = {};
+      let pickerFields = {};
       if (form.cForm.picker.pickerType === "color") {
-        otherFields = {
+        pickerFields = {
           value: form.cForm.picker.colorFields.value,
           predefine: form.cForm.picker.colorFields.predefine,
           colorFormat: form.cForm.picker.colorFields.colorFormat,
@@ -786,7 +1123,7 @@ const confirm = () => {
         };
       } else if (form.cForm.picker.pickerType === "time") {
         const isRange = form.cForm.picker.dtFields.isRange;
-        otherFields = {
+        pickerFields = {
           value: isRange
             ? form.cForm.picker.dtFields.rangeValue
             : form.cForm.picker.dtFields.value,
@@ -820,7 +1157,7 @@ const confirm = () => {
         };
       } else {
         const isRange = form.cForm.picker.dtFields.isRange;
-        otherFields = {
+        pickerFields = {
           value: isRange
             ? form.cForm.picker.dtFields.rangeValue
             : form.cForm.picker.dtFields.value,
@@ -848,7 +1185,7 @@ const confirm = () => {
         targetGroupLabel: form.groupLabel,
         label: form.label,
         id: form.id,
-        ...otherFields,
+        ...pickerFields,
       } as unknown as RenderCodeItem;
       break;
     default:
@@ -907,38 +1244,109 @@ const openAddOptionDialog = () => {
     } else {
       item = innerDialogForm.booleanValue;
     }
-    const existValue = form.cForm.select.segmentedOptions.find((o) => {
-      if (typeof o === "object") {
-        return o.value === item;
-      } else {
-        return o === item;
-      }
-    });
+    const enabledGroupOption = form.cForm.select.enabledGroupOption;
+    let existValue;
+    if (enabledGroupOption) {
+      existValue = form.cForm.select.groupOptions.find((group) => {
+        return group.options.find((o) => {
+          if (typeof o === "object") {
+            return o.value === item;
+          } else {
+            return o === item;
+          }
+        });
+      });
+    } else {
+      existValue = form.cForm.select.baseOptions.find((o) => {
+        if (typeof o === "object") {
+          return o.value === item;
+        } else {
+          return o === item;
+        }
+      });
+    }
     if (existValue) {
       ElMessage.error("请确保该选项的值唯一");
       console.error("请确保该选项的值唯一", existValue);
       return;
     }
+    if (enabledGroupOption && !innerDialogForm.group.trim()) {
+      ElMessage.error("分组名称不能为空");
+      return;
+    }
     if (innerDialogForm.opType === "常量") {
-      form.cForm.select.segmentedOptions.unshift(item);
+      if (enabledGroupOption) {
+        const targetGroup = form.cForm.select.groupOptions.find((group) => {
+          return group.groupLabel === innerDialogForm.group;
+        });
+        if (targetGroup) {
+          targetGroup.options.unshift(item as any);
+        } else {
+          form.cForm.select.groupOptions.unshift({
+            groupLabel: innerDialogForm.group,
+            options: [item as any],
+          });
+        }
+      } else {
+        form.cForm.select.baseOptions.unshift(item);
+      }
     } else {
-      form.cForm.select.segmentedOptions.unshift({
-        label: innerDialogForm.label,
-        value: item,
-      });
+      if (enabledGroupOption) {
+        const targetGroup = form.cForm.select.groupOptions.find((group) => {
+          return group.groupLabel === innerDialogForm.group;
+        });
+        if (targetGroup) {
+          targetGroup.options.unshift({
+            label: innerDialogForm.label,
+            value: item,
+          } as any);
+        } else {
+          form.cForm.select.groupOptions.unshift({
+            groupLabel: innerDialogForm.group,
+            options: [
+              {
+                label: innerDialogForm.label,
+                value: item,
+              },
+            ],
+          });
+        }
+      } else {
+        debugger;
+        form.cForm.select.baseOptions.unshift({
+          label: innerDialogForm.label,
+          value: item,
+        });
+      }
     }
     form.cForm.select.validOptions.push(item);
-    if (["", false, 0].includes(form.cForm.select.segmentedValue)) {
-      form.cForm.select.segmentedValue = item;
+    if (form.cForm.select.enabledGroupOption) {
+      if (form.cForm.select.multiple) {
+        if (form.cForm.select.mValue.length === 0) {
+          form.cForm.select.mValue = [item];
+        }
+      } else {
+        if (
+          form.cForm.select.sValue &&
+          ["", false, 0].includes(form.cForm.select.sValue)
+        ) {
+          form.cForm.select.sValue = item;
+        }
+      }
+    } else {
+      if (["", false, 0].includes(form.cForm.select.segmentedValue)) {
+        form.cForm.select.segmentedValue = item;
+      }
     }
+
     ElMessage.success("选项添加成功，选中以生效");
     dialogOptions.cancel();
   };
 };
 
-const segmentedOptions = computed(() => {
+const baseOptions = computed(() => {
   if (!form.cForm.select.validOptions.length) {
-    return form.cForm.select.segmentedOptions.filter((o) => {
+    return form.cForm.select.baseOptions.filter((o) => {
       if (typeof o === "object") {
         return typeof o.value === form.cForm.select.valueType;
       } else {
@@ -946,14 +1354,14 @@ const segmentedOptions = computed(() => {
       }
     });
   } else {
-    const firstElement = form.cForm.select.segmentedOptions.find((s) => {
+    const firstElement = form.cForm.select.baseOptions.find((s) => {
       if (typeof s === "object") {
         return s.value === form.cForm.select.validOptions[0];
       } else {
         return s === form.cForm.select.validOptions[0];
       }
     });
-    return form.cForm.select.segmentedOptions.filter((o) => {
+    return form.cForm.select.baseOptions.filter((o) => {
       if (typeof o === "object") {
         if (typeof firstElement !== "object") {
           return false;
@@ -969,36 +1377,197 @@ const segmentedOptions = computed(() => {
   }
 });
 
+const groupOptions = computed(() => {
+  if (!form.cForm.select.validOptions.length) {
+    return form.cForm.select.groupOptions.map((group) => {
+      return {
+        groupLabel: group.groupLabel,
+        options: group.options.filter((o) => {
+          if (typeof o === "object") {
+            return typeof o.value === form.cForm.select.valueType;
+          } else {
+            return typeof o === form.cForm.select.valueType;
+          }
+        }),
+      };
+    });
+  } else {
+    let targetOption:
+      | {
+          label: string;
+          value: string | number | boolean;
+        }
+      | string
+      | number
+      | boolean;
+    form.cForm.select.groupOptions.find((group) => {
+      const res = group.options.find((o) => {
+        if (typeof o === "object") {
+          if (o.value === form.cForm.select.validOptions[0]) {
+            targetOption = o;
+            return true;
+          }
+        } else {
+          if (o === form.cForm.select.validOptions[0]) {
+            targetOption = o;
+            return true;
+          }
+        }
+      });
+      return res;
+    });
+    return form.cForm.select.groupOptions.map((group) => {
+      return {
+        groupLabel: group.groupLabel,
+        options: group.options.filter((o) => {
+          if (typeof o === "object") {
+            if (typeof targetOption !== "object") {
+              return false;
+            }
+            return typeof o.value === form.cForm.select.valueType;
+          } else {
+            if (typeof targetOption === "object") {
+              return false;
+            }
+            return typeof o === form.cForm.select.valueType;
+          }
+        }),
+      };
+    });
+  }
+});
+
+const validOptions = computed(() => {
+  return form.cForm.select.baseOptions.filter((o) => {
+    if (typeof o === "object") {
+      return form.cForm.select.validOptions.includes(o.value);
+    } else {
+      return form.cForm.select.validOptions.includes(o);
+    }
+  });
+});
+
+const validGroupOptions = computed(() => {
+  return form.cForm.select.groupOptions
+    .map((g) => {
+      const opts = g.options.filter((o) => {
+        if (typeof o === "object") {
+          return form.cForm.select.validOptions.includes(o.value);
+        } else {
+          return form.cForm.select.validOptions.includes(o);
+        }
+      });
+      if (!opts.length) {
+        return null;
+      }
+      return {
+        groupLabel: g.groupLabel,
+        options: opts,
+      };
+    })
+    .filter((g) => g !== null);
+});
+
 watch(
   () => form.cForm.select.valueType,
   (valueType) => {
     if (!form.cForm.select.validOptions.length) {
       return;
     }
-    const firstElement = form.cForm.select.segmentedOptions.find((s) => {
-      if (typeof s === "object") {
-        return s.value === form.cForm.select.validOptions[0];
-      } else {
-        return s === form.cForm.select.validOptions[0];
-      }
-    });
+    let firstElement;
+    if (form.cForm.select.enabledGroupOption) {
+      let _firstElement;
+      form.cForm.select.groupOptions.find((group) => {
+        return group.options.find((o) => {
+          if (typeof o === "object") {
+            const res = o.value === form.cForm.select.validOptions[0];
+            if (res) {
+              _firstElement = o;
+            }
+            return res;
+          } else {
+            const res = o === form.cForm.select.validOptions[0];
+            if (res) {
+              _firstElement = o;
+            }
+            return res;
+          }
+        });
+      });
+      firstElement = _firstElement;
+    } else {
+      firstElement = form.cForm.select.baseOptions.find((s) => {
+        if (typeof s === "object") {
+          return s.value === form.cForm.select.validOptions[0];
+        } else {
+          return s === form.cForm.select.validOptions[0];
+        }
+      });
+    }
     if (firstElement) {
       if (typeof firstElement === "object") {
         if (typeof firstElement.value !== valueType) {
           form.cForm.select.validOptions = [];
           form.cForm.select.segmentedValue =
             valueType === "string" ? "" : valueType === "number" ? 0 : false;
+          form.cForm.select.sValue =
+            valueType === "string" ? "" : valueType === "number" ? 0 : false;
+          form.cForm.select.mValue = [];
         }
       } else {
         if (typeof firstElement !== valueType) {
           form.cForm.select.validOptions = [];
           form.cForm.select.segmentedValue =
             valueType === "string" ? "" : valueType === "number" ? 0 : false;
+          form.cForm.select.sValue =
+            valueType === "string" ? "" : valueType === "number" ? 0 : false;
+          form.cForm.select.mValue = [];
         }
       }
     }
   }
 );
+
+const labelFilter = (queryString: string) => {
+  return (label: string) => {
+    return {
+      value: label
+        .toLocaleLowerCase()
+        .includes(queryString.toLocaleLowerCase()),
+    };
+  };
+};
+const queryGroupLabels = (queryString: string, cb: (arg: any) => void) => {
+  const results = queryString
+    ? form.cForm.select.groupOptions
+        .map((g) => g.groupLabel)
+        .filter(labelFilter(queryString))
+    : form.cForm.select.groupOptions.map((g) => ({ value: g.groupLabel }));
+  cb(results);
+};
+
+const handleSelectChange = () => {
+  const selectConf = form.cForm.select;
+  if (selectConf.multiple) {
+    if (selectConf.mValue.length) {
+      selectConf.mValue = selectConf.mValue.filter((v) => {
+        return selectConf.validOptions.includes(v);
+      });
+    }
+  } else {
+    if (selectConf.sValue) {
+      if (!selectConf.validOptions.includes(selectConf.sValue)) {
+        selectConf.sValue = undefined;
+      }
+    }
+  }
+};
+
+const handleEnabledGroupOption = ()=>{
+  form.cForm.select.validOptions = [];
+  form.cForm.select.sValue = undefined;
+  form.cForm.select.mValue = [];
+}
 </script>
 
 <style lang="scss" scoped>
