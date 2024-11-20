@@ -36,10 +36,14 @@ export type RenderFormInstance = {
     select: {
       segmented: boolean;
       valueType: "string" | "number" | "boolean";
-      segmentedOptions: SegmentedOption<string | number | boolean>[];
-      validOptions: SegmentedOption<string | number | boolean>[];
+      baseOptions: SegmentedOption<string | number | boolean>[];
+      validOptions: (string | number | boolean)[];
       segmentedValue: string | number | boolean;
       multiple: boolean;
+      mValue: (string | number | boolean)[];
+      sValue?: string | number | boolean;
+      enabledGroupOption: boolean;
+      groupOptions: SelectType.GroupOptions<string | number | boolean>;
     };
   };
 };
@@ -88,12 +92,16 @@ const form = reactive<RenderFormInstance>({
       },
     },
     select: {
-      segmented: true,
       valueType: "string",
-      segmentedOptions: [],
+      baseOptions: [],
       validOptions: [],
       segmentedValue: "",
+      segmented: true,
       multiple: false,
+      mValue: [],
+      sValue: "",
+      enabledGroupOption: false,
+      groupOptions: [],
     },
   },
 });
