@@ -226,7 +226,7 @@
                       :max="i.max"
                       :step="i.step"
                       :disabled="!g.enable"
-                      :controls="i.controls"
+                      :controls="i.controls || false"
                       :controls-position="i.controlsPosition"
                       :step-strictly="i.stepStrictly"
                       :precision="i.precision"
