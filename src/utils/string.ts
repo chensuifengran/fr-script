@@ -47,6 +47,20 @@ export const objectToString = (
   }
 
   const entries = Object.entries(target)
+    .sort(([key1], [key2]) => {
+      // 属性显示优先级排序
+      const priorityKeys = ["id", "type", "targetGroupLabel", "label", "inputType", "pickerType", "mod"];
+      const priority: Record<string, number> = {}
+      priorityKeys.reverse().forEach((key, index) => {
+        priority[key] = -index - 1;
+      });
+      const p1 = priority[key1] || 0;
+      const p2 = priority[key2] || 0;
+      if(p1 !== p2){
+        return p1 - p2;
+      }
+      return key1.localeCompare(key2);
+    })
     .map(([key, value]) => {
       if (value === undefined) {
         return "";
