@@ -45,6 +45,46 @@ export type RenderFormInstance = {
       enabledGroupOption: boolean;
       groupOptions: SelectType.GroupOptions<string | number | boolean>;
     };
+    input: {
+      inputType?: "text" | "number" | "range" | "file" | "dir";
+      text: {
+        mod?: "password" | "textarea" | "text";
+        placeholder?: string;
+        clearable?: boolean;
+        showPassword?: boolean;
+        maxlength: number;
+        showWordLimit?: boolean;
+        autosizeConf: "close" | "open" | "custom";
+        autosize: [number, number];
+        value: string;
+      };
+      number: {
+        min?: number;
+        max?: number;
+        step?: number;
+        stepStrictly?: boolean;
+        precision?: number;
+        controlsPosition?: "right" | "";
+        controls?: boolean;
+        valueOnClearMod: "max" | "min" | "custom" | "default";
+        valueOnClearNum: number;
+        value: number;
+      };
+      range: {
+        value: [number, number];
+        limitRange: boolean;
+        limit: [number, number];
+        controls?: boolean;
+      };
+      file: {
+        multiple?: boolean;
+        sValue: string;
+        mValue: string[];
+      };
+      dir: {
+        value: string;
+      };
+    };
   };
 };
 const ctxMenu = reactive({
@@ -102,6 +142,46 @@ const form = reactive<RenderFormInstance>({
       sValue: "",
       enabledGroupOption: false,
       groupOptions: [],
+    },
+    input: {
+      inputType: "text",
+      text: {
+        mod: "text",
+        placeholder: "请输入",
+        clearable: false,
+        showPassword: false,
+        maxlength: -1,
+        showWordLimit: false,
+        autosizeConf: "open",
+        autosize: [-1, -1],
+        value: "",
+      },
+      number: {
+        min: NaN,
+        max: NaN,
+        step: 1,
+        stepStrictly: false,
+        precision: undefined,
+        controlsPosition: "",
+        controls: false,
+        valueOnClearMod: "default",
+        valueOnClearNum: 0,
+        value: 0,
+      },
+      range: {
+        value: [0, 100],
+        limitRange: false,
+        limit: [-9999, 9999],
+        controls: false,
+      },
+      file: {
+        multiple: false,
+        sValue: "",
+        mValue: [],
+      },
+      dir: {
+        value: "",
+      },
     },
   },
 });
@@ -213,34 +293,34 @@ const rules = <FormRules<RenderFormInstance>>{
 
 const fieldTypeOptions = [
   {
-    label: "Check",
+    label: "复选框",
     value: FieldType.Check,
   },
   {
-    label: "Input",
+    label: "输入框",
     value: FieldType.Input,
   },
   {
-    label: "Select",
+    label: "下拉框",
     value: FieldType.Select,
   },
   {
-    label: "Picker",
+    label: "颜色时间选择器",
     value: FieldType.Picker,
   },
 ];
 
 const pickerTypeOptions = [
   {
-    label: "Color",
+    label: "颜色",
     value: "color",
   },
   {
-    label: "Date",
+    label: "日期",
     value: "date",
   },
   {
-    label: "Time",
+    label: "时间",
     value: "time",
   },
 ];
@@ -293,15 +373,15 @@ const colorFormatOptions = [
 
 const valueTypeOptions = [
   {
-    label: "String",
+    label: "字符串",
     value: "string",
   },
   {
-    label: "Number",
+    label: "数字",
     value: "number",
   },
   {
-    label: "Boolean",
+    label: "布尔值",
     value: "boolean",
   },
 ];
