@@ -25,7 +25,7 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: "该API在'测试调用'后会动态填入参数到示例",
-    code: 'const res = await join("E:\\a","./b.png");',
+    code: 'const res = await join("E:\\\\a","./b.png");',
   },
   searchKeys: ["path"],
   codeSnippet: "${1:const res = }await join(${2:'path'}, ${3:'addPath'});${0:}",

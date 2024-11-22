@@ -145,7 +145,7 @@ const editorScriptFile = (index: number) => {
   if (IS_PLAYGROUND_ENV) {
     //playground环境
     id = usePlayMock().mockScriptList.value[index]?.id;
-    dir = `E:\\playground`;
+    dir = `E:\\\\playground`;
   }
   if (id === openId!.value) {
     //解决编辑器特殊场景下编辑脚本不会加载脚本

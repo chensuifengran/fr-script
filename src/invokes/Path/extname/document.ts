@@ -16,7 +16,7 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: "该API在'测试调用'后会动态填入参数到示例",
-    code: 'const ext = await extname("E:\\a.png");',
+    code: 'const ext = await extname("E:\\\\a.png");',
   },
   searchKeys: ["path", "ext"],
   codeSnippet: "${1:const res = }await extname(${2:'path'});${0:}",

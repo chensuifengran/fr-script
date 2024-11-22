@@ -49,7 +49,7 @@ watch(darkState, () => {
 const chooseWorkDir = async () => {
   if (IS_PLAYGROUND_ENV) {
     //playground环境
-    envSetting.value.workDir = "E:\\fr-script\\workdir";
+    envSetting.value.workDir = "E:\\\\fr-script\\\\workdir";
     return;
   }
   const res = await selectDir();
@@ -60,7 +60,7 @@ const chooseWorkDir = async () => {
 const chooseScreenshotSavePath = async () => {
   if (IS_PLAYGROUND_ENV) {
     envSetting.value.screenshotSavePath =
-      "E:\\fr-script\\workdir\\screenshot.png";
+      "E:\\\\fr-script\\\\workdir\\\\screenshot.png";
     return;
   }
   const res = (await selectFile(false)) as string | undefined;

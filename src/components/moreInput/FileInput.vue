@@ -42,10 +42,17 @@
       </div>
     </template>
     <template v-else>
-      <div flex flex-row flex-items-center justify-between :style="{
-        flexDirection: props.multipleLabelPos === 'left' ? 'row' : 'column',
-        alignItems: props.multipleLabelPos === 'left' ? 'center' : 'flex-start',
-      }">
+      <div
+        flex
+        flex-row
+        flex-items-center
+        justify-between
+        :style="{
+          flexDirection: props.multipleLabelPos === 'left' ? 'row' : 'column',
+          alignItems:
+            props.multipleLabelPos === 'left' ? 'center' : 'flex-start',
+        }"
+      >
         <el-text
           v-if="props.label !== ''"
           :style="{
@@ -65,7 +72,12 @@
           >
             +选择文件
           </el-button>
-          <el-button class="w-100" size="small" @click="clearFilePath" :disabled="props.disabled">
+          <el-button
+            class="w-100"
+            size="small"
+            @click="clearFilePath"
+            :disabled="props.disabled"
+          >
             x清空已选
           </el-button>
         </div>
@@ -112,10 +124,10 @@ const props = defineProps({
     type: String as PropType<"left" | "center">,
     default: "center",
   },
-  multipleLabelPos:{
+  multipleLabelPos: {
     type: String as PropType<"left" | "top">,
     default: "left",
-  }
+  },
 });
 type SuggestionItem = {
   label: string;
@@ -163,7 +175,7 @@ const selectHandler = (item: Record<string, any>) => {
   value.value = item.value;
 };
 const handleClose = (tag: string) => {
-  if(props.disabled){
+  if (props.disabled) {
     return;
   }
   (value.value as string[]).splice(value.value.indexOf(tag), 1);
@@ -171,9 +183,11 @@ const handleClose = (tag: string) => {
 const unExists = reactive<string[]>([]);
 const pathExits = ref(true);
 const selectFilePath = async () => {
-  if(IS_PLAYGROUND_ENV){
-    value.value = props.multiple ? ["E:\\playground\\file1","E:\\playground\\file2"] : "E:\\playground\\file1";
-    return
+  if (IS_PLAYGROUND_ENV) {
+    value.value = props.multiple
+      ? ["E:\\\\playground\\\\file1", "E:\\\\playground\\\\file2"]
+      : "E:\\\\playground\\\\file1";
+    return;
   }
   const filePath = await fsUtils.selectFile(props.multiple);
   if (filePath) {
