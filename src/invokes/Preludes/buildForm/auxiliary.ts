@@ -43,6 +43,7 @@ export const auxiliary = <AuxiliaryType>{
             }
           }
         }
+        item.enable = undefined;
         return item;
       });
       let res = objectToString(items, 2, 0, true);
