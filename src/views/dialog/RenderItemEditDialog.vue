@@ -917,6 +917,8 @@
                       :value-on-clear="0"
                       placeholder="留空为0"
                       :step="1"
+                      :max="form.cForm.input.number.max"
+                      :min="form.cForm.input.number.min"
                     />
                   </el-form-item>
                 </template>
