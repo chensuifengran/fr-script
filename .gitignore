@@ -22,6 +22,8 @@ TODO.md
 pnpm-lock.yaml
 cargo.lock
 
+coverage/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
