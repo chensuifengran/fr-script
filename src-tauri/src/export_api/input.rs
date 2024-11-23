@@ -33,6 +33,7 @@ pub async fn input_text(text: &str) -> Result<String, String> {
                 ),
                 508,
             )),
+            NewConError::NoPermission => Err(generate_result(String::from("NoPermission"), 509)),
         },
     }
 }
@@ -68,6 +69,7 @@ pub async fn press_key(key: Key) -> Result<String, String> {
                 ),
                 508,
             )),
+            NewConError::NoPermission => Err(generate_result(String::from("NoPermission"), 509)),
         },
     }
 }
@@ -116,6 +118,7 @@ pub async fn press_keys(keys: Vec<Key>) -> Result<String, String> {
                 ),
                 508,
             )),
+            NewConError::NoPermission => Err(generate_result(String::from("NoPermission"), 509)),
         },
     }
 }
@@ -151,6 +154,7 @@ pub async fn key_down(key: Key) -> Result<String, String> {
                 ),
                 508,
             )),
+            NewConError::NoPermission => Err(generate_result(String::from("NoPermission"), 509)),
         },
     }
 }
@@ -186,6 +190,7 @@ pub async fn key_up(key: Key) -> Result<String, String> {
                 ),
                 508,
             )),
+            NewConError::NoPermission => Err(generate_result(String::from("NoPermission"), 509)),
         },
     }
 }
