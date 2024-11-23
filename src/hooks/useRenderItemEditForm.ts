@@ -87,6 +87,7 @@ export type RenderFormInstance = {
     };
   };
 };
+
 const ctxMenu = reactive({
   show: false,
   options: <MenuOptions>{},
@@ -99,7 +100,9 @@ const ctxMenu = reactive({
   isEdit: false,
   editTarget: <"item" | "group">"item",
 });
+
 const formData = ref<RenderGroup[]>([]);
+
 const form = reactive<RenderFormInstance>({
   componentType: FieldType.Check,
   groupLabel: "",
@@ -185,6 +188,7 @@ const form = reactive<RenderFormInstance>({
     },
   },
 });
+
 const validateGroupLabel = (
   _: any,
   value: string,
@@ -196,6 +200,7 @@ const validateGroupLabel = (
     callback(new Error("分组名称不能为空"));
   }
 };
+
 const validateLabel = (
   _: any,
   value: string,
@@ -227,6 +232,7 @@ const validateLabel = (
     }
   }
 };
+
 const validateId = (
   _: any,
   value: string | undefined,
@@ -291,100 +297,23 @@ const rules = <FormRules<RenderFormInstance>>{
   ],
 };
 
-const fieldTypeOptions = [
-  {
-    label: "复选框",
-    value: FieldType.Check,
-  },
-  {
-    label: "输入框",
-    value: FieldType.Input,
-  },
-  {
-    label: "下拉框",
-    value: FieldType.Select,
-  },
-  {
-    label: "颜色时间选择器",
-    value: FieldType.Picker,
-  },
-];
+const useAddOptionDialog = ref(false);
 
-const pickerTypeOptions = [
-  {
-    label: "颜色",
-    value: "color",
-  },
-  {
-    label: "日期",
-    value: "date",
-  },
-  {
-    label: "时间",
-    value: "time",
-  },
-];
-
-const colorOptions = [
-  {
-    label: "red",
-    value: "#ff4500",
-  },
-  {
-    label: "green",
-    value: "#32cd32",
-  },
-  {
-    label: "blue",
-    value: "#1e90ff",
-  },
-  {
-    label: "yellow",
-    value: "#ffd700",
-  },
-  {
-    label: "black",
-    value: "#000000",
-  },
-  {
-    label: "white",
-    value: "#ffffff",
-  },
-];
-
-const colorFormatOptions = [
-  {
-    label: "hex(a)",
-    value: "hex",
-  },
-  {
-    label: "rgb(a)",
-    value: "rgb",
-  },
-  {
-    label: "hsl(a)",
-    value: "hsl",
-  },
-  {
-    label: "hsv(a)",
-    value: "hsv",
-  },
-];
-
-const valueTypeOptions = [
-  {
-    label: "字符串",
-    value: "string",
-  },
-  {
-    label: "数字",
-    value: "number",
-  },
-  {
-    label: "布尔值",
-    value: "boolean",
-  },
-];
+const addOptionForm = reactive<{
+  opType: "常量" | "对象";
+  stringValue: string;
+  numberValue: number;
+  booleanValue: boolean;
+  group: string;
+  label: string;
+}>({
+  opType: "对象",
+  stringValue: "",
+  numberValue: 0,
+  booleanValue: false,
+  label: "",
+  group: "",
+});
 
 export const useRenderItemEditForm = () => {
   return {
@@ -392,10 +321,7 @@ export const useRenderItemEditForm = () => {
     formData,
     rules,
     ctxMenu,
-    fieldTypeOptions,
-    pickerTypeOptions,
-    colorOptions,
-    colorFormatOptions,
-    valueTypeOptions,
+    useAddOptionDialog,
+    addOptionForm
   };
 };

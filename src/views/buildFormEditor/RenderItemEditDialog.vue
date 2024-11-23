@@ -8,7 +8,7 @@
     v-model="visible"
   >
     <template #element>
-      <div class="edit-form" v-show="!useInnerDialog">
+      <div class="edit-form" v-show="!useAddOptionDialog">
         <el-form
           label-position="right"
           label-width="180px"
@@ -70,994 +70,22 @@
               </el-form-item>
             </template>
             <template v-else-if="form.componentType === FieldType.Picker">
-              <el-form-item label="子类型" prop="cForm.picker.pickerType">
-                <el-segmented
-                  :options="pickerTypeOptions"
-                  v-model="form.cForm.picker.pickerType"
-                  :disabled="isEdit"
-                />
-              </el-form-item>
-              <!-- color子组件 -->
-              <template v-if="form.cForm.picker.pickerType === 'color'">
-                <el-form-item
-                  label="透明度选择"
-                  prop="cForm.picker.colorFields.alpha"
-                >
-                  <el-switch v-model="form.cForm.picker.colorFields.alpha" />
-                </el-form-item>
-                <el-form-item
-                  label="预定义的颜色"
-                  prop="cForm.picker.colorFields.predefine"
-                >
-                  <el-select
-                    v-model="form.cForm.picker.colorFields.predefine"
-                    allow-create
-                    filterable
-                    multiple
-                    placeholder="选择或者输入添加预定义颜色"
-                    style="width: 240px"
-                  >
-                    <el-option
-                      v-for="item in colorOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    >
-                      <div class="flex items-center">
-                        <el-tag :color="item.value" style="margin-right: 8px" />
-                        <span :style="{ color: item.value }">{{
-                          item.label
-                        }}</span>
-                      </div>
-                    </el-option>
-                    <template #tag>
-                      <el-tag
-                        v-for="color in form.cForm.picker.colorFields.predefine"
-                        :key="color"
-                        :color="color"
-                      />
-                    </template>
-                  </el-select>
-                </el-form-item>
-                <el-form-item
-                  label="预定义的颜色"
-                  prop="cForm.picker.colorFields.predefine"
-                >
-                  <el-select
-                    v-model="form.cForm.picker.colorFields.colorFormat"
-                    placeholder="颜色格式"
-                  >
-                    <el-option
-                      v-for="item in colorFormatOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-                <el-form-item
-                  label="默认值"
-                  prop="cForm.picker.colorFields.value"
-                >
-                  <el-color-picker
-                    :show-alpha="form.cForm.picker.colorFields.alpha"
-                    v-model="form.cForm.picker.colorFields.value"
-                    :predefine="form.cForm.picker.colorFields.predefine"
-                    :color-format="form.cForm.picker.colorFields.colorFormat"
-                  />
-                </el-form-item>
-              </template>
-              <!-- date、time子组件 -->
-              <template v-else>
-                <el-form-item
-                  label="范围选择"
-                  prop="cForm.picker.dtFields.isRange"
-                >
-                  <el-switch v-model="form.cForm.picker.dtFields.isRange" />
-                </el-form-item>
-                <el-form-item
-                  label="值的格式(选填)"
-                  prop="cForm.picker.dtFields.valueFormat"
-                >
-                  <el-input v-model="form.cForm.picker.dtFields.valueFormat" />
-                </el-form-item>
-                <!-- 范围选择 -->
-                <template v-if="form.cForm.picker.dtFields.isRange">
-                  <el-form-item
-                    label="开始时间占位符"
-                    prop="cForm.picker.dtFields.startPlaceholder"
-                  >
-                    <el-input
-                      v-model="form.cForm.picker.dtFields.startPlaceholder"
-                    />
-                  </el-form-item>
-                  <el-form-item
-                    label="结束时间占位符"
-                    prop="cForm.picker.dtFields.endPlaceholder"
-                  >
-                    <el-input
-                      v-model="form.cForm.picker.dtFields.endPlaceholder"
-                    />
-                  </el-form-item>
-                  <el-form-item
-                    label="范围分隔符"
-                    prop="cForm.picker.dtFields.rangeSeparator"
-                  >
-                    <el-input
-                      v-model="form.cForm.picker.dtFields.rangeSeparator"
-                    />
-                  </el-form-item>
-                  <!-- time子组件 -->
-                  <template v-if="form.cForm.picker.pickerType === 'time'">
-                    <el-form-item
-                      label="禁用小时"
-                      prop="cForm.picker.dtFields.disabledHours"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledHours"
-                        placeholder="函数表达式 例如：()=>[1,2,3,5]"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="禁用分钟"
-                      prop="cForm.picker.dtFields.disabledMinutes"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledMinutes"
-                        placeholder="函数表达式,如：(hour)=>(hour===10?[25,45]:[])"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="禁用秒数"
-                      prop="cForm.picker.dtFields.disabledSeconds"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledSeconds"
-                        placeholder="函数表达式,如：(h,m)=>((h>10&&m<=30)?[1,15]:[])"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="组件值"
-                      prop="cForm.picker.dtFields.rangeValue"
-                    >
-                      <el-time-picker
-                        v-model="form.cForm.picker.dtFields.rangeValue"
-                        :default-value="[new Date(), new Date()]"
-                        :is-range="true"
-                        :start-placeholder="
-                          form.cForm.picker.dtFields.startPlaceholder
-                        "
-                        :end-placeholder="
-                          form.cForm.picker.dtFields.endPlaceholder
-                        "
-                        :range-separator="
-                          form.cForm.picker.dtFields.rangeSeparator
-                        "
-                        :value-format="form.cForm.picker.dtFields.valueFormat"
-                        :disabled-hours="disabledHours"
-                        :disabled-minutes="disabledMinutes"
-                        :disabled-seconds="disabledSeconds"
-                      />
-                    </el-form-item>
-                  </template>
-                  <!-- date子组件 -->
-                  <template v-else>
-                    <el-form-item
-                      label="组件值"
-                      prop="cForm.picker.dtFields.rangeValue"
-                    >
-                      <el-date-picker
-                        v-model="form.cForm.picker.dtFields.rangeValue"
-                        type="datetimerange"
-                        :default-value="[new Date(), new Date()]"
-                        :start-placeholder="
-                          form.cForm.picker.dtFields.startPlaceholder
-                        "
-                        :end-placeholder="
-                          form.cForm.picker.dtFields.endPlaceholder
-                        "
-                        :range-separator="
-                          form.cForm.picker.dtFields.rangeSeparator
-                        "
-                        :value-format="form.cForm.picker.dtFields.valueFormat"
-                      />
-                    </el-form-item>
-                  </template>
-                </template>
-                <!-- 非范围选择 -->
-                <template v-else>
-                  <el-form-item
-                    label="提示占位符"
-                    prop="cForm.picker.dtFields.placeholder"
-                  >
-                    <el-input
-                      v-model="form.cForm.picker.dtFields.placeholder"
-                    />
-                  </el-form-item>
-                  <!-- time子组件 -->
-                  <template v-if="form.cForm.picker.pickerType === 'time'">
-                    <el-form-item
-                      label="禁用小时"
-                      prop="cForm.picker.dtFields.disabledHours"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledHours"
-                        placeholder="函数表达式 例如：()=>[1,2,3,5]"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="禁用分钟"
-                      prop="cForm.picker.dtFields.disabledMinutes"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledMinutes"
-                        placeholder="函数表达式,如：(hour)=>(hour===10?[25,45]:[])"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="禁用秒数"
-                      prop="cForm.picker.dtFields.disabledSeconds"
-                    >
-                      <el-input
-                        v-model="form.cForm.picker.dtFields.disabledSeconds"
-                        placeholder="函数表达式,如：(h,m)=>((h>10&&m<=30)?[1,15]:[])"
-                      />
-                    </el-form-item>
-                    <el-form-item
-                      label="组件值"
-                      prop="cForm.picker.dtFields.value"
-                    >
-                      <el-time-picker
-                        v-model="form.cForm.picker.dtFields.value"
-                        :default-value="new Date()"
-                        :is-range="false"
-                        :value-format="form.cForm.picker.dtFields.valueFormat"
-                        :placeholder="form.cForm.picker.dtFields.placeholder"
-                        :disabled-hours="disabledHours"
-                        :disabled-minutes="disabledMinutes"
-                        :disabled-seconds="disabledSeconds"
-                      />
-                    </el-form-item>
-                  </template>
-                  <!-- date子组件 -->
-                  <template v-else>
-                    <el-form-item
-                      label="组件值"
-                      prop="cForm.picker.dtFields.value"
-                    >
-                      <el-date-picker
-                        v-model="form.cForm.picker.dtFields.value"
-                        type="datetime"
-                        :default-value="new Date()"
-                        :value-format="form.cForm.picker.dtFields.valueFormat"
-                        :placeholder="form.cForm.picker.dtFields.placeholder"
-                      />
-                    </el-form-item>
-                  </template>
-                </template>
-              </template>
+              <picker-form-items :is-edit="isEdit" />
             </template>
             <template v-else-if="form.componentType === FieldType.Select">
-              <el-form-item label="选项显示模式" prop="cForm.select.segmented">
-                <el-segmented
-                  :options="[
-                    {
-                      label: '常规下拉',
-                      value: false,
-                    },
-                    {
-                      label: '平铺分段',
-                      value: true,
-                    },
-                  ]"
-                  v-model="form.cForm.select.segmented"
-                  :disabled="isEdit"
-                />
-              </el-form-item>
-              <el-form-item label="组件值类型" prop="cForm.select.valueType">
-                <el-segmented
-                  :options="valueTypeOptions"
-                  v-model="form.cForm.select.valueType"
-                />
-              </el-form-item>
-
-              <template v-if="form.cForm.select.segmented">
-                <el-form-item label="选项" prop="cForm.select.validOptions">
-                  <el-select
-                    v-model="form.cForm.select.validOptions"
-                    multiple
-                    :value-key="
-                      typeof form.cForm.select.validOptions[0] === 'object'
-                        ? 'value'
-                        : undefined
-                    "
-                    filterable
-                    placeholder="请选择生效的选项"
-                    style="width: 240px"
-                  >
-                    <el-option
-                      v-for="(item, index) in baseOptions"
-                      :key="index"
-                      :label="typeof item === 'object' ? item.label : item + ''"
-                      :value="typeof item === 'object' ? item.value : item"
-                    >
-                      <div flex flex-row items-center>
-                        <el-tag size="small">{{ typeof item }}</el-tag>
-                        <el-text
-                          >{{ typeof item === "object" ? item.label : item
-                          }}{{
-                            typeof item === "object" ? `(${item.value})` : ""
-                          }}</el-text
-                        >
-                      </div>
-                    </el-option>
-                  </el-select>
-                  <el-button link type="primary" @click="openAddOptionDialog"
-                    >添加备选选项</el-button
-                  >
-                </el-form-item>
-                <el-form-item label="组件值" prop="cForm.select.segmentedValue">
-                  <el-segmented
-                    v-if="form.cForm.select.validOptions.length"
-                    :options="form.cForm.select.validOptions"
-                    v-model="form.cForm.select.segmentedValue"
-                  />
-                  <el-text v-else>暂无选项，请添加选项以调整组件值</el-text>
-                </el-form-item>
-              </template>
-              <template v-else>
-                <el-form-item label="多选" prop="cForm.select.multiple">
-                  <el-switch v-model="form.cForm.select.multiple" />
-                </el-form-item>
-                <el-form-item
-                  label="选项分组"
-                  prop="cForm.select.enabledGroupOption"
-                >
-                  <el-switch
-                    v-model="form.cForm.select.enabledGroupOption"
-                    @change="handleEnabledGroupOption"
-                  />
-                </el-form-item>
-                <el-form-item label="选项" prop="cForm.select.validOptions">
-                  <el-select
-                    v-model="form.cForm.select.validOptions"
-                    multiple
-                    filterable
-                    placeholder="请选择生效的选项"
-                    style="width: 400px"
-                    @change="handleSelectChange"
-                  >
-                    <template #label="item">
-                      <span
-                        >{{
-                          typeof item === "object"
-                            ? typeof item.value === "object"
-                              ? item.label + ":" + item.value?.value
-                              : item.label + ":" + item.value
-                            : item
-                        }}
-                      </span>
-                    </template>
-                    <template v-if="form.cForm.select.enabledGroupOption">
-                      <el-option-group
-                        v-for="(group, groupIndex) in groupOptions"
-                        :key="groupIndex"
-                        :label="group.groupLabel"
-                      >
-                        <el-option
-                          v-for="(item, index) in group.options"
-                          :key="index"
-                          :label="
-                            typeof item === 'object' ? item.label : item + ''
-                          "
-                          :value="typeof item === 'object' ? item.value : item"
-                        >
-                          <div flex flex-row items-center>
-                            <el-tag size="small">{{ typeof item }}</el-tag>
-                            <el-text
-                              >{{ typeof item === "object" ? item.label : item
-                              }}{{
-                                typeof item === "object"
-                                  ? `(${item.value})`
-                                  : ""
-                              }}</el-text
-                            >
-                          </div>
-                        </el-option>
-                      </el-option-group>
-                    </template>
-                    <template v-else>
-                      <el-option
-                        v-for="(item, index) in baseOptions"
-                        :key="index"
-                        :label="
-                          typeof item === 'object' ? item.label : item + ''
-                        "
-                        :value="typeof item === 'object' ? item.value : item"
-                      >
-                        <div flex flex-row items-center>
-                          <el-tag size="small">{{ typeof item }}</el-tag>
-                          <el-text
-                            >{{ typeof item === "object" ? item.label : item
-                            }}{{
-                              typeof item === "object" ? `(${item.value})` : ""
-                            }}</el-text
-                          >
-                        </div>
-                      </el-option>
-                    </template>
-                  </el-select>
-                  <el-button link type="primary" @click="openAddOptionDialog"
-                    >添加备选选项</el-button
-                  >
-                </el-form-item>
-                <el-form-item label="组件值" prop="cForm.select.msValue">
-                  <template v-if="form.cForm.select.multiple">
-                    <el-select
-                      v-model="form.cForm.select.mValue"
-                      multiple
-                      filterable
-                      placeholder="请选择组件的默认值"
-                      style="width: 240px"
-                    >
-                      <template #label="item">
-                        <span
-                          >{{
-                            typeof item === "object"
-                              ? typeof item.value === "object"
-                                ? item.label + ":" + item.value?.value
-                                : item.label + ":" + item.value
-                              : item
-                          }}
-                        </span>
-                      </template>
-                      <template v-if="form.cForm.select.enabledGroupOption">
-                        <el-option-group
-                          v-for="g in validGroupOptions"
-                          :label="g.groupLabel"
-                          :key="g.groupLabel"
-                        >
-                          <el-option
-                            v-for="(item, index) in g.options"
-                            :key="index"
-                            :label="
-                              typeof item === 'object' ? item.label : item + ''
-                            "
-                            :value="
-                              typeof item === 'object' ? item.value : item
-                            "
-                          >
-                            <div flex flex-row items-center>
-                              <el-tag size="small">{{ typeof item }}</el-tag>
-                              <el-text
-                                >{{
-                                  typeof item === "object" ? item.label : item
-                                }}{{
-                                  typeof item === "object"
-                                    ? `(${item.value})`
-                                    : ""
-                                }}</el-text
-                              >
-                            </div>
-                          </el-option>
-                        </el-option-group>
-                      </template>
-                      <template v-else>
-                        <el-option
-                          v-for="(item, index) in validOptions"
-                          :key="index"
-                          :label="
-                            typeof item === 'object' ? item.label : item + ''
-                          "
-                          :value="typeof item === 'object' ? item.value : item"
-                        >
-                          <div flex flex-row items-center>
-                            <el-tag size="small">{{ typeof item }}</el-tag>
-                            <el-text
-                              >{{ typeof item === "object" ? item.label : item
-                              }}{{
-                                typeof item === "object"
-                                  ? `(${item.value})`
-                                  : ""
-                              }}</el-text
-                            >
-                          </div>
-                        </el-option>
-                      </template>
-                    </el-select>
-                  </template>
-                  <template v-else>
-                    <el-select
-                      v-model="form.cForm.select.sValue"
-                      filterable
-                      placeholder="请选择组件默认选择的值"
-                      style="width: 240px"
-                    >
-                      <template v-if="form.cForm.select.enabledGroupOption">
-                        <el-option-group
-                          v-for="g in validGroupOptions"
-                          :label="g.groupLabel"
-                          :key="g.groupLabel"
-                        >
-                          <el-option
-                            v-for="(item, index) in g.options"
-                            :key="index"
-                            :label="
-                              typeof item === 'object' ? item.label : item + ''
-                            "
-                            :value="
-                              typeof item === 'object' ? item.value : item
-                            "
-                          >
-                            <div flex flex-row items-center>
-                              <el-tag size="small">{{ typeof item }}</el-tag>
-                              <el-text
-                                >{{
-                                  typeof item === "object" ? item.label : item
-                                }}{{
-                                  typeof item === "object"
-                                    ? `(${item.value})`
-                                    : ""
-                                }}</el-text
-                              >
-                            </div>
-                          </el-option>
-                        </el-option-group>
-                      </template>
-                      <template v-else>
-                        <el-option
-                          v-for="(item, index) in validOptions"
-                          :key="index"
-                          :label="
-                            typeof item === 'object' ? item.label : item + ''
-                          "
-                          :value="typeof item === 'object' ? item.value : item"
-                        >
-                          <div flex flex-row items-center>
-                            <el-tag size="small">{{ typeof item }}</el-tag>
-                            <el-text
-                              >{{ typeof item === "object" ? item.label : item
-                              }}{{
-                                typeof item === "object"
-                                  ? `(${item.value})`
-                                  : ""
-                              }}</el-text
-                            >
-                          </div>
-                        </el-option>
-                      </template>
-                    </el-select>
-                  </template>
-                </el-form-item>
-              </template>
+              <select-form-items
+                :is-edit="isEdit"
+                @on-open-add-option="openAddOptionDialog"
+              />
             </template>
             <template v-else-if="form.componentType === FieldType.Input">
-              <el-form-item label="子类型" prop="cForm.input.inputType">
-                <el-segmented
-                  :options="[
-                    {
-                      label: '文本',
-                      value: 'text',
-                    },
-                    {
-                      label: '数字',
-                      value: 'number',
-                    },
-                    {
-                      label: '数字范围',
-                      value: 'range',
-                    },
-                    {
-                      label: '文件夹选择',
-                      value: 'dir',
-                    },
-                    {
-                      label: '文件选择',
-                      value: 'file',
-                    },
-                  ]"
-                  v-model="form.cForm.input.inputType"
-                />
-              </el-form-item>
-              <template
-                v-if="
-                  form.cForm.input.inputType === 'text' ||
-                  !form.cForm.input.inputType
-                "
-              >
-                <el-form-item label="输入模式" prop="cForm.input.text.mod">
-                  <el-segmented
-                    :options="[
-                      {
-                        label: '文本',
-                        value: 'text',
-                      },
-                      {
-                        label: '密码',
-                        value: 'password',
-                      },
-                      {
-                        label: '文本域',
-                        value: 'textarea',
-                      },
-                    ]"
-                    v-model="form.cForm.input.text.mod"
-                    @change="handleTextModChange"
-                  />
-                </el-form-item>
-                <el-form-item
-                  label="占位提示词"
-                  prop="cForm.input.text.placeholder"
-                >
-                  <el-input
-                    v-model="form.cForm.input.text.placeholder"
-                    placeholder="占位提示词(选填)"
-                    clearable
-                  />
-                </el-form-item>
-                <template v-if="form.cForm.input.text.mod !== 'textarea'">
-                  <el-form-item
-                    label="显示清除按钮"
-                    prop="cForm.input.text.clearable"
-                  >
-                    <el-switch v-model="form.cForm.input.text.clearable" />
-                  </el-form-item>
-                </template>
-                <el-form-item
-                  label="最大字符数(-1为不限制)"
-                  prop="cForm.input.text.maxlength"
-                >
-                  <el-input-number
-                    v-model="form.cForm.input.text.maxlength"
-                    controls-position="right"
-                    :min="-1"
-                    :value-on-clear="-1"
-                  />
-                </el-form-item>
-                <template
-                  v-if="
-                    form.cForm.input.text.mod !== 'password' &&
-                    form.cForm.input.text.maxlength > 0
-                  "
-                >
-                  <el-form-item
-                    label="显示输入计数器"
-                    prop="cForm.input.text.showWordLimit"
-                  >
-                    <el-switch v-model="form.cForm.input.text.showWordLimit" />
-                  </el-form-item>
-                </template>
-                <template v-if="form.cForm.input.text.mod === 'textarea'">
-                  <el-form-item
-                    label="高度自适应"
-                    prop="cForm.input.text.autosizeConf"
-                  >
-                    <el-segmented
-                      :options="[
-                        {
-                          label: '关闭',
-                          value: 'close',
-                        },
-                        {
-                          label: '开启',
-                          value: 'open',
-                        },
-                        {
-                          label: '自定义',
-                          value: 'custom',
-                        },
-                      ]"
-                      v-model="form.cForm.input.text.autosizeConf"
-                    />
-                  </el-form-item>
-                  <template
-                    v-if="form.cForm.input.text.autosizeConf === 'custom'"
-                  >
-                    <el-form-item
-                      label="显示行数[最小,最大]"
-                      prop="cForm.input.text.autosize"
-                    >
-                      <range-input
-                        v-model="form.cForm.input.text.autosize"
-                        :limit="[1, 1000]"
-                      />
-                    </el-form-item>
-                  </template>
-                </template>
-                <template v-else-if="form.cForm.input.text.mod === 'password'">
-                  <el-form-item
-                    label="密码可展示"
-                    prop="cForm.input.text.showPassword"
-                  >
-                    <el-switch v-model="form.cForm.input.text.showPassword" />
-                  </el-form-item>
-                </template>
-                <el-form-item label="组件值" prop="cForm.input.text.value">
-                  <el-input
-                    v-model="form.cForm.input.text.value"
-                    :placeholder="form.cForm.input.text.placeholder"
-                    :type="form.cForm.input.text.mod || 'text'"
-                    :clearable="form.cForm.input.text.clearable"
-                    :show-password="form.cForm.input.text.showPassword"
-                    :maxlength="
-                      form.cForm.input.text.maxlength === -1
-                        ? undefined
-                        : form.cForm.input.text.maxlength
-                    "
-                    :show-word-limit="form.cForm.input.text.showWordLimit"
-                    :autosize="
-                      form.cForm.input.text.autosizeConf === 'open' ||
-                      form.cForm.input.text.autosizeConf === 'custom'
-                        ? {
-                            minRows: form.cForm.input.text.autosize[0],
-                            maxRows: form.cForm.input.text.autosize[1],
-                          }
-                        : false
-                    "
-                  />
-                </el-form-item>
-              </template>
-              <template v-else-if="form.cForm.input.inputType === 'number'">
-                <el-form-item label="最小值" prop="cForm.input.number.min">
-                  <el-input-number
-                    v-model="form.cForm.input.number.min"
-                    :value-on-clear="NaN"
-                    placeholder="最小值，留空不限制最小值"
-                    :controls="false"
-                    w-full
-                  />
-                </el-form-item>
-                <el-form-item label="最大值" prop="cForm.input.number.max">
-                  <el-input-number
-                    v-model="form.cForm.input.number.max"
-                    :value-on-clear="NaN"
-                    placeholder="最大值，留空不限制最大值"
-                    :controls="false"
-                    w-full
-                  />
-                </el-form-item>
-                <el-form-item label="步长" prop="cForm.input.number.step">
-                  <el-input-number
-                    v-model="form.cForm.input.number.step"
-                    :value-on-clear="1"
-                    placeholder="请输入步长"
-                    :controls="false"
-                    w-full
-                  />
-                </el-form-item>
-                <el-form-item
-                  label="严格步进"
-                  prop="cForm.input.number.stepStrictly"
-                  ><el-tooltip
-                    effect="dark"
-                    content="只能是步进的倍数"
-                    placement="right"
-                  >
-                    <el-switch v-model="form.cForm.input.number.stepStrictly" />
-                  </el-tooltip>
-                </el-form-item>
-                <el-form-item label="精度" prop="cForm.input.number.precision">
-                  <el-input-number
-                    v-model="form.cForm.input.number.precision"
-                    :value-on-clear="undefined"
-                    placeholder="不小于step的小数位数，留空不限制精度"
-                    :step="1"
-                    :controls="false"
-                    w-full
-                  />
-                </el-form-item>
-                <el-form-item
-                  label="显示控制器"
-                  prop="cForm.input.number.controls"
-                >
-                  <el-switch v-model="form.cForm.input.number.controls" />
-                </el-form-item>
-                <template v-if="form.cForm.input.number.controls">
-                  <el-form-item
-                    label="控制器位置"
-                    prop="cForm.input.number.controlsPosition"
-                  >
-                    <el-segmented
-                      :options="[
-                        {
-                          label: '默认',
-                          value: '',
-                        },
-                        {
-                          label: '右边',
-                          value: 'right',
-                        },
-                      ]"
-                      v-model="form.cForm.input.number.controlsPosition"
-                      @change="handleTextModChange"
-                    />
-                  </el-form-item>
-                </template>
-                <el-form-item
-                  label="输入框被清空时的值"
-                  prop="cForm.input.number.valueOnClearMod"
-                >
-                  <el-segmented
-                    :options="[
-                      {
-                        label: '默认',
-                        value: 'default',
-                      },
-                      {
-                        label: '最小值',
-                        value: 'min',
-                        disabled:
-                          !form.cForm.input.number.min ||
-                          Number.isNaN(form.cForm.input.number.min),
-                      },
-                      {
-                        label: '最大值',
-                        value: 'max',
-                        disabled:
-                          !form.cForm.input.number.max ||
-                          Number.isNaN(form.cForm.input.number.max),
-                      },
-                      {
-                        label: '自定义',
-                        value: 'custom',
-                      },
-                    ]"
-                    v-model="form.cForm.input.number.valueOnClearMod"
-                  />
-                </el-form-item>
-                <template
-                  v-if="form.cForm.input.number.valueOnClearMod === 'custom'"
-                >
-                  <el-form-item
-                    label="输入框被清空时的值"
-                    prop="cForm.input.number.valueOnClearNum"
-                  >
-                    <el-input-number
-                      v-model="form.cForm.input.number.valueOnClearNum"
-                      :value-on-clear="0"
-                      placeholder="留空为0"
-                      :step="1"
-                      :max="form.cForm.input.number.max"
-                      :min="form.cForm.input.number.min"
-                    />
-                  </el-form-item>
-                </template>
-                <el-form-item label="组件值" prop="cForm.input.number.value">
-                  <el-input-number
-                    v-model="form.cForm.input.number.value"
-                    :min="form.cForm.input.number.min"
-                    :max="form.cForm.input.number.max"
-                    :step="form.cForm.input.number.step"
-                    :step-strictly="form.cForm.input.number.stepStrictly"
-                    :precision="form.cForm.input.number.precision"
-                    :controls="form.cForm.input.number.controls"
-                    :controls-position="
-                      form.cForm.input.number.controlsPosition
-                    "
-                    :value-on-clear="
-                      form.cForm.input.number.valueOnClearMod === 'custom'
-                        ? form.cForm.input.number.valueOnClearNum
-                        : form.cForm.input.number.valueOnClearMod === 'default'
-                        ? undefined
-                        : form.cForm.input.number.valueOnClearMod
-                    "
-                  />
-                </el-form-item>
-              </template>
-              <template v-else-if="form.cForm.input.inputType === 'range'">
-                <el-form-item
-                  label="限制取值范围"
-                  prop="cForm.input.range.limitRange"
-                >
-                  <el-switch
-                    v-model="form.cForm.input.range.limitRange"
-                    @change="handleLimitRangeChange"
-                  />
-                </el-form-item>
-                <template v-if="form.cForm.input.range.limitRange">
-                  <el-form-item label="取值范围" prop="cForm.input.range.limit">
-                    <range-input
-                      v-model="form.cForm.input.range.limit"
-                      @change="handleLimitRangeChange"
-                    />
-                  </el-form-item>
-                </template>
-                <el-form-item
-                  label="显示控制器"
-                  prop="cForm.input.range.controls"
-                >
-                  <el-switch v-model="form.cForm.input.range.controls" />
-                </el-form-item>
-                <el-form-item label="取值范围" prop="cForm.input.range.value">
-                  <range-input
-                    v-model="form.cForm.input.range.value"
-                    :limit="
-                      form.cForm.input.range.limitRange
-                        ? form.cForm.input.range.limit
-                        : undefined
-                    "
-                    :controls="form.cForm.input.range.controls"
-                  />
-                </el-form-item>
-              </template>
-              <template v-else-if="form.cForm.input.inputType === 'dir'">
-                <el-form-item label="组件值" prop="cForm.input.dir.value">
-                  <dir-input v-model="form.cForm.input.dir.value" w-full />
-                </el-form-item>
-              </template>
-              <template v-else-if="form.cForm.input.inputType === 'file'">
-                <el-form-item
-                  label="多文件选择"
-                  prop="cForm.input.file.multiple"
-                >
-                  <el-switch v-model="form.cForm.input.file.multiple" />
-                </el-form-item>
-                <el-form-item label="组件值" prop="cForm.input.file.value">
-                  <template v-if="form.cForm.input.file.multiple">
-                    <file-input
-                      v-model="form.cForm.input.file.mValue"
-                      multiple
-                      w-full
-                    />
-                  </template>
-                  <template v-else>
-                    <file-input v-model="form.cForm.input.file.sValue" w-full />
-                  </template>
-                </el-form-item>
-              </template>
+              <input-form-items :is-edit="isEdit" />
             </template>
           </template>
         </el-form>
       </div>
-      <div v-show="useInnerDialog">
-        <el-form
-          :model="innerDialogForm"
-          label-position="left"
-          label-width="140px"
-        >
-          <el-form-item label="选项类型" prop="opType">
-            <el-segmented
-              :options="['常量', '对象']"
-              v-model="innerDialogForm.opType"
-            />
-          </el-form-item>
-          <template v-if="innerDialogForm.opType === '对象'">
-            <el-form-item label="标签" prop="label">
-              <el-input v-model="innerDialogForm.label" />
-            </el-form-item>
-          </template>
-          <template v-if="form.cForm.select.enabledGroupOption">
-            <el-form-item label="分组标签" prop="group">
-              <el-autocomplete
-                v-model="innerDialogForm.group"
-                :fetch-suggestions="queryGroupLabels"
-                placeholder="请输入分组标签"
-                clearable
-              />
-            </el-form-item>
-          </template>
-          <el-form-item
-            v-if="form.cForm.select.valueType === 'string'"
-            :label="innerDialogForm.opType + '值'"
-            prop="stringValue"
-          >
-            <el-input v-model="innerDialogForm.stringValue" />
-          </el-form-item>
-          <el-form-item
-            v-if="form.cForm.select.valueType === 'number'"
-            :label="innerDialogForm.opType + '值'"
-            prop="numberValue"
-          >
-            <el-input-number v-model="innerDialogForm.numberValue" />
-          </el-form-item>
-          <el-form-item
-            v-if="form.cForm.select.valueType === 'boolean'"
-            :label="innerDialogForm.opType + '值'"
-            prop="booleanValue"
-          >
-            <el-switch v-model="innerDialogForm.booleanValue" />
-          </el-form-item>
-        </el-form>
+      <div v-show="useAddOptionDialog">
+        <options-add-form />
       </div>
     </template>
   </general-dialog>
@@ -1067,23 +95,13 @@ import { PropType } from "vue";
 import { FieldType } from "../../utils/enums.ag";
 import { nanoid } from "nanoid";
 import { type RenderFormInstance } from "../../hooks/useRenderItemEditForm";
-import type {
-  dayjs,
-  FormRules,
-  GetDisabledHours,
-  GetDisabledMinutes,
-  GetDisabledSeconds,
-} from "element-plus";
+import type { FormRules } from "element-plus";
 import { templateRef } from "@vueuse/core";
-const {
-  form,
-  fieldTypeOptions,
-  valueTypeOptions,
-  pickerTypeOptions,
-  colorOptions,
-  colorFormatOptions,
-} = useRenderItemEditForm();
+
+const { form, useAddOptionDialog, addOptionForm } = useRenderItemEditForm();
+
 const formEl = templateRef("formEl");
+
 const props = defineProps({
   editItem: {
     type: Object as PropType<{
@@ -1112,6 +130,25 @@ const props = defineProps({
   },
 });
 
+const fieldTypeOptions = [
+  {
+    label: "复选框",
+    value: FieldType.Check,
+  },
+  {
+    label: "输入框",
+    value: FieldType.Input,
+  },
+  {
+    label: "下拉框",
+    value: FieldType.Select,
+  },
+  {
+    label: "颜色时间选择器",
+    value: FieldType.Picker,
+  },
+];
+
 let oldInfo = {
   groupLabel: "",
   label: "",
@@ -1133,32 +170,14 @@ const visible = defineModel({
   type: Boolean,
 });
 
-const useInnerDialog = ref(false);
-
 const title = computed(() => {
-  if (useInnerDialog.value) {
+  if (useAddOptionDialog.value) {
     return `添加分段选择选项`;
   } else {
     return `${props.isEdit ? "编辑" : "添加"}${
       props.editTarget === "group" ? "分组" : "组件"
     }`;
   }
-});
-
-const innerDialogForm = reactive<{
-  opType: "常量" | "对象";
-  stringValue: string;
-  numberValue: number;
-  booleanValue: boolean;
-  group: string;
-  label: string;
-}>({
-  opType: "对象",
-  stringValue: "",
-  numberValue: 0,
-  booleanValue: false,
-  label: "",
-  group: "",
 });
 
 const randomId = () => {
@@ -1289,13 +308,13 @@ watch(visible, (val) => {
         form.cForm.select.baseOptions = item.options;
         form.cForm.select.segmentedValue = item.value;
         if (typeof item.options[0] === "object") {
-          innerDialogForm.opType = "对象";
+          addOptionForm.opType = "对象";
           form.cForm.select.valueType = typeof item.options[0].value as
             | "string"
             | "number"
             | "boolean";
         } else {
-          innerDialogForm.opType = "常量";
+          addOptionForm.opType = "常量";
           form.cForm.select.valueType = typeof item.options[0] as
             | "string"
             | "number"
@@ -1334,13 +353,13 @@ watch(visible, (val) => {
           targetOption = item.options[0];
         }
         if (typeof targetOption === "object") {
-          innerDialogForm.opType = "对象";
+          addOptionForm.opType = "对象";
           form.cForm.select.valueType = typeof targetOption.value as
             | "string"
             | "number"
             | "boolean";
         } else {
-          innerDialogForm.opType = "常量";
+          addOptionForm.opType = "常量";
           if (targetOption === undefined) {
             form.cForm.select.valueType = "string";
           } else {
@@ -1434,50 +453,6 @@ watch(visible, (val) => {
     }
   }
 });
-const disabledHours_ = computed(() => {
-  const res = transformFnStr<GetDisabledHours>(
-    form.cForm.picker.dtFields.disabledHours
-  );
-  return res;
-});
-
-const disabledHours: GetDisabledHours = (
-  role: string,
-  comparingDate?: dayjs.Dayjs
-) => {
-  return disabledHours_.value?.(role, comparingDate) || [];
-};
-
-const disabledMinutes_ = computed(() => {
-  const res = transformFnStr<GetDisabledMinutes>(
-    form.cForm.picker.dtFields.disabledMinutes
-  );
-  return res;
-});
-
-const disabledMinutes: GetDisabledMinutes = (
-  hour: number,
-  role: string,
-  comparingDate?: dayjs.Dayjs
-) => {
-  return disabledMinutes_.value?.(hour, role, comparingDate) || [];
-};
-
-const disabledSeconds_ = computed(() => {
-  const res = transformFnStr<GetDisabledSeconds>(
-    form.cForm.picker.dtFields.disabledSeconds
-  );
-  return res;
-});
-
-const disabledSeconds: GetDisabledSeconds = (
-  hour: number,
-  minute: number,
-  role: string,
-  comparingDate?: dayjs.Dayjs
-) => {
-  return disabledSeconds_.value?.(hour, minute, role, comparingDate) || [];
-};
 
 const confirm = () => {
   let item: RenderCodeItem;
@@ -1710,11 +685,11 @@ const dialogOptions = reactive({
 });
 
 const openAddOptionDialog = () => {
-  useInnerDialog.value = true;
+  useAddOptionDialog.value = true;
   dialogOptions.confirmText = "添加";
   dialogOptions.cancelText = "返回";
   dialogOptions.cancel = () => {
-    useInnerDialog.value = false;
+    useAddOptionDialog.value = false;
     dialogOptions.confirmText = "确定";
     dialogOptions.cancelText = "取消";
     dialogOptions.cancel = () => {
@@ -1725,11 +700,11 @@ const openAddOptionDialog = () => {
   dialogOptions.ok = () => {
     let item;
     if (form.cForm.select.valueType === "string") {
-      item = innerDialogForm.stringValue;
+      item = addOptionForm.stringValue;
     } else if (form.cForm.select.valueType === "number") {
-      item = innerDialogForm.numberValue;
+      item = addOptionForm.numberValue;
     } else {
-      item = innerDialogForm.booleanValue;
+      item = addOptionForm.booleanValue;
     }
     const enabledGroupOption = form.cForm.select.enabledGroupOption;
     let existValue;
@@ -1757,20 +732,20 @@ const openAddOptionDialog = () => {
       console.error("请确保该选项的值唯一", existValue);
       return;
     }
-    if (enabledGroupOption && !innerDialogForm.group.trim()) {
+    if (enabledGroupOption && !addOptionForm.group.trim()) {
       ElMessage.error("分组名称不能为空");
       return;
     }
-    if (innerDialogForm.opType === "常量") {
+    if (addOptionForm.opType === "常量") {
       if (enabledGroupOption) {
         const targetGroup = form.cForm.select.groupOptions.find((group) => {
-          return group.groupLabel === innerDialogForm.group;
+          return group.groupLabel === addOptionForm.group;
         });
         if (targetGroup) {
           targetGroup.options.unshift(item as any);
         } else {
           form.cForm.select.groupOptions.unshift({
-            groupLabel: innerDialogForm.group,
+            groupLabel: addOptionForm.group,
             options: [item as any],
           });
         }
@@ -1780,28 +755,27 @@ const openAddOptionDialog = () => {
     } else {
       if (enabledGroupOption) {
         const targetGroup = form.cForm.select.groupOptions.find((group) => {
-          return group.groupLabel === innerDialogForm.group;
+          return group.groupLabel === addOptionForm.group;
         });
         if (targetGroup) {
           targetGroup.options.unshift({
-            label: innerDialogForm.label,
+            label: addOptionForm.label,
             value: item,
           } as any);
         } else {
           form.cForm.select.groupOptions.unshift({
-            groupLabel: innerDialogForm.group,
+            groupLabel: addOptionForm.group,
             options: [
               {
-                label: innerDialogForm.label,
+                label: addOptionForm.label,
                 value: item,
               },
             ],
           });
         }
       } else {
-        debugger;
         form.cForm.select.baseOptions.unshift({
-          label: innerDialogForm.label,
+          label: addOptionForm.label,
           value: item,
         });
       }
@@ -1830,130 +804,6 @@ const openAddOptionDialog = () => {
     dialogOptions.cancel();
   };
 };
-
-const baseOptions = computed(() => {
-  if (!form.cForm.select.validOptions.length) {
-    return form.cForm.select.baseOptions.filter((o) => {
-      if (typeof o === "object") {
-        return typeof o.value === form.cForm.select.valueType;
-      } else {
-        return typeof o === form.cForm.select.valueType;
-      }
-    });
-  } else {
-    const firstElement = form.cForm.select.baseOptions.find((s) => {
-      if (typeof s === "object") {
-        return s.value === form.cForm.select.validOptions[0];
-      } else {
-        return s === form.cForm.select.validOptions[0];
-      }
-    });
-    return form.cForm.select.baseOptions.filter((o) => {
-      if (typeof o === "object") {
-        if (typeof firstElement !== "object") {
-          return false;
-        }
-        return typeof o.value === form.cForm.select.valueType;
-      } else {
-        if (typeof firstElement === "object") {
-          return false;
-        }
-        return typeof o === form.cForm.select.valueType;
-      }
-    });
-  }
-});
-
-const groupOptions = computed(() => {
-  if (!form.cForm.select.validOptions.length) {
-    return form.cForm.select.groupOptions.map((group) => {
-      return {
-        groupLabel: group.groupLabel,
-        options: group.options.filter((o) => {
-          if (typeof o === "object") {
-            return typeof o.value === form.cForm.select.valueType;
-          } else {
-            return typeof o === form.cForm.select.valueType;
-          }
-        }),
-      };
-    });
-  } else {
-    let targetOption:
-      | {
-          label: string;
-          value: string | number | boolean;
-        }
-      | string
-      | number
-      | boolean;
-    form.cForm.select.groupOptions.find((group) => {
-      const res = group.options.find((o) => {
-        if (typeof o === "object") {
-          if (o.value === form.cForm.select.validOptions[0]) {
-            targetOption = o;
-            return true;
-          }
-        } else {
-          if (o === form.cForm.select.validOptions[0]) {
-            targetOption = o;
-            return true;
-          }
-        }
-      });
-      return res;
-    });
-    return form.cForm.select.groupOptions.map((group) => {
-      return {
-        groupLabel: group.groupLabel,
-        options: group.options.filter((o) => {
-          if (typeof o === "object") {
-            if (typeof targetOption !== "object") {
-              return false;
-            }
-            return typeof o.value === form.cForm.select.valueType;
-          } else {
-            if (typeof targetOption === "object") {
-              return false;
-            }
-            return typeof o === form.cForm.select.valueType;
-          }
-        }),
-      };
-    });
-  }
-});
-
-const validOptions = computed(() => {
-  return form.cForm.select.baseOptions.filter((o) => {
-    if (typeof o === "object") {
-      return form.cForm.select.validOptions.includes(o.value);
-    } else {
-      return form.cForm.select.validOptions.includes(o);
-    }
-  });
-});
-
-const validGroupOptions = computed(() => {
-  return form.cForm.select.groupOptions
-    .map((g) => {
-      const opts = g.options.filter((o) => {
-        if (typeof o === "object") {
-          return form.cForm.select.validOptions.includes(o.value);
-        } else {
-          return form.cForm.select.validOptions.includes(o);
-        }
-      });
-      if (!opts.length) {
-        return null;
-      }
-      return {
-        groupLabel: g.groupLabel,
-        options: opts,
-      };
-    })
-    .filter((g) => g !== null);
-});
 
 watch(
   () => form.cForm.select.valueType,
@@ -2014,66 +864,6 @@ watch(
     }
   }
 );
-
-const labelFilter = (queryString: string) => {
-  return (label: string) => {
-    return {
-      value: label
-        .toLocaleLowerCase()
-        .includes(queryString.toLocaleLowerCase()),
-    };
-  };
-};
-const queryGroupLabels = (queryString: string, cb: (arg: any) => void) => {
-  const results = queryString
-    ? form.cForm.select.groupOptions
-        .map((g) => g.groupLabel)
-        .filter(labelFilter(queryString))
-    : form.cForm.select.groupOptions.map((g) => ({ value: g.groupLabel }));
-  cb(results);
-};
-
-const handleSelectChange = () => {
-  const selectConf = form.cForm.select;
-  if (selectConf.multiple) {
-    if (selectConf.mValue.length) {
-      selectConf.mValue = selectConf.mValue.filter((v) => {
-        return selectConf.validOptions.includes(v);
-      });
-    }
-  } else {
-    if (selectConf.sValue) {
-      if (!selectConf.validOptions.includes(selectConf.sValue)) {
-        selectConf.sValue = undefined;
-      }
-    }
-  }
-};
-
-const handleEnabledGroupOption = () => {
-  form.cForm.select.validOptions = [];
-  form.cForm.select.sValue = undefined;
-  form.cForm.select.mValue = [];
-};
-
-const handleTextModChange = () => {
-  if (form.cForm.input.text.mod === "text" || !form.cForm.input.text.mod) {
-    form.cForm.input.text.showPassword = false;
-  }
-};
-
-const handleLimitRangeChange = () => {
-  if (form.cForm.input.range.limitRange) {
-    const [min, max] = form.cForm.input.range.limit;
-    const [vMin, vMax] = form.cForm.input.range.value;
-    if (vMin < min) {
-      form.cForm.input.range.value = [min, vMax];
-    }
-    if (vMax > max) {
-      form.cForm.input.range.value = [vMin, max];
-    }
-  }
-};
 </script>
 
 <style lang="scss" scoped>
