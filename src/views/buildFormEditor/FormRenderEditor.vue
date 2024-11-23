@@ -640,6 +640,7 @@ const confirmHandle = (
   validate: boolean
 ) => {
   if (!validate) {
+    ElMessage.error("表单项校验失败，请检查表单项");
     return;
   }
   if (!formData.value) {
