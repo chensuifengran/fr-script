@@ -49,7 +49,7 @@ export const objectToString = (
   const entries = Object.entries(target)
     .sort(([key1], [key2]) => {
       // 属性显示优先级排序
-      const priorityKeys = ["id", "type", "targetGroupLabel", "label", "inputType", "pickerType", "mod"];
+      const priorityKeys = ["id", "type", "targetGroupLabel", "label", "inputType", "pickerType", "mod", "segmented"];
       const priority: Record<string, number> = {}
       priorityKeys.reverse().forEach((key, index) => {
         priority[key] = -index - 1;
