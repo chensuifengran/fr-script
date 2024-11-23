@@ -39,6 +39,15 @@
           <puzzle-plus-icon />
         </template>
       </context-menu-item>
+      <context-menu-item
+        label="复制取值表达式"
+        :clickClose="true"
+        @click="copyGetItemValCode"
+      >
+        <template #icon>
+          <code-icon />
+        </template>
+      </context-menu-item>
     </context-menu>
     <VueDraggable
       ref="el"
@@ -494,6 +503,117 @@ const itemAddHandle = () => {
   dialogVisible.value = true;
 };
 
+const copyGetItemValCode = () => {
+  const { groupLabel, label, listName, item } = ctxMenu.target;
+  let code = "";
+  if (!item) {
+    //分组
+    code = `getGroupValues("${groupLabel}")`;
+  } else {
+    const id = item.id;
+    let t = "";
+    let failValue = "undefined";
+    let fieldType = '';
+    if (listName.includes("check")) {
+      fieldType = "FieldType.Check";
+      t = "boolean";
+      failValue = "false";
+    } else if (listName.includes("input")) {
+      fieldType = "FieldType.Input";
+      const i = item as BuildFormItem.Input;
+      if (i.inputType === "number") {
+        t = "number";
+        failValue = "0";
+      } else if (i.inputType === "dir") {
+        t = "string";
+        failValue = '""';
+      } else if (i.inputType === "file") {
+        if (i.multiple) {
+          t = "string[]";
+          failValue = "[]";
+        } else {
+          t = "string";
+          failValue = '""';
+        }
+      } else if (i.inputType === "range") {
+        t = "[number, number]";
+        failValue = "[0, 0]";
+      } else {
+        t = "string";
+        failValue = '""';
+      }
+    } else if (listName.includes("select")) {
+      fieldType = "FieldType.Select";
+      const s = item as BuildFormItem.Select;
+      let v = s.value;
+      if (!v || (Array.isArray(v) && v.length === 0)) {
+        let firstOpt;
+        if ("group" in s) {
+          if (s.group) {
+            firstOpt = s.options[0]?.options[0];
+          } else {
+            firstOpt = s.options[0];
+          }
+        } else {
+          firstOpt = s.options[0];
+        }
+        if (firstOpt) {
+          v = typeof firstOpt === "object" ? firstOpt.value : firstOpt;
+        }
+      } else {
+        v = Array.isArray(v) ? v[0] : v;
+      }
+      t = typeof v;
+      if ("multiple" in s && s.multiple) {
+        t = `${t}[]`;
+        failValue = "[]";
+      } else {
+        if (t === "string") {
+          failValue = '""';
+        } else if (t === "number") {
+          failValue = "0";
+        } else {
+          failValue = "false";
+        }
+      }
+    } else if(listName.includes("picker")) {
+      fieldType = "FieldType.Picker";
+      const p = item as BuildFormItem.Picker;
+      if (p.pickerType === "color") {
+        t = "string";
+        failValue = '""';
+      } else if (p.pickerType === "time" || p.pickerType === "date") {
+        let baseType = '';
+        if('valueFormat' in p && p.valueFormat){
+          baseType = 'string';
+        }else{
+          baseType = 'Date';
+        }
+        let baseValue = '';
+        if(baseType === 'string'){
+          baseValue = '""';
+        }else{
+          baseValue = 'new Date()';
+        }
+        if(p.isRange){
+          t = `[${baseType}, ${baseType}]`;
+          failValue = `[${baseValue}, ${baseValue}]`;
+        }else{
+          t = baseType;
+          failValue = baseValue;
+        }
+      }
+    }
+    if (id) {
+      code = `getFieldValueById<${t}>("${id}", ${failValue})`;
+    } else {
+      code = `getFieldValue<${t}>(${fieldType}, "${label}", ${failValue}, "${groupLabel}")`;
+    }
+  }
+  copyText(code);
+  ElMessage.success(`${item === null ? '分组' : '组件'}取值代码已复制`);
+};
+
 const optTransformer = {
   transformKey: (item: OIType, idx: number | string) => {
     if (typeof item === "object") {
@@ -609,7 +729,7 @@ const openContextMenu = (
     zIndex: 9999,
     theme: isDark.value ? "default dark" : "default",
   };
-  
+
   let item = null;
   const targetItem = formData.value?.find((f) => f.groupLabel === groupLabel);
   if (targetItem) {
