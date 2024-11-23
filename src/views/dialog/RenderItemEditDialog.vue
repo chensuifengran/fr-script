@@ -1491,79 +1491,76 @@ const confirm = () => {
       } as unknown as RenderCodeItem;
       break;
     case FieldType.Input:
+      const fInput = form.cForm.input;
       let inputFields = {};
-      if (
-        form.cForm.input.inputType === "text" ||
-        !form.cForm.input.inputType
-      ) {
+      if (fInput.inputType === "text" || !fInput.inputType) {
+        const text = fInput.text;
         inputFields = {
           inputType: undefined,
-          mod:
-            form.cForm.input.text.mod === "text"
+          mod: text.mod === "text" ? undefined : text.mod,
+          placeholder: text.placeholder === "" ? undefined : text.placeholder,
+          clearable:
+            text.mod === "textarea"
               ? undefined
-              : form.cForm.input.text.mod,
-          placeholder:
-            form.cForm.input.text.placeholder === ""
-              ? undefined
-              : form.cForm.input.text.placeholder,
-          clearable: form.cForm.input.text.clearable ? true : undefined,
-          maxlength:
-            form.cForm.input.text.maxlength === -1
-              ? undefined
-              : form.cForm.input.text.maxlength,
-          showWordLimit: form.cForm.input.text.showWordLimit ? true : undefined,
+              : text.clearable
+              ? true
+              : undefined,
+          maxlength: text.maxlength === -1 ? undefined : text.maxlength,
+          showWordLimit: text.showWordLimit ? true : undefined,
           autosize:
-            form.cForm.input.text.autosizeConf === "custom"
-              ? form.cForm.input.text.autosize
-              : form.cForm.input.text.autosizeConf === "close"
+            text.mod !== "textarea"
+              ? undefined
+              : text.autosizeConf === "custom"
+              ? text.autosize
+              : text.autosizeConf === "close"
               ? undefined
               : true,
-          showPassword: form.cForm.input.text.showPassword ? true : undefined,
-          value: form.cForm.input.text.value,
+          showPassword:
+            text.mod !== "password"
+              ? undefined
+              : text.showPassword
+              ? true
+              : undefined,
+          value: text.value,
         };
-      } else if (form.cForm.input.inputType === "number") {
+      } else if (fInput.inputType === "number") {
+        const n = fInput.number;
         inputFields = {
           inputType: "number",
-          min: Number.isNaN(form.cForm.input.number.min)
-            ? undefined
-            : form.cForm.input.number.min,
-          max: Number.isNaN(form.cForm.input.number.max)
-            ? undefined
-            : form.cForm.input.number.max,
-          step: form.cForm.input.number.step,
-          stepStrictly: form.cForm.input.number.stepStrictly ? true : undefined,
-          precision: form.cForm.input.number.precision,
-          controls: form.cForm.input.number.controls ? true : undefined,
-          controlsPosition: form.cForm.input.number.controlsPosition,
+          min: Number.isNaN(n.min) ? undefined : n.min,
+          max: Number.isNaN(n.max) ? undefined : n.max,
+          step: n.step === 1 ? undefined : n.step,
+          stepStrictly: n.stepStrictly ? true : undefined,
+          precision: n.precision,
+          controls: n.controls ? true : undefined,
+          controlsPosition:
+            n.controlsPosition === "" ? undefined : n.controlsPosition,
           valueOnClear:
-            form.cForm.input.number.valueOnClearMod === "custom"
-              ? form.cForm.input.number.valueOnClearNum
-              : form.cForm.input.number.valueOnClearMod === "default"
+            n.valueOnClearMod === "custom"
+              ? n.valueOnClearNum
+              : n.valueOnClearMod === "default"
               ? undefined
-              : form.cForm.input.number.valueOnClearMod,
-          value: form.cForm.input.number.value,
+              : n.valueOnClearMod,
+          value: n.value,
         };
-      } else if (form.cForm.input.inputType === "range") {
+      } else if (fInput.inputType === "range") {
+        const range = fInput.range;
         inputFields = {
           inputType: "range",
-          limit: form.cForm.input.range.limitRange
-            ? form.cForm.input.range.limit
-            : undefined,
-          controls: form.cForm.input.range.controls ? true : undefined,
-          value: form.cForm.input.range.value,
+          limit: range.limitRange ? range.limit : undefined,
+          controls: range.controls ? true : undefined,
+          value: range.value,
         };
-      } else if (form.cForm.input.inputType === "dir") {
+      } else if (fInput.inputType === "dir") {
         inputFields = {
           inputType: "dir",
-          value: form.cForm.input.dir.value,
+          value: fInput.dir.value,
         };
-      } else if (form.cForm.input.inputType === "file") {
+      } else if (fInput.inputType === "file") {
         inputFields = {
           inputType: "file",
-          multiple: form.cForm.input.file.multiple,
-          value: form.cForm.input.file.multiple
-            ? form.cForm.input.file.mValue
-            : form.cForm.input.file.sValue,
+          multiple: fInput.file.multiple,
+          value: fInput.file.multiple ? fInput.file.mValue : fInput.file.sValue,
         };
       }
       item = {
@@ -1574,13 +1571,14 @@ const confirm = () => {
       } as unknown as RenderCodeItem;
       break;
     case FieldType.Select:
+      const fSelect = form.cForm.select;
       let selectFields = {};
-      if (form.cForm.select.segmented) {
+      if (fSelect.segmented) {
         selectFields = {
           segmented: true,
-          value: form.cForm.select.segmentedValue,
-          options: form.cForm.select.baseOptions.filter((o) => {
-            return form.cForm.select.validOptions.find((v) => {
+          value: fSelect.segmentedValue,
+          options: fSelect.baseOptions.filter((o) => {
+            return fSelect.validOptions.find((v) => {
               if (typeof o === "object") {
                 return v === o.value;
               } else {
@@ -1592,19 +1590,17 @@ const confirm = () => {
       } else {
         selectFields = {
           segmented: false,
-          multiple: form.cForm.select.multiple,
-          value: form.cForm.select.multiple
-            ? form.cForm.select.mValue
-            : form.cForm.select.sValue,
-          group: form.cForm.select.enabledGroupOption,
-          options: form.cForm.select.enabledGroupOption
-            ? form.cForm.select.groupOptions
+          multiple: fSelect.multiple,
+          value: fSelect.multiple ? fSelect.mValue : fSelect.sValue,
+          group: fSelect.enabledGroupOption,
+          options: fSelect.enabledGroupOption
+            ? fSelect.groupOptions
                 .map((g) => {
                   const options = g.options.filter((o) => {
                     if (typeof o === "object") {
-                      return form.cForm.select.validOptions.includes(o.value);
+                      return fSelect.validOptions.includes(o.value);
                     }
-                    return form.cForm.select.validOptions.includes(o);
+                    return fSelect.validOptions.includes(o);
                   });
                   if (options.length) {
                     return {
@@ -1615,11 +1611,11 @@ const confirm = () => {
                   return null;
                 })
                 .filter((g) => g !== null)
-            : form.cForm.select.baseOptions.filter((o) => {
+            : fSelect.baseOptions.filter((o) => {
                 if (typeof o === "object") {
-                  return form.cForm.select.validOptions.includes(o.value);
+                  return fSelect.validOptions.includes(o.value);
                 }
-                return form.cForm.select.validOptions.includes(o);
+                return fSelect.validOptions.includes(o);
               }),
         };
       }
@@ -1631,72 +1627,44 @@ const confirm = () => {
       } as unknown as RenderCodeItem;
       break;
     case FieldType.Picker:
+      const fPicker = form.cForm.picker;
       let pickerFields = {};
-      if (form.cForm.picker.pickerType === "color") {
+      if (fPicker.pickerType === "color") {
+        const color = fPicker.colorFields;
         pickerFields = {
-          value: form.cForm.picker.colorFields.value,
-          predefine: form.cForm.picker.colorFields.predefine,
-          colorFormat: form.cForm.picker.colorFields.colorFormat,
-          enableAlpha: form.cForm.picker.colorFields.alpha,
+          value: color.value,
+          predefine: color.predefine,
+          colorFormat: color.colorFormat,
+          enableAlpha: color.alpha,
           pickerType: "color",
         };
-      } else if (form.cForm.picker.pickerType === "time") {
-        const isRange = form.cForm.picker.dtFields.isRange;
+      } else if (fPicker.pickerType === "time") {
+        const dt = fPicker.dtFields;
+        const isRange = dt.isRange;
         pickerFields = {
-          value: isRange
-            ? form.cForm.picker.dtFields.rangeValue
-            : form.cForm.picker.dtFields.value,
+          value: isRange ? dt.rangeValue : dt.value,
           isRange,
-          startPlaceholder: isRange
-            ? form.cForm.picker.dtFields.startPlaceholder
-            : undefined,
-          endPlaceholder: isRange
-            ? form.cForm.picker.dtFields.endPlaceholder
-            : undefined,
-          rangeSeparator: isRange
-            ? form.cForm.picker.dtFields.rangeSeparator
-            : undefined,
-          valueFormat:
-            form.cForm.picker.dtFields.valueFormat === ""
-              ? undefined
-              : form.cForm.picker.dtFields.valueFormat,
-          placeholder: !isRange
-            ? form.cForm.picker.dtFields.placeholder
-            : undefined,
-          disabledHours: transformFnStr(
-            form.cForm.picker.dtFields.disabledHours
-          ),
-          disabledMinutes: transformFnStr(
-            form.cForm.picker.dtFields.disabledMinutes
-          ),
-          disabledSeconds: transformFnStr(
-            form.cForm.picker.dtFields.disabledSeconds
-          ),
+          startPlaceholder: isRange ? dt.startPlaceholder : undefined,
+          endPlaceholder: isRange ? dt.endPlaceholder : undefined,
+          rangeSeparator: isRange ? dt.rangeSeparator : undefined,
+          valueFormat: dt.valueFormat === "" ? undefined : dt.valueFormat,
+          placeholder: !isRange ? dt.placeholder : undefined,
+          disabledHours: transformFnStr(dt.disabledHours),
+          disabledMinutes: transformFnStr(dt.disabledMinutes),
+          disabledSeconds: transformFnStr(dt.disabledSeconds),
           pickerType: "time",
         };
       } else {
-        const isRange = form.cForm.picker.dtFields.isRange;
+        const dt = fPicker.dtFields;
+        const isRange = dt.isRange;
         pickerFields = {
-          value: isRange
-            ? form.cForm.picker.dtFields.rangeValue
-            : form.cForm.picker.dtFields.value,
+          value: isRange ? dt.rangeValue : dt.value,
           isRange,
-          startPlaceholder: isRange
-            ? form.cForm.picker.dtFields.startPlaceholder
-            : undefined,
-          endPlaceholder: isRange
-            ? form.cForm.picker.dtFields.endPlaceholder
-            : undefined,
-          rangeSeparator: isRange
-            ? form.cForm.picker.dtFields.rangeSeparator
-            : undefined,
-          valueFormat:
-            form.cForm.picker.dtFields.valueFormat === ""
-              ? undefined
-              : form.cForm.picker.dtFields.valueFormat,
-          placeholder: !isRange
-            ? form.cForm.picker.dtFields.placeholder
-            : undefined,
+          startPlaceholder: isRange ? dt.startPlaceholder : undefined,
+          endPlaceholder: isRange ? dt.endPlaceholder : undefined,
+          rangeSeparator: isRange ? dt.rangeSeparator : undefined,
+          valueFormat: dt.valueFormat === "" ? undefined : dt.valueFormat,
+          placeholder: !isRange ? dt.placeholder : undefined,
           pickerType: "date",
         };
       }
