@@ -64,6 +64,10 @@ const props = defineProps({
     type: String,
     default: "70%",
   },
+  minWidth:{
+    type: String,
+    default: "700px"
+  },
   top: {
     type: String,
     default: "10vh",
@@ -81,11 +85,21 @@ const closeHandle = (e: MouseEvent) => {
     props.cancel(e);
   }
 };
+
+const width = computed(()=>{
+  if(IS_PLAYGROUND_ENV){
+    return '45vw'
+  }
+  return props.width
+})
+
+const minWidth = computed(()=>props.minWidth)
 </script>
 
 <style lang="scss" scoped></style>
 <style lang="scss">
 .general-dialog {
+  min-width: v-bind(minWidth);
   .el-dialog__body {
     padding-top: 0;
   }
