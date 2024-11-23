@@ -70,6 +70,36 @@ export class RFormUtil {
     return resValue;
   };
   /**
+   * 获取指定组的所有表单项的值
+   * @param groupLabel 分组的label
+   * @returns 表单项的值
+   */
+  getGroupValues = <T = Record<string, any>>(groupLabel: string): T => {
+    const group = this.form.find((i) => {
+      return i.groupLabel === groupLabel;
+    });
+    const result: Record<string, any> = {};
+    if (group && group.enable) {
+      Object.keys(group).forEach((gk) => {
+        if (gk.includes("List")) {
+          const items = (group as any)[gk] as RenderItem[];
+          for (let index = 0; index < items.length; index++) {
+            const element = items[index];
+            if (element) {
+              if ("value" in element) {
+                result[element.label] = element.value;
+              }
+              if ("checked" in element) {
+                result[element.label] = element.checked;
+              }
+            }
+          }
+        }
+      });
+    }
+    return result as T;
+  };
+  /**
    * 为渲染列表生成id，一般用于渲染前
    * @param form 待生成id的渲染列表
    * @returns 生成id后的渲染列表

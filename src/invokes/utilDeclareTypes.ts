@@ -33,6 +33,16 @@ declare class RFormUtil {
     id: string,
     failValue: T
   ): T;
+  /**
+   * 获取指定组的所有表单项的值
+   * 
+   * @template T 默认为 Record<string, any>
+   * 
+   * @param groupLabel 分组的label
+   * 
+   * @returns 表单项的值
+   */
+  public getGroupValues<T = Record<string, any>>(groupLabel: string): T;
 }
 ${constantSlot}
 declare const isStop: boolean;
