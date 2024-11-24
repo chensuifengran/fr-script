@@ -1,4 +1,5 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "fr-script",
   "version": "2.1.1",
   "identifier": "site.csfr",
@@ -10,7 +11,11 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "copyright": "MIT License",
+    "category": "DeveloperTool",
+    "shortDescription": "一个脚本编写和运行的工具",
+    "longDescription": "一个使用TypeScript编写和运行自动化脚本的工具",
+    "publisher": "尘随风染",
     "icon": [
       "icons/icon32x32.png",
       "icons/icon64x64.png",
