@@ -79,6 +79,8 @@
               typeof item === "object"
                 ? typeof item.value === "object"
                   ? item.label + ":" + item.value?.value
+                  : item.label === item.value
+                  ? item.label
                   : item.label + ":" + item.value
                 : item
             }}
@@ -146,6 +148,8 @@
                 typeof item === "object"
                   ? typeof item.value === "object"
                     ? item.label + ":" + item.value?.value
+                    : item.label === item.value
+                    ? item.label
                     : item.label + ":" + item.value
                   : item
               }}
