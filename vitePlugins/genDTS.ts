@@ -1,4 +1,4 @@
-import typescript from "typescript";
+import { ModuleKind, ScriptTarget, transpileModule } from "typescript";
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
@@ -24,14 +24,12 @@ export const genEnumDTS = () => {
     const output = resolve(__dirname, "../src/utils/enums.ag.ts");
     const enumsTsPath = resolve(__dirname, "../src/invokes/enums.ts");
     const enumsTsContent = readFileSync(enumsTsPath, "utf-8");
-    const enumsJs = typescript
-      .transpileModule(enumsTsContent, {
-        compilerOptions: {
-          module: typescript.ModuleKind.ESNext,
-          target: typescript.ScriptTarget.ESNext,
-        },
-      })
-      .outputText.replace(/export /g, "");
+    const enumsJs = transpileModule(enumsTsContent, {
+      compilerOptions: {
+        module: ModuleKind.ESNext,
+        target: ScriptTarget.ESNext,
+      },
+    }).outputText.replace(/export /g, "");
     try {
       const genEnumCode =
         "export " + new Function("", enumsJs + ";return ENUM_CODE")().trim();

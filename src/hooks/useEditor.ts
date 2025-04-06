@@ -1,33 +1,32 @@
-import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
-import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
-import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import * as monaco from "monaco-editor";
+import {
+  languages as monaco_languages,
+  Range,
+  editor as monaco_editor,
+} from "monaco-editor";
 export const EDITOR_DOM_ID = "codeEditBox";
-monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+monaco_languages.typescript.javascriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: true,
   noSyntaxValidation: false,
 });
-monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-  target: monaco.languages.typescript.ScriptTarget.ESNext,
-  module: monaco.languages.typescript.ModuleKind.ESNext,
-  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+monaco_languages.typescript.typescriptDefaults.setCompilerOptions({
+  target: monaco_languages.typescript.ScriptTarget.ESNext,
+  module: monaco_languages.typescript.ModuleKind.ESNext,
+  moduleResolution: monaco_languages.typescript.ModuleResolutionKind.NodeJs,
   allowNonTsExtensions: true,
   allowSyntheticDefaultImports: true,
   esModuleInterop: true,
   noEmit: true,
   typeRoots: ["node_modules/@types"],
 });
-monaco.languages.register({
+monaco_languages.register({
   id: "typescript",
   extensions: [".ts"],
   aliases: ["TypeScript", "ts", "typescript"],
   mimetypes: ["text/typescript"],
 });
-monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-monaco.languages.registerCompletionItemProvider("typescript", {
+monaco_languages.typescript.javascriptDefaults.setEagerModelSync(true);
+monaco_languages.typescript.typescriptDefaults.setEagerModelSync(true);
+monaco_languages.registerCompletionItemProvider("typescript", {
   provideCompletionItems: async function (model, position) {
     const { createDependencyProposals } = AutoTipUtils;
     const word = model.getWordUntilPosition(position);
@@ -44,17 +43,17 @@ monaco.languages.registerCompletionItemProvider("typescript", {
 });
 let hasSetExtra = false;
 const openOperationRecordDrawer = ref(false);
-const languages = monaco.languages.getLanguages();
+const languages = monaco_languages.getLanguages();
 const supportLanguageIds = ["javascript", "typescript", "json"];
 //禁用语言
 languages.forEach((language) => {
   if (supportLanguageIds.indexOf(language.id) === -1) {
-    monaco.languages.setLanguageConfiguration(language.id, {});
+    monaco_languages.setLanguageConfiguration(language.id, {});
   }
 });
 const editors: {
   domId: string;
-  instance: monaco.editor.IStandaloneCodeEditor;
+  instance: monaco_editor.IStandaloneCodeEditor;
   value: Ref<string>;
 }[] = [];
 /**
@@ -95,12 +94,7 @@ export const insertText = (
   // 在光标位置插入文本
   editor.executeEdits("", [
     {
-      range: new monaco.Range(
-        startLineNumber,
-        startColumn,
-        endLineNumber,
-        endColumn
-      ),
+      range: new Range(startLineNumber, startColumn, endLineNumber, endColumn),
       text, // 插入的文本
       forceMoveMarkers: true,
     },
@@ -136,34 +130,39 @@ export const getEditorValue = (domId: string) => {
 export const useEditor = () => {
   !self.MonacoEnvironment &&
     (self.MonacoEnvironment = {
-      getWorker(_: string, label: string) {
+      async getWorker(_: string, label: string) {
         if (label === "json") {
-          return new jsonWorker();
+          const jsonWorker = await import("monaco-editor/esm/vs/language/json/json.worker?worker")
+          return new jsonWorker.default();
         }
         if (label === "css" || label === "scss" || label === "less") {
-          return new cssWorker();
+          const cssWorker = await import("monaco-editor/esm/vs/language/css/css.worker?worker")
+          return new cssWorker.default();
         }
         if (label === "html" || label === "handlebars" || label === "razor") {
-          return new htmlWorker();
+          const htmlWorker = await import("monaco-editor/esm/vs/language/html/html.worker?worker")
+          return new htmlWorker.default();
         }
         if (["typescript", "javascript"].includes(label)) {
-          return new tsWorker();
+          const tsWorker = await import("monaco-editor/esm/vs/language/typescript/ts.worker?worker")
+          return new tsWorker.default();
         }
-        return new EditorWorker();
+        const editorWorker = await import("monaco-editor/esm/vs/editor/editor.worker?worker")
+        return new editorWorker.default();
       },
     });
   let currentDomId = "";
-  let editor: monaco.editor.IStandaloneCodeEditor | undefined = undefined;
+  let editor: monaco_editor.IStandaloneCodeEditor | undefined = undefined;
   /**
    * 当前编辑器的值，非同一个编辑器实例之间不共享值，请通过findEditor方法获取编辑器实例再获取值
    */
   const editorValue = ref("");
   let onEditorMounted: ((
-    editor: monaco.editor.IStandaloneCodeEditor
+    editor: monaco_editor.IStandaloneCodeEditor
   ) => void)[] = [];
   const registerEditorEvent = (
     name: string,
-    cb: (editor: monaco.editor.IStandaloneCodeEditor) => void
+    cb: (editor: monaco_editor.IStandaloneCodeEditor) => void
   ) => {
     if (name === "mounted") {
       onEditorMounted.push(cb);
@@ -199,7 +198,7 @@ export const useEditor = () => {
     showMiniMap = true
   ) => {
     if (!hasSetExtra) {
-      monaco.languages.typescript.typescriptDefaults.setExtraLibs([
+      monaco_languages.typescript.typescriptDefaults.setExtraLibs([
         {
           content: editorTsDeclaration(),
         },
@@ -245,7 +244,7 @@ export const useEditor = () => {
       return;
     }
     currentDomId = domId;
-    editor = monaco.editor.create(targetDom, {
+    editor = monaco_editor.create(targetDom, {
       value: editorValue.value, // 编辑器初始显示文字
       language: "typescript", // 语言支持自行查阅demo
       automaticLayout: true, // 自适应布局
