@@ -11,6 +11,7 @@
 </template>
 <script lang="ts" setup>
 import Loading from "../../components/Loading.vue";
+import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
 const AsyncFormRenderEditor = defineAsyncComponent({
   loader: () => import("./FormRenderEditor.vue"),
   loadingComponent: Loading,
