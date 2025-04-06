@@ -24,12 +24,18 @@ const maximizeSize = () => {
   appWidth.value = "100%";
   appHeight.value = "100%";
 };
+
+const appResizeElementClass = {
+  bar: ["top", "bottom", "left", "right"],
+  point: ["lt", "rt", "lb", "rb"],
+};
 export const useAppLayout = () => {
   return {
     isMainWindow,
     menuKey,
     appWidth,
     appHeight,
+    appResizeElementClass,
     unmaximizeSize,
     maximizeSize,
   };

@@ -8,9 +8,10 @@ import {
   register,
   unregister,
 } from "@tauri-apps/plugin-global-shortcut";
+import { PhysicalPosition, PhysicalSize } from "@tauri-apps/api/dpi";
 
 const { registerAllInvokeApi } = useCore();
-const { isMainWindow, menuKey } = useAppLayout();
+const { isMainWindow, menuKey, appResizeElementClass } = useAppLayout();
 const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const shortcutsStore = useGlobalShortcutsStore();
@@ -90,6 +91,11 @@ const init = async (listenResize = true) => {
   handleSelect(app.value.state.aside.currentItem);
   libUtil.checkDepUpdate();
 };
+const startInfo = {
+  size: [0, 0],
+  pos: [0, 0],
+};
+const showResizeDiv = ref(false);
 onMounted(async () => {
   initInjectConstantType();
   if (IS_PLAYGROUND_ENV) {
@@ -102,6 +108,11 @@ onMounted(async () => {
     const appWindow = getCurrentWebviewWindow();
     shortcutsStore.init();
     if (appWindow.label === "main") {
+      showResizeDiv.value = true;
+      const size = await appWindow.innerSize();
+      const pos = await appWindow.innerPosition();
+      startInfo.size = [size.width, size.height];
+      startInfo.pos = [pos.x, pos.y];
       const showMainWindowShortcuts =
         shortcutsStore.getShortcuts("强制显示主窗口");
       if (await isRegistered(showMainWindowShortcuts)) {
@@ -157,10 +168,123 @@ onBeforeMount(() => {
   libUtil.batchUpdateDep();
 });
 const { appWidth, appHeight } = useAppLayout();
+const allDragClass = ["app-resize-bar", "app-resize-point"];
+const showGhost = ref(false);
+const handleDragstart = (event: DragEvent) => {
+  if (
+    event.target &&
+    allDragClass.includes((event.target as HTMLElement).className.split(" ")[0])
+  ) {
+    showGhost.value = true;
+    const curWindow = getCurrentWebviewWindow();
+    if (curWindow) {
+      curWindow.innerPosition().then((pos) => {
+        startInfo.pos = [pos.x, pos.y];
+      });
+      curWindow.innerSize().then((size) => {
+        startInfo.size = [size.width, size.height];
+      });
+    }
+  }
+};
+const handleDragend = (event: DragEvent) => {
+  if (
+    event.target &&
+    allDragClass.includes((event.target as HTMLElement).className.split(" ")[0])
+  ) {
+    const curWindow = getCurrentWebviewWindow();
+    if (curWindow) {
+      const direction = (event.target as HTMLElement).className.split(" ")[1];
+      const newInfo = {
+        size: [...startInfo.size],
+        pos: [...startInfo.pos],
+      };
+      const { offsetY, offsetX } = event;
+      if (direction === "top") {
+        const newHeight = startInfo.size[1] - offsetY;
+        const newY = startInfo.pos[1] + offsetY;
+        if (newHeight !== startInfo.size[1]) {
+          newInfo.size = [startInfo.size[0], newHeight];
+          newInfo.pos = [startInfo.pos[0], newY];
+        }
+      } else if (direction === "bottom") {
+        const newHeight = startInfo.size[1] + offsetY;
+        if (newHeight !== startInfo.size[1]) {
+          newInfo.size = [startInfo.size[0], newHeight];
+        }
+      } else if (direction === "left") {
+        const newWidth = startInfo.size[0] - offsetX;
+        const newX = startInfo.pos[0] + offsetX;
+        if (newWidth !== startInfo.size[0]) {
+          newInfo.size = [newWidth, startInfo.size[1]];
+          newInfo.pos = [newX, startInfo.pos[1]];
+        }
+      } else if (direction === "right") {
+        const newWidth = startInfo.size[0] + offsetX;
+        if (newWidth !== startInfo.size[0]) {
+          newInfo.size = [newWidth, startInfo.size[1]];
+        }
+      } else if (direction === "lt") {
+        const newHeight = startInfo.size[1] - offsetY;
+        const newY = startInfo.pos[1] + offsetY;
+        const newWidth = startInfo.size[0] - offsetX;
+        const newX = startInfo.pos[0] + offsetX;
+        newInfo.size = [newWidth, newHeight];
+        newInfo.pos = [newX, newY];
+      } else if (direction === "rt") {
+        const newHeight = startInfo.size[1] - offsetY;
+        const newWidth = startInfo.size[0] + offsetX;
+        const newY = startInfo.pos[1] + offsetY;
+        newInfo.size = [newWidth, newHeight];
+        newInfo.pos = [startInfo.pos[0], newY];
+      } else if (direction === "lb") {
+        const newWidth = startInfo.size[0] - offsetX;
+        const newX = startInfo.pos[0] + offsetX;
+        const newHeight = startInfo.size[1] + offsetY;
+        newInfo.size = [newWidth, newHeight];
+        newInfo.pos = [newX, startInfo.pos[1]];
+      } else if (direction === "rb") {
+        const newWidth = startInfo.size[0] + offsetX;
+        const newHeight = startInfo.size[1] + offsetY;
+        newInfo.size = [newWidth, newHeight];
+      }
+
+      if (startInfo.size.join(",") !== newInfo.size.join(",")) {
+        curWindow.setSize(new PhysicalSize(newInfo.size[0], newInfo.size[1]));
+        startInfo.size = newInfo.size;
+      }
+      if (startInfo.pos.join(",") !== newInfo.pos.join(",")) {
+        curWindow.setPosition(
+          new PhysicalPosition(newInfo.pos[0], newInfo.pos[1])
+        );
+        startInfo.pos = newInfo.pos;
+      }
+
+      curWindow.setFocus();
+    }
+    showGhost.value = false;
+  }
+};
 </script>
 <template>
-  <div class="app">
-    <tours/>
+  <div class="app" @dragstart="handleDragstart" @dragend="handleDragend">
+    <template v-if="showResizeDiv">
+      <div
+        class="app-resize-bar"
+        draggable="true"
+        v-for="bar in appResizeElementClass.bar"
+        :class="bar"
+        :key="bar"
+      ></div>
+      <div
+        class="app-resize-point"
+        draggable="true"
+        v-for="point in appResizeElementClass.point"
+        :class="point"
+        :key="point"
+      ></div>
+    </template>
+    <tours />
     <FillApiParamDialog />
     <code-snippet-save-dialog />
     <template v-if="isMainWindow">
@@ -300,6 +424,91 @@ const { appWidth, appHeight } = useAppLayout();
   box-sizing: border-box;
   transition: all 1s;
   transform: v-bind(appTransform);
+  .app-resize-bar {
+    position: absolute;
+    background-color: var(--el-color-primary);
+    opacity: 0;
+    z-index: 99998;
+    border-radius: v-bind(borderRadius);
+    transition: all 0.5s;
+    // 上边
+    &:nth-child(1) {
+      top: -1px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      cursor: n-resize;
+    }
+    // 下边
+    &:nth-child(2) {
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      cursor: s-resize;
+    }
+    // 左边
+    &:nth-child(3) {
+      top: 0;
+      left: -1px;
+      bottom: 0;
+      width: 4px;
+      cursor: w-resize;
+    }
+    // 右边
+    &:nth-child(4) {
+      top: 0;
+      right: -1px;
+      bottom: 0;
+      width: 4px;
+      cursor: e-resize;
+    }
+    &:hover {
+      opacity: 1;
+    }
+  }
+  .app-resize-point {
+    width: 4px;
+    height: 4px;
+    position: absolute;
+    z-index: 99999;
+    opacity: 0;
+    &:hover {
+      opacity: 1;
+    }
+    // 左上
+    &:nth-child(5) {
+      top: 1px;
+      left: 1px;
+      border-top: var(--el-color-primary) 4px solid;
+      border-left: var(--el-color-primary) 4px solid;
+      cursor: nw-resize;
+    }
+    // 右上
+    &:nth-child(6) {
+      top: 1px;
+      right: 1px;
+      border-right: var(--el-color-primary) 4px solid;
+      border-top: var(--el-color-primary) 4px solid;
+      cursor: ne-resize;
+    }
+    // 左下
+    &:nth-child(7) {
+      bottom: 1px;
+      left: 1px;
+      border-bottom: var(--el-color-primary) 4px solid;
+      border-left: var(--el-color-primary) 4px solid;
+      cursor: sw-resize;
+    }
+    // 右下
+    &:nth-child(8) {
+      bottom: 1px;
+      right: 1px;
+      border-right: var(--el-color-primary) 4px solid;
+      border-bottom: var(--el-color-primary) 4px solid;
+      cursor: se-resize;
+    }
+  }
 }
 
 .dialog-content {
