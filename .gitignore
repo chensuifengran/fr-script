@@ -34,3 +34,5 @@ coverage/**
 *.njsproj
 *.sln
 *.sw?
+.cursorignore
+.cursor/rules/fr-rules.mdc
