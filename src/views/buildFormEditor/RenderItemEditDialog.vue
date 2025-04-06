@@ -10,8 +10,7 @@
     <template #element>
       <div class="edit-form" v-show="!useAddOptionDialog">
         <el-form
-          label-position="right"
-          label-width="180px"
+          label-position="top"
           :model="form"
           :rules="rules"
           ref="formEl"
