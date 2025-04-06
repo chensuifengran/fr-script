@@ -48,6 +48,7 @@ const { appAsideBgColor } = useAppTheme();
 </script>
 
 <style lang="scss" scoped>
+@use '../assets/scss/highlight-vs.scss';
 .code {
   width: 100%;
   padding: 10px 15px;
