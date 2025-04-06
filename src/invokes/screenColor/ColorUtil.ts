@@ -75,10 +75,13 @@ export class ColorUtil {
     color: string,
     sleepMs: number = 1000,
     maxWaitCount: number = 10,
-    allowOffsetRange: [number, number, number] = [0, 0, 0]
+    allowOffsetRange: [number, number, number] = [0, 0, 0],
+    mismatchCallback?: () => void
   ) => {
     if (!this.is(color, allowOffsetRange)) {
       return true;
+    } else {
+      mismatchCallback && mismatchCallback();
     }
     let result = false;
     while (maxWaitCount--) {
@@ -86,6 +89,8 @@ export class ColorUtil {
       if (reCallRes && !reCallRes.is(color, allowOffsetRange)) {
         result = true;
         break;
+      } else {
+        reCallRes && mismatchCallback && mismatchCallback();
       }
       await timeUtil.sleep(sleepMs);
     }

@@ -1,6 +1,6 @@
 export const getCommanDeclareTypes = (constantSlot: string) => `
 declare class RFormUtil {
-  constructor(form: RendererList[]);
+  constructor(form: RenderGroup[]);
   /**
    * 获取表单字段的值。
    *
@@ -33,6 +33,16 @@ declare class RFormUtil {
     id: string,
     failValue: T
   ): T;
+  /**
+   * 获取指定组的所有表单项的值
+   * 
+   * @template T 默认为 Record<string, any>
+   * 
+   * @param groupLabel 分组的label
+   * 
+   * @returns 表单项的值
+   */
+  public getGroupValues<T = Record<string, any>>(groupLabel: string): T;
 }
 ${constantSlot}
 declare const isStop: boolean;
@@ -54,7 +64,7 @@ declare function getCustomizeForm(): Promise<RFormUtil>;
 declare const abortSignalInScript: AbortController;
 declare const startScriptSignal: AbortController;
 declare function removeIntervals(): void;
-declare const rendererList: RendererList[];
+declare const renderList: RenderGroup[];
 declare function getScriptId(): string;
 declare function changeScriptRunState(state: boolean | "stop", taskId?: string) : void;
 
@@ -75,7 +85,7 @@ declare function clearLogOutput() : {
   log: string;
   type: "success" | "danger" | "info" | "warning";
 }[];
-declare function replaceRendererList(newRendererList: RendererList[]) : void;
+declare function replaceRenderList(newRenderList: RenderGroup[]) : void;
 
 declare function pushElement(elem: BuildFormItems): void;
 `;

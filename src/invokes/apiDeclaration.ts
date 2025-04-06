@@ -1,5 +1,7 @@
 import { getInjectConstantType } from "./constantInject";
 import { KeyOptions } from "./Input/KeyOptions";
+import { BUILD_FORM_DECLARE } from "./buildFormDeclare.ag";
+import { RENDER_LIST_DECLARE } from "./renderListDeclare.ag";
 /**
  * 提供给编辑器的类型声明, 用于代码提示
  * @returns {string}
@@ -61,7 +63,7 @@ ${ENUM_DECLARE.trim()}
 ${INPUT_KEY_TYPE.trim()}
 ${UTIL_DECLARE_STRING.trim()}
 ${BUILD_FORM_DECLARE.trim()}
-${RENDERER_LIST_DECLARE.trim()}
+${RENDER_LIST_DECLARE.trim()}
 ${allDeclarationString.trim()}
 `.trim();
 };

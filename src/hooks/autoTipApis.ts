@@ -1,5 +1,4 @@
 import * as monaco from "monaco-editor";
-import { useEditor } from "./useEditor";
 import { type AnalyzeFnInfoParams } from "../utils/astWorker";
 import { MockCodeSnippet } from "./usePlayMock";
 type FnInfo = {
@@ -16,6 +15,8 @@ type FnInfo = {
   };
 };
 const { resolve } = pathUtils;
+
+const buildFormEditorVisible = ref(false);
 
 const fnInfo = ref<FnInfo | null>(null);
 const getFnInfo = () => fnInfo;
@@ -50,7 +51,7 @@ const replaceConstantPath = (path: string) => {
 
 const pathStrReset = (pathStr: string) => {
   if (pathStr?.length === 0) return pathStr;
-  return pathStr?.replaceAll("\\\\", "\\");
+  return pathStr?.replace(/\\\\/g, "\\");
 };
 
 const stringParamsProcess = async (
@@ -106,8 +107,41 @@ const getCursorPosFnInfo = async (
   }
   console.time("getCursorPosFnInfo");
   const position = editor.getPosition();
-  const result = await astWorker.analyzeFnInfo(model, position);
-  if (result?.params?.length) {
+  let cursorOffset = model.getOffsetAt(position!) || 0;
+  const oldCursorOffset = cursorOffset;
+  let code = model.getValue() || "";
+  const oldCode = code;
+  const beforePreCode = code.substring(0, cursorOffset);
+  let afterPreCode = beforePreCode;
+  const constants = getLastConstants();
+  Object.keys(constants).forEach((key) => {
+    code = code.replaceAll(key, `"${constants[key]}"`);
+    afterPreCode = afterPreCode.replaceAll(key, `"${constants[key]}"`);
+  });
+  for (const enumKey in inject_enums) {
+    const enumConfig = inject_enums[enumKey];
+    for (const key in enumConfig) {
+      const item = enumConfig[key];
+      code = code.replaceAll(`${enumKey}.${key}`, `"${item.value}"`);
+      afterPreCode = afterPreCode.replaceAll(
+        `${enumKey}.${key}`,
+        `"${item.value}"`
+      );
+    }
+  }
+  cursorOffset += afterPreCode.length - beforePreCode.length;
+  const result = await astWorker.analyzeFnInfo(
+    model,
+    position,
+    code,
+    cursorOffset
+  );
+  if (!result) {
+    fnInfo.value = null;
+    console.timeEnd("getCursorPosFnInfo");
+    return;
+  }
+  if (result.params?.length) {
     result.params = result.params.map((p) => {
       if (p.value) {
         return p;
@@ -127,6 +161,50 @@ const getCursorPosFnInfo = async (
       }
     });
   }
+  const oldResult = await astWorker.analyzeFnInfo(
+    model,
+    position,
+    oldCode,
+    oldCursorOffset
+  );
+  result!.paramsRange = oldResult?.paramsRange || result.paramsRange;
+  result.params = result.params.map((p) => {
+    const v = p.value;
+    let expression: any = null;
+    try {
+      expression = new Function(`return ${p.expression}`)();
+    } catch (error) {}
+    if (Array.isArray(v)) {
+      p.value = v.map((item, index) => {
+        if (typeof item === "object") {
+          Object.entries(item).forEach(([key, value]) => {
+            if (typeof value === "string") {
+              if (value.startsWith("__FUNC__")) {
+                let funcStr = value.replace("__FUNC__", "");
+                item[key] = new Function(`return ${funcStr}`)();
+              }
+            }
+            if (expression && Array.isArray(expression)) {
+              const expressionItem = expression[index];
+              if (
+                Array.isArray(item[key]) &&
+                Array.isArray(expressionItem[key]) &&
+                !item[key].filter((i) => i !== undefined && i !== null).length
+              ) {
+                item[key] = expressionItem[key];
+              } else {
+                if (item[key] === undefined) {
+                  item[key] = expressionItem[key];
+                }
+              }
+            }
+          });
+        }
+        return item;
+      });
+    }
+    return p;
+  });
 
   fnInfo.value = result;
   if (!fnInfo.value) {
@@ -165,7 +243,6 @@ const getCursorPosFnInfo = async (
 let getCursorPosFnInfoTimer: NodeJS.Timeout | null = null;
 
 const apiAutoTip = async () => {
-  const { findEditor } = useEditor();
   // 获取编辑器实例
   const editor = findEditor("codeEditBox");
   if (!editor) {
@@ -285,4 +362,5 @@ export const AutoTipUtils = {
   pathStrReset,
   apiAutoTip,
   replaceConstantPath,
+  buildFormEditorVisible,
 };

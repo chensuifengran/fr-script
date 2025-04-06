@@ -1,6 +1,6 @@
 export const auxiliary = <AuxiliaryType>{
   //快速编辑/修改参数弹窗打开时触发
-  onDialogOpen: async (_close,...args) => {
+  onDialogOpen: async (_close, ...args) => {
     const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "imgSimilarity" && i.scope === "CV"
@@ -10,12 +10,12 @@ export const auxiliary = <AuxiliaryType>{
       switch (index) {
         case 0:
         case 1:
-          if (i.componentType === "FileInput") {
+          if (i.componentType === "fileInput") {
             i.value = AutoTipUtils.pathStrReset(params[index]?.value || "");
           }
           break;
         case 2:
-          if (i.componentType === "RectInput") {
+          if (i.componentType === "rectInput") {
             i.value.x = +params[2]?.value || 0;
             i.value.y = +params[3]?.value || 0;
             i.value.width = +params[4]?.value || 0;

@@ -1,6 +1,6 @@
 export const auxiliary = <AuxiliaryType>{
   //快速编辑/修改参数弹窗打开时触发
-  onDialogOpen: async (_close,...args) => {
+  onDialogOpen: async (_close, ...args) => {
     const params = await AutoTipUtils.paramsProcess(...args);
     const selfModule = getInvokeApiMethods().find(
       (i) => i.name === "cropPicture"
@@ -8,18 +8,18 @@ export const auxiliary = <AuxiliaryType>{
     const dialog = selfModule!.testModule!.dialog;
     dialog.args!.forEach((i, index) => {
       if (index === 0) {
-        if (i.componentType === "FileInput") {
+        if (i.componentType === "fileInput") {
           i.value = AutoTipUtils.pathStrReset(params[0]?.value || "");
         }
       } else if (index === 1) {
-        if (i.componentType === "RectInput") {
+        if (i.componentType === "rectInput") {
           i.value.x = +params[1]?.value || 0;
           i.value.y = +params[2]?.value || 0;
           i.value.width = +params[3]?.value || 0;
           i.value.height = +params[4]?.value || 0;
         }
       } else if (index === 2) {
-        if (i.componentType === "FileInput") {
+        if (i.componentType === "fileInput") {
           i.value = AutoTipUtils.pathStrReset(params[5]?.value || "");
         }
       }

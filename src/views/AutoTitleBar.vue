@@ -242,7 +242,6 @@ const { info, searchInfo, windowInnerWidth, clickMinimize } = useAutoTitleBar();
 const { goInstallDeps } = useDepInfo();
 const { controlDeviceInfo } = useControl();
 const { isEditing, fileInfo } = useScriptInfo();
-const { getEditorValue } = useEditor();
 const { showTour } = useTour();
 const mostTop = ref(false);
 const toggleMostTop = () => {

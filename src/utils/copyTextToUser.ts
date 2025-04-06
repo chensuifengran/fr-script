@@ -42,6 +42,9 @@ export const copyRectParam = (
 };
 
 export const copyText = (text: string)=>{
+  if(IS_PLAYGROUND_ENV){
+    return execCopy(text);
+  }
   return writeText(text);
 }
 

@@ -12,7 +12,7 @@
         :key="l"
         :id="'link-item-' + l"
       >
-        {{ l.replace("renderer-form-g-", "") }}
+        {{ l.replace("form-renderer-g-", "") }}
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@ watch(linkTarget, () => {
   }, 100);
 });
 const rendererListLabel = computed(() =>
-  listStore.rendererList.map((i) => "renderer-form-g-" + i.groupLabel)
+  listStore.renderList.map((i) => "form-renderer-g-" + i.groupLabel)
 );
 const scrollTo = (id: string) => {
   clickScrollTo++;

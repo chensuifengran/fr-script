@@ -2,7 +2,7 @@ import { dayjs } from "element-plus";
 import { nanoid } from "nanoid";
 
 export class RFormUtil {
-  constructor(public form: RendererList[]) {}
+  constructor(public form: RenderGroup[]) {}
   /**
    * 获取表单项的值
    * @param fieldType 表单项的类型
@@ -23,8 +23,8 @@ export class RFormUtil {
     const key = fieldType.replace("List", "") + "List";
     if (group && group.enable && key in group) {
       const field = (group as any)[key].find(
-        (i: RendererItem) => i.label === label
-      ) as RendererItem;
+        (i: RenderItem) => i.label === label
+      ) as RenderItem;
       if (field) {
         if ("checked" in field) {
           return field.checked as T;
@@ -52,7 +52,7 @@ export class RFormUtil {
         const allItems = Object.keys(g)
           .map((gk) => {
             if (gk.includes("List")) {
-              return (g as any)[gk] as RendererItem[];
+              return (g as any)[gk] as RenderItem[];
             }
           })
           .filter((i) => !!i)
@@ -70,11 +70,41 @@ export class RFormUtil {
     return resValue;
   };
   /**
+   * 获取指定组的所有表单项的值
+   * @param groupLabel 分组的label
+   * @returns 表单项的值
+   */
+  getGroupValues = <T = Record<string, any>>(groupLabel: string): T => {
+    const group = this.form.find((i) => {
+      return i.groupLabel === groupLabel;
+    });
+    const result: Record<string, any> = {};
+    if (group && group.enable) {
+      Object.keys(group).forEach((gk) => {
+        if (gk.includes("List")) {
+          const items = (group as any)[gk] as RenderItem[];
+          for (let index = 0; index < items.length; index++) {
+            const element = items[index];
+            if (element) {
+              if ("value" in element) {
+                result[element.label] = element.value;
+              }
+              if ("checked" in element) {
+                result[element.label] = element.checked;
+              }
+            }
+          }
+        }
+      });
+    }
+    return result as T;
+  };
+  /**
    * 为渲染列表生成id，一般用于渲染前
    * @param form 待生成id的渲染列表
    * @returns 生成id后的渲染列表
    */
-  static genId = (form: RendererList[]) => {
+  static genId = (form: RenderGroup[]) => {
     return form.map((group) => {
       const g = {
         id: "g_" + nanoid(),
@@ -97,8 +127,8 @@ export class RFormUtil {
   };
 }
 
-export const processRList = (list: RendererList[]) => {
-  const newList = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+export const processRList = (list: RenderGroup[]) => {
+  const newList = (JSON.parse(JSON.stringify(list)) as RenderGroup[]).map(
     (group) => {
       return {
         ...group,
@@ -157,8 +187,8 @@ export const processRList = (list: RendererList[]) => {
   return newList;
 };
 
-export const resetRListDate = (list: RendererList[]) => {
-  const res = (JSON.parse(JSON.stringify(list)) as RendererList[]).map(
+export const resetRListDate = (list: RenderGroup[]) => {
+  const res = (JSON.parse(JSON.stringify(list)) as RenderGroup[]).map(
     (group) => {
       return {
         ...group,
@@ -188,10 +218,84 @@ export const resetRListDate = (list: RendererList[]) => {
       };
     }
   );
-  console.log(
-    "-----------res:",
-    JSON.parse(JSON.stringify(res.map((i) => i.pickerList)))
-  );
-
   return res;
+};
+
+//移除key双引号
+export const removeKeyQuotes = <T = object>(target: any): T => {
+  if (target instanceof Date) {
+    return target as unknown as T;
+  } else if (target instanceof Array) {
+    return target.map((i) => {
+      return removeKeyQuotes(i);
+    }) as unknown as T;
+  } else if (typeof target === "object") {
+    if (!target) {
+      return target;
+    }
+    const newTarget: Record<string, any> = {};
+    Object.keys(target).forEach((key) => {
+      const newKey = key.replace(/\"/g, "");
+      let val = target[key];
+      if (val) {
+        val = removeKeyQuotes(val);
+      }
+      newTarget[newKey] = val;
+    });
+    return newTarget as unknown as T;
+  } else {
+    return target;
+  }
+};
+
+export const buildForm2renderForm = (buildFormList: BuildFormItems[]) => {
+  const renderList: RenderGroup[] = [];
+  let index = 0;
+  for (let i = 0; i < buildFormList.length; i++) {
+    const item = buildFormList[i];
+    const idx = renderList.findIndex(
+      (g) => g.groupLabel === item.targetGroupLabel
+    );
+    if (idx === -1) {
+      //目标组不存在则新增目标组
+      const group: any = {
+        idx: index++,
+        groupLabel: item.targetGroupLabel,
+        enable: item.enable === undefined ? true : item.enable,
+        checkList: [],
+        selectList: [],
+        inputList: [],
+        pickerList: [],
+      };
+      group[item.type + "List"] = [item];
+      renderList.push(group);
+    } else {
+      (renderList[idx] as any)[item.type + "List"].push(item);
+    }
+  }
+  return renderList;
+};
+
+export const renderForm2buildForm = (renderList: RenderGroup[]) => {
+  const buildFormList: BuildFormItems[] = [];
+  renderList.forEach((group) => {
+    Object.keys(group).forEach((key) => {
+      if (key.includes("List")) {
+        (group as any)[key].forEach((item: RenderItem) => {
+          const buildItem: any = {
+            ...item,
+            targetGroupLabel: group.groupLabel,
+            enable: group.enable,
+            type: key.replace("List", "") as
+              | "input"
+              | "select"
+              | "check"
+              | "picker",
+          };
+          buildFormList.push(buildItem);
+        });
+      }
+    });
+  });
+  return buildFormList;
 };

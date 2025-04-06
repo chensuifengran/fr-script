@@ -1,4 +1,11 @@
 declare namespace SelectType {
+  type BaseOptions<T extends string | number | boolean = string> =
+    | T[]
+    | OptionItem<T>[];
+  type GroupOptions<T extends string | number | boolean = string> = {
+    groupLabel: string;
+    options: BaseOptions<T>;
+  }[];
   type Multiple<T> = {
     multiple: true;
     value: T[];
@@ -6,14 +13,11 @@ declare namespace SelectType {
   };
   type GroupOption<T extends string | number | boolean = string> = {
     group: true;
-    options: {
-      groupLabel: string;
-      options: T[] | OptionItem<T>[];
-    }[];
+    options: GroupOptions<T>;
   };
   type ConstantOption<T extends string | number | boolean = string> = {
     group?: false;
-    options: T[] | OptionItem<T>[];
+    options: BaseOptions<T>;
   };
   type Single<T> = {
     multiple?: false;
@@ -182,7 +186,7 @@ declare type PickerListItem = (
   | PickerItem.Color<false>
 ) &
   BaseListItem;
-declare type RendererList = {
+declare type RenderGroup = {
   id?: string;
   groupLabel: string;
   enable: boolean;
@@ -191,8 +195,11 @@ declare type RendererList = {
   selectList: SelectListItem[];
   pickerList: PickerListItem[];
 };
-declare type RendererItem =
+declare type RenderItem =
   | CheckListItem
   | InputListItem
   | SelectListItem
   | PickerListItem;
+declare type RenderCodeItem = {
+  targetGroupLabel: string;
+} & (CheckListItem | InputListItem | SelectListItem | PickerListItem);

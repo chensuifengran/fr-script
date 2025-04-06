@@ -14,8 +14,16 @@ play
 *.local
 src-tauri/target/*
 src/types/auto_gen_types
+src/**/**.ag.ts
 src-tauri/gen/schemas/*
+log4rs.yml
 TODO.md
+
+pnpm-lock.yaml
+cargo.lock
+
+coverage/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

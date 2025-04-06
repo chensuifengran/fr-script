@@ -1,6 +1,7 @@
 <template>
   <div class="script-editor-dev">
-    <OperationRecordPanel />
+    <build-form-editor-panel />
+    <operation-record-panel />
     <!-- 插入代码片段弹窗 -->
     <el-dialog v-model="showInsertCodeDialog" title="插入代码片段" width="60%">
       <el-autocomplete
@@ -117,11 +118,8 @@ const appGSStore = useAppGlobalSettings();
 const listStore = useListStore();
 const { scriptList } = storeToRefs(listStore);
 const {
-  findEditor,
   editorInit,
   editorValue,
-  insertText,
-  setText,
   formatCode,
   disposeEditor,
   registerEditorEvent,

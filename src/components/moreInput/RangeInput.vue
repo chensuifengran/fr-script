@@ -27,6 +27,7 @@
           :min="props.limit ? props.limit[0] : undefined"
           :max="lowMax"
           size="small"
+          :value-on-clear="valueOnClear[0]"
           :controls="props.controls"
           @change="handleChange()"
           :disabled="props.disabled"
@@ -44,6 +45,7 @@
           :min="min"
           :max="props.limit ? props.limit[1] : undefined"
           size="small"
+          :value-on-clear="valueOnClear[1]"
           :controls="props.controls"
           @change="handleChange()"
           :disabled="props.disabled"
@@ -80,6 +82,16 @@ const props = defineProps({
     default: false,
   },
 });
+const valueOnClear = computed(() => {
+  const limit = props.limit;
+  if (limit) {
+    return limit;
+  }
+  return [0, 0];
+});
+const emit = defineEmits<{
+  change: [value: [number, number]];
+}>();
 const handleChange = () => {
   if (model.value[0] >= model.value[1]) {
     model.value[0] = model.value[1];
@@ -89,6 +101,7 @@ const handleChange = () => {
     lowMax.value = undefined;
     min.value = undefined;
   }
+  emit("change", model.value);
 };
 onMounted(() => {
   if (props.mountedValue) {

@@ -120,7 +120,7 @@ watch(value, async () => {
 });
 const selectDirPath = async () => {
   if (IS_PLAYGROUND_ENV) {
-    value.value = "E:\\playground\\";
+    value.value = "E:\\\\playground\\\\";
     return;
   }
   let filePath = await fsUtils.selectDir();

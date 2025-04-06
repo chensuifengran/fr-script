@@ -5,13 +5,13 @@ export const dialogOptions = {
   args: [
     {
       name: "path",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "待裁剪图片路径",
     },
     {
       name: "range",
-      componentType: "RectInput",
+      componentType: "rectInput",
       targetSrc: "path",
       label: "裁剪区域",
       value: {
@@ -23,7 +23,7 @@ export const dialogOptions = {
     },
     {
       name: "outPath",
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       label: "裁剪后输出路径",
     },

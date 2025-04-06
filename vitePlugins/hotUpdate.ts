@@ -1,111 +1,49 @@
 import { Plugin } from "vite";
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
-import { exec } from "child_process";
-import chalk from "chalk";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const scriptPath = resolve(__dirname, "../script/genBuiltInApiType.js");
-let timer: any;
-const runScript = (type: "api" | "declare") => {
-  timer && clearTimeout(timer);
-  timer = setTimeout(() => {
-    //使用node执行scriptPath脚本
-    exec(`node ${scriptPath} ${type}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`执行错误: ${error}`);
-        return;
-      }
-      //HH:mm:ss
-      const date = new Date().toLocaleTimeString().slice(0, 8);
-      if (stderr) {
-        console.error(
-          date,
-          chalk.blue("[hot-update-plugin]"),
-          chalk.red(stderr)
-        );
-      } else {
-        console.log(
-          date,
-          chalk.blue("[hot-update-plugin]"),
-          chalk.green(stdout)
-        );
-      }
-    });
-  }, 500);
-};
-const genDeclareScriptPath = resolve(__dirname, "../script/genApiDeclare.js");
-let genApiDeclareTimer: any;
-const getDeclareStr = (target: "buildForm" | "rendererList") => {
-  genApiDeclareTimer && clearTimeout(genApiDeclareTimer);
-  genApiDeclareTimer = setTimeout(() => {
-    exec(`node ${genDeclareScriptPath} ${target}`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`执行错误: ${error}`);
-        return;
-      }
-      //HH:mm:ss
-      const date = new Date().toLocaleTimeString().slice(0, 8);
-      if (stderr) {
-        console.error(
-          date,
-          chalk.blue("[hot-update-plugin]"),
-          chalk.red(stderr)
-        );
-      } else {
-        console.log(
-          date,
-          chalk.blue("[hot-update-plugin]"),
-          chalk.green(stdout)
-        );
-      }
-    });
-  }, 500);
-};
-const getEnumsScriptPath = resolve(__dirname, "../script/genEnumDeclare.js");
-const runGenEnums = () => {
-  exec(`node ${getEnumsScriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行错误: ${error}`);
-      return;
-    }
-    //HH:mm:ss
-    const date = new Date().toLocaleTimeString().slice(0, 8);
-    if (stderr) {
-      console.error(date, chalk.blue("[hot-update-plugin]"), chalk.red(stderr));
-    } else {
-      console.log(date, chalk.blue("[hot-update-plugin]"), chalk.green(stdout));
-    }
-  });
-};
+import {
+  genEnumDTS,
+  genBuiltInApiDTS,
+  genBuildFormDTS,
+  genAllDTS,
+} from "./genDTS";
+import { changeLogLevel } from "./logConf";
+import { LOGO_TEXT } from "./constants";
 export function hotUpdatePlugin(): Plugin {
   return {
     name: "hot-update-plugin",
+    configResolved(config) {
+      console.log(LOGO_TEXT);
+      const mode = config.env.MODE;
+      if (mode && mode.includes(":")) {
+        const [_, logLevel] = mode.split(":");
+        changeLogLevel(logLevel);
+      } else {
+        changeLogLevel();
+      }
+      genAllDTS();
+    },
     handleHotUpdate({ file }) {
       if (file.endsWith(".ts")) {
-        const excludeFiles = [
-          "builtInApi.d.ts",
-          "core.d.ts",
-          "buildFormDeclare.ts",
-          "rendererListDeclare.ts",
-          "enums.ts",
-        ];
-        if (excludeFiles.find((e) => file.includes(e))) {
+        const excludeFiles = ["builtInApi.d.ts", "core.d.ts"];
+        if (
+          excludeFiles.find((e) => file.includes(e) || file.includes(".ag.ts"))
+        ) {
           return;
         }
-        if (file.includes("invokes/")) {
-          runScript("api");
-        }
+
+        //hooks
         if (file.includes("useScriptApi.ts") || file.includes("useCore.ts")) {
-          runScript("declare");
+          genBuiltInApiDTS("declare");
         }
+
+        //invokes
         if (file.includes("buildForm.d.ts")) {
-          getDeclareStr("buildForm");
-        } else if (file.includes("rendererList.d.ts")) {
-          getDeclareStr("rendererList");
-        } else if (file.includes("enums.d.ts")) {
-          runGenEnums();
+          genBuildFormDTS("buildForm");
+        } else if (file.includes("renderList.d.ts")) {
+          genBuildFormDTS("renderList");
+        } else if (file.includes("enums.ts")) {
+          genEnumDTS();
+        } else if (file.includes("invokes/")) {
+          genBuiltInApiDTS();
         }
       }
     },

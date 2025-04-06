@@ -24,7 +24,7 @@ export const apiDocument = <ApiDocumentType>{
   },
   example: {
     title: "该API在'测试调用'后会动态填入参数到示例",
-    code: 'const newPath = await resolve("E:\\a\\b.png","../c.png")',
+    code: 'const newPath = await resolve("E:\\\\a\\\\b.png","../c.png")',
   },
   searchKeys: ["path"],
   codeSnippet:

@@ -85,7 +85,7 @@ const { codeSnippets } = storeToRefs(listStore);
 const el = ref<UseDraggableReturn>();
 let deleteConfirm: () => void = () => {};
 const showItemHover = ref(true);
-const { editorInit, disposeEditor, findEditor, setText, editorValue } =
+const { editorInit, disposeEditor, editorValue } =
   useEditor();
 const onStart = () => {
   showItemHover.value = false;

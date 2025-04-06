@@ -30,7 +30,7 @@ export const useAppGlobalSettings = defineStore<
         workDir: "",
         screenshotSavePath: "",
         _screenshotDir: "",
-        _scriptRootDir: "E:\\test\\root_dir",
+        _scriptRootDir: "E:\\\\test\\\\root_dir",
       },
       ocr: {
         value: "CPU",
@@ -106,7 +106,7 @@ export const useAppGlobalSettings = defineStore<
             const workDir = await pathUtils.getInstallDir();
             this.envSetting.workDir = workDir;
           } else {
-            this.envSetting.workDir = "E:\\playground";
+            this.envSetting.workDir = "E:\\\\playground";
           }
         }
         if (this.envSetting.screenshotSavePath) {
@@ -122,8 +122,8 @@ export const useAppGlobalSettings = defineStore<
             );
           } else {
             this.envSetting.screenshotSavePath =
-              "E:\\playground\\screenshot.png";
-            this.envSetting._screenshotDir = "E:\\playground";
+              "E:\\\\playground\\\\screenshot.png";
+            this.envSetting._screenshotDir = "E:\\\\playground";
           }
         }
       }

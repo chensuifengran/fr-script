@@ -111,7 +111,7 @@ export class InvokeTemplate {
           ];
           if (i.componentType === "switch") {
             type = "boolean";
-          } else if (i.componentType === "RectInput") {
+          } else if (i.componentType === "rectInput") {
             type = `{
       x: number;
       y: number;
@@ -252,7 +252,11 @@ ${this.genRetract(tabCount)}}`;
 };`;
     try {
       //对代码进行格式化
-      let res = JSON.stringify(eval(`const t = ${tempStr};t`), undefined, 2);
+      let res = JSON.stringify(
+        new Function(`return ${tempStr}`)(),
+        undefined,
+        2
+      );
       // 去除key中的双引号
       const regex = /"([^"]+)":/g;
       res = res.replace(regex, "$1:");
@@ -754,16 +758,16 @@ export const modelCallback = async (
     } else {
       oldDocumentContent = await fsUtils.readFile(documentFilePath);
     }
-    const oldCode = eval(
-      `${oldDocumentContent
+    const oldCode = new Function(
+      `return ${oldDocumentContent
         .replace("<ApiDocumentType>", "")
-        .replace("export ", "")};apiDocument`
-    );
-    let newCode = eval(
-      `${this.documentTemplate
+        .replace("export ", "")};`
+    )();
+    let newCode = new Function(
+      `return ${this.documentTemplate
         .replace("<ApiDocumentType>", "")
-        .replace("export ", "")};apiDocument`
-    );
+        .replace("export ", "")};`
+    )();
     if (JSON.stringify(oldCode) !== JSON.stringify(newCode)) {
       await fsUtils.writeFile(documentFilePath, this.documentTemplate);
       this.contentCache[documentFilePath] = this.documentTemplate;
@@ -781,16 +785,16 @@ export const modelCallback = async (
     } else {
       oldDialogContent = await fsUtils.readFile(dialogFilePath);
     }
-    const oldCode = eval(
-      `${oldDialogContent
+    const oldCode = new Function(
+      `return ${oldDialogContent
         .replace("<TestModuleDialogType>", "")
-        .replace("export ", "")};dialogOptions`
-    );
-    let newCode = eval(
-      `${this.dialogTemplate
+        .replace("export ", "")};`
+    )();
+    let newCode = new Function(
+      `return ${this.dialogTemplate
         .replace("<TestModuleDialogType>", "")
-        .replace("export ", "")};dialogOptions`
-    );
+        .replace("export ", "")};`
+    )();
     if (JSON.stringify(oldCode) !== JSON.stringify(newCode)) {
       await fsUtils.writeFile(dialogFilePath, this.dialogTemplate);
       this.contentCache[dialogFilePath] = this.dialogTemplate;
@@ -811,7 +815,7 @@ export const modelCallback = async (
           this.options.name
         }`
       );
-      if(newDirPath !== oldDirPath){
+      if (newDirPath !== oldDirPath) {
         //判断新目录是否存在其他API
         const exist = await exists(
           await pathUtils.resolve(newDirPath, "index.ts")

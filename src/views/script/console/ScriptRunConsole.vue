@@ -76,7 +76,7 @@
       </div>
     </div>
     <div class="console-log-div">
-      <renderer-form
+      <form-renderer
         :reInit="reInit"
         flex-1
         h-full
@@ -92,8 +92,8 @@
           width: taskRunStatus !== 'ready' ? '65%' : '220px',
         }"
       >
-        <renderer-list-catalog
-          scroll-container-id="renderer-form"
+        <render-list-catalog
+          scroll-container-id="form-renderer"
           v-if="taskRunStatus === 'ready'"
           class="catalog-box"
           w-full
@@ -154,7 +154,7 @@ const reInit = (): boolean => {
 };
 const shortcutsStore = useGlobalShortcutsStore();
 const listStore = useListStore();
-const { scriptList } = storeToRefs(listStore);
+const { scriptList, renderList } = storeToRefs(listStore);
 const { controlDeviceInfo } = useControl();
 const { openId, tempEditorValue, contentTransform, asideBarPos } =
   useScriptInfo();
@@ -416,12 +416,12 @@ watchEffect(async () => {
 });
 
 watch(taskRunStatus, (s) => {
-  if(s === 'running'){
-    useWss().syncExecState('execute')
-  } else if(s === 'done'){
-    useWss().syncExecState('stop')
+  if (s === "running") {
+    useWss().syncExecState("execute");
+  } else if (s === "done") {
+    useWss().syncExecState("stop");
   } else {
-    useWss().syncExecState('reinit')
+    useWss().syncExecState("reinit");
   }
 });
 
@@ -429,6 +429,7 @@ const isLoading = ref(true);
 let unlistenNotify: UnlistenFn;
 let unlistenMsg: () => void;
 onMounted(async () => {
+  renderList.value.splice(0);
   initScript();
   unlistenMsg = useWss().onMsg((msg) => {
     if (msg.type === "COMMAND") {

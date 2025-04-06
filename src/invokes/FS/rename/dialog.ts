@@ -5,7 +5,7 @@ export const dialogOptions = <TestModuleDialogType>{
     "将旧路径的文件或文件夹移动到新路径,如果移动的是文件并且新路径已存在则会覆盖",
   args: [
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,
@@ -20,7 +20,7 @@ export const dialogOptions = <TestModuleDialogType>{
       multiple: false,
     },
     {
-      componentType: "FileInput",
+      componentType: "fileInput",
       value: "",
       suffix: "",
       verifyPath: false,
