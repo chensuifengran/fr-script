@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
       compression({
         algorithm: "gzip", // 指定压缩算法为gzip
         threshold: 1024, // 大于1KB的文件才压缩
+        disable: !mode.includes("play"), // 仅play模式打包开启压缩
       }),
     ],
     resolve: {
@@ -129,7 +130,7 @@ export default defineConfig(({ mode }) => {
             //     for (const part of subEditorParts) {
             //       if (id.includes(`${vsPart}editor/${part}`)) {
             //         const partName = id
-            //           
+            //
             //           .split(`${vsPart}editor/${part}/`)[1]
             //           .split("/")[0];
             //         vsName += `-${partName}`;
@@ -142,7 +143,7 @@ export default defineConfig(({ mode }) => {
             //     for (const part of subParts) {
             //       if (id.includes(`${vsPart}${part}`)) {
             //         const partName = id
-            //           
+            //
             //           .split(`${vsPart}${part}/`)[1]
             //           .split("/")[0];
             //         vsName += `-${partName}`;
@@ -168,6 +169,7 @@ export default defineConfig(({ mode }) => {
         `monaco-editor/esm/vs/language/html/html.worker`,
         `monaco-editor/esm/vs/language/typescript/ts.worker`,
         `monaco-editor/esm/vs/editor/editor.worker`,
+        "element-plus/es/components/**/style/index*", // 强制预构建 element-plus 的样式
       ],
     },
   };
