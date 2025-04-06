@@ -26,3 +26,5 @@ TODO.md
 *.njsproj
 *.sln
 *.sw?
+.cursor/rules/fr-rules.mdc
+.cursorignore
