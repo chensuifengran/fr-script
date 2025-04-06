@@ -498,6 +498,12 @@ const itemEditHandle = () => {
 };
 
 const itemAddHandle = () => {
+  const key = ctxMenu.target.listName;
+  if (key === "") {
+    ctxMenu.editTarget = "group";
+  } else {
+    ctxMenu.editTarget = "item";
+  }
   ctxMenu.target.label = "";
   ctxMenu.isEdit = false;
   dialogVisible.value = true;
