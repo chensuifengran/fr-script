@@ -8,6 +8,8 @@ import path from "path";
 import UnoCSS from "unocss/vite";
 import { hotUpdatePlugin } from "./vitePlugins/hotUpdate";
 import { VueHooksPlusResolver } from "@vue-hooks-plus/resolvers";
+// import { visualizer } from "rollup-plugin-visualizer";
+import compression from "vite-plugin-compression";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
@@ -15,10 +17,7 @@ export default defineConfig(({ mode }) => {
       hotUpdatePlugin(),
       vue(),
       AutoImport({
-        resolvers: [
-          ElementPlusResolver(),
-          VueHooksPlusResolver(),
-        ],
+        resolvers: [ElementPlusResolver(), VueHooksPlusResolver()],
         imports: [
           "vue",
           "vue-router",
@@ -42,6 +41,16 @@ export default defineConfig(({ mode }) => {
         ],
         dts: "./src/types/auto_gen_types/components.d.ts",
         dirs: ["./src/components/**", "./src/pages/**", "./src/views/**"],
+      }),
+      // visualizer({
+      //   // 可选：指定输出文件的位置，默认为 bundle-stats.html
+      //   filename: "./dist/bundle-stats.html",
+      //   // 可选：开启 gzip 压缩分析
+      //   gzipSize: true,
+      // }),
+      compression({
+        algorithm: "gzip", // 指定压缩算法为gzip
+        threshold: 1024, // 大于1KB的文件才压缩
       }),
     ],
     resolve: {
@@ -96,12 +105,56 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            //assets/scss
+            if (id.includes("assets/scss")) {
+              return "styles";
+            }
+            //src/invokes
+            if (id.includes("src/invokes")) {
+              return "invokes";
+            }
+            // //monaco-editor
+            // const vsPart = "monaco-editor/esm/vs/";
+            // if (id.includes(vsPart)) {
+            //   let vsName = id.split(vsPart)[1].split("/")[0];
+            //   const subParts = [
+            //     "base",
+            //     "editor",
+            //     "browser",
+            //     "common",
+            //     "contrib",
+            //   ];
+            //   if (id.includes(`${vsPart}editor`)) {
+            //     const subEditorParts = ["browser", "common", "contrib"];
+            //     for (const part of subEditorParts) {
+            //       if (id.includes(`${vsPart}editor/${part}`)) {
+            //         const partName = id
+            //           
+            //           .split(`${vsPart}editor/${part}/`)[1]
+            //           .split("/")[0];
+            //         vsName += `-${partName}`;
+            //         break;
+            //       }else{
+            //         vsName += `-${part}`;
+            //       }
+            //     }
+            //   } else {
+            //     for (const part of subParts) {
+            //       if (id.includes(`${vsPart}${part}`)) {
+            //         const partName = id
+            //           
+            //           .split(`${vsPart}${part}/`)[1]
+            //           .split("/")[0];
+            //         vsName += `-${partName}`;
+            //         break;
+            //       }
+            //     }
+            //   }
+            //   return "vs-" + vsName;
+            // }
             if (id.includes("node_modules")) {
-              return id
-                .toString()
-                .split("node_modules/")[1]
-                .split("/")[0]
-                .toString();
+              const names = id.split("node_modules/");
+              return names[names.length - 1].split("/")[0];
             }
           },
         },
