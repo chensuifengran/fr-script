@@ -1,8 +1,6 @@
 import { nanoid } from "nanoid";
 import { getFileInfo } from "../../../hooks/useScriptApi";
 import { useLog } from "../../../hooks/useLog";
-const { logOutput } = useLog();
-const { controlDeviceInfo } = useControl();
 export const logFn = (
   _msg: any,
   type?: "success" | "danger" | "info" | "warning" | "loading",
@@ -17,6 +15,8 @@ export const logFn = (
   if (!force && taskRunStatus.value === "done") {
     return;
   }
+  const { logOutput } = useLog();
+  const { controlDeviceInfo } = useControl();
   const date = new Date(Date.now());
   //获取时分秒，时分秒不足两位补0
   const timeStr = [date.getHours(), date.getMinutes(), date.getSeconds()]
